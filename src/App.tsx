@@ -3,11 +3,13 @@ import { Player } from './components/Player';
 import { SongEditor } from './components/SongEditor';
 import { SongList } from './components/SongList';
 import { useSongLibrary } from './hooks/useSongLibrary';
+import { useSettings } from './hooks/useSettings';
 
 type Pane = 'edit' | 'play';
 
 export function App() {
   const { songs, addSong, addExampleSongs, updateSong, deleteSong } = useSongLibrary();
+  const { settings, update: updateSettings } = useSettings();
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [pane, setPane] = useState<Pane>('edit');
 
@@ -61,7 +63,12 @@ export function App() {
       {pane === 'edit' ? (
         <SongEditor song={song} onChange={updateSong} />
       ) : (
-        <Player song={song} onChange={updateSong} />
+        <Player
+          song={song}
+          onChange={updateSong}
+          settings={settings}
+          onSettingsChange={updateSettings}
+        />
       )}
     </div>
   );

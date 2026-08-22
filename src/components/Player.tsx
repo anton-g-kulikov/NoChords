@@ -5,11 +5,16 @@ import { buildSchedule } from '../lib/playback';
 import { collectChordOccurrences, concealmentFor, createConcealment } from '../lib/learning';
 import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
 import { usePlayback } from '../hooks/usePlayback';
+import { useMetronome } from '../hooks/useMetronome';
+import { beatDurationMs, countInDurationMs } from '../lib/metronome';
+import { MAX_COUNT_IN_BEATS, type Settings } from '../lib/settings';
 import type { DisplayMode, Song } from '../types/song';
 
 interface PlayerProps {
   song: Song;
   onChange: (song: Song) => void;
+  settings: Settings;
+  onSettingsChange: (patch: Partial<Settings>) => void;
 }
 
 const MODES: Array<{ value: DisplayMode; label: string; hint: string }> = [
@@ -33,7 +38,7 @@ function formatTime(ms: number): string {
  * Learning concealment is seeded once per playthrough and held in state, so re-rendering as the
  * song scrolls cannot reshuffle which chords are hidden (ADR-002).
  */
-export function Player({ song, onChange }: PlayerProps) {
+export function Player({ song, onChange, settings, onSettingsChange }: PlayerProps) {
   const [mode, setMode] = useState<DisplayMode>('full');
   const [concealSeed, setConcealSeed] = useState(randomSeed);
 
@@ -49,8 +54,32 @@ export function Player({ song, onChange }: PlayerProps) {
     setConcealSeed(randomSeed());
   }, [mode, onChange, song]);
 
-  const playback = usePlayback(schedule, handleComplete);
-  const { activeIndex, isPlaying, toggle, restart, elapsedMs, totalMs, finished } = playback;
+  const beatMs = beatDurationMs(song.tempo);
+  const countInMs = countInDurationMs(song.tempo, settings.countInBeats);
+
+  const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
+  const {
+    activeIndex,
+    isPlaying,
+    toggle,
+    restart,
+    elapsedMs,
+    totalMs,
+    finished,
+    countingIn,
+    countInRemaining,
+    originMs,
+  } = playback;
+
+  useMetronome({
+    enabled: settings.metronomeEnabled,
+    volume: settings.metronomeVolume,
+    tempo: song.tempo,
+    beatsPerLine: song.beatsPerLine,
+    isPlaying,
+    originMs,
+    totalMs,
+  });
 
   const concealed = useMemo(
     () =>
@@ -97,7 +126,8 @@ export function Player({ song, onChange }: PlayerProps) {
             Restart
           </button>
           <span className="controls__time">
-            {formatTime(elapsedMs)} / {formatTime(totalMs)}
+            {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
+            {formatTime(totalMs)}
           </span>
         </div>
 
@@ -135,7 +165,59 @@ export function Player({ song, onChange }: PlayerProps) {
             onChange={(event) => onChange({ ...song, tempo: Number(event.target.value) })}
           />
         </label>
+
+        <div className="metronome">
+          <button
+            type="button"
+            className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
+            aria-pressed={settings.metronomeEnabled}
+            title="Click on every beat while playing"
+            onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
+          >
+            {settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
+          </button>
+
+          <label className="field field--narrow">
+            <span className="field__label">
+              Volume {Math.round(settings.metronomeVolume * 100)}%
+            </span>
+            <input
+              className="field__range"
+              type="range"
+              min={0}
+              max={100}
+              value={Math.round(settings.metronomeVolume * 100)}
+              disabled={!settings.metronomeEnabled}
+              aria-label="Metronome volume"
+              onChange={(event) =>
+                onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
+              }
+            />
+          </label>
+
+          <label className="field field--narrow">
+            <span className="field__label">Count-in</span>
+            <input
+              className="field__input"
+              type="number"
+              min={0}
+              max={MAX_COUNT_IN_BEATS}
+              value={settings.countInBeats}
+              aria-label="Count-in beats"
+              onChange={(event) =>
+                onSettingsChange({ countInBeats: Number(event.target.value) || 0 })
+              }
+            />
+          </label>
+        </div>
       </div>
+
+      {countingIn && (
+        <div className="count-in" role="status" aria-live="polite">
+          <span className="count-in__number">{countInRemaining}</span>
+          <span className="count-in__label">counting in</span>
+        </div>
+      )}
 
       {mode === 'learning' && (
         <div className="learning-bar">

@@ -4,17 +4,30 @@
  * This is the only place that knows time is passing. All the arithmetic lives in
  * `lib/playback.ts`; swapping this clock for an audio element's `currentTime` later would not
  * touch that module (ADR-003).
+ *
+ * A count-in is simply negative elapsed time: play starts the clock at `-countInMs` and the song
+ * proper begins as it crosses zero (ADR-015).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isComplete, rowIndexAt, totalDurationMs, type ScheduleEntry } from '../lib/playback';
 
 export interface PlaybackController {
   isPlaying: boolean;
+  /** Negative while counting in. */
   elapsedMs: number;
   totalMs: number;
   /** Index of the active row, or -1 when stopped at the end. */
   activeIndex: number;
   finished: boolean;
+  /** True while the count-in is running. */
+  countingIn: boolean;
+  /** Beats still to count, 1..n, or 0 when not counting in. */
+  countInRemaining: number;
+  /**
+   * `performance.now()` at elapsed zero, or `null` when stopped. The metronome pins its audio
+   * clock to this so the clicks and the scroll share one timeline.
+   */
+  originMs: number | null;
   play(): void;
   pause(): void;
   toggle(): void;
@@ -22,12 +35,21 @@ export interface PlaybackController {
   seekToRow(index: number): void;
 }
 
+export interface PlaybackOptions {
+  /** Length of the count-in before the song starts. */
+  countInMs?: number;
+  /** Length of one beat, used only to count the count-in down on screen. */
+  beatMs?: number;
+  onComplete?: () => void;
+}
+
 export function usePlayback(
   schedule: ScheduleEntry[],
-  onComplete?: () => void
+  { countInMs = 0, beatMs = 0, onComplete }: PlaybackOptions = {}
 ): PlaybackController {
   const [isPlaying, setIsPlaying] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [originMs, setOriginMs] = useState<number | null>(null);
 
   const elapsedRef = useRef(0);
   const scheduleRef = useRef(schedule);
@@ -47,9 +69,13 @@ export function usePlayback(
   }, []);
 
   useEffect(() => {
-    if (!isPlaying) return undefined;
+    if (!isPlaying) {
+      setOriginMs(null);
+      return undefined;
+    }
 
     const origin = performance.now() - elapsedRef.current;
+    setOriginMs(origin);
     let frame = 0;
 
     const tick = () => {
@@ -74,22 +100,34 @@ export function usePlayback(
   const totalMs = useMemo(() => totalDurationMs(schedule), [schedule]);
   const finished = isComplete(schedule, elapsedMs);
   const activeIndex = rowIndexAt(schedule, elapsedMs);
+  const countingIn = isPlaying && elapsedMs < 0;
+  const countInRemaining = countingIn && beatMs > 0 ? Math.ceil(-elapsedMs / beatMs) : 0;
+
+  /** Starts from the count-in, or from the top if the song has already finished. */
+  const startFrom = useCallback(
+    (fromMs: number) => {
+      setElapsed(fromMs);
+      setIsPlaying(true);
+    },
+    [setElapsed]
+  );
 
   const play = useCallback(() => {
-    // Pressing play at the end starts the next run rather than doing nothing.
-    if (isComplete(scheduleRef.current, elapsedRef.current)) setElapsed(0);
-    setIsPlaying(true);
-  }, [setElapsed]);
+    const atEnd = isComplete(scheduleRef.current, elapsedRef.current);
+    // Count in before the top of the song, but not when resuming from a pause mid-song.
+    const resuming = !atEnd && elapsedRef.current > 0;
+    startFrom(resuming ? elapsedRef.current : -countInMs);
+  }, [countInMs, startFrom]);
 
   const pause = useCallback(() => setIsPlaying(false), []);
 
   const toggle = useCallback(() => {
-    setIsPlaying((playing) => {
-      if (playing) return false;
-      if (isComplete(scheduleRef.current, elapsedRef.current)) setElapsed(0);
-      return true;
-    });
-  }, [setElapsed]);
+    if (isPlaying) {
+      setIsPlaying(false);
+      return;
+    }
+    play();
+  }, [isPlaying, play]);
 
   const restart = useCallback(() => {
     setElapsed(0);
@@ -110,6 +148,9 @@ export function usePlayback(
     totalMs,
     activeIndex,
     finished,
+    countingIn,
+    countInRemaining,
+    originMs,
     play,
     pause,
     toggle,

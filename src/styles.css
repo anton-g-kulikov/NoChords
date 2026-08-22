@@ -519,3 +519,59 @@ kbd {
     font-size: 1.1rem;
   }
 }
+
+/* ---------- Metronome ---------- */
+
+.metronome {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+}
+
+.metronome .field__range:disabled {
+  opacity: 0.4;
+}
+
+/*
+ * The count-in indicator. Large and central because it is read at a glance from a music stand,
+ * in the two seconds before playing starts.
+ */
+.count-in {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.count-in__number {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.count-in__label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .metronome {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    width: 100%;
+  }
+}

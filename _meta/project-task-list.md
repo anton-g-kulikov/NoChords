@@ -51,6 +51,9 @@ test intent lives in `../test/test-documentation.md`.
 | 19 | Beats-only timing, `/n/` line length, no seconds (ADR-011) | Done |
 | 20 | Nashville as roman numerals (ADR-012) | Done |
 | 21 | Softer concealment blur; first chord of a line kept until the last stage (ADR-013) | Done |
+| 22 | Metronome: synthesised clicks on a lookahead scheduler (ADR-014) | Done |
+| 23 | Count-in as negative elapsed time, with an on-screen countdown (ADR-015) | Done |
+| 24 | Metronome volume and count-in length as per-device settings (ADR-016) | Done |
 
 ## Backlog
 
@@ -58,6 +61,9 @@ Deferred deliberately — not required by the MVP brief.
 
 - Section markers (a held line covers the MVP requirement).
 - Reordering lines by drag; the text area makes cut-and-paste the current answer.
+- A time signature per song, which would let the count-in default to one bar rather than a beat
+  count the user picks.
+- Metronome subdivisions (eighths, triplets) and a distinct count-in sound.
 - Import/export of songs as files.
 - Component-level unit tests in a DOM environment; the components are currently covered by the
   browser acceptance run rather than by the unit suite (see `../test/test-documentation.md`).

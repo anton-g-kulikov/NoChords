@@ -230,3 +230,54 @@ until the last stage makes the progression a gradual removal of detail rather th
 lines carry two chords, 80% of all chords is more than all the non-first ones. The selection is
 capped at what is eligible, and the UI reports the concealment actually achieved rather than the
 nominal stage, so the number on screen is never a lie.
+
+---
+
+## ADR-014 — The metronome is synthesised, and scheduled ahead of the frame loop
+
+**Decision.** Clicks are generated with the Web Audio API — a short oscillator burst through a gain
+envelope, accented on the first beat of each line — with no audio files and no new dependency.
+They are scheduled by a lookahead loop: a 25ms timer queues every click falling in the next 150ms
+directly on the audio clock, rather than firing one when a frame happens to land on a beat.
+
+**Why.** `requestAnimationFrame` runs at the display's mercy: frames are late under load and pause
+entirely in a background tab, which a metronome cannot tolerate — audible jitter of even 15ms is
+the difference between a click and a flam. Scheduling onto `AudioContext.currentTime` puts each
+click on the audio thread's own clock, which is sample-accurate and unaffected by rendering.
+
+Synthesising the click keeps the bundle unchanged and sidesteps the decode latency of a sample.
+
+**Cost.** The scheduler and the visual playback clock are separate timelines that must be pinned to
+each other — done once at play, by converting the `performance.now()` origin into audio time. Over
+a long song the two can drift by a few milliseconds; nothing in this app depends on them being
+identical, since one drives sound and the other drives scrolling.
+
+---
+
+## ADR-015 — Count-in is negative elapsed time, not a separate mode
+
+**Decision.** Pressing play sets the playback clock to `-countInMs`. The count-in is the stretch of
+time before zero; the song proper starts when the clock crosses it.
+
+**Why.** The alternative — a `counting-in` state alongside `playing` — puts a second state machine
+next to the one that already exists, and every consumer of playback would have to learn about it.
+As negative time it needs no new states at all: the schedule is untouched, `rowIndexAt` already
+resolves times before the start to the first row (so the opening line is visible while you count),
+and the metronome's beat indices simply run negative through the count-in.
+
+**Cost.** "Elapsed" can be negative, which the progress readout has to clamp. Cheaper than the
+state it replaces.
+
+---
+
+## ADR-016 — Metronome preferences are per-device, not per-song
+
+**Decision.** Enabled, volume, and count-in length live in a separate `nochords.settings.v1` key,
+loaded once and shared by every song. They are not part of `Song`.
+
+**Why.** How loud a click should be is a property of where you are playing — headphones, a noisy
+room — not of the song. Putting them in `Song` would sync a bedroom volume to a stage, and would
+dirty every song record on a volume change.
+
+**Cost.** A second persisted key. It uses the same `StorageLike` port as songs (ADR-005), so it
+degrades the same way when storage is unavailable.

@@ -19,7 +19,9 @@ described at the end of this document.
 | Learning concealment | `src/lib/learning.ts` | `learning.test.ts` |
 | Playback timing | `src/lib/playback.ts` | `playback.test.ts` |
 | Song state transitions | `src/lib/songs.ts` | `songs.test.ts` |
+| Metronome timing | `src/lib/metronome.ts` | `metronome.test.ts` |
 | Local persistence | `src/lib/storage.ts` | `storage.test.ts` |
+| Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
 
 ## Test Plan
@@ -187,6 +189,36 @@ described at the end of this document.
 | ST-07 | Row fields (chords, beats, pause, keys) round-trip exactly | ✅ |
 | ST-08 | A failing storage backend (quota, blocked) does not crash save or load | ✅ |
 
+### Metronome timing — `metronome.test.ts`
+
+| # | Case | Status |
+|---|------|--------|
+| MT-01 | Beat length derives from the tempo (120bpm → 500ms) | ✅ |
+| MT-02 | A zero or negative tempo cannot divide by zero | ✅ |
+| MT-03 | Count-in length is its beats at the song tempo | ✅ |
+| MT-04 | A negative count-in is treated as none | ✅ |
+| MT-05 | `beatsInWindow` returns the beats falling in a window | ✅ |
+| MT-06 | **The window is half-open, so contiguous scans never double a click** | ✅ |
+| MT-07 | Beat indices run negative through the count-in | ✅ |
+| MT-08 | An empty or inverted window yields nothing | ✅ |
+| MT-09 | A window shorter than a beat is handled | ✅ |
+| MT-10 | The first beat of each line is accented | ✅ |
+| MT-11 | Accents follow the song's line length, not a fixed bar | ✅ |
+| MT-12 | Accents are correct through negative count-in beats | ✅ |
+| MT-13 | A nonsensical line length degrades to 4/4, not "accent everything" | ✅ |
+
+### Device preferences — `settings.test.ts`
+
+| # | Case | Status |
+|---|------|--------|
+| SET-01 | Defaults are returned when nothing is stored | ✅ |
+| SET-02 | Saved settings round-trip | ✅ |
+| SET-03 | Corrupt or non-object JSON falls back to the defaults | ✅ |
+| SET-04 | A partly broken record keeps its valid fields | ✅ |
+| SET-05 | Volume is clamped into 0..1 | ✅ |
+| SET-06 | Count-in is clamped to a sane number of beats | ✅ |
+| SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
+
 ### Fixture acceptance — `examples.test.ts`
 
 Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-songs.md`.
@@ -223,6 +255,28 @@ phone-sized viewport (420×900). 19 checks, all passing:
 | Stages 1–4 conceal 5/10/14/15 of 24 chords, **never a line's first chord** | ✅ |
 | The final stage conceals all 24, opening chords included | ✅ |
 | No console errors or page errors | ✅ |
+
+### Metronome run
+
+A second run, with the audio graph instrumented to record every scheduled click. 18 checks, all
+passing:
+
+| Check | Result |
+|-------|--------|
+| Toggle, volume slider, and count-in control are present | ✅ |
+| Metronome defaults to off, with the volume slider disabled | ✅ |
+| Enabling it enables the volume slider | ✅ |
+| The count-in indicator appears and counts down from 6 | ✅ |
+| The count-in ends and the song starts | ✅ |
+| Clicks are actually scheduled on the audio graph | ✅ |
+| **Clicks land exactly one beat apart — worst error 0.00ms over 6 gaps at 80bpm** | ✅ |
+| No duplicate click times | ✅ |
+| One accent per six-beat line | ✅ |
+| Volume reaches the gain envelope (0.400 peak at 80%) | ✅ |
+| Enabled, volume, and count-in all persist across a reload | ✅ |
+
+The 0.00ms figure is the point of ADR-014's single anchor: pinning `performance.now()` to
+`AudioContext.currentTime` on every scheduler tick instead measured 1.85ms of beat-to-beat jitter.
 
 Caret and persistence behaviour is verified with the caret placed deterministically
 (`Control+Home`, `End`); clicking into the middle of the text area naturally puts it elsewhere.

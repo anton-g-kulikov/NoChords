@@ -55,6 +55,20 @@ Click any row to jump to it. Three display modes:
 Transposing changes only what is displayed. Chords are stored in the key you wrote them in, so
 transposing is lossless and repeatable, and Nashville numbers never move.
 
+## Metronome
+
+Turn the metronome on and it clicks every beat while the song plays, accented on the first beat of
+each line. **Volume** is a slider; **count-in** is how many beats to count before the song starts —
+set it to a bar or two of your song's meter, or to 0 for none. A big countdown fills the screen
+while it counts, with the first line already visible so you can see what is coming.
+
+Clicks are synthesised, so there is nothing to download, and they are scheduled onto the audio
+clock ahead of time rather than fired from the animation loop — measured beat-to-beat error is
+0.00ms, and a stuttering frame rate cannot make the click flam.
+
+These three preferences are per-device rather than per-song, since how loud a click should be
+depends on where you are playing, not on what.
+
 ## Learning mode
 
 The counter tracks completed playthroughs and maps to how much is hidden:
@@ -78,8 +92,9 @@ under `src/lib/`, with React kept to rendering and event wiring:
 
 ```text
 src/
-  lib/         chords, nashville, inline notation, learning, playback, storage, display
-  hooks/       usePlayback (the clock), useSongLibrary (state + persistence)
+  lib/         chords, nashville, inline notation, learning, playback, metronome,
+               storage, settings, display
+  hooks/       usePlayback (the clock), useMetronome (audio), useSongLibrary, useSettings
   components/  SongList, SongEditor, Player, SongRowView, KeySelect
   types/       the Song / SongRow / ChordAnchor contract
 test/          unit tests + test-documentation.md

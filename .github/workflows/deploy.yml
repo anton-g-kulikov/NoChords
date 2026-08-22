@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: nothing here writes to the repository.
+permissions:
+  contents: read
+
+# One run per ref. Superseded pull-request runs are cancelled, but a deploy in
+# flight on main is allowed to finish rather than being killed halfway.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  verify:
+    name: Typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # The deploy job publishes exactly these bytes rather than rebuilding,
+      # so what ships is what was verified.
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy to Firebase Hosting
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://nochords-18219.web.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download build output
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      # The key reaches the runner only as an environment variable, never as a
+      # command argument, so it cannot surface in the command trace.
+      - name: Authenticate to Firebase
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret is not set. See README, 'Deploying'."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-key.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-key.json" >> "$GITHUB_ENV"
+
+      # Same CLI and same firebase.json as `npm run deploy` locally.
+      - name: Deploy hosting
+        run: npx --yes firebase-tools deploy --only hosting --non-interactive
+
+      - name: Remove credentials
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-key.json"

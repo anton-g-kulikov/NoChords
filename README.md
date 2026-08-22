@@ -122,8 +122,28 @@ The site is served at `https://nochords-18219.web.app`.
 `index.html` with `no-cache`, so a deploy takes effect immediately without stale chunks. All paths
 rewrite to `index.html`, so a direct link to any URL loads the app.
 
-To deploy from CI, mint a token (`npx firebase-tools login:ci`) and pass it as the
-`FIREBASE_TOKEN` secret — never as a file in the repo.
+### Continuous deployment
+
+`.github/workflows/deploy.yml` typechecks, tests, and builds on every push and pull request. A push
+to `main` that passes then deploys to Hosting automatically. Pull requests are verified but never
+deployed, and the deploy publishes the artifact the verify job built, so what ships is what passed.
+
+One-time setup — create a deploy service account and give it to GitHub as a secret:
+
+1. In the [Google Cloud console](https://console.cloud.google.com/iam-admin/serviceaccounts?project=nochords-18219)
+   for `nochords-18219`, create a service account (e.g. `github-deploy`).
+2. Grant it **Firebase Hosting Admin** (`roles/firebasehosting.admin`) and **Cloud Run Viewer**
+   (`roles/run.viewer`, which the CLI expects when resolving hosting config). Nothing broader.
+3. Create a JSON key for it and download the file.
+4. In the repository, go to **Settings → Secrets and variables → Actions → New repository secret**,
+   name it `FIREBASE_SERVICE_ACCOUNT`, and paste the entire contents of that JSON file.
+5. Delete your local copy of the key.
+
+That key is a real credential: it never belongs in this repository, in the client bundle, or in a
+chat window. The workflow reads it only as an environment variable, writes it to a temporary file
+for the CLI, and deletes it in an `always()` step.
+
+To deploy from CI under a different project, change `.firebaserc`.
 
 ## Not in scope
 

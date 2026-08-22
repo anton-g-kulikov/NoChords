@@ -45,6 +45,8 @@ test intent lives in `../test/test-documentation.md`.
 | 13 | Minor-key Nashville degrees (ADR-009) | Done |
 | 14 | Example songs loadable from the library | Done |
 | 15 | Browser acceptance run against a production build | Done |
+| 16 | Firebase Hosting configuration | Done |
+| 17 | GitHub Actions CI: verify on every push/PR, deploy `main` to Hosting | Done — needs the `FIREBASE_SERVICE_ACCOUNT` secret before the first deploy succeeds |
 
 ## Backlog
 
@@ -58,3 +60,6 @@ Deferred deliberately — not required by the MVP brief.
 - Undo for row deletion.
 - Editing a row while it is playing re-derives learning concealment indices (ADR-002 cost).
 - A more rigorous Roman-numeral convention for minor keys, as `example-songs.md` anticipates.
+- Pin `firebase-tools` to a known-good major in CI; it currently resolves to latest on each run, so
+  an upstream release could change deploy behaviour without a commit here.
+- Firebase Hosting preview channels for pull requests.

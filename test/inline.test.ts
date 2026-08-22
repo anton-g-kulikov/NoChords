@@ -47,6 +47,7 @@ describe('parseInlineRow', () => {
     expect(parseInlineRow('done[G]')).toEqual({
       lyrics: 'done',
       chords: [{ symbol: 'G', index: 4 }],
+      beats: null,
     });
     expect(parseInlineRow('[Am][C]')).toEqual({
       lyrics: '',
@@ -54,6 +55,7 @@ describe('parseInlineRow', () => {
         { symbol: 'Am', index: 0 },
         { symbol: 'C', index: 0 },
       ],
+      beats: null,
     });
   });
 
@@ -73,8 +75,46 @@ describe('parseInlineRow', () => {
     expect(parseInlineRow('[N.C.]silence').chords).toEqual([{ symbol: 'N.C.', index: 0 }]);
   });
 
+  it('IN-12 reads a line length written as /n/ and keeps it out of the lyric', () => {
+    const parsed = parseInlineRow('[Am]Great God, and [E]I for [Am]one./12/');
+    expect(parsed.beats).toBe(12);
+    expect(parsed.lyrics).toBe('Great God, and I for one.');
+    expect(parsed.chords.map((c) => c.symbol)).toEqual(['Am', 'E', 'Am']);
+  });
+
+  it('IN-13 leaves beats null when the line does not say', () => {
+    expect(parseInlineRow('[C]plain line').beats).toBeNull();
+  });
+
+  it('IN-14 does not mistake a slash chord for a line length', () => {
+    const parsed = parseInlineRow('[C/G]over a bass note');
+    expect(parsed.beats).toBeNull();
+    expect(parsed.chords).toEqual([{ symbol: 'C/G', index: 0 }]);
+    expect(parsed.lyrics).toBe('over a bass note');
+  });
+
+  it('IN-15 keeps a lone slash in the lyric as text', () => {
+    const parsed = parseInlineRow('and/or, he said');
+    expect(parsed.beats).toBeNull();
+    expect(parsed.lyrics).toBe('and/or, he said');
+  });
+
+  it('IN-16 takes the length tag out before fixing chord offsets', () => {
+    // The tag sits before a chord, so a naive parse would shift that chord four characters.
+    const parsed = parseInlineRow('/8/[C]start');
+    expect(parsed.beats).toBe(8);
+    expect(parsed.lyrics).toBe('start');
+    expect(parsed.chords).toEqual([{ symbol: 'C', index: 0 }]);
+  });
+
+  it('IN-17 ignores a zero or malformed length', () => {
+    expect(parseInlineRow('a/0/').beats).toBeNull();
+    expect(parseInlineRow('a/x/').beats).toBeNull();
+    expect(parseInlineRow('a/x/').lyrics).toBe('a/x/');
+  });
+
   it('handles an empty string', () => {
-    expect(parseInlineRow('')).toEqual({ lyrics: '', chords: [] });
+    expect(parseInlineRow('')).toEqual({ lyrics: '', chords: [], beats: null });
   });
 });
 
@@ -82,6 +122,13 @@ describe('formatInlineRow', () => {
   it('IN-10 renders a parsed row back to its inline source', () => {
     const source = '[Dm]O, where are you [C]going? To [Dm]Scarborough Fair?';
     expect(formatInlineRow(parseInlineRow(source))).toBe(source);
+  });
+
+  it('IN-18 writes the line length back at the end of the line', () => {
+    const source = '[Am]Great God, and [E]I for [Am]one./12/';
+    expect(formatInlineRow(parseInlineRow(source))).toBe(source);
+    // A tag typed at the front is normalised to where it reads.
+    expect(formatInlineRow(parseInlineRow('/8/[C]start'))).toBe('[C]start/8/');
   });
 
   it('IN-11 round-trips every fixture-shaped line unchanged', () => {
@@ -92,6 +139,8 @@ describe('formatInlineRow', () => {
       'a plain line',
       '[G]',
       '',
+      '[Am]a held line/16/',
+      'no chords but a length/3/',
     ];
     for (const line of lines) {
       expect(formatInlineRow(parseInlineRow(line))).toBe(line);
@@ -99,6 +148,8 @@ describe('formatInlineRow', () => {
   });
 
   it('clamps an anchor that points past the end of the lyric', () => {
-    expect(formatInlineRow({ lyrics: 'ab', chords: [{ symbol: 'G', index: 99 }] })).toBe('ab[G]');
+    expect(
+      formatInlineRow({ lyrics: 'ab', chords: [{ symbol: 'G', index: 99 }], beats: null })
+    ).toBe('ab[G]');
   });
 });

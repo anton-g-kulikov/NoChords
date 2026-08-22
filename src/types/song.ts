@@ -10,7 +10,7 @@
  * One chord, anchored to the character in the lyric it is played over (ADR-007).
  *
  * Rows are written inline as `[Dm]O, where are you [C]going?`; that notation is parsed into
- * anchors by `lib/inline.ts`, which is also what renders them back for editing.
+ * anchors by `lib/inline.ts`, which is also what renders them back into the editor's text.
  */
 export interface ChordAnchor {
   /** Chord symbol as written, spelled in the song's `originalKey` (ADR-001). */
@@ -22,14 +22,15 @@ export interface ChordAnchor {
 /** A single lyric line together with the chords played over it. */
 export interface SongRow {
   id: string;
-  /** The lyric line, with no chord markup. May be empty for instrumental or spacer rows. */
+  /** The lyric line, with no chord or timing markup. May be empty for spacer rows. */
   lyrics: string;
   /** Chords over this line, ordered by `index`. */
   chords: ChordAnchor[];
-  /** How many beats this row occupies at the song tempo (ADR-008). */
-  beats: number;
-  /** Extra seconds held after this row's beats have elapsed. */
-  pauseSeconds: number;
+  /**
+   * How many beats this line lasts, written inline as `/6/` (ADR-010).
+   * `null` means the line uses the song's `beatsPerLine`.
+   */
+  beats: number | null;
 }
 
 /** A song: metadata plus its ordered rows. */
@@ -42,6 +43,8 @@ export interface Song {
   currentKey: string;
   /** Beats per minute driving playback. */
   tempo: number;
+  /** Default length of a line in beats; a line may override it with `/n/` (ADR-011). */
+  beatsPerLine: number;
   /** Completed learning playthroughs, saturating at `CONCEALMENT_STAGES.length - 1`. */
   learningPlaythrough: number;
   rows: SongRow[];

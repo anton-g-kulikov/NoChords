@@ -46,13 +46,18 @@ test intent lives in `../test/test-documentation.md`.
 | 14 | Example songs loadable from the library | Done |
 | 15 | Browser acceptance run against a production build | Done |
 | 16 | Firebase Hosting configuration | Done |
-| 17 | GitHub Actions CI: verify on every push/PR, deploy `main` to Hosting | Done — needs the `FIREBASE_SERVICE_ACCOUNT` secret before the first deploy succeeds |
+| 17 | GitHub Actions CI: verify on every push/PR, deploy `main` to Hosting | Done |
+| 18 | Whole song edited as one text area (ADR-010) | Done |
+| 19 | Beats-only timing, `/n/` line length, no seconds (ADR-011) | Done |
+| 20 | Nashville as roman numerals (ADR-012) | Done |
+| 21 | Softer concealment blur; first chord of a line kept until the last stage (ADR-013) | Done |
 
 ## Backlog
 
 Deferred deliberately — not required by the MVP brief.
 
-- Section markers and section-level pauses (row-level pauses cover the MVP requirement).
+- Section markers (a held line covers the MVP requirement).
+- Reordering lines by drag; the text area makes cut-and-paste the current answer.
 - Import/export of songs as files.
 - Component-level unit tests in a DOM environment; the components are currently covered by the
   browser acceptance run rather than by the unit suite (see `../test/test-documentation.md`).

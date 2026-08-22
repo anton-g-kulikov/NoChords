@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_BEATS,
+  DEFAULT_BEATS_PER_LINE,
   MAX_LEARNING_PLAYTHROUGH,
-  addRowAfter,
   completeLearningPlaythrough,
   createRow,
   createSong,
@@ -10,6 +9,8 @@ import {
   resetLearningProgress,
   rowsFromPastedText,
   setCurrentKey,
+  songToText,
+  textToRows,
   updateRow,
 } from '../src/lib/songs';
 
@@ -20,8 +21,8 @@ describe('createSong', () => {
     expect(song.rows).toHaveLength(1);
     expect(song.rows[0].lyrics).toBe('');
     expect(song.rows[0].chords).toEqual([]);
-    expect(song.rows[0].pauseSeconds).toBe(0);
-    expect(song.rows[0].beats).toBe(DEFAULT_BEATS);
+    expect(song.rows[0].beats).toBeNull();
+    expect(song.beatsPerLine).toBe(DEFAULT_BEATS_PER_LINE);
     expect(song.originalKey).toBe('C');
     expect(song.currentKey).toBe('C');
     expect(song.tempo).toBeGreaterThan(0);
@@ -49,7 +50,7 @@ describe('rowsFromPastedText', () => {
     const rows = rowsFromPastedText('line one\nline two\nline three');
     expect(rows).toHaveLength(3);
     expect(rows.map((r) => r.lyrics)).toEqual(['line one', 'line two', 'line three']);
-    expect(rows.every((r) => r.chords.length === 0 && r.pauseSeconds === 0)).toBe(true);
+    expect(rows.every((r) => r.chords.length === 0 && r.beats === null)).toBe(true);
     expect(new Set(rows.map((r) => r.id)).size).toBe(3);
   });
 
@@ -70,30 +71,10 @@ describe('rowsFromPastedText', () => {
     expect(rows[0].chords.map((c) => c.symbol)).toEqual(['G', 'C', 'G']);
   });
 
-  it('SG-13 applies fixture "duration | pause" metadata to the row above it', () => {
-    const rows = rowsFromPastedText(
-      [
-        '[Am]There is a [C]house in New [D]Orleans,',
-        'duration: 6 | pause: 0',
-        '',
-        "[Am]It's called the [E]Rising [Am]Sun.",
-        'duration: 6 | pause: 2',
-      ].join('\n')
-    );
-
-    expect(rows).toHaveLength(2);
-    expect(rows.map((r) => r.beats)).toEqual([6, 6]);
-    expect(rows.map((r) => r.pauseSeconds)).toEqual([0, 2]);
-    expect(rows[1].lyrics).toBe("It's called the Rising Sun.");
-  });
-
-  it('SG-14 drops the blank separator lines only in fixture-formatted text', () => {
-    const fixture = rowsFromPastedText('a\nduration: 6 | pause: 0\n\nb\nduration: 6 | pause: 0');
-    expect(fixture.map((r) => r.lyrics)).toEqual(['a', 'b']);
-
-    // Without metadata the same blank line is an interior blank the user meant to keep.
-    const plain = rowsFromPastedText('a\n\nb');
-    expect(plain.map((r) => r.lyrics)).toEqual(['a', '', 'b']);
+  it('SG-13 reads a line length written as /n/', () => {
+    const rows = rowsFromPastedText('[Am]Great God, and [E]I for [Am]one./12/\n[Am]plain line');
+    expect(rows.map((r) => r.beats)).toEqual([12, null]);
+    expect(rows[0].lyrics).toBe('Great God, and I for one.');
   });
 
   it('returns an empty list for blank input', () => {
@@ -105,22 +86,9 @@ describe('rowsFromPastedText', () => {
 describe('row editing', () => {
   const base = createSong({
     rows: [
-      { id: 'r1', lyrics: 'first', chords: [{ symbol: 'C', index: 0 }], beats: 4, pauseSeconds: 0 },
-      { id: 'r2', lyrics: 'second', chords: [{ symbol: 'G', index: 0 }], beats: 4, pauseSeconds: 1 },
+      { id: 'r1', lyrics: 'first', chords: [{ symbol: 'C', index: 0 }], beats: null },
+      { id: 'r2', lyrics: 'second', chords: [{ symbol: 'G', index: 0 }], beats: 12 },
     ],
-  });
-
-  it('SG-05 inserts a new row after the given index with a fresh id', () => {
-    const next = addRowAfter(base, 0);
-    expect(next.rows.map((r) => r.lyrics)).toEqual(['first', '', 'second']);
-    expect(next.rows[1].id).not.toBe('r1');
-    expect(next.rows[1].id).not.toBe('r2');
-    // The original song is not mutated.
-    expect(base.rows).toHaveLength(2);
-  });
-
-  it('appends when the index is the last row', () => {
-    expect(addRowAfter(base, 1).rows.map((r) => r.lyrics)).toEqual(['first', 'second', '']);
   });
 
   it('SG-06 deletes a row', () => {
@@ -130,7 +98,7 @@ describe('row editing', () => {
 
   it('SG-06 keeps at least one row present', () => {
     const single = createSong({
-      rows: [{ id: 'only', lyrics: 'x', chords: [], beats: 4, pauseSeconds: 0 }],
+      rows: [{ id: 'only', lyrics: 'x', chords: [], beats: null }],
     });
     const next = deleteRow(single, 'only');
     expect(next.rows).toHaveLength(1);
@@ -146,8 +114,49 @@ describe('row editing', () => {
     const next = updateRow(base, 'r2', { chords: [{ symbol: 'Am', index: 0 }] });
     expect(next.rows[1].chords).toEqual([{ symbol: 'Am', index: 0 }]);
     expect(next.rows[1].lyrics).toBe('second');
-    expect(next.rows[1].pauseSeconds).toBe(1);
+    expect(next.rows[1].beats).toBe(12);
     expect(next.rows[0]).toEqual(base.rows[0]);
+  });
+});
+
+describe('the whole song as text (ADR-010)', () => {
+  const source = [
+    '[Am]There is a [C]house in New [D]Orleans,',
+    "[Am]It's called the [E]Rising [Am]Sun./12/",
+    '',
+    'a line with no chords',
+  ].join('\n');
+
+  it('SG-15 round-trips song text through rows unchanged', () => {
+    const song = createSong({ rows: textToRows(source) });
+    expect(songToText(song)).toBe(source);
+  });
+
+  it('SG-16 makes one row per line, blank lines included', () => {
+    const rows = textToRows(source);
+    expect(rows).toHaveLength(4);
+    expect(rows[2]).toMatchObject({ lyrics: '', chords: [], beats: null });
+    expect(rows[1].beats).toBe(12);
+  });
+
+  it('SG-17 keeps row ids stable when a line is edited', () => {
+    const rows = textToRows(source);
+    const edited = textToRows(source.replace('Orleans', 'Orleans!'), rows);
+    expect(edited.map((r) => r.id)).toEqual(rows.map((r) => r.id));
+    expect(edited[0].lyrics).toContain('Orleans!');
+  });
+
+  it('SG-18 gives a newly typed line its own id', () => {
+    const rows = textToRows(source);
+    const extended = textToRows(`${source}\nbrand new line`, rows);
+    expect(extended).toHaveLength(5);
+    expect(extended.slice(0, 4).map((r) => r.id)).toEqual(rows.map((r) => r.id));
+    expect(rows.map((r) => r.id)).not.toContain(extended[4].id);
+  });
+
+  it('SG-19 keeps a trailing blank line so Enter works at the end', () => {
+    expect(textToRows('one\n')).toHaveLength(2);
+    expect(textToRows('')).toHaveLength(1);
   });
 });
 
@@ -198,8 +207,7 @@ describe('setCurrentKey', () => {
             { symbol: 'C', index: 0 },
             { symbol: 'Am', index: 1 },
           ],
-          beats: 4,
-          pauseSeconds: 0,
+          beats: null,
         },
       ],
     });

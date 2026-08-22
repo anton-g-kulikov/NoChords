@@ -49,26 +49,25 @@ describe('example songs', () => {
     expect([scarborough.originalKey, scarborough.tempo]).toEqual(['Dm', 90]);
     expect([blackbird.originalKey, blackbird.tempo]).toEqual(['G', 90]);
     expect([risingSun.originalKey, risingSun.tempo]).toEqual(['Am', 80]);
+    // All three are 3/4 written two bars to a line.
+    expect(examples.every((song) => song.beatsPerLine === 6)).toBe(true);
     // A fixture opens in its own key.
     expect(examples.every((song) => song.currentKey === song.originalKey)).toBe(true);
     expect(examples.every((song) => song.learningPlaythrough === 0)).toBe(true);
   });
 
-  it('EX-02 parses every row with its chords, beats, and pause', () => {
+  it('EX-02 parses every row, holding the verse endings for an extra bar', () => {
     expect(scarborough.rows).toHaveLength(16);
     expect(blackbird.rows).toHaveLength(16);
     expect(risingSun.rows).toHaveLength(8);
 
-    // Every fixture row is six beats long.
-    for (const song of examples) {
-      expect(song.rows.every((row) => row.beats === 6)).toBe(true);
-    }
-
-    // Verse-ending rows carry the stated pauses.
-    expect(scarborough.rows.map((row) => row.pauseSeconds)).toEqual([
-      0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 3,
+    // A line takes the song default unless it is a verse ending, which holds for twelve beats.
+    expect(scarborough.rows.map((row) => row.beats)).toEqual([
+      null, null, null, 12, null, null, null, 12, null, null, null, 12, null, null, null, 12,
     ]);
-    expect(risingSun.rows.map((row) => row.pauseSeconds)).toEqual([0, 0, 0, 2, 0, 0, 0, 3]);
+    expect(risingSun.rows.map((row) => row.beats)).toEqual([
+      null, null, null, 12, null, null, null, 12,
+    ]);
   });
 
   it('EX-03 keeps the lyric text intact and anchors each chord inside it', () => {
@@ -87,13 +86,13 @@ describe('example songs', () => {
 
   it('EX-04 gives the relative representation the fixtures specify', () => {
     expect(symbolsOf(scarborough)).toEqual(['Dm', 'C']);
-    expect(symbolsOf(scarborough).map((s) => toNashville(s, 'Dm'))).toEqual(['1m', '7']);
+    expect(symbolsOf(scarborough).map((s) => toNashville(s, 'Dm'))).toEqual(['i', 'VII']);
 
     expect(symbolsOf(blackbird)).toEqual(['G', 'C', 'D']);
-    expect(symbolsOf(blackbird).map((s) => toNashville(s, 'G'))).toEqual(['1', '4', '5']);
+    expect(symbolsOf(blackbird).map((s) => toNashville(s, 'G'))).toEqual(['I', 'IV', 'V']);
 
     expect(symbolsOf(risingSun)).toEqual(['Am', 'C', 'D', 'E']);
-    expect(symbolsOf(risingSun).map((s) => toNashville(s, 'Am'))).toEqual(['1m', '3', '4', '5']);
+    expect(symbolsOf(risingSun).map((s) => toNashville(s, 'Am'))).toEqual(['i', 'III', 'IV', 'V']);
   });
 
   it('EX-05 transposes Blackbird from G to A with its degrees unchanged', () => {
@@ -105,7 +104,7 @@ describe('example songs', () => {
 
     const after = transposed.map((symbol) => toNashville(symbol, 'A'));
     expect(after).toEqual(before);
-    expect(after).toEqual(['1', '4', '5']);
+    expect(after).toEqual(['I', 'IV', 'V']);
 
     // Changing the display key never rewrites what is stored.
     const inA = setCurrentKey(blackbird, 'A');
@@ -126,20 +125,25 @@ describe('example songs', () => {
       for (let i = 1; i < sizes.length; i += 1) {
         expect(sizes[i]).toBeGreaterThan(sizes[i - 1]);
       }
-      // And each step lands on the documented percentage.
+      // Each step lands on the documented percentage, capped by the opening chords that stay
+      // visible until the final stage (ADR-013).
+      const eligible = occurrences.length - song.rows.filter((row) => row.chords.length > 0).length;
       expect(sizes).toEqual(
-        [0, 0.2, 0.4, 0.6, 0.8, 1].map((fraction) => Math.round(occurrences.length * fraction))
+        [0, 0.2, 0.4, 0.6, 0.8, 1].map((fraction, stage) => {
+          const target = Math.round(occurrences.length * fraction);
+          return stage === 5 ? occurrences.length : Math.min(target, eligible);
+        })
       );
     }
   });
 
-  it('EX-07 builds a playable schedule that honours beats and pauses', () => {
-    const schedule = buildSchedule(risingSun.rows, risingSun.tempo);
-    // 6 beats at 80bpm is 4500ms per row, plus 2s and 3s of pause across the eight rows.
+  it('EX-07 builds a playable schedule that honours the held lines', () => {
+    const schedule = buildSchedule(risingSun.rows, risingSun.tempo, risingSun.beatsPerLine);
+    // A beat at 80bpm is 750ms, so a six-beat line is 4500ms and a twelve-beat one is 9000ms.
     expect(schedule[0].startMs).toBe(0);
     expect(schedule[0].endMs).toBe(4500);
-    expect(schedule[4].startMs).toBe(4500 * 4 + 2000);
-    expect(totalDurationMs(schedule)).toBe(4500 * 8 + 2000 + 3000);
+    expect(schedule[4].startMs).toBe(4500 * 3 + 9000);
+    expect(totalDurationMs(schedule)).toBe(4500 * 6 + 9000 * 2);
 
     // Playback starts on the first row and finishes cleanly after the last.
     expect(rowIndexAt(schedule, 0)).toBe(0);

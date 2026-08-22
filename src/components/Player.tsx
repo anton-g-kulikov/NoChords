@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeySelect } from './KeySelect';
 import { SongRowView } from './SongRowView';
 import { buildSchedule } from '../lib/playback';
-import { concealmentFor, createConcealment } from '../lib/learning';
+import { collectChordOccurrences, concealmentFor, createConcealment } from '../lib/learning';
 import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
 import { usePlayback } from '../hooks/usePlayback';
 import type { DisplayMode, Song } from '../types/song';
@@ -37,7 +37,10 @@ export function Player({ song, onChange }: PlayerProps) {
   const [mode, setMode] = useState<DisplayMode>('full');
   const [concealSeed, setConcealSeed] = useState(randomSeed);
 
-  const schedule = useMemo(() => buildSchedule(song.rows, song.tempo), [song.rows, song.tempo]);
+  const schedule = useMemo(
+    () => buildSchedule(song.rows, song.tempo, song.beatsPerLine),
+    [song.rows, song.tempo, song.beatsPerLine]
+  );
 
   const handleComplete = useCallback(() => {
     if (mode !== 'learning') return;
@@ -76,7 +79,12 @@ export function Player({ song, onChange }: PlayerProps) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [toggle]);
 
-  const concealmentPercent = Math.round(concealmentFor(song.learningPlaythrough) * 100);
+  // Below the last stage the opening chord of each line is protected, so the achieved share can
+  // fall short of the nominal one. Report what is actually hidden (ADR-013).
+  const totalChords = useMemo(() => collectChordOccurrences(song.rows).length, [song.rows]);
+  const concealmentPercent =
+    totalChords === 0 ? 0 : Math.round((concealed.size / totalChords) * 100);
+  const stagePercent = Math.round(concealmentFor(song.learningPlaythrough) * 100);
 
   return (
     <div className="player">
@@ -135,7 +143,11 @@ export function Player({ song, onChange }: PlayerProps) {
             <strong>{concealmentPercent}% concealed</strong>
             <span>
               {song.learningPlaythrough} of 5 playthroughs completed
-              {concealmentPercent === 100 ? ' — all chord cues hidden' : ''}
+              {concealmentPercent === 100
+                ? ' — all chord cues hidden'
+                : concealmentPercent < stagePercent
+                  ? ` — ${stagePercent}% stage, first chord of each line kept`
+                  : ''}
             </span>
           </div>
           <div
@@ -171,7 +183,9 @@ export function Player({ song, onChange }: PlayerProps) {
             onClick={() => playback.seekToRow(index)}
           >
             <SongRowView row={row} song={song} mode={mode} concealed={concealed} />
-            {row.pauseSeconds > 0 && <span className="sheet__pause">{row.pauseSeconds}s</span>}
+            {row.beats && row.beats !== song.beatsPerLine && (
+              <span className="sheet__beats">{row.beats}</span>
+            )}
           </li>
         ))}
       </ol>

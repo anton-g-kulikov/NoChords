@@ -148,3 +148,85 @@ like, and not what the fixtures specify.
 **Cost.** The key name now carries mode as well as pitch. Both key lists are offered in the UI.
 The invariant that matters — degrees do not move when the song is transposed — is unaffected,
 because mode travels with the key.
+
+---
+
+## ADR-010 — The whole song is edited as one text area
+
+**Decision.** The editor is a single text area holding the entire song, one line per row. Chords are
+written inline as `[Am]`; a line's length is written as `/6/`, meaning six beats. The text is the
+editing buffer and rows are derived from it on every keystroke; the text area is *not* re-rendered
+from the rows while typing, so nothing reformats under the cursor.
+
+**Supersedes.** The per-row card UI of ADR-007, which kept a separate input for each row plus two
+number fields. The inline chord anchors themselves are unchanged.
+
+**Why.** The row UI cost three controls and a card per line, which on a phone meant a lot of
+scrolling to enter one verse — the opposite of "extremely fast song entry" (UX priority 1). A
+single text area is also what pasting a song already produces, so writing and pasting stop being
+two different paths.
+
+`/n/` cannot collide with a slash chord, because a chord's slash is inside its brackets.
+
+**Cost.** Row ids are matched positionally when text is re-parsed, so inserting a line mid-song
+shifts the ids below it. That only matters mid-playthrough for learning concealment, which is
+regenerated next playthrough anyway.
+
+---
+
+## ADR-011 — Timing is beats only; there are no seconds
+
+**Decision.** Every duration in a song is expressed in beats at the song tempo. `Song.beatsPerLine`
+sets the default length of a line; a line may override it by writing `/n/`. There is no separate
+pause field and no value anywhere denominated in seconds — holding at the end of a verse is simply
+a longer line.
+
+**Supersedes.** The PRD's "optional pause after each row, entered in seconds", and `SongRow.beats`
+as a per-row editor field.
+
+**Why.** One unit means tempo genuinely rescales the whole song: with a seconds-denominated pause,
+speeding a song up left its pauses behind and the phrasing drifted. It also collapses two concepts
+into one — a line's length — which is what removed the second and third input from every row.
+The song-level default keeps the common case silent: the fixtures are 3/4 written two bars to a
+line, so they set `beatsPerLine: 6` once instead of tagging sixteen lines.
+
+**Cost.** A hold of an exact wall-clock length can no longer be specified, and changing tempo moves
+it. That is the right trade for a tool whose whole point is playing along at a chosen tempo.
+
+**Note on notation.** There is no established convention for per-line duration; `/n/` is this
+project's own. The established lead-sheet convention is rhythm slashes, where each `/` is one beat
+of the preceding chord (`| C / / / |`). That is chord-level and bar-based, and would be the natural
+direction if chord-level timing is ever wanted.
+
+---
+
+## ADR-012 — Nashville mode renders roman numerals
+
+**Decision.** Degrees render as roman numerals with case carrying quality: major uppercase
+(`I`, `IV`, `V`), minor and diminished lowercase (`ii`, `vi`, `vii°`). The quality letter is then
+dropped from the suffix, since the case already says it — `Dm` in C is `ii`, not `iim`. Remaining
+suffix text follows the numeral: `G7` is `V7`, `Cmaj7` is `Imaj7`.
+
+**Why.** Requested, and it is the notation musicians actually read. Case is what makes a numeral
+chart scannable — the shape of the line tells you the quality without parsing letters.
+
+**Cost.** `1m` was unambiguous to a non-reader; `i` versus `I` demands a little more care. The
+invariant that matters is untouched: numerals are still computed from the original key, so
+transposing does not move them.
+
+---
+
+## ADR-013 — The first chord of a line survives until full concealment
+
+**Decision.** Learning mode never conceals the first chord of a row until the final stage, where
+everything is hidden. The concealment pool at 20–80% is drawn only from the later chords in each
+line.
+
+**Why.** The first chord is what gets you into the line; losing it early means losing your place
+rather than recalling a chord, which is a different and less useful kind of difficulty. Keeping it
+until the last stage makes the progression a gradual removal of detail rather than of orientation.
+
+**Cost.** The requested percentage can exceed the number of eligible chords — in a song where most
+lines carry two chords, 80% of all chords is more than all the non-first ones. The selection is
+capped at what is eligible, and the UI reports the concealment actually achieved rather than the
+nominal stage, so the number on screen is never a lie.

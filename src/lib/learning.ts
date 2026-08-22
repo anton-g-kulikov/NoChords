@@ -1,9 +1,12 @@
 /**
  * Learning mode: which chord occurrences are concealed on a given playthrough.
  *
- * The selection must stay fixed for a whole playthrough — chords may not flicker in and out while
- * the song scrolls. That is achieved by deriving the set from a seed that only changes between
- * playthroughs, so any number of re-renders reproduce the same set (ADR-002).
+ * Two rules shape the selection:
+ *  - it must stay fixed for a whole playthrough, so chords do not flicker in and out while the
+ *    song scrolls — achieved by deriving it from a seed that only changes between playthroughs,
+ *    so any number of re-renders reproduce the same set (ADR-002);
+ *  - the first chord of a line is never concealed until the final stage, so you keep your
+ *    orientation in the line while the detail disappears (ADR-013).
  */
 import type { SongRow } from '../types/song';
 
@@ -28,6 +31,15 @@ export function collectChordOccurrences(rows: SongRow[]): string[] {
     row.chords.forEach((_chord, index) => {
       keys.push(occurrenceKey(row.id, index));
     });
+  }
+  return keys;
+}
+
+/** The opening chord of every line that has one — the chords protected until full concealment. */
+export function firstChordOccurrences(rows: SongRow[]): Set<string> {
+  const keys = new Set<string>();
+  for (const row of rows) {
+    if (row.chords.length > 0) keys.add(occurrenceKey(row.id, 0));
   }
   return keys;
 }
@@ -63,6 +75,10 @@ function shuffled<T>(items: T[], random: () => number): T[] {
  * Pure in `(rows, playthrough, seed)`, so calling it repeatedly during a playthrough always
  * returns the same selection. The caller holds the seed steady for the duration of a playthrough
  * and changes it when a new one begins.
+ *
+ * Below the final stage the pool excludes each line's opening chord, so the requested share can
+ * exceed what is eligible; the selection is then capped at the eligible chords. Callers should
+ * report the size of the returned set rather than the nominal percentage.
  */
 export function createConcealment(
   rows: SongRow[],
@@ -71,8 +87,16 @@ export function createConcealment(
 ): Set<string> {
   const occurrences = collectChordOccurrences(rows);
   const fraction = concealmentFor(playthrough);
-  const count = Math.round(occurrences.length * fraction);
-  if (count <= 0) return new Set();
-  if (count >= occurrences.length) return new Set(occurrences);
-  return new Set(shuffled(occurrences, seededRandom(seed)).slice(0, count));
+
+  // The last stage hides everything, opening chords included.
+  if (fraction >= 1) return new Set(occurrences);
+
+  const target = Math.round(occurrences.length * fraction);
+  if (target <= 0) return new Set();
+
+  const protectedKeys = firstChordOccurrences(rows);
+  const eligible = occurrences.filter((key) => !protectedKeys.has(key));
+  const count = Math.min(target, eligible.length);
+
+  return new Set(shuffled(eligible, seededRandom(seed)).slice(0, count));
 }

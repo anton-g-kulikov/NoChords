@@ -8,8 +8,8 @@
  */
 import type { SongRow } from '../types/song';
 
-/** Beats a row occupies when it does not specify its own count. One bar in common time. */
-export const DEFAULT_BEATS = 4;
+/** Beats each line occupies when a song does not say otherwise. One bar in common time. */
+export const DEFAULT_BEATS_PER_LINE = 4;
 
 /** Floor applied to tempo so a zero or negative value cannot produce an infinite duration. */
 export const MIN_TEMPO = 20;
@@ -23,38 +23,44 @@ export interface ScheduleEntry {
   /** Exclusive end, i.e. the start of the next row. */
   endMs: number;
   durationMs: number;
-  /** The portion of `durationMs` contributed by the row's pause. */
-  pauseMs: number;
+  /** Beats this row lasts, after the song default is applied. */
+  beats: number;
 }
 
-/** Beats a row occupies, falling back to the default for a missing or nonsensical value. */
-function beatsOf(row: SongRow): number {
-  return row.beats && row.beats > 0 ? row.beats : DEFAULT_BEATS;
+/** Beats per line, falling back to the default for a missing or nonsensical value. */
+function safeBeats(beatsPerLine: number): number {
+  return beatsPerLine && beatsPerLine > 0 ? beatsPerLine : DEFAULT_BEATS_PER_LINE;
 }
 
-/** Total time a row is held: its tempo-derived duration plus its pause (ADR-008). */
-export function rowDurationMs(row: SongRow, tempo: number): number {
+/** Beats a row lasts: its own `/n/` if it has one, otherwise the song's default. */
+export function rowBeats(row: SongRow, beatsPerLine: number): number {
+  return row.beats && row.beats > 0 ? row.beats : safeBeats(beatsPerLine);
+}
+
+/** How long a row is held. Everything is beats at the song tempo — no seconds (ADR-011). */
+export function rowDurationMs(row: SongRow, tempo: number, beatsPerLine: number): number {
   const safeTempo = Math.max(tempo, MIN_TEMPO);
-  const beatMs = 60000 / safeTempo;
-  const pauseMs = Math.max(0, row.pauseSeconds || 0) * 1000;
-  return beatMs * beatsOf(row) + pauseMs;
+  return (60000 / safeTempo) * rowBeats(row, beatsPerLine);
 }
 
 /** Builds the full schedule for a song. */
-export function buildSchedule(rows: SongRow[], tempo: number): ScheduleEntry[] {
+export function buildSchedule(
+  rows: SongRow[],
+  tempo: number,
+  beatsPerLine: number = DEFAULT_BEATS_PER_LINE
+): ScheduleEntry[] {
   const schedule: ScheduleEntry[] = [];
   let cursor = 0;
 
   rows.forEach((row, index) => {
-    const durationMs = rowDurationMs(row, tempo);
-    const pauseMs = Math.max(0, row.pauseSeconds || 0) * 1000;
+    const durationMs = rowDurationMs(row, tempo, beatsPerLine);
     schedule.push({
       rowId: row.id,
       index,
       startMs: cursor,
       endMs: cursor + durationMs,
       durationMs,
-      pauseMs,
+      beats: rowBeats(row, beatsPerLine),
     });
     cursor += durationMs;
   });

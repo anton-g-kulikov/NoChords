@@ -5,7 +5,7 @@ import { createSong } from '../src/lib/songs';
 import type { SongRow } from '../src/types/song';
 
 function row(inline: string): SongRow {
-  return { id: 'r1', ...parseInlineRow(inline), beats: 4, pauseSeconds: 0 };
+  return { id: 'r1', ...parseInlineRow(inline) };
 }
 
 const songInC = createSong({ originalKey: 'C', currentKey: 'C' });
@@ -64,9 +64,9 @@ describe('chordSymbolFor', () => {
   });
 
   it('DS-08 shows degrees in nashville mode, ignoring the display key', () => {
-    expect(chordSymbolFor('C', { ...songInC, currentKey: 'G' }, 'nashville')).toBe('1');
-    expect(chordSymbolFor('C', { ...songInC, currentKey: 'Eb' }, 'nashville')).toBe('1');
-    expect(chordSymbolFor('Am', { ...songInC, currentKey: 'B' }, 'nashville')).toBe('6m');
+    expect(chordSymbolFor('C', { ...songInC, currentKey: 'G' }, 'nashville')).toBe('I');
+    expect(chordSymbolFor('C', { ...songInC, currentKey: 'Eb' }, 'nashville')).toBe('I');
+    expect(chordSymbolFor('Am', { ...songInC, currentKey: 'B' }, 'nashville')).toBe('vi');
   });
 
   it('DS-09 leaves symbols alone when the song is in its original key', () => {

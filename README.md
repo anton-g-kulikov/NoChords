@@ -26,17 +26,21 @@ npm run dev      # http://localhost:5173
 
 ## Writing a song
 
-Each lyric line is one row. Chords go inline, in brackets, where they fall in the words:
+The whole song lives in one text area, one line per lyric line. Chords go inline, in brackets,
+where they fall in the words:
 
 ```
 [Am]There is a [C]house in New [D]Orleans,
+[Am]It's called the [E]Rising [Am]Sun.
+[Am]It's been the [C]ruin of many a [D]poor boy,
+[Am]Great God, and [E]I for [Am]one./12/
 ```
 
-Per row you also set **beats** (how long the row lasts at the song tempo) and an optional **pause**
-in seconds held after it — useful at the end of a verse.
+Every line lasts the song's **beats per line** unless it says otherwise: end a line with `/12/` to
+hold it for twelve beats, which is how you write a pause at the end of a verse.
 
-Entry is keyboard-first: <kbd>Enter</kbd> opens the next line, <kbd>Backspace</kbd> on an empty line
-removes it, and pasting a block of lyrics creates one row per line. Everything saves as you type.
+Timing is beats throughout — there are no seconds anywhere, so changing the tempo rescales the
+whole song, held lines included. Just type; everything saves as you go.
 
 ## Playing
 
@@ -44,8 +48,8 @@ Press **Play** (or <kbd>Space</kbd>) and the chart scrolls itself, highlighting 
 Click any row to jump to it. Three display modes:
 
 - **Full** — chord names in the current key.
-- **Nashville** — scale degrees relative to the song's original key. `G C D` in G reads `1 4 5`,
-  and stays `1 4 5` no matter what key you transpose to.
+- **Nashville** — roman numerals relative to the song's original key, with case carrying quality:
+  `G C D Em` in G reads `I IV V vi`, and stays that way no matter what key you transpose to.
 - **Learning** — chord names with a share of them blurred out.
 
 Transposing changes only what is displayed. Chords are stored in the key you wrote them in, so
@@ -62,6 +66,10 @@ The counter tracks completed playthroughs and maps to how much is hidden:
 Which chords get hidden is chosen at random when a playthrough starts and stays fixed for its whole
 duration — nothing flickers as you scroll. Hidden chords keep their space on the page, so the chart
 never reflows as you progress. **Reset learning progress** puts you back to 0%.
+
+The **first chord of every line stays visible** until the final stage, so you keep your place in the
+line while the detail goes. That means the share actually hidden can fall short of the nominal
+stage — the bar reports what is really concealed, not the stage number.
 
 ## How it is built
 

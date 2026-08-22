@@ -4,13 +4,14 @@ import {
   concealmentFor,
   collectChordOccurrences,
   createConcealment,
+  firstChordOccurrences,
   occurrenceKey,
 } from '../src/lib/learning';
 import { parseInlineRow } from '../src/lib/inline';
 import type { SongRow } from '../src/types/song';
 
 function row(id: string, inline: string): SongRow {
-  return { id, ...parseInlineRow(inline), beats: 4, pauseSeconds: 0 };
+  return { id, ...parseInlineRow(inline) };
 }
 
 /** Ten chord occurrences spread over three rows. */
@@ -77,7 +78,38 @@ describe('createConcealment', () => {
     const sizes = [0, 1, 2, 3, 4, 5].map(
       (playthrough) => createConcealment(tenChordRows, playthrough, 7).size
     );
-    expect(sizes).toEqual([0, 2, 4, 6, 8, 10]);
+    // 10 chords over 3 rows: 3 opening chords are protected, so 7 are eligible below the
+    // final stage. The 80% stage wants 8 and is capped at 7 (ADR-013).
+    expect(sizes).toEqual([0, 2, 4, 6, 7, 10]);
+  });
+
+  it('LN-12 never conceals the first chord of a line below the final stage', () => {
+    const firsts = firstChordOccurrences(tenChordRows);
+    expect([...firsts].sort()).toEqual(['r1:0', 'r2:0', 'r3:0']);
+
+    for (const playthrough of [1, 2, 3, 4]) {
+      for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+        const concealed = createConcealment(tenChordRows, playthrough, seed);
+        for (const first of firsts) {
+          expect(concealed.has(first)).toBe(false);
+        }
+      }
+    }
+  });
+
+  it('LN-13 conceals the opening chords too once the final stage is reached', () => {
+    const concealed = createConcealment(tenChordRows, 5, 1);
+    for (const first of firstChordOccurrences(tenChordRows)) {
+      expect(concealed.has(first)).toBe(true);
+    }
+  });
+
+  it('LN-14 caps the selection at the eligible chords rather than overshooting', () => {
+    // Every line has exactly two chords, so half of them are protected and 80% is unreachable.
+    const pairs = [row('a', '[C]x [G]y'), row('b', '[C]x [G]y'), row('c', '[C]x [G]y')];
+    expect(collectChordOccurrences(pairs)).toHaveLength(6);
+    expect(createConcealment(pairs, 4, 5).size).toBe(3);
+    expect(createConcealment(pairs, 5, 5).size).toBe(6);
   });
 
   it('LN-06 conceals every occurrence at 100%', () => {
@@ -118,8 +150,9 @@ describe('createConcealment', () => {
     const sizes = [0, 1, 2, 3, 4, 5].map(
       (playthrough) => createConcealment(sevenChords, playthrough, 3).size
     );
-    // round(7 * [0, .2, .4, .6, .8, 1]) = [0, 1, 3, 4, 6, 7]
-    expect(sizes).toEqual([0, 1, 3, 4, 6, 7]);
+    // round(7 * [0, .2, .4, .6, .8, 1]) = [0, 1, 3, 4, 6, 7], with the 80% stage capped at the
+    // 5 chords that are not a line's opening chord.
+    expect(sizes).toEqual([0, 1, 3, 4, 5, 7]);
   });
 
   it('handles a song with no chords at all', () => {

@@ -39,12 +39,12 @@ function sanitizeChord(value: unknown): ChordAnchor | null {
 
 function sanitizeRow(value: unknown): SongRow | null {
   if (!isRecord(value)) return null;
-  const { id, lyrics, chords, beats, pauseSeconds } = value;
+  const { id, lyrics, chords, beats } = value;
   if (typeof id !== 'string' || id === '') return null;
   if (typeof lyrics !== 'string') return null;
   if (!Array.isArray(chords)) return null;
-  if (typeof beats !== 'number' || !Number.isFinite(beats)) return null;
-  if (typeof pauseSeconds !== 'number' || !Number.isFinite(pauseSeconds)) return null;
+  // `null` is the normal case: the line takes the song's default length.
+  if (beats !== null && (typeof beats !== 'number' || !Number.isFinite(beats))) return null;
 
   const sanitizedChords: ChordAnchor[] = [];
   for (const chord of chords) {
@@ -53,18 +53,20 @@ function sanitizeRow(value: unknown): SongRow | null {
     sanitizedChords.push(sanitized);
   }
 
-  return { id, lyrics, chords: sanitizedChords, beats, pauseSeconds };
+  return { id, lyrics, chords: sanitizedChords, beats };
 }
 
 /** Validates one stored song, returning `null` if any required field is missing or wrongly typed. */
 function sanitizeSong(value: unknown): Song | null {
   if (!isRecord(value)) return null;
-  const { id, title, originalKey, currentKey, tempo, learningPlaythrough, rows } = value;
+  const { id, title, originalKey, currentKey, tempo, beatsPerLine, learningPlaythrough, rows } =
+    value;
 
   if (typeof id !== 'string' || id === '') return null;
   if (typeof title !== 'string') return null;
   if (typeof originalKey !== 'string' || typeof currentKey !== 'string') return null;
   if (typeof tempo !== 'number' || !Number.isFinite(tempo)) return null;
+  if (typeof beatsPerLine !== 'number' || !Number.isFinite(beatsPerLine)) return null;
   if (typeof learningPlaythrough !== 'number' || !Number.isFinite(learningPlaythrough)) return null;
   if (!Array.isArray(rows)) return null;
 
@@ -76,7 +78,16 @@ function sanitizeSong(value: unknown): Song | null {
     sanitizedRows.push(sanitized);
   }
 
-  return { id, title, originalKey, currentKey, tempo, learningPlaythrough, rows: sanitizedRows };
+  return {
+    id,
+    title,
+    originalKey,
+    currentKey,
+    tempo,
+    beatsPerLine,
+    learningPlaythrough,
+    rows: sanitizedRows,
+  };
 }
 
 /** `localStorage` when it is available and usable, otherwise `null`. */

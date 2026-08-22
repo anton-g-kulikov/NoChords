@@ -319,8 +319,26 @@ kbd {
   outline-offset: -1px;
 }
 
-.editor__input--line {
+.editor__text {
+  width: 100%;
+  min-height: 60vh;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
   font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+  font-size: 1rem;
+  line-height: 1.9;
+  resize: vertical;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+
+.editor__text:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
 }
 
 .editor__row-actions {
@@ -424,7 +442,7 @@ kbd {
   background: var(--surface);
 }
 
-.sheet__pause {
+.sheet__beats {
   position: absolute;
   top: 10px;
   right: 12px;
@@ -464,8 +482,9 @@ kbd {
 }
 
 .seg__chord--concealed {
-  filter: blur(9px);
-  opacity: 0.55;
+  /* Soft enough to read as "a chord is here" without being legible. */
+  filter: blur(4px);
+  opacity: 0.7;
   user-select: none;
 }
 

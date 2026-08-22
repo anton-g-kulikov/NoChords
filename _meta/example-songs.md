@@ -15,7 +15,7 @@ Each row also has an illustrative `duration` and `pause` value. These
 values are starting points for testing the scrolling engine, not
 authoritative performance timings.
 
-------------------------------------------------------------------------
+---
 
 ## 1. Scarborough Fair
 
@@ -28,7 +28,7 @@ Nashville conversion, transposition.
 
 ### Fixture
 
-``` text
+```text
 [Dm]O, where are you [C]going? To [Dm]Scarborough Fair?
 duration: 6 | pause: 0
 
@@ -82,15 +82,15 @@ duration: 6 | pause: 3
 
 For the simplified D-minor fixture:
 
--   `Dm` → `1m`
--   `C` → `7`
+- `Dm` → `1m`
+- `C` → `7`
 
 The implementation may later adopt a more rigorous
 Roman-numeral/Nashville convention for minor keys. The important MVP
 test is that the relative representation remains stable when the song is
 transposed.
 
-------------------------------------------------------------------------
+---
 
 ## 2. If I Was a Blackbird
 
@@ -103,7 +103,7 @@ common I-IV-V harmony.
 
 ### Fixture
 
-``` text
+```text
 [G]I am a young maiden and my [C]story is [G]sad,
 duration: 6 | pause: 0
 
@@ -155,13 +155,13 @@ duration: 6 | pause: 3
 
 ### Expected relative representation
 
--   `G` → `1`
--   `C` → `4`
--   `D` → `5`
+- `G` → `1`
+- `C` → `4`
+- `D` → `5`
 
 This is the cleanest fixture for testing Nashville mode.
 
-------------------------------------------------------------------------
+---
 
 ## 3. House of the Rising Sun
 
@@ -178,29 +178,80 @@ arrangement.
 
 ### Fixture
 
-``` text
+```text
 [Am]There is a [C]house in New [D]Orleans,
 duration: 6 | pause: 0
 
-[Am]It's called the [E]Rising [Am]Sun.
+[Am]They call the [E]Rising [Am]Sun,
 duration: 6 | pause: 0
 
-[Am]It's been the [C]ruin of many a [D]poor girl,
+[Am]And it's been the [C]ruin of many a [D]poor boy,
 duration: 6 | pause: 0
 
-[Am]Great God, and [E]I for [Am]one.
+[Am]Dear God, I [E]know I was [Am]one.
 duration: 6 | pause: 2
 
-[Am]If I had [C]listened to what my [D]mother said,
+[Am]My mother was a [C]tailor,
 duration: 6 | pause: 0
 
-[Am]I'd have been at [E]home to[Am]day.
+[Am]She sewed my new [D]blue jeans,
 duration: 6 | pause: 0
 
-[Am]But I was [C]young and foolish,
+[Am]And my father was a [C]gambler's man,
 duration: 6 | pause: 0
 
-[Am]And a gambler [E]led me a[Am]stray.
+[Am]Way down in [E]New Or[Am]leans.
+duration: 6 | pause: 0
+
+[Am]And the only [C]thing a gambler [D]needs,
+duration: 6 | pause: 0
+
+[Am]Is a suitcase and a [E]trunk,
+duration: 6 | pause: 0
+
+[Am]And the only time he's [C]satisfied,
+duration: 6 | pause: 0
+
+[Am]Is when he's a [E]drunk.
+duration: 6 | pause: 2
+
+[Am]Oh, mother, tell your [C]children,
+duration: 6 | pause: 0
+
+[Am]Not to do what I have [D]done,
+duration: 6 | pause: 0
+
+[Am]To spend your lives in [C]sin and misery,
+duration: 6 | pause: 0
+
+[Am]In the house of the [E]rising [Am]sun.
+duration: 6 | pause: 2
+
+[Am]I got one foot on the [C]platform,
+duration: 6 | pause: 0
+
+[Am]And another on the [D]train,
+duration: 6 | pause: 0
+
+[Am]And I'm going back to [C]New Orleans,
+duration: 6 | pause: 0
+
+[Am]To wear that [E]ball and [Am]chain.
+duration: 6 | pause: 2
+
+[Am]There is a [C]house in New [D]Orleans,
+duration: 6 | pause: 0
+
+[Am]They call the [E]Rising [Am]Sun,
+duration: 6 | pause: 0
+
+[Am]And it's been the [C]ruin of many a [D]poor boy,
+duration: 6 | pause: 0
+
+[Am]Dear God, I [E]know I was [Am]one.
+duration: 6 | pause: 3
+
+[Am]Dear God, I [E]know I was the [Am]one.
 duration: 6 | pause: 3
 ```
 
@@ -208,16 +259,16 @@ duration: 6 | pause: 3
 
 For A minor, the simplified fixture contains:
 
--   `Am` → `1m`
--   `C` → `3`
--   `D` → `4`
--   `E` → `5`
+- `Am` → `1m`
+- `C` → `3`
+- `D` → `4`
+- `E` → `5`
 
 This fixture should contain enough individual chord occurrences for the
 learning engine to visibly conceal 20%, 40%, 60%, 80%, and 100% across
 repeated playthroughs.
 
-------------------------------------------------------------------------
+---
 
 ## Acceptance Tests Using These Fixtures
 
@@ -225,7 +276,7 @@ repeated playthroughs.
 
 Given:
 
-``` text
+```text
 [G]I'd follow the ship that my [D]true love sails [G]in.
 ```
 
@@ -236,25 +287,25 @@ complete lyric text and the position associated with each chord.
 
 Transpose **If I Was a Blackbird** from G to A:
 
--   `G` → `A`
--   `C` → `D`
--   `D` → `E`
+- `G` → `A`
+- `C` → `D`
+- `D` → `E`
 
 Its relative representation must remain:
 
--   `1`
--   `4`
--   `5`
+- `1`
+- `4`
+- `5`
 
 ### Learning Mode
 
 For a fixture containing `N` chord occurrences:
 
--   first learning playthrough conceals approximately 20%,
--   second 40%,
--   third 60%,
--   fourth 80%,
--   fifth and later 100%.
+- first learning playthrough conceals approximately 20%,
+- second 40%,
+- third 60%,
+- fourth 80%,
+- fifth and later 100%.
 
 Round the requested number of concealed occurrences consistently.
 
@@ -265,9 +316,9 @@ of one playthrough.
 
 Concealing a chord must not move:
 
--   its associated lyric,
--   subsequent chord positions,
--   subsequent lyric text.
+- its associated lyric,
+- subsequent chord positions,
+- subsequent lyric text.
 
 ### Playback
 
@@ -279,20 +330,20 @@ Each fixture must:
 4.  scroll the active row into view;
 5.  complete cleanly after the final row.
 
-------------------------------------------------------------------------
+---
 
 ## Source Notes
 
--   **Scarborough Fair:** based on the traditional text published by
-    Frank Kidson in *Traditional Tunes* (1891), not the Simon &
-    Garfunkel arrangement.
--   **If I Was a Blackbird:** based on the traditional
-    `I Am a Young Maiden` family (Roud 387), documented by George
-    Gardiner in 1906. The fixture does not use the later Andy M.
-    Stewart/Silly Wizard rewrite.
--   **House of the Rising Sun:** traditional song with a printed version
-    documented by Robert Winslow Gordon in 1925. The fixture is not a
-    transcription of The Animals' arrangement.
+- **Scarborough Fair:** based on the traditional text published by
+  Frank Kidson in _Traditional Tunes_ (1891), not the Simon &
+  Garfunkel arrangement.
+- **If I Was a Blackbird:** based on the traditional
+  `I Am a Young Maiden` family (Roud 387), documented by George
+  Gardiner in 1906. The fixture does not use the later Andy M.
+  Stewart/Silly Wizard rewrite.
+- **House of the Rising Sun:** traditional song with a printed version
+  documented by Robert Winslow Gordon in 1925. The fixture is not a
+  transcription of The Animals' arrangement.
 
 The chord arrangements, chord placement, timing values, and application
 formatting in this file were created specifically as development

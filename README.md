@@ -25,6 +25,7 @@ npm run dev      # http://localhost:5173
 | `npm run deploy:rules` | Deploy the Firestore security rules |
 
 **Log in to Sync** on the library screen signs in with Google and moves the library to Firestore.
+Opening a song from the library lands on **Play**; a newly created one opens in **Edit**.
 
 ## Writing a song
 

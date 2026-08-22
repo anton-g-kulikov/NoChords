@@ -11,3 +11,8 @@ coverage/
 .claude/metacoding-workflow/
 .agents/skills/metacoding-workflow/
 .backup/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log

@@ -20,6 +20,7 @@ npm run dev      # http://localhost:5173
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm run preview` | Serve the production build |
+| `npm run deploy` | Build and deploy to Firebase Hosting |
 
 **Add example songs** on the library screen loads three traditional songs to try it out.
 
@@ -100,6 +101,26 @@ npx metacoding init --template react --vendor claude-code
 
 The durable artifacts it works against are committed: `_meta/` for decisions and task state,
 `test/test-documentation.md` for test intent.
+
+## Deploying
+
+The app is a static bundle, hosted on Firebase Hosting. It makes no Firebase SDK calls, so there is
+no Firebase config or API key in the client and nothing secret in this repo — `firebase.json` only
+describes how to serve `dist/`.
+
+Deploy authentication is per-developer and never committed:
+
+```bash
+npx firebase-tools login     # once, opens a browser
+npm run deploy               # builds, then deploys hosting
+```
+
+`firebase.json` serves hashed assets under `/assets/**` with a one-year immutable cache and
+`index.html` with `no-cache`, so a deploy takes effect immediately without stale chunks. All paths
+rewrite to `index.html`, so a direct link to any URL loads the app.
+
+To deploy from CI, mint a token (`npx firebase-tools login:ci`) and pass it as the
+`FIREBASE_TOKEN` secret — never as a file in the repo.
 
 ## Not in scope
 

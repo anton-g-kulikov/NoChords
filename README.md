@@ -108,12 +108,15 @@ The app is a static bundle, hosted on Firebase Hosting. It makes no Firebase SDK
 no Firebase config or API key in the client and nothing secret in this repo — `firebase.json` only
 describes how to serve `dist/`.
 
-Deploy authentication is per-developer and never committed:
+The target project (`nochords-18219`) is pinned in `.firebaserc`, so deploy needs no flags. Deploy
+authentication is per-developer and never committed:
 
 ```bash
 npx firebase-tools login     # once, opens a browser
 npm run deploy               # builds, then deploys hosting
 ```
+
+The site is served at `https://nochords-18219.web.app`.
 
 `firebase.json` serves hashed assets under `/assets/**` with a one-year immutable cache and
 `index.html` with `no-cache`, so a deploy takes effect immediately without stale chunks. All paths

@@ -88,6 +88,12 @@ Which chords get hidden is chosen at random when a playthrough starts and stays 
 duration — nothing flickers as you scroll. Hidden chords keep their space on the page, so the chart
 never reflows as you progress. **Reset learning progress** puts you back to 0%.
 
+**Lost a chord? Tap the line** and its concealed chords come back for a few seconds, then fade out
+again. Revealing is a glance at the answer, not a change of state — your progress is untouched, and
+nothing stays revealed. A whole line rather than the one chord you tapped, because a chord is far
+too small a target on a phone. Double-tap to jump playback to a line while in learning mode; in the
+other modes a single tap still does it.
+
 The **first chord of every line stays visible** until the final stage, so you keep your place in the
 line while the detail goes. That means the share actually hidden can fall short of the nominal
 stage — the bar reports what is really concealed, not the stage number.

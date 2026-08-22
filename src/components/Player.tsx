@@ -8,6 +8,15 @@ import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { beatDurationMs, countInDurationMs } from '../lib/metronome';
 import { MAX_COUNT_IN_BEATS, type Settings } from '../lib/settings';
+import {
+  isDoubleTap,
+  isRevealed,
+  nextExpiry,
+  pruneReveals,
+  revealRow,
+  type LastTap,
+  type Reveals,
+} from '../lib/reveal';
 import type { DisplayMode, Song } from '../types/song';
 
 interface PlayerProps {
@@ -47,6 +56,9 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * and can be reopened at any time.
    */
   const [setupOpen, setSetupOpen] = useState(true);
+  /** Lines whose concealed chords are showing, and when each stops (ADR-018). */
+  const [reveals, setReveals] = useState<Reveals>({});
+  const lastTap = useRef<LastTap | null>(null);
 
   const schedule = useMemo(
     () => buildSchedule(song.rows, song.tempo, song.beatsPerLine),
@@ -87,6 +99,11 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     totalMs,
   });
 
+  const playbackRef = useRef(playback);
+  useEffect(() => {
+    playbackRef.current = playback;
+  }, [playback]);
+
   const concealed = useMemo(
     () =>
       mode === 'learning'
@@ -100,6 +117,41 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   useEffect(() => {
     if (isPlaying) setSetupOpen(false);
   }, [isPlaying]);
+
+  /**
+   * A tap reveals the line straight away; a second tap inside the double-tap window also seeks.
+   * Revealing first means the chord appears with no wait, and the stray reveal on the way to a
+   * seek costs nothing because it expires by itself.
+   */
+  const handleRowTap = useCallback(
+    (index: number, rowId: string) => {
+      if (mode !== 'learning') {
+        playbackRef.current.seekToRow(index);
+        return;
+      }
+      const now = Date.now();
+      if (isDoubleTap(lastTap.current, rowId, now)) {
+        playbackRef.current.seekToRow(index);
+      }
+      lastTap.current = { rowId, atMs: now };
+      setReveals((current) => revealRow(current, rowId, now));
+    },
+    [mode]
+  );
+
+  /**
+   * Clear reveals as they run out. Playback re-renders constantly, but when paused nothing would
+   * otherwise trigger the render that drops an expired reveal — so schedule it.
+   */
+  useEffect(() => {
+    const soonest = nextExpiry(reveals);
+    if (soonest === null) return undefined;
+    const timer = window.setTimeout(
+      () => setReveals((current) => pruneReveals(current, Date.now())),
+      Math.max(0, soonest - Date.now()) + 20
+    );
+    return () => window.clearTimeout(timer);
+  }, [reveals]);
 
   const rowRefs = useRef<Array<HTMLLIElement | null>>([]);
   useEffect(() => {
@@ -123,6 +175,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   // Below the last stage the opening chord of each line is protected, so the achieved share can
   // fall short of the nominal one. Report what is actually hidden (ADR-013).
   const totalChords = useMemo(() => collectChordOccurrences(song.rows).length, [song.rows]);
+  // Re-read on every render; playback drives those while playing, and the expiry timer when not.
+  const now = Date.now();
   const concealmentPercent =
     totalChords === 0 ? 0 : Math.round((concealed.size / totalChords) * 100);
   const stagePercent = Math.round(concealmentFor(song.learningPlaythrough) * 100);
@@ -248,7 +302,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           <div className="learning-bar__text">
             <strong>{concealmentPercent}% concealed</strong>
             <span>
-              {song.learningPlaythrough} of 5 playthroughs completed
+              Tap a line to reveal its chords · {song.learningPlaythrough} of 5 playthroughs
               {concealmentPercent === 100
                 ? ' — all chord cues hidden'
                 : concealmentPercent < stagePercent
@@ -286,9 +340,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               rowRefs.current[index] = element;
             }}
             className={index === activeIndex ? 'sheet__row sheet__row--active' : 'sheet__row'}
-            onClick={() => playback.seekToRow(index)}
+            onClick={() => handleRowTap(index, row.id)}
           >
-            <SongRowView row={row} song={song} mode={mode} concealed={concealed} />
+            <SongRowView
+              row={row}
+              song={song}
+              mode={mode}
+              concealed={concealed}
+              revealed={isRevealed(reveals, row.id, now)}
+            />
             {row.beats && row.beats !== song.beatsPerLine && (
               <span className="sheet__beats">{row.beats}</span>
             )}

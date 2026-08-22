@@ -26,6 +26,26 @@ test intent lives in `../test/test-documentation.md`.
 - **Blocking subtasks:** none outstanding.
 - **Deferred follow-ups:** see "Backlog" below.
 
+### TASK-002 — Reveal a line's concealed chords on tap
+
+- **Title:** Tap a line in learning mode to reveal its concealed chords
+- **Goal:** When a concealed chord is needed mid-song, get it back without leaving learning mode or
+  losing progress.
+- **Success criteria:**
+  - A tap on a line in learning mode reveals *every* concealed chord on that line, not just the one
+    under the finger.
+  - The reveal is immediate — no wait to disambiguate it from a double tap.
+  - The reveal is temporary and expires on its own, including while playback is paused.
+  - A double tap still seeks to the line, as a single tap does in the other modes.
+  - Tapping in Full and Nashville modes behaves exactly as before.
+  - Learning progress is untouched: revealing is not un-concealing.
+- **In scope:** the reveal interaction, its expiry, and the seek gesture change in learning mode.
+- **Out of scope:** revealing a single chord rather than a line (the target is too small on a
+  phone); a permanent reveal; keyboard activation of rows; changing the concealment selection.
+- **Blocking subtasks:** none.
+- **Deferred follow-ups:** keyboard and screen-reader access to the reveal — the row is a clickable
+  `<li>`, and giving it a button role would collide with the global Space play/pause binding.
+
 ## Subtask Status
 
 | # | Subtask | Status |
@@ -55,6 +75,7 @@ test intent lives in `../test/test-documentation.md`.
 | 23 | Count-in as negative elapsed time, with an on-screen countdown (ADR-015) | Done |
 | 24 | Metronome volume and count-in length as per-device settings (ADR-016) | Done |
 | 25 | Controls collapse to a transport bar while playing (ADR-017) | Done |
+| 26 | TASK-002: tap a line to reveal its concealed chords (ADR-018) | Done |
 
 ## Backlog
 
@@ -65,6 +86,8 @@ Deferred deliberately — not required by the MVP brief.
 - A time signature per song, which would let the count-in default to one bar rather than a beat
   count the user picks.
 - Metronome subdivisions (eighths, triplets) and a distinct count-in sound.
+- Learning progress is inside the collapsed setup panel while playing (ADR-017), so the counter is
+  not visible at the moment a playthrough completes.
 - Import/export of songs as files.
 - Component-level unit tests in a DOM environment; the components are currently covered by the
   browser acceptance run rather than by the unit suite (see `../test/test-documentation.md`).

@@ -8,6 +8,8 @@ interface SongRowViewProps {
   mode: DisplayMode;
   /** Occurrence keys to conceal, as `rowId:chordIndex`. */
   concealed: Set<string>;
+  /** While true this line's concealed chords are shown anyway (ADR-018). */
+  revealed?: boolean;
 }
 
 /**
@@ -18,12 +20,14 @@ interface SongRowViewProps {
  * only blurred — nothing is removed or substituted — so neither its own lyric nor any later chord
  * or lyric moves when concealment changes (ADR-007).
  */
-export function SongRowView({ row, song, mode, concealed }: SongRowViewProps) {
+export function SongRowView({ row, song, mode, concealed, revealed = false }: SongRowViewProps) {
   return (
     <div className="line">
       {rowSegments(row).map((segment, index) => {
         const hidden =
-          segment.chordIndex !== null && concealed.has(occurrenceKey(row.id, segment.chordIndex));
+          !revealed &&
+          segment.chordIndex !== null &&
+          concealed.has(occurrenceKey(row.id, segment.chordIndex));
 
         return (
           <span key={index} className="seg">

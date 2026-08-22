@@ -20,6 +20,7 @@ described at the end of this document.
 | Playback timing | `src/lib/playback.ts` | `playback.test.ts` |
 | Song state transitions | `src/lib/songs.ts` | `songs.test.ts` |
 | Metronome timing | `src/lib/metronome.ts` | `metronome.test.ts` |
+| Chord reveal on tap | `src/lib/reveal.ts` | `reveal.test.ts` |
 | Local persistence | `src/lib/storage.ts` | `storage.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
@@ -207,6 +208,31 @@ described at the end of this document.
 | MT-12 | Accents are correct through negative count-in beats | ✅ |
 | MT-13 | A nonsensical line length degrades to 4/4, not "accent everything" | ✅ |
 
+### Chord reveal on tap — `reveal.test.ts`
+
+Intent: a tap in learning mode must bring a whole line's concealed chords back **immediately**, let
+go of them **on its own**, and never touch the concealment itself. Time is passed in explicitly so
+expiry is tested without waiting on a clock.
+
+| # | Case | Status |
+|---|------|--------|
+| RV-01 | Revealing a line marks it revealed from that moment | ✅ |
+| RV-02 | A revealed line stops being revealed once its window passes | ✅ |
+| RV-03 | The boundary is half-open: it is revealed at `expiry - 1`, not at `expiry` | ✅ |
+| RV-04 | A line that was never tapped is not revealed | ✅ |
+| RV-05 | Several lines can be revealed at once, each expiring on its own clock | ✅ |
+| RV-06 | Re-tapping a revealed line extends it rather than toggling it off | ✅ |
+| RV-07 | The reveal duration is overridable, for tests and future tuning | ✅ |
+| RV-08 | Pruning drops expired entries and keeps live ones | ✅ |
+| RV-09 | Pruning returns the same object when nothing expired, so React can skip the render | ✅ |
+| RV-10 | `nextExpiry` reports when the soonest reveal ends, for scheduling the tidy-up | ✅ |
+| RV-11 | `nextExpiry` is null when nothing is revealed | ✅ |
+| RV-12 | A second tap on the same line inside the window counts as a double tap | ✅ |
+| RV-13 | A second tap after the window does not | ✅ |
+| RV-14 | A tap on a *different* line is never a double tap, however fast | ✅ |
+| RV-15 | The first tap of all is never a double tap | ✅ |
+| RV-16 | Reveal state is derived data and never mutates its input | ✅ |
+
 ### Device preferences — `settings.test.ts`
 
 | # | Case | Status |
@@ -277,6 +303,26 @@ passing:
 
 The 0.00ms figure is the point of ADR-014's single anchor: pinning `performance.now()` to
 `AudioContext.currentTime` on every scheduler tick instead measured 1.85ms of beat-to-beat jitter.
+
+### Chord reveal run
+
+Driven at 420×780, in learning mode advanced to three completed playthroughs so chords are really
+concealed. 10 checks, all passing:
+
+| Check | Result |
+|-------|--------|
+| **A single tap reveals the whole line — 2 concealed chords → 0** | ✅ |
+| Other lines stay concealed | ✅ |
+| The reveal is immediate, with no double-tap wait | ✅ |
+| **Learning progress is unchanged by revealing** | ✅ |
+| **The reveal expires by itself while playback is paused** | ✅ |
+| Nothing outside the tapped line changed | ✅ |
+| A double tap seeks to the line (0:18 → 0:13) | ✅ |
+| A single tap still seeks in Full mode (0:13 → 0:04) | ✅ |
+| Nothing is concealed in Full mode | ✅ |
+
+Progress is read by opening the setup panel, because ADR-017 keeps the learning bar inside it while
+playing.
 
 ### Playing-screen space run
 

@@ -304,3 +304,30 @@ shows it: chord names, roman numerals, or blur.
 
 **Cost.** Changing key or mode mid-song costs one extra tap. That is the right way round, given the
 alternative was not being able to read the song at all.
+
+---
+
+## ADR-018 — Revealing is per line, immediate, and temporary
+
+**Decision.** In learning mode a tap on a line reveals every concealed chord on it for a few
+seconds. A second tap within the double-tap window also seeks to that line. In Full and Nashville
+modes a single tap still seeks, exactly as before.
+
+**Why a whole line, not the chord tapped.** A chord is a couple of characters of 1.4rem text sitting
+above a lyric; on a phone it is far below the ~44px touch target a finger can reliably hit, and a
+miss would land on the lyric and do nothing. The line is the thing you can actually aim at, and it
+is also the useful unit: if you have lost one chord in a line you have usually lost the phrase.
+
+**Why immediate rather than debounced.** Distinguishing a single tap from a double tap normally
+means waiting out the double-tap window before acting — 300ms of nothing after a tap, which reads
+as a broken control when you need the chord *now*. Instead the first tap reveals straight away, and
+a second tap within the window adds the seek. The reveal that happens on the way to a seek is
+harmless, because it expires by itself.
+
+**Why temporary.** A permanent reveal would quietly undo the concealment you are working through,
+and after a few lines the chart would be back to Full mode without the counter reflecting it.
+An expiring reveal is a glance at the answer, not a change of state — learning progress is never
+touched.
+
+**Cost.** Seeking in learning mode now costs two taps. That is the less common action of the two
+while learning a song, so it is the one that should carry the extra cost.

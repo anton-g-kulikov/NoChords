@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeySelect } from './KeySelect';
+import { NumberField } from './NumberField';
 import { SongRowView } from './SongRowView';
 import { buildSchedule } from '../lib/playback';
 import { collectChordOccurrences, concealmentFor, createConcealment } from '../lib/learning';
@@ -272,20 +273,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               />
             </label>
 
-            <label className="field field--narrow">
-              <span className="field__label">Count-in</span>
-              <input
-                className="field__input"
-                type="number"
-                min={0}
-                max={MAX_COUNT_IN_BEATS}
-                value={settings.countInBeats}
-                aria-label="Count-in beats"
-                onChange={(event) =>
-                  onSettingsChange({ countInBeats: Number(event.target.value) || 0 })
-                }
-              />
-            </label>
+            <NumberField
+              label="Count-in"
+              value={settings.countInBeats}
+              min={0}
+              max={MAX_COUNT_IN_BEATS}
+              onCommit={(countInBeats) => onSettingsChange({ countInBeats })}
+            />
           </div>
         </div>
       </div>

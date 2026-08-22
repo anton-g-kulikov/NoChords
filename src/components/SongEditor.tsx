@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { KeySelect } from './KeySelect';
+import { NumberField } from './NumberField';
 import { songToText, textToRows } from '../lib/songs';
 import type { Song } from '../types/song';
 
@@ -59,33 +60,21 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
           }
         />
 
-        <label className="field field--narrow">
-          <span className="field__label">Tempo (bpm)</span>
-          <input
-            className="field__input"
-            type="number"
-            min={20}
-            max={300}
-            value={song.tempo}
-            onChange={(event) =>
-              onChange({ ...song, tempo: Number(event.target.value) || song.tempo })
-            }
-          />
-        </label>
+        <NumberField
+          label="Tempo (bpm)"
+          value={song.tempo}
+          min={20}
+          max={300}
+          onCommit={(tempo) => onChange({ ...song, tempo })}
+        />
 
-        <label className="field field--narrow">
-          <span className="field__label">Beats per line</span>
-          <input
-            className="field__input"
-            type="number"
-            min={1}
-            max={64}
-            value={song.beatsPerLine}
-            onChange={(event) =>
-              onChange({ ...song, beatsPerLine: Number(event.target.value) || song.beatsPerLine })
-            }
-          />
-        </label>
+        <NumberField
+          label="Beats per line"
+          value={song.beatsPerLine}
+          min={1}
+          max={64}
+          onCommit={(beatsPerLine) => onChange({ ...song, beatsPerLine })}
+        />
       </div>
 
       {transposed && (

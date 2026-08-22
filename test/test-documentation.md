@@ -21,6 +21,7 @@ described at the end of this document.
 | Song state transitions | `src/lib/songs.ts` | `songs.test.ts` |
 | Metronome timing | `src/lib/metronome.ts` | `metronome.test.ts` |
 | Chord reveal on tap | `src/lib/reveal.ts` | `reveal.test.ts` |
+| Numeric field commits | `src/lib/numberField.ts` | `number-field.test.ts` |
 | Local persistence | `src/lib/storage.ts` | `storage.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
@@ -208,6 +209,25 @@ described at the end of this document.
 | MT-12 | Accents are correct through negative count-in beats | ✅ |
 | MT-13 | A nonsensical line length degrades to 4/4, not "accent everything" | ✅ |
 
+### Numeric field commits — `number-field.test.ts`
+
+Intent: decide what a partly-typed number field should store. The regression that prompted this is
+NF-02 — an emptied field previously restored the old value, so a number could never change its
+digit count.
+
+| # | Case | Status |
+|---|------|--------|
+| NF-01 | A valid in-range number commits | ✅ |
+| NF-02 | **An empty field commits nothing** (the 90 → 80 regression) | ✅ |
+| NF-03 | Whitespace alone commits nothing | ✅ |
+| NF-04 | A value below the minimum commits nothing, so `8` en route to `80` is not stored | ✅ |
+| NF-05 | A value above the maximum commits nothing | ✅ |
+| NF-06 | The bounds themselves are allowed | ✅ |
+| NF-07 | Non-numeric text commits nothing | ✅ |
+| NF-08 | A partial decimal such as `1.` commits nothing, but `1.5` does | ✅ |
+| NF-09 | Leading zeros and surrounding spaces are read as the number they are | ✅ |
+| NF-10 | A negative number commits only where the minimum allows it | ✅ |
+
 ### Chord reveal on tap — `reveal.test.ts`
 
 Intent: a tap in learning mode must bring a whole line's concealed chords back **immediately**, let
@@ -303,6 +323,21 @@ passing:
 
 The 0.00ms figure is the point of ADR-014's single anchor: pinning `performance.now()` to
 `AudioContext.currentTime` on every scheduler tick instead measured 1.85ms of beat-to-beat jitter.
+
+### Numeric field run
+
+The reported flow reproduced at 420×780, on the fields that were broken. 15 checks, all passing:
+
+| Check | Result |
+|-------|--------|
+| **The field can be emptied — the keystroke that used to snap it back** | ✅ |
+| 90 → backspace → 9 → backspace → empty → type `80` → 80 | ✅ |
+| 4 → empty → type `12` → 12 beats per line | ✅ |
+| Leaving a field empty restores the last good value, not a blank | ✅ |
+| Below-minimum text (`5` for tempo) is never committed | ✅ |
+| Both values survive a reload, so they really were persisted | ✅ |
+| A tempo change from the slider still reaches the field | ✅ |
+| Count-in behaves the same way | ✅ |
 
 ### Chord reveal run
 

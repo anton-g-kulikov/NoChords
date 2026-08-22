@@ -331,3 +331,28 @@ touched.
 
 **Cost.** Seeking in learning mode now costs two taps. That is the less common action of the two
 while learning a song, so it is the one that should carry the extra cost.
+
+---
+
+## ADR-019 — Numeric inputs keep their own text while being edited
+
+**Decision.** `NumberField` holds the raw text the user is typing and commits a number only when
+that text parses to an in-range value. Empty and half-typed text commit nothing. Leaving the field
+restores the text to the last committed value. The field is re-synced from its prop only while it
+is *not* focused.
+
+**Why.** Binding a number input straight to a parsed number cannot represent the states a user
+passes *through* while editing. Emptying the box yields `""`, and `Number("") || previous` restored
+the previous value on the very keystroke that cleared it — so a value could never change its digit
+count. 90 could become 9 but never 80.
+
+It is the same problem the song text area solved in ADR-010, and it takes the same shape: the text
+being typed is the state, and the parsed value is derived from it, not the other way round.
+
+**Why commit while typing rather than on blur.** The tempo slider and the field show the same
+value; waiting for blur would let them disagree, and on a phone a blur may never come. Committing
+only in-range values means no intermediate nonsense is ever stored — typing `8` on the way to `80`
+commits nothing, because 8 is below the minimum tempo.
+
+**Cost.** One more component, and a focused field deliberately ignores outside changes to its
+value. That is the intent: nothing should rewrite what you are in the middle of typing.

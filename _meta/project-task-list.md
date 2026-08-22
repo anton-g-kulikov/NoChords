@@ -46,6 +46,24 @@ test intent lives in `../test/test-documentation.md`.
 - **Deferred follow-ups:** keyboard and screen-reader access to the reveal — the row is a clickable
   `<li>`, and giving it a button role would collide with the global Space play/pause binding.
 
+### TASK-003 — Numeric fields cannot be cleared
+
+- **Title:** Fix number inputs that snap back when emptied
+- **Goal:** Be able to change a number to one with a different digit count.
+- **Bug:** `Number(event.target.value) || song.tempo` reads an emptied field as `0`, which is
+  falsy, so the old value is restored on the keystroke that clears the field. Deleting the last
+  digit of `90` leaves `9` and deleting `9` restores `9`, making 80 unreachable. The same shape
+  affects beats-per-line and count-in.
+- **Success criteria:**
+  - A field can be cleared to empty and typed into freely.
+  - 90 → 80 and 4 → 12 both work by ordinary editing.
+  - An empty or out-of-range field commits nothing rather than a wrong value.
+  - Leaving a field empty restores the last good value rather than persisting a blank.
+  - A value changed elsewhere (the tempo slider) still updates the field.
+- **In scope:** the three numeric fields — tempo, beats per line, count-in.
+- **Out of scope:** the range sliders, which cannot reach an invalid state.
+- **Blocking subtasks:** none.
+
 ## Subtask Status
 
 | # | Subtask | Status |
@@ -76,6 +94,7 @@ test intent lives in `../test/test-documentation.md`.
 | 24 | Metronome volume and count-in length as per-device settings (ADR-016) | Done |
 | 25 | Controls collapse to a transport bar while playing (ADR-017) | Done |
 | 26 | TASK-002: tap a line to reveal its concealed chords (ADR-018) | Done |
+| 27 | TASK-003: numeric fields can be cleared and retyped (ADR-019) | Done |
 
 ## Backlog
 

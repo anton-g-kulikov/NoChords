@@ -63,3 +63,6 @@ Deferred deliberately — not required by the MVP brief.
 - Pin `firebase-tools` to a known-good major in CI; it currently resolves to latest on each run, so
   an upstream release could change deploy behaviour without a commit here.
 - Firebase Hosting preview channels for pull requests.
+- `actions/upload-artifact@v5` still runs on Node 20 and warns on every run. checkout and
+  setup-node were cleared by moving to v5; this one needs whatever major migrates it. Non-breaking
+  today — the runner forces it onto Node 24.

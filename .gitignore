@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+*.local
+.DS_Store
+.vite/
+
+# metacoding: AI coding assistant exclusions
+.codex/skills/metacoding-workflow/
+.claude/agents/metacoding-workflow.md
+.claude/metacoding-workflow/
+.agents/skills/metacoding-workflow/
+.backup/

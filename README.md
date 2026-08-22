@@ -4,7 +4,8 @@ Learn songs by progressively hiding chord cues while playing through lyrics at a
 
 Type a song in once, play it back with the chart scrolling itself, and let the chords fade out over
 repeated playthroughs — 20%, 40%, 60%, 80%, then all of them — until you can follow the lyrics
-alone. No account, no backend; songs live in your browser.
+alone. Works signed out with songs in your browser; sign in with Google and they follow you
+between devices.
 
 ## Getting started
 
@@ -21,6 +22,7 @@ npm run dev      # http://localhost:5173
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm run preview` | Serve the production build |
 | `npm run deploy` | Build and deploy to Firebase Hosting |
+| `npm run deploy:rules` | Deploy the Firestore security rules |
 
 **Add example songs** on the library screen loads three traditional songs to try it out.
 
@@ -137,6 +139,32 @@ npx metacoding init --template react --vendor claude-code
 
 The durable artifacts it works against are committed: `_meta/` for decisions and task state,
 `test/test-documentation.md` for test intent.
+
+## Accounts and sync
+
+Signed out, songs live in this browser's local storage and nothing goes over the network.
+
+Sign in with Google and your library moves to your own Firestore documents, syncing between
+devices and working offline through Firestore's local cache. Signing in for the first time with
+songs already on the device offers to copy them up; it asks rather than assuming, because
+uploading silently is wrong on a borrowed phone and ignoring silently looks like data loss.
+
+Editing does not write on every keystroke — writes settle for 800ms first, and flush when the page
+is hidden.
+
+**Security.** Songs are stored at `users/{uid}/songs/{songId}`, and
+[`firestore.rules`](firestore.rules) allows read and write only where the signed-in uid matches the
+path. Firestore is reached straight from the browser, so the client is not a trust boundary: those
+rules are the only thing that actually keeps one account's songs away from another. They are
+committed here rather than living as console state.
+
+The Firebase web config in `src/lib/firebase.ts` is public by design — it identifies the project
+and grants nothing on its own. The API key comes from `VITE_FIREBASE_API_KEY` (see `.env.example`).
+Build without it and the app contains no Firebase at all: sign-in is not offered and everything
+stays local.
+
+**Bundle cost.** The SDK is fetched only if someone signs in. The app chunk is 55.8kB gzip; the
+Firebase chunk is 183.6kB and is never requested by a signed-out visitor.
 
 ## Deploying
 

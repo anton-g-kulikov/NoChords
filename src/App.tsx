@@ -2,13 +2,28 @@ import { useState } from 'react';
 import { Player } from './components/Player';
 import { SongEditor } from './components/SongEditor';
 import { SongList } from './components/SongList';
+import { AuthBar } from './components/AuthBar';
+import { ImportPrompt } from './components/ImportPrompt';
 import { useSongLibrary } from './hooks/useSongLibrary';
 import { useSettings } from './hooks/useSettings';
+import { useAuth } from './hooks/useAuth';
 
 type Pane = 'edit' | 'play';
 
 export function App() {
-  const { songs, addSong, addExampleSongs, updateSong, deleteSong } = useSongLibrary();
+  const auth = useAuth();
+  const {
+    songs,
+    loading,
+    storedIn,
+    importOffer,
+    addSong,
+    addExampleSongs,
+    updateSong,
+    deleteSong,
+    acceptImport,
+    dismissImport,
+  } = useSongLibrary(auth.user?.uid ?? null);
   const { settings, update: updateSettings } = useSettings();
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [pane, setPane] = useState<Pane>('edit');
@@ -17,7 +32,17 @@ export function App() {
 
   if (!song) {
     return (
-      <SongList
+      <>
+        <AuthBar auth={auth} storedIn={storedIn} />
+        {importOffer && (
+          <ImportPrompt
+            localCount={importOffer.localCount}
+            onAccept={() => void acceptImport()}
+            onDismiss={dismissImport}
+          />
+        )}
+        {loading && <p className="library__empty">Loading your songs…</p>}
+        <SongList
         songs={songs}
         onOpen={(songId) => {
           setOpenSongId(songId);
@@ -29,7 +54,8 @@ export function App() {
         }}
         onDelete={deleteSong}
         onLoadExamples={addExampleSongs}
-      />
+        />
+      </>
     );
   }
 

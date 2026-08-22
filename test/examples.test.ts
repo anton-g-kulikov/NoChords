@@ -151,10 +151,10 @@ describe('example songs', () => {
     expect(rowIndexAt(schedule, totalDurationMs(schedule))).toBe(-1);
   });
 
-  it('EX-08 round-trips through storage unchanged', () => {
+  it('EX-08 round-trips through storage unchanged', async () => {
     const store = createSongStore(memoryStorage());
-    store.save(examples);
-    expect(store.load()).toEqual(examples);
+    for (const song of examples) await store.saveSong(song);
+    expect(await store.load()).toEqual(examples);
   });
 
   it('EX-09 gives every fixture and row a distinct id on each call', () => {

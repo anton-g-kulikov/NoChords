@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// NoChords security rules (ADR-021).
+//
+// Firestore is reached straight from the browser, so the client is not a trust boundary: anyone
+// can call the API with their own token. These rules are the only thing that actually keeps one
+// person's songs away from another, which is why they live in the repository next to the code
+// rather than as console state.
+//
+// Ownership is a path segment, so no document field can claim to belong to someone else.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId}/songs/{songId} {
+      // Signed in, and only ever your own subtree.
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Anything not matched above is denied, including the user document itself. Nothing in this
+    // app writes there, so nothing should be able to.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

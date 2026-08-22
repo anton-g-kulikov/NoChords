@@ -356,3 +356,105 @@ commits nothing, because 8 is below the minimum tempo.
 
 **Cost.** One more component, and a focused field deliberately ignores outside changes to its
 value. That is the intent: nothing should rewrite what you are in the middle of typing.
+
+---
+
+## ADR-020 — The store port becomes asynchronous and per-song
+
+**Decision.** `SongStore` changes from synchronous whole-library calls to:
+
+```ts
+load(): Promise<Song[]>
+saveSong(song: Song): Promise<void>
+deleteSong(songId: string): Promise<void>
+subscribe?(onChange: (songs: Song[]) => void): () => void
+```
+
+The local-storage store keeps its old behaviour behind this shape.
+
+**Why async.** A network store cannot answer synchronously, and ADR-005 put this port here
+precisely so a backend could arrive without rewriting the UI. Making the *local* store async too
+means there is one shape rather than a branch at every call site.
+
+**Why per song.** Saving the whole library on every change is invisible against `localStorage` but
+against Firestore it is a write per song per keystroke — cost, quota, and needless contention.
+Writing only the song that changed is both cheaper and a better description of what happened.
+
+**Why an optional `subscribe`.** Live cross-device sync is the reason to have a cloud store at all,
+but it is meaningless locally. Optional means the local store simply does not implement it, and the
+hook treats its absence as "nothing will change underneath you".
+
+**Cost.** The library now has a loading state it did not have before, and tests await. Both are
+honest consequences of the data being somewhere else.
+
+---
+
+## ADR-021 — One Firestore document per song, under the owner's uid
+
+**Decision.** Songs live at `users/{uid}/songs/{songId}`, one document each. Security rules allow
+read and write only where `request.auth.uid == uid`. Firestore's offline cache is enabled.
+
+**Why a document per song.** A single document holding the whole library would hit the 1MB limit on
+a large library, and would make every edit rewrite every song. Per-song documents also let the
+rules be simple: ownership is a path segment, so no document field can lie about who owns it.
+
+**Why the rules matter more than the client.** Firestore is reached directly from the browser, so
+the client is not a trust boundary — anyone can call the API with their own token. The rules are
+the only thing actually enforcing that you see just your own songs, which is why they are committed
+here alongside the code rather than being console state.
+
+**Why the offline cache.** A musician's phone in a rehearsal room may have no signal. Firestore's
+IndexedDB cache makes reads and writes work offline and reconcile later, which is the behaviour
+this app already had locally and should not lose by moving to the cloud.
+
+**Cost.** Last write wins, per song. Editing the same song on two devices at once can lose one
+side's change. Acceptable for a personal library; real merging is out of scope.
+
+---
+
+## ADR-022 — Firebase is optional at runtime, and signing in offers to bring local songs
+
+**Decision.** The app checks whether Firebase is configured and reachable. If it is not, sign-in is
+simply not offered and the app runs on `localStorage` exactly as before. On a first sign-in that
+finds local songs and an empty cloud library, the user is asked whether to bring them along.
+
+**Why optional.** It keeps the app working with no configuration, in a checkout without keys, and
+when the network is down — and it keeps the existing test suite meaningful, since none of it should
+need a Firebase project. A missing key degrades a feature rather than breaking the app.
+
+**Why ask about the import rather than doing it.** Silently uploading is wrong for someone signing
+in on a friend's phone, and silently discarding is wrong for someone who has been using the app for
+weeks. Both failure modes are bad enough, and the moment is rare enough, that a question is
+justified where usually it would not be.
+
+**Why not merge both ways.** Songs have no shared identity across devices before sign-in — two
+libraries are two sets of unrelated ids, so a merge would just concatenate. The import runs only
+into an empty cloud library, which is the case where concatenation is the right answer anyway.
+
+**Cost.** A user with songs in both places must pick one; local songs stay on the device either
+way, so nothing is destroyed.
+
+---
+
+## ADR-023 — The Firebase SDK is fetched only if someone signs in
+
+**Decision.** Nothing in the main bundle imports the Firebase SDK. `firebase.ts` holds only the
+config and lazy loaders; every SDK call goes through a dynamic `import('./firebaseClient')`, which
+Rollup emits as its own chunk.
+
+**Why.** Importing it normally took the app from 55kB gzip to 239kB — a 4.3× increase paid on every
+first load, by every visitor, including the ones who never sign in. Measured after the split: the
+main chunk is 55.8kB and the Firebase chunk is 183.6kB, fetched only when sign-in actually happens.
+
+This falls out of ADR-022 rather than fighting it. Firebase is already optional at runtime, so
+there is a well-defined moment when it becomes needed, and nothing before that moment requires a
+single byte of it.
+
+**A consequence worth knowing.** Vite folds `import.meta.env` constants at build time, so a build
+with no `VITE_FIREBASE_API_KEY` makes `isFirebaseConfigured()` statically false and tree-shakes the
+entire Firebase path away — config, chunk and all. An unconfigured build is not merely a build with
+sign-in disabled; it contains no Firebase whatsoever. That is the right outcome, but it does mean
+the split cannot be observed without supplying a key at build time.
+
+**Cost.** Sign-in pays a one-off chunk fetch, and the loaders are async where direct calls would
+have been synchronous. Both are invisible next to 180kB on every cold load.

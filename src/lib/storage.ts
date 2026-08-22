@@ -19,10 +19,19 @@ export interface StorageLike {
   removeItem(key: string): void;
 }
 
+/**
+ * How the app reaches its songs, wherever they live (ADR-020).
+ *
+ * Asynchronous and per-song because the other implementation is a network store: it cannot answer
+ * synchronously, and rewriting the whole library on every keystroke would be a write per song per
+ * keystroke. `subscribe` is optional — nothing changes a local library underneath you.
+ */
 export interface SongStore {
-  load(): Song[];
-  save(songs: Song[]): void;
-  clear(): void;
+  load(): Promise<Song[]>;
+  saveSong(song: Song): Promise<void>;
+  deleteSong(songId: string): Promise<void>;
+  clear(): Promise<void>;
+  subscribe?(onChange: (songs: Song[]) => void): () => void;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -56,8 +65,13 @@ function sanitizeRow(value: unknown): SongRow | null {
   return { id, lyrics, chords: sanitizedChords, beats };
 }
 
-/** Validates one stored song, returning `null` if any required field is missing or wrongly typed. */
-function sanitizeSong(value: unknown): Song | null {
+/**
+ * Validates one stored song, returning `null` if any required field is missing or wrongly typed.
+ *
+ * Exported because a Firestore document crosses the same trust boundary as stored JSON, and both
+ * routes into the app should agree on exactly what counts as a song (ADR-021).
+ */
+export function sanitizeSong(value: unknown): Song | null {
   if (!isRecord(value)) return null;
   const { id, title, originalKey, currentKey, tempo, beatsPerLine, learningPlaythrough, rows } =
     value;
@@ -107,43 +121,60 @@ export function defaultStorage(): StorageLike | null {
  * library rather than breaking the app.
  */
 export function createSongStore(storage: StorageLike | null = defaultStorage()): SongStore {
+  /** Reads and validates the whole library. A corrupt or blocked store reads as empty. */
+  const readAll = (): Song[] => {
+    if (!storage) return [];
+    let raw: string | null;
+    try {
+      raw = storage.getItem(STORAGE_KEY);
+    } catch {
+      return [];
+    }
+    if (!raw) return [];
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+    if (!Array.isArray(parsed)) return [];
+
+    const songs: Song[] = [];
+    for (const entry of parsed) {
+      const song = sanitizeSong(entry);
+      if (song) songs.push(song);
+    }
+    return songs;
+  };
+
+  const writeAll = (songs: Song[]): void => {
+    if (!storage) return;
+    try {
+      storage.setItem(STORAGE_KEY, JSON.stringify(songs));
+    } catch {
+      // Quota exceeded or storage blocked: the in-memory session keeps working.
+    }
+  };
+
   return {
-    load(): Song[] {
-      if (!storage) return [];
-      let raw: string | null;
-      try {
-        raw = storage.getItem(STORAGE_KEY);
-      } catch {
-        return [];
-      }
-      if (!raw) return [];
-
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(raw);
-      } catch {
-        return [];
-      }
-      if (!Array.isArray(parsed)) return [];
-
-      const songs: Song[] = [];
-      for (const entry of parsed) {
-        const song = sanitizeSong(entry);
-        if (song) songs.push(song);
-      }
-      return songs;
+    async load(): Promise<Song[]> {
+      return readAll();
     },
 
-    save(songs: Song[]): void {
-      if (!storage) return;
-      try {
-        storage.setItem(STORAGE_KEY, JSON.stringify(songs));
-      } catch {
-        // Quota exceeded or storage blocked: the in-memory session keeps working.
-      }
+    async saveSong(song: Song): Promise<void> {
+      const songs = readAll();
+      const index = songs.findIndex((item) => item.id === song.id);
+      if (index === -1) songs.push(song);
+      else songs[index] = song;
+      writeAll(songs);
     },
 
-    clear(): void {
+    async deleteSong(songId: string): Promise<void> {
+      writeAll(readAll().filter((song) => song.id !== songId));
+    },
+
+    async clear(): Promise<void> {
       if (!storage) return;
       try {
         storage.removeItem(STORAGE_KEY);

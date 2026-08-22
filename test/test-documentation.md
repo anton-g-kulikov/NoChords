@@ -23,6 +23,8 @@ described at the end of this document.
 | Chord reveal on tap | `src/lib/reveal.ts` | `reveal.test.ts` |
 | Numeric field commits | `src/lib/numberField.ts` | `number-field.test.ts` |
 | Local persistence | `src/lib/storage.ts` | `storage.test.ts` |
+| Cloud document mapping | `src/lib/songDoc.ts` | `song-doc.test.ts` |
+| Sign-in import decision | `src/lib/cloudImport.ts` | `cloud-import.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
 
@@ -253,6 +255,41 @@ expiry is tested without waiting on a clock.
 | RV-15 | The first tap of all is never a double tap | ✅ |
 | RV-16 | Reveal state is derived data and never mutates its input | ✅ |
 
+### Cloud document mapping — `song-doc.test.ts`
+
+Intent: a Firestore document is untrusted input in exactly the way stored JSON is — it can be
+written by an older version of the app, or by hand in the console. Mapping both ways must be
+lossless for good data and must refuse bad data rather than letting it into the app.
+
+| # | Case | Status |
+|---|------|--------|
+| SD-01 | A song round-trips to a document and back unchanged | ✅ |
+| SD-02 | The document carries the song id as a field as well as its key | ✅ |
+| SD-03 | Rows survive with their chords, anchors and beat overrides | ✅ |
+| SD-04 | `beats: null` survives, rather than becoming undefined | ✅ |
+| SD-05 | A document missing required fields is rejected | ✅ |
+| SD-06 | A document with wrongly typed fields is rejected | ✅ |
+| SD-07 | A document with a malformed row is rejected whole | ✅ |
+| SD-08 | Unknown extra fields are dropped rather than carried into the app | ✅ |
+| SD-09 | The document contains no `undefined`, which Firestore rejects | ✅ |
+
+### Sign-in import decision — `cloud-import.test.ts`
+
+Intent: decide, from what is in each place, whether signing in should offer to bring local songs
+up. Getting this wrong either duplicates a library or appears to lose one.
+
+| # | Case | Status |
+|---|------|--------|
+| CI-01 | Local songs and an empty cloud library → offer the import | ✅ |
+| CI-02 | Local songs and a non-empty cloud library → do not offer | ✅ |
+| CI-03 | No local songs → nothing to offer, whatever is in the cloud | ✅ |
+| CI-04 | Neither side has songs → nothing to offer | ✅ |
+| CI-05 | The decision is a pure function of the two counts, with no inspection of content | ✅ |
+
+If the local library happens to be only the example songs, the offer is still made and the user
+declines it. Recognising the examples would mean matching on their titles, which breaks as soon as
+one is renamed — a worse failure than one extra question.
+
 ### Device preferences — `settings.test.ts`
 
 | # | Case | Status |
@@ -323,6 +360,35 @@ passing:
 
 The 0.00ms figure is the point of ADR-014's single anchor: pinning `performance.now()` to
 `AudioContext.currentTime` on every scheduler tick instead measured 1.85ms of beat-to-beat jitter.
+
+### Cloud persistence run — unconfigured build
+
+The build that ships without an API key must be indistinguishable from the app before cloud sync
+existed. 8 checks, all passing:
+
+| Check | Result |
+|-------|--------|
+| No sign-in is offered, and no account bar renders | ✅ |
+| **No Firebase network request is made at all** | ✅ |
+| Example songs still load | ✅ |
+| An edit persists locally through the 800ms write debounce | ✅ |
+| A deletion persists across a reload | ✅ |
+| No console or page errors | ✅ |
+
+Bundle split verified separately by building with a dummy key: app chunk 55.8kB gzip, Firebase
+chunk 183.6kB, and zero SDK bytes in the app chunk (ADR-023).
+
+Signed-in behaviour — real Google sign-in, cross-device sync and the rules — cannot be exercised
+from this sandbox and is listed under "Not yet verified" below.
+
+### Not yet verified
+
+These need a configured project and a real Google account, and are outstanding:
+
+- Signing in, and the library switching to Firestore.
+- A song written on one device appearing on another.
+- The import prompt on a first sign-in with local songs.
+- The security rules actually refusing another user's documents.
 
 ### Numeric field run
 

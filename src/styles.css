@@ -599,3 +599,56 @@ kbd {
     width: 100%;
   }
 }
+
+/* ---------- Account ---------- */
+
+.authbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.authbar__status {
+  flex: 1;
+  min-width: 160px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.authbar__error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.import-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.import-prompt p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 46ch;
+}
+
+.import-prompt__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

@@ -9,11 +9,13 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "deploy": "npm run build && npx --yes firebase-tools deploy --only hosting",
+    "deploy:rules": "npx --yes firebase-tools deploy --only firestore:rules",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "firebase": "^12.18.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

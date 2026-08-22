@@ -64,6 +64,31 @@ test intent lives in `../test/test-documentation.md`.
 - **Out of scope:** the range sliders, which cannot reach an invalid state.
 - **Blocking subtasks:** none.
 
+### TASK-004 — Cloud persistence: Google sign-in and Firestore
+
+- **Title:** Sync songs to Firestore behind Google sign-in
+- **Goal:** A musician's songs follow them between devices, without losing the app's ability to
+  work signed out or offline.
+- **Success criteria:**
+  - Signed out, the app behaves exactly as it does today: songs in `localStorage`, no network.
+  - Signing in with Google moves the library to that account's Firestore documents.
+  - Songs written on one device appear on another.
+  - Signing in for the first time with local songs offers to bring them along rather than
+    silently dropping or duplicating them.
+  - A user can only ever read or write their own songs — enforced by rules on the server, not by
+    the client.
+  - Editing does not write on every keystroke.
+  - With Firebase unconfigured or unreachable, the app still runs on local storage.
+- **In scope:** Google sign-in, a Firestore-backed store behind the existing port, security rules,
+  the local→cloud import on first sign-in, and write debouncing.
+- **Out of scope:** other sign-in providers; sharing songs between users; conflict resolution
+  beyond last-write-wins; an account-deletion flow.
+- **Blocking subtasks:**
+  - The Firebase web `apiKey` (public, but not yet supplied).
+  - Google provider enabled and a Firestore database created in the console.
+  - The CI deploy service account can publish Hosting but not Firestore rules; rules deploy needs
+    either an added role or a one-off manual deploy.
+
 ## Subtask Status
 
 | # | Subtask | Status |
@@ -95,6 +120,9 @@ test intent lives in `../test/test-documentation.md`.
 | 25 | Controls collapse to a transport bar while playing (ADR-017) | Done |
 | 26 | TASK-002: tap a line to reveal its concealed chords (ADR-018) | Done |
 | 27 | TASK-003: numeric fields can be cleared and retyped (ADR-019) | Done |
+| 28 | TASK-004: async store port (ADR-020) | Done |
+| 29 | TASK-004: Firestore store, per-user documents, security rules (ADR-021) | Done |
+| 30 | TASK-004: Google sign-in and the local→cloud import (ADR-022) | Done |
 
 ## Backlog
 

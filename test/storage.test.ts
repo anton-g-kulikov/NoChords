@@ -44,36 +44,41 @@ const sample: Song = {
   ],
 };
 
+/** The port is per-song now (ADR-020); most cases still want a whole library in place. */
+async function saveAll(store: ReturnType<typeof createSongStore>, songs: Song[]) {
+  for (const song of songs) await store.saveSong(song);
+}
+
 describe('createSongStore', () => {
-  it('ST-01 returns saved songs on a later load', () => {
+  it('ST-01 returns saved songs on a later load', async () => {
     const store = createSongStore(memoryStorage());
-    store.save([sample]);
-    expect(store.load()).toEqual([sample]);
+    saveAll(store, [sample]);
+    expect((await store.load())).toEqual([sample]);
   });
 
-  it('persists through a fresh store over the same backend', () => {
+  it('persists through a fresh store over the same backend', async () => {
     const backend = memoryStorage();
-    createSongStore(backend).save([sample]);
+    saveAll(createSongStore(backend), [sample]);
     // A page reload builds a new store over the same storage.
-    expect(createSongStore(backend).load()).toEqual([sample]);
+    expect((await createSongStore(backend).load())).toEqual([sample]);
   });
 
-  it('ST-02 returns an empty list when nothing has been stored', () => {
-    expect(createSongStore(memoryStorage()).load()).toEqual([]);
+  it('ST-02 returns an empty list when nothing has been stored', async () => {
+    expect((await createSongStore(memoryStorage()).load())).toEqual([]);
   });
 
-  it('ST-03 returns an empty list when the stored JSON is corrupt', () => {
+  it('ST-03 returns an empty list when the stored JSON is corrupt', async () => {
     const store = createSongStore(memoryStorage({ [STORAGE_KEY]: '{not json' }));
-    expect(store.load()).toEqual([]);
+    expect((await store.load())).toEqual([]);
   });
 
-  it('ST-04 rejects a stored payload that is not an array', () => {
-    expect(createSongStore(memoryStorage({ [STORAGE_KEY]: '{"a":1}' })).load()).toEqual([]);
-    expect(createSongStore(memoryStorage({ [STORAGE_KEY]: '"hello"' })).load()).toEqual([]);
-    expect(createSongStore(memoryStorage({ [STORAGE_KEY]: 'null' })).load()).toEqual([]);
+  it('ST-04 rejects a stored payload that is not an array', async () => {
+    expect(await createSongStore(memoryStorage({ [STORAGE_KEY]: '{"a":1}' })).load()).toEqual([]);
+    expect((await createSongStore(memoryStorage({ [STORAGE_KEY]: '"hello"' })).load())).toEqual([]);
+    expect((await createSongStore(memoryStorage({ [STORAGE_KEY]: 'null' })).load())).toEqual([]);
   });
 
-  it('ST-05 drops malformed entries but keeps valid siblings', () => {
+  it('ST-05 drops malformed entries but keeps valid siblings', async () => {
     const payload = JSON.stringify([
       sample,
       { id: 'no-rows', title: 'broken' },
@@ -84,20 +89,20 @@ describe('createSongStore', () => {
       { ...sample, id: 'song-4', beatsPerLine: 'six' },
       { ...sample, id: 'song-5', rows: [{ id: 'r1', lyrics: 'x', chords: [], beats: 'many' }] },
     ]);
-    const loaded = createSongStore(memoryStorage({ [STORAGE_KEY]: payload })).load();
+    const loaded = (await createSongStore(memoryStorage({ [STORAGE_KEY]: payload })).load());
     expect(loaded).toEqual([sample]);
   });
 
-  it('ST-06 round-trips learning progress with the song', () => {
+  it('ST-06 round-trips learning progress with the song', async () => {
     const store = createSongStore(memoryStorage());
-    store.save([{ ...sample, learningPlaythrough: 4 }]);
-    expect(store.load()[0].learningPlaythrough).toBe(4);
+    saveAll(store, [{ ...sample, learningPlaythrough: 4 }]);
+    expect((await store.load())[0].learningPlaythrough).toBe(4);
   });
 
-  it('ST-07 round-trips every row field exactly', () => {
+  it('ST-07 round-trips every row field exactly', async () => {
     const store = createSongStore(memoryStorage());
-    store.save([sample]);
-    const [loaded] = store.load();
+    saveAll(store, [sample]);
+    const [loaded] = (await store.load());
     expect(loaded.rows).toEqual(sample.rows);
     expect(loaded.rows[0].beats).toBe(12);
     expect(loaded.rows[1].beats).toBeNull();
@@ -110,7 +115,7 @@ describe('createSongStore', () => {
     expect(loaded.currentKey).toBe('Em');
   });
 
-  it('ST-08 survives a storage backend that refuses to write', () => {
+  it('ST-08 survives a storage backend that refuses to write', async () => {
     const failing: StorageLike = {
       getItem: () => null,
       setItem: () => {
@@ -119,10 +124,10 @@ describe('createSongStore', () => {
       removeItem: () => {},
     };
     const store = createSongStore(failing);
-    expect(() => store.save([sample])).not.toThrow();
+    await expect(saveAll(store, [sample])).resolves.not.toThrow();
   });
 
-  it('survives a storage backend that refuses to read', () => {
+  it('survives a storage backend that refuses to read', async () => {
     const failing: StorageLike = {
       getItem: () => {
         throw new Error('SecurityError');
@@ -130,19 +135,19 @@ describe('createSongStore', () => {
       setItem: () => {},
       removeItem: () => {},
     };
-    expect(createSongStore(failing).load()).toEqual([]);
+    expect((await createSongStore(failing).load())).toEqual([]);
   });
 
-  it('works with no storage backend at all', () => {
+  it('works with no storage backend at all', async () => {
     const store = createSongStore(null);
-    expect(store.load()).toEqual([]);
-    expect(() => store.save([sample])).not.toThrow();
+    expect((await store.load())).toEqual([]);
+    await expect(saveAll(store, [sample])).resolves.not.toThrow();
   });
 
-  it('normalises songs produced by the app itself', () => {
+  it('normalises songs produced by the app itself', async () => {
     const store = createSongStore(memoryStorage());
     const song = createSong({ title: 'Fresh' });
-    store.save([song]);
-    expect(store.load()).toEqual([song]);
+    saveAll(store, [song]);
+    expect((await store.load())).toEqual([song]);
   });
 });

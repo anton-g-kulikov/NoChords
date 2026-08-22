@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSongStore, type SongStore } from '../lib/storage';
 import { loadCloudStore } from '../lib/firebase';
 import { shouldOfferImport } from '../lib/cloudImport';
-import { createExampleSongs } from '../lib/examples';
 import { createSong } from '../lib/songs';
 import type { Song } from '../types/song';
 
@@ -29,7 +28,6 @@ export interface SongLibrary {
   /** Set when signing in found local songs and an empty account (ADR-022). */
   importOffer: { localCount: number } | null;
   addSong(): Song;
-  addExampleSongs(): void;
   updateSong(song: Song): void;
   deleteSong(songId: string): void;
   acceptImport(): Promise<void>;
@@ -154,12 +152,6 @@ export function useSongLibrary(uid: string | null): SongLibrary {
     return song;
   }, [queueWrite]);
 
-  const addExampleSongs = useCallback(() => {
-    const examples = createExampleSongs();
-    setSongs((current) => [...current, ...examples]);
-    for (const song of examples) queueWrite(song);
-  }, [queueWrite]);
-
   const updateSong = useCallback(
     (song: Song) => {
       setSongs((current) => current.map((item) => (item.id === song.id ? song : item)));
@@ -191,7 +183,6 @@ export function useSongLibrary(uid: string | null): SongLibrary {
     storedIn,
     importOffer,
     addSong,
-    addExampleSongs,
     updateSong,
     deleteSong,
     acceptImport,

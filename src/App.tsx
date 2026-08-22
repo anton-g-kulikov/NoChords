@@ -18,7 +18,6 @@ export function App() {
     storedIn,
     importOffer,
     addSong,
-    addExampleSongs,
     updateSong,
     deleteSong,
     acceptImport,
@@ -53,7 +52,9 @@ export function App() {
           setPane('edit');
         }}
         onDelete={deleteSong}
-        onLoadExamples={addExampleSongs}
+        onSignIn={
+          auth.available && !auth.loading && !auth.user ? () => void auth.signIn() : null
+        }
         />
       </>
     );

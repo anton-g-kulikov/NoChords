@@ -24,7 +24,7 @@ npm run dev      # http://localhost:5173
 | `npm run deploy` | Build and deploy to Firebase Hosting |
 | `npm run deploy:rules` | Deploy the Firestore security rules |
 
-**Add example songs** on the library screen loads three traditional songs to try it out.
+**Log in to Sync** on the library screen signs in with Google and moves the library to Firestore.
 
 ## Writing a song
 

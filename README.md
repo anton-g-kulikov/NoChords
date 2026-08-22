@@ -45,7 +45,14 @@ whole song, held lines included. Just type; everything saves as you go.
 ## Playing
 
 Press **Play** (or <kbd>Space</kbd>) and the chart scrolls itself, highlighting the active row.
-Click any row to jump to it. Three display modes:
+Click any row to jump to it.
+
+When playback starts the setup controls fold away, leaving just Play/Pause, Restart and the time —
+on a phone that takes the header from 475px to 69px, which is the difference between seeing none of
+the song and seeing seven lines of it. **Setup** brings them back at any point; pausing deliberately
+does not, so a momentary pause never shifts the chart.
+
+Three display modes:
 
 - **Full** — chord names in the current key.
 - **Nashville** — roman numerals relative to the song's original key, with case carrying quality:

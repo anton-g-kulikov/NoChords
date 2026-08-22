@@ -353,15 +353,18 @@ kbd {
 
 /* ---------- Player ---------- */
 
+/*
+ * The sticky header. While playing it is only the transport, so the chart keeps the screen; the
+ * setup controls collapse behind a disclosure and come back when playback stops.
+ */
 .controls {
   position: sticky;
   top: 0;
   z-index: 2;
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 16px;
-  padding: 14px 0 16px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
   margin-bottom: 8px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
@@ -371,6 +374,27 @@ kbd {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.controls__disclosure {
+  margin-left: auto;
+  padding: 8px 14px;
+  min-height: 40px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.controls__setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.controls__setup--closed {
+  display: none;
 }
 
 .controls__group {

@@ -281,3 +281,26 @@ dirty every song record on a volume change.
 
 **Cost.** A second persisted key. It uses the same `StorageLike` port as songs (ADR-005), so it
 degrades the same way when storage is unavailable.
+
+---
+
+## ADR-017 — The controls collapse to a transport bar while playing
+
+**Decision.** Key, tempo, display mode, metronome and the learning bar live in a disclosure panel
+that closes when playback starts. The sticky header then holds only Play/Pause, Restart, the time,
+and a `Setup` button. Pausing does *not* reopen it; the user does, whenever they want.
+
+**Why.** On a 420px phone the full control block measured 475px tall against a 780px viewport — it
+covered the chart it was there to control, leaving no complete lyric line on screen. Collapsing it
+brings the header to 69px, and the visible chart from zero full rows to seven.
+
+The split is by when a control is used, not by how important it is: key, tempo and metronome are
+set *before* you play; the transport is the only thing wanted *during*. Reopening on pause was
+tried and rejected — a pause is usually momentary, and having 400px of controls spring back would
+shove the chart down every time.
+
+The disclosure says only "Setup" rather than naming the current mode, because the chart already
+shows it: chord names, roman numerals, or blur.
+
+**Cost.** Changing key or mode mid-song costs one extra tap. That is the right way round, given the
+alternative was not being able to read the song at all.

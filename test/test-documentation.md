@@ -278,6 +278,23 @@ passing:
 The 0.00ms figure is the point of ADR-014's single anchor: pinning `performance.now()` to
 `AudioContext.currentTime` on every scheduler tick instead measured 1.85ms of beat-to-beat jitter.
 
+### Playing-screen space run
+
+Measured at a 420×780 phone viewport with the metronome on and learning mode active — the worst
+case for header height. 12 checks, all passing:
+
+| Check | Result |
+|-------|--------|
+| **Setup collapses when playback starts — header 475px → 69px** | ✅ |
+| The header leaves 91% of the screen to the song | ✅ |
+| **Fully visible chart rows rise from 0 (before the fix) to 7** | ✅ |
+| Play/Pause and Restart stay reachable while collapsed | ✅ |
+| The active row sits clear of the sticky header | ✅ |
+| The disclosure is compact, reading just "Setup" | ✅ |
+| Setup reopens on demand mid-play, and closes again | ✅ |
+| Pausing does *not* spring the setup back open | ✅ |
+| The disclosure is still available after pausing | ✅ |
+
 Caret and persistence behaviour is verified with the caret placed deterministically
 (`Control+Home`, `End`); clicking into the middle of the text area naturally puts it elsewhere.
 

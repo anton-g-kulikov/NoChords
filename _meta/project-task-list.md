@@ -54,6 +54,7 @@ test intent lives in `../test/test-documentation.md`.
 | 22 | Metronome: synthesised clicks on a lookahead scheduler (ADR-014) | Done |
 | 23 | Count-in as negative elapsed time, with an on-screen countdown (ADR-015) | Done |
 | 24 | Metronome volume and count-in length as per-device settings (ADR-016) | Done |
+| 25 | Controls collapse to a transport bar while playing (ADR-017) | Done |
 
 ## Backlog
 

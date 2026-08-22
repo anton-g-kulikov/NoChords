@@ -41,6 +41,12 @@ function formatTime(ms: number): string {
 export function Player({ song, onChange, settings, onSettingsChange }: PlayerProps) {
   const [mode, setMode] = useState<DisplayMode>('full');
   const [concealSeed, setConcealSeed] = useState(randomSeed);
+  /**
+   * Key, tempo and metronome are set before you play, not during. On a phone they filled most of
+   * the screen, leaving almost nothing for the chart, so they collapse the moment playback starts
+   * and can be reopened at any time.
+   */
+  const [setupOpen, setSetupOpen] = useState(true);
 
   const schedule = useMemo(
     () => buildSchedule(song.rows, song.tempo, song.beatsPerLine),
@@ -89,6 +95,12 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     [mode, song.rows, song.learningPlaythrough, concealSeed]
   );
 
+  // Collapse on play, but deliberately do not reopen on pause: a pause is usually momentary, and
+  // having the controls spring back would shift the chart out from under you every time.
+  useEffect(() => {
+    if (isPlaying) setSetupOpen(false);
+  }, [isPlaying]);
+
   const rowRefs = useRef<Array<HTMLLIElement | null>>([]);
   useEffect(() => {
     if (activeIndex < 0) return;
@@ -129,86 +141,98 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
             {formatTime(totalMs)}
           </span>
-        </div>
 
-        <div className="controls__group" role="group" aria-label="Display mode">
-          {MODES.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              title={option.hint}
-              aria-pressed={mode === option.value}
-              className={mode === option.value ? 'segment segment--active' : 'segment'}
-              onClick={() => setMode(option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-
-        <KeySelect
-          label="Key"
-          value={song.currentKey}
-          originalKey={song.originalKey}
-          onChange={(key) => onChange(setCurrentKey(song, key))}
-        />
-
-        <label className="field field--tempo">
-          <span className="field__label">Tempo {song.tempo} bpm</span>
-          <input
-            className="field__range"
-            type="range"
-            min={40}
-            max={200}
-            value={song.tempo}
-            aria-label="Tempo in beats per minute"
-            onChange={(event) => onChange({ ...song, tempo: Number(event.target.value) })}
-          />
-        </label>
-
-        <div className="metronome">
           <button
             type="button"
-            className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
-            aria-pressed={settings.metronomeEnabled}
-            title="Click on every beat while playing"
-            onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
+            className="button controls__disclosure"
+            aria-expanded={setupOpen}
+            onClick={() => setSetupOpen((open) => !open)}
           >
-            {settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
+            {/* The mode needs no label here: the chart itself shows names, numerals or blur. */}
+            {setupOpen ? 'Hide' : 'Setup'}
           </button>
+        </div>
 
-          <label className="field field--narrow">
-            <span className="field__label">
-              Volume {Math.round(settings.metronomeVolume * 100)}%
-            </span>
+        <div className={setupOpen ? 'controls__setup' : 'controls__setup controls__setup--closed'}>
+          <div className="controls__group" role="group" aria-label="Display mode">
+            {MODES.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                title={option.hint}
+                aria-pressed={mode === option.value}
+                className={mode === option.value ? 'segment segment--active' : 'segment'}
+                onClick={() => setMode(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <KeySelect
+            label="Key"
+            value={song.currentKey}
+            originalKey={song.originalKey}
+            onChange={(key) => onChange(setCurrentKey(song, key))}
+          />
+
+          <label className="field field--tempo">
+            <span className="field__label">Tempo {song.tempo} bpm</span>
             <input
               className="field__range"
               type="range"
-              min={0}
-              max={100}
-              value={Math.round(settings.metronomeVolume * 100)}
-              disabled={!settings.metronomeEnabled}
-              aria-label="Metronome volume"
-              onChange={(event) =>
-                onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
-              }
+              min={40}
+              max={200}
+              value={song.tempo}
+              aria-label="Tempo in beats per minute"
+              onChange={(event) => onChange({ ...song, tempo: Number(event.target.value) })}
             />
           </label>
 
-          <label className="field field--narrow">
-            <span className="field__label">Count-in</span>
-            <input
-              className="field__input"
-              type="number"
-              min={0}
-              max={MAX_COUNT_IN_BEATS}
-              value={settings.countInBeats}
-              aria-label="Count-in beats"
-              onChange={(event) =>
-                onSettingsChange({ countInBeats: Number(event.target.value) || 0 })
-              }
-            />
-          </label>
+          <div className="metronome">
+            <button
+              type="button"
+              className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
+              aria-pressed={settings.metronomeEnabled}
+              title="Click on every beat while playing"
+              onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
+            >
+              {settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
+            </button>
+
+            <label className="field field--narrow">
+              <span className="field__label">
+                Volume {Math.round(settings.metronomeVolume * 100)}%
+              </span>
+              <input
+                className="field__range"
+                type="range"
+                min={0}
+                max={100}
+                value={Math.round(settings.metronomeVolume * 100)}
+                disabled={!settings.metronomeEnabled}
+                aria-label="Metronome volume"
+                onChange={(event) =>
+                  onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
+                }
+              />
+            </label>
+
+            <label className="field field--narrow">
+              <span className="field__label">Count-in</span>
+              <input
+                className="field__input"
+                type="number"
+                min={0}
+                max={MAX_COUNT_IN_BEATS}
+                value={settings.countInBeats}
+                aria-label="Count-in beats"
+                onChange={(event) =>
+                  onSettingsChange({ countInBeats: Number(event.target.value) || 0 })
+                }
+              />
+            </label>
+          </div>
         </div>
       </div>
 
@@ -219,7 +243,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         </div>
       )}
 
-      {mode === 'learning' && (
+      {mode === 'learning' && setupOpen && (
         <div className="learning-bar">
           <div className="learning-bar__text">
             <strong>{concealmentPercent}% concealed</strong>

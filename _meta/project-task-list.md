@@ -106,7 +106,7 @@ test intent lives in `../test/test-documentation.md`.
 | 11 | Inline `[Chord]lyric` notation and positioned chord anchors (ADR-007) | Done |
 | 12 | Per-row beat counts (ADR-008) | Done |
 | 13 | Minor-key Nashville degrees (ADR-009) | Done |
-| 14 | Example songs loadable from the library | Done |
+| 14 | Example songs seeded into a new library on first run (ADR-024) | Done |
 | 15 | Browser acceptance run against a production build | Done |
 | 16 | Firebase Hosting configuration | Done |
 | 17 | GitHub Actions CI: verify on every push/PR, deploy `main` to Hosting | Done |

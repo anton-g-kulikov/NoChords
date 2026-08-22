@@ -25,6 +25,7 @@ described at the end of this document.
 | Local persistence | `src/lib/storage.ts` | `storage.test.ts` |
 | Cloud document mapping | `src/lib/songDoc.ts` | `song-doc.test.ts` |
 | Sign-in import decision | `src/lib/cloudImport.ts` | `cloud-import.test.ts` |
+| First-run example seeding | `src/lib/firstRun.ts` | `first-run.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
 
@@ -289,6 +290,23 @@ up. Getting this wrong either duplicates a library or appears to lose one.
 If the local library happens to be only the example songs, the offer is still made and the user
 declines it. Recognising the examples would mean matching on their titles, which breaks as soon as
 one is renamed — a worse failure than one extra question.
+
+### First-run seeding — `first-run.test.ts`
+
+Intent: decide whether a library should be given the example songs. The examples are seeded once
+and then owned by the user, so the failure to avoid is bringing back songs someone deleted.
+
+| # | Case | Status |
+|---|------|--------|
+| FR-01 | An empty, never-seeded library → seed the examples | ✅ |
+| FR-02 | An already-seeded library → never seed again, even when empty | ✅ |
+| FR-03 | A library with songs in it → leave it alone | ✅ |
+| FR-04 | A seeded library with songs in it → nothing to do | ✅ |
+| FR-05 | A fresh device reads as not seeded | ✅ |
+| FR-06 | The flag round-trips through storage | ✅ |
+| FR-07 | The flag lives under its own key, not inside the library | ✅ |
+| FR-08 | A flag written by an earlier session is honoured | ✅ |
+| FR-09 | A blocked or absent store reads as a fresh start and never throws | ✅ |
 
 ### Device preferences — `settings.test.ts`
 

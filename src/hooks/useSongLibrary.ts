@@ -5,9 +5,11 @@
  * backend arrive without the UI changing.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createSongStore, type SongStore } from '../lib/storage';
+import { createSongStore, defaultStorage, type SongStore } from '../lib/storage';
 import { loadCloudStore } from '../lib/firebase';
 import { shouldOfferImport } from '../lib/cloudImport';
+import { hasSeededExamples, markExamplesSeeded, shouldSeedExamples } from '../lib/firstRun';
+import { createExampleSongs } from '../lib/examples';
 import { createSong } from '../lib/songs';
 import type { Song } from '../types/song';
 
@@ -35,7 +37,8 @@ export interface SongLibrary {
 }
 
 export function useSongLibrary(uid: string | null): SongLibrary {
-  const localStore = useMemo(() => createSongStore(), []);
+  const storage = useMemo(() => defaultStorage(), []);
+  const localStore = useMemo(() => createSongStore(storage), [storage]);
 
   /**
    * The cloud store, or null when signed out or Firebase is unavailable.
@@ -77,7 +80,21 @@ export function useSongLibrary(uid: string | null): SongLibrary {
       .load()
       .then(async (loaded) => {
         if (cancelled) return;
-        setSongs(loaded);
+
+        // A device library that has never been through this starts with the examples (ADR-024).
+        let initial = loaded;
+        if (!cloudStore) {
+          const seeded = hasSeededExamples(storage);
+          if (shouldSeedExamples(seeded, loaded.length)) {
+            const examples = createExampleSongs();
+            for (const song of examples) await localStore.saveSong(song).catch(() => {});
+            if (cancelled) return;
+            initial = examples;
+          }
+          if (!seeded) markExamplesSeeded(storage);
+        }
+
+        setSongs(initial);
         setLoading(false);
 
         // Signing in to an empty account with songs on the device: ask before uploading (ADR-022).
@@ -97,7 +114,7 @@ export function useSongLibrary(uid: string | null): SongLibrary {
     return () => {
       cancelled = true;
     };
-  }, [store, cloudStore, localStore]);
+  }, [store, cloudStore, localStore, storage]);
 
   /** Songs edited but not yet written, so a remote snapshot cannot overwrite them mid-edit. */
   const pendingWrites = useRef(new Map<string, Song>());

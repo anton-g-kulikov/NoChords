@@ -12,6 +12,15 @@ import type { ScheduleEntry } from '../lib/playback';
 /** How often the scheduler wakes. Short enough to be responsive, long enough to be cheap. */
 const TICK_MS = 25;
 
+/**
+ * How late a click may be and still be worth playing, in milliseconds.
+ *
+ * The first scan of a run cannot happen before the run starts, so the click that lands exactly on
+ * the start is always a hair late. Playing it immediately is right; a click late by more than this
+ * belongs to a stretch that has already gone by — after a seek — and playing it would flam.
+ */
+const LATE_TOLERANCE_MS = 60;
+
 /** How far ahead each wake schedules. Comfortably longer than a tick's worst-case delay. */
 const LOOKAHEAD_MS = 150;
 
@@ -101,6 +110,12 @@ export function useMetronome({
     void context.resume().catch(() => {});
     audioOriginRef.current = null;
 
+    // Start scanning from the beat boundary at or before this run began, not from whenever the
+    // first tick happens to land. Otherwise the opening click — the "one" of the count-in — falls
+    // into the gap before the first scan and the count comes in on two.
+    const runStart = performance.now() - originMs;
+    scannedToRef.current = Math.floor(runStart / beatDurationMs(tempo)) * beatDurationMs(tempo);
+
     const timer = window.setInterval(() => {
       const ctx = contextRef.current;
       if (!ctx || ctx.state !== 'running') return;
@@ -126,8 +141,11 @@ export function useMetronome({
         // Stop at the end of the song; the count-in beats before zero still play.
         if (beatElapsed >= current.totalMs) continue;
         const at = audioOrigin + beatElapsed / 1000;
-        if (at < ctx.currentTime) continue;
-        scheduleClick(ctx, at, accentAt(beat, current.schedule));
+        const lateByMs = (ctx.currentTime - at) * 1000;
+        if (lateByMs > LATE_TOLERANCE_MS) continue;
+        // A click a few milliseconds late still belongs at the top of the count: play it now
+        // rather than dropping it, which is what silenced the first count-in beat.
+        scheduleClick(ctx, Math.max(at, ctx.currentTime), accentAt(beat, current.schedule));
       }
     }, TICK_MS);
 
@@ -136,7 +154,7 @@ export function useMetronome({
       scannedToRef.current = null;
       audioOriginRef.current = null;
     };
-  }, [enabled, isPlaying, originMs, scheduleClick]);
+  }, [enabled, isPlaying, originMs, tempo, scheduleClick]);
 
   // Release the audio device when the player goes away.
   useEffect(

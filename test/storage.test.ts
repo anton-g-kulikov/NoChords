@@ -24,6 +24,7 @@ const sample: Song = {
   currentKey: 'Em',
   tempo: 96,
   beatsPerLine: 6,
+  meter: '3/4',
   learningPlaythrough: 3,
   rows: [
     {
@@ -34,12 +35,16 @@ const sample: Song = {
         { symbol: 'C', index: 17 },
       ],
       beats: 12,
+      bars: null,
+      meter: null,
     },
     {
       id: 'r2',
       lyrics: 'Savoury, sage, rosemary and thyme,',
       chords: [{ symbol: 'Dm', index: 0 }],
       beats: null,
+      bars: null,
+      meter: null,
     },
   ],
 };
@@ -85,7 +90,7 @@ describe('createSongStore', () => {
       null,
       'nonsense',
       { ...sample, id: 'song-2', rows: 'not an array' },
-      { ...sample, id: 'song-3', rows: [{ id: 'r1', lyrics: 'x', chords: 'a string', beats: null }] },
+      { ...sample, id: 'song-3', rows: [{ id: 'r1', lyrics: 'x', chords: 'a string', beats: null, bars: null, meter: null }] },
       { ...sample, id: 'song-4', beatsPerLine: 'six' },
       { ...sample, id: 'song-5', rows: [{ id: 'r1', lyrics: 'x', chords: [], beats: 'many' }] },
     ]);

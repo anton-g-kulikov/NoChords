@@ -523,3 +523,45 @@ broken control.
 caller reaching into `schedule[i]` by row index would be wrong. `entryForRow` is the supported way
 to cross between them.
 
+---
+
+## ADR-026 — A song carries a time signature, and rows are measured in bars
+
+**Decision.** A song has a `meter` (`6/8`, `3/4`, default `4/4`). It sets how long a bar is and
+where the accented click falls. A row may end with `//n` to last n bars, may still end with `/n/`
+to last n raw beats, and may open with `{n/d}` to change the signature from that row onward.
+`meter.ts` holds the arithmetic; `buildSchedule` resolves it; the metronome reads it back off the
+schedule.
+
+**What was wrong.** The metronome had no notion of a bar. It accented one beat per *line*, using
+`beatsPerLine`, so House of the Rising Sun — six beats to a line — got a single click every six
+beats and nothing in between. A 6/8 song is felt in two, and a 3/4 line of two bars wants its
+second downbeat; both were silent. The old code even called its fallback "a plain 4/4 accent",
+which is what it sounded like.
+
+**Why compound meters group in three.** 6/8, 9/8 and 12/8 are dotted pulses, not one accent a bar:
+6/8 is two groups of three. Accenting once a bar there is the bug restated. 3/8 is left simple —
+three eighths are a single pulse, not three.
+
+**Why bars and beats both stay.** Bars are the natural unit and what a reader counts. But a length
+that does not sit on a bar line still needs saying — a solo running twenty-four beats over the same
+four chords — and forcing that into bars means lying about the bar length. Beats win when a row
+states both, because a raw count is someone naming a length no bar count could express.
+
+**Why a signature per row rather than per song only.** A song that changes meter is ordinary, and a
+bridge in four inside a song in six should click in four while it lasts. The tag runs until the next
+one, exactly as a signature does on a stave, and it may sit on the blank line between verses where
+a reader expects to find it — blank rows take no time (ADR-025) but still carry the change.
+
+**Why the phase restarts at a change.** Accents are counted from the start of the current section,
+not from beat zero. Otherwise a section whose predecessor did not divide evenly would inherit a
+phase and accent the wrong beats — an off-by-a-bar that is audible and maddening.
+
+**Why a beat stays a beat.** A beat is one unit of the denominator: an eighth in 6/8, a quarter in
+3/4, with `tempo` counting those units. Nothing about existing timing moves, and songs stored
+before meters existed read back as 4/4 — which is what they were played as.
+
+**Cost.** Three fields on the schema instead of one, and `beatsPerLine` now overlaps with the
+meter: a line of two bars of 3/4 can be said either way. `beatsPerLine` remains the default because
+it is what an untagged line uses, but a song that tags its rows in bars will rarely touch it.
+

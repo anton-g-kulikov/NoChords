@@ -17,8 +17,10 @@ interface ExampleSource {
   title: string;
   key: string;
   tempo: number;
-  /** These are 3/4 songs written as two bars a line. */
+  /** Six beats to a line: two bars of 3/4, or one of 6/8. */
   beatsPerLine: number;
+  /** The time signature, which sets bar length and where the accent falls (ADR-026). */
+  meter: string;
   fixture: string;
 }
 
@@ -110,6 +112,7 @@ const SOURCES: ExampleSource[] = [
     key: "Dm",
     tempo: 90,
     beatsPerLine: 6,
+    meter: "3/4",
     fixture: SCARBOROUGH_FAIR,
   },
   {
@@ -117,6 +120,7 @@ const SOURCES: ExampleSource[] = [
     key: "G",
     tempo: 90,
     beatsPerLine: 6,
+    meter: "3/4",
     fixture: BLACKBIRD,
   },
   {
@@ -124,6 +128,7 @@ const SOURCES: ExampleSource[] = [
     key: "Am",
     tempo: 80,
     beatsPerLine: 6,
+    meter: "6/8",
     fixture: RISING_SUN,
   },
 ];
@@ -137,6 +142,7 @@ export function createExampleSongs(): Song[] {
       currentKey: source.key,
       tempo: source.tempo,
       beatsPerLine: source.beatsPerLine,
+      meter: source.meter,
       rows: rowsFromPastedText(source.fixture.trim()),
     }),
   );

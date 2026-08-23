@@ -23,14 +23,17 @@ export function songToDoc(song: Song): SongDoc {
     currentKey: song.currentKey,
     tempo: song.tempo,
     beatsPerLine: song.beatsPerLine,
+    meter: song.meter,
     learningPlaythrough: song.learningPlaythrough,
     rows: song.rows.map((row) => ({
       id: row.id,
       lyrics: row.lyrics,
       chords: row.chords.map((chord) => ({ symbol: chord.symbol, index: chord.index })),
-      // `null` rather than omitted: the field means "use the song default", and Firestore
+      // `null` rather than omitted: the fields mean "use the song default", and Firestore
       // would reject `undefined` outright.
       beats: row.beats ?? null,
+      bars: row.bars ?? null,
+      meter: row.meter ?? null,
     })),
   };
 }

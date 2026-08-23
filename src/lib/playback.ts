@@ -6,6 +6,7 @@
  * state and touches no DOM, so the clock driving it can later be swapped for an audio element's
  * `currentTime` without any of this logic changing (ADR-003).
  */
+import { DEFAULT_METER, accentEveryOf, beatsPerBarOf, parseMeter } from './meter';
 import type { SongRow } from '../types/song';
 
 /** Beats each line occupies when a song does not say otherwise. One bar in common time. */
@@ -25,6 +26,13 @@ export interface ScheduleEntry {
   durationMs: number;
   /** Beats this row lasts, after the song default is applied. */
   beats: number;
+  /** Beats from the start of the song — the metronome's own clock (ADR-026). */
+  startBeat: number;
+  /** How often the accent falls here, from the meter in effect (ADR-026). */
+  accentEvery: number;
+  /** Where the current meter began, so a signature change restarts the pulse rather than
+   * inheriting the phase of the meter before it. */
+  sectionStartBeat: number;
 }
 
 /**
@@ -42,15 +50,28 @@ function safeBeats(beatsPerLine: number): number {
   return beatsPerLine && beatsPerLine > 0 ? beatsPerLine : DEFAULT_BEATS_PER_LINE;
 }
 
-/** Beats a row lasts: its own `/n/` if it has one, otherwise the song's default. */
-export function rowBeats(row: SongRow, beatsPerLine: number): number {
-  return row.beats && row.beats > 0 ? row.beats : safeBeats(beatsPerLine);
+/**
+ * Beats a row lasts.
+ *
+ * Its own `/n/` wins, because that is someone naming a length no bar count could express — the
+ * solo that runs twenty-four beats over the same four chords. Otherwise `//n` bars, measured by
+ * the meter in effect. Otherwise the song's default (ADR-026).
+ */
+export function rowBeats(row: SongRow, beatsPerLine: number, meter: string = DEFAULT_METER): number {
+  if (row.beats && row.beats > 0) return row.beats;
+  if (row.bars && row.bars > 0) return row.bars * beatsPerBarOf(meter);
+  return safeBeats(beatsPerLine);
 }
 
 /** How long a row is held. Everything is beats at the song tempo — no seconds (ADR-011). */
-export function rowDurationMs(row: SongRow, tempo: number, beatsPerLine: number): number {
+export function rowDurationMs(
+  row: SongRow,
+  tempo: number,
+  beatsPerLine: number,
+  meter: string = DEFAULT_METER
+): number {
   const safeTempo = Math.max(tempo, MIN_TEMPO);
-  return (60000 / safeTempo) * rowBeats(row, beatsPerLine);
+  return (60000 / safeTempo) * rowBeats(row, beatsPerLine, meter);
 }
 
 /**
@@ -63,23 +84,39 @@ export function rowDurationMs(row: SongRow, tempo: number, beatsPerLine: number)
 export function buildSchedule(
   rows: SongRow[],
   tempo: number,
-  beatsPerLine: number = DEFAULT_BEATS_PER_LINE
+  beatsPerLine: number = DEFAULT_BEATS_PER_LINE,
+  songMeter: string = DEFAULT_METER
 ): ScheduleEntry[] {
   const schedule: ScheduleEntry[] = [];
   let cursor = 0;
+  let beatCursor = 0;
+  let meter = songMeter;
+  let sectionStartBeat = 0;
 
   rows.forEach((row, index) => {
+    // A `{n/d}` takes effect here and runs until the next one. It is read before the blank check,
+    // so a signature may sit on the empty line between verses where a reader expects to see it.
+    if (row.meter && parseMeter(row.meter)) {
+      meter = row.meter;
+      sectionStartBeat = beatCursor;
+    }
     if (isBlankRow(row)) return;
-    const durationMs = rowDurationMs(row, tempo, beatsPerLine);
+
+    const beats = rowBeats(row, beatsPerLine, meter);
+    const durationMs = rowDurationMs(row, tempo, beatsPerLine, meter);
     schedule.push({
       rowId: row.id,
       index,
       startMs: cursor,
       endMs: cursor + durationMs,
       durationMs,
-      beats: rowBeats(row, beatsPerLine),
+      beats,
+      startBeat: beatCursor,
+      accentEvery: accentEveryOf(meter),
+      sectionStartBeat,
     });
     cursor += durationMs;
+    beatCursor += beats;
   });
 
   return schedule;

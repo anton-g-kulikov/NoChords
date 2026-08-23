@@ -48,6 +48,8 @@ describe('parseInlineRow', () => {
       lyrics: 'done',
       chords: [{ symbol: 'G', index: 4 }],
       beats: null,
+      bars: null,
+      meter: null,
     });
     expect(parseInlineRow('[Am][C]')).toEqual({
       lyrics: '',
@@ -56,6 +58,8 @@ describe('parseInlineRow', () => {
         { symbol: 'C', index: 0 },
       ],
       beats: null,
+      bars: null,
+      meter: null,
     });
   });
 
@@ -114,7 +118,13 @@ describe('parseInlineRow', () => {
   });
 
   it('handles an empty string', () => {
-    expect(parseInlineRow('')).toEqual({ lyrics: '', chords: [], beats: null });
+    expect(parseInlineRow('')).toEqual({
+      lyrics: '',
+      chords: [],
+      beats: null,
+      bars: null,
+      meter: null,
+    });
   });
 });
 
@@ -149,7 +159,56 @@ describe('formatInlineRow', () => {
 
   it('clamps an anchor that points past the end of the lyric', () => {
     expect(
-      formatInlineRow({ lyrics: 'ab', chords: [{ symbol: 'G', index: 99 }], beats: null })
+      formatInlineRow({
+        lyrics: 'ab',
+        chords: [{ symbol: 'G', index: 99 }],
+        beats: null,
+        bars: null,
+        meter: null,
+      })
     ).toBe('ab[G]');
   });
 });
+
+describe('bar and meter tags', () => {
+  it('IN-14 reads a bar count from a double slash at the end of the line', () => {
+    const row = parseInlineRow('[Am]Dear God, I know I was one.//3');
+    expect(row.bars).toBe(3);
+    expect(row.beats).toBeNull();
+    expect(row.lyrics).toBe('Dear God, I know I was one.');
+  });
+
+  it('IN-15 keeps bars and beats apart, so `//2` is never read as a beat tag', () => {
+    expect(parseInlineRow('a line//2').bars).toBe(2);
+    expect(parseInlineRow('a line//2').beats).toBeNull();
+    expect(parseInlineRow('a line/12/').beats).toBe(12);
+    expect(parseInlineRow('a line/12/').bars).toBeNull();
+  });
+
+  it('IN-16 lets a line name both, for a solo that does not sit on a bar', () => {
+    // Both stated: beats win at playback, and both survive the round trip.
+    const row = parseInlineRow('[Am]solo//4/24/');
+    expect(row.bars).toBe(4);
+    expect(row.beats).toBe(24);
+  });
+
+  it('IN-17 reads a signature and drops it out of the lyric', () => {
+    const row = parseInlineRow('{4/4}[C]Here the bridge starts,');
+    expect(row.meter).toBe('4/4');
+    expect(row.lyrics).toBe('Here the bridge starts,');
+    expect(row.chords).toEqual([{ symbol: 'C', index: 0 }]);
+  });
+
+  it('IN-18 ignores a signature that is not one', () => {
+    expect(parseInlineRow('{fast}a line').meter).toBeNull();
+    expect(parseInlineRow('{fast}a line').lyrics).toBe('{fast}a line');
+  });
+
+  it('IN-19 round-trips the new tags to where they read naturally', () => {
+    const text = '{6/8}[Am]Dear God, I know I was [Am]one.//3';
+    expect(formatInlineRow(parseInlineRow(text))).toBe(text);
+    // A signature typed mid-line is normalised to the head, a bar count to the tail.
+    expect(formatInlineRow(parseInlineRow('a {3/4}line//2'))).toBe('{3/4}a line//2');
+  });
+});
+

@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  accentAt,
   beatDurationMs,
   beatsInWindow,
   countInDurationMs,
   isAccent,
 } from '../src/lib/metronome';
+import { buildSchedule } from '../src/lib/playback';
+import type { SongRow } from '../src/types/song';
 
 describe('beatDurationMs', () => {
   it('MT-01 derives the beat length from the tempo', () => {
@@ -130,3 +133,61 @@ describe('isAccent', () => {
     ]);
   });
 });
+
+describe('accentAt', () => {
+  function row(id: string): SongRow {
+    return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats: null, bars: null, meter: null };
+  }
+
+  it('MT-14 pulses a 6/8 song in two, not once a bar', () => {
+    const schedule = buildSchedule([row('r1'), row('r2')], 80, 6, '6/8');
+    // Beats 0 and 3 of each six-beat bar carry the click.
+    expect([0, 1, 2, 3, 4, 5, 6, 7].map((beat) => accentAt(beat, schedule))).toEqual([
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+    ]);
+  });
+
+  it('MT-15 follows a signature change into the next section', () => {
+    const bridge: SongRow = {
+      id: 'r2',
+      chords: [],
+      lyrics: 'bridge',
+      beats: null,
+      bars: 2,
+      meter: '4/4',
+    };
+    const schedule = buildSchedule([row('r1'), bridge], 80, 6, '6/8');
+
+    // Six beats of 6/8, accented at 0 and 3; then 4/4 from beat 6, accented at 6 and 10.
+    expect([0, 3, 6, 7, 10].map((beat) => accentAt(beat, schedule))).toEqual([
+      true,
+      true,
+      true,
+      false,
+      true,
+    ]);
+    // Beat 9 would be an accent if the old 6/8 phase had carried through. It must not.
+    expect(accentAt(9, schedule)).toBe(false);
+  });
+
+  it('MT-16 accents the count-in so it lands on the downbeat', () => {
+    const schedule = buildSchedule([row('r1')], 80, 6, '6/8');
+    expect(accentAt(-3, schedule)).toBe(true);
+    expect(accentAt(-2, schedule)).toBe(false);
+    expect(accentAt(0, schedule)).toBe(true);
+  });
+
+  it('MT-17 falls back to a plain four when there is nothing to play', () => {
+    expect(accentAt(0, [])).toBe(true);
+    expect(accentAt(4, [])).toBe(true);
+    expect(accentAt(5, [])).toBe(false);
+  });
+});
+

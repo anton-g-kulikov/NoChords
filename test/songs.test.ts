@@ -86,8 +86,8 @@ describe('rowsFromPastedText', () => {
 describe('row editing', () => {
   const base = createSong({
     rows: [
-      { id: 'r1', lyrics: 'first', chords: [{ symbol: 'C', index: 0 }], beats: null },
-      { id: 'r2', lyrics: 'second', chords: [{ symbol: 'G', index: 0 }], beats: 12 },
+      { id: 'r1', lyrics: 'first', chords: [{ symbol: 'C', index: 0 }], beats: null, bars: null, meter: null },
+      { id: 'r2', lyrics: 'second', chords: [{ symbol: 'G', index: 0 }], beats: 12, bars: null, meter: null },
     ],
   });
 
@@ -98,7 +98,7 @@ describe('row editing', () => {
 
   it('SG-06 keeps at least one row present', () => {
     const single = createSong({
-      rows: [{ id: 'only', lyrics: 'x', chords: [], beats: null }],
+      rows: [{ id: 'only', lyrics: 'x', chords: [], beats: null, bars: null, meter: null }],
     });
     const next = deleteRow(single, 'only');
     expect(next.rows).toHaveLength(1);
@@ -135,7 +135,7 @@ describe('the whole song as text (ADR-010)', () => {
   it('SG-16 makes one row per line, blank lines included', () => {
     const rows = textToRows(source);
     expect(rows).toHaveLength(4);
-    expect(rows[2]).toMatchObject({ lyrics: '', chords: [], beats: null });
+    expect(rows[2]).toMatchObject({ lyrics: '', chords: [], beats: null, bars: null, meter: null });
     expect(rows[1].beats).toBe(12);
   });
 
@@ -208,6 +208,8 @@ describe('setCurrentKey', () => {
             { symbol: 'Am', index: 1 },
           ],
           beats: null,
+          bars: null,
+          meter: null,
         },
       ],
     });

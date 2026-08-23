@@ -8,6 +8,7 @@
  * Stored data is untrusted input — another tab, an older app version, or a user with devtools can
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
+import { DEFAULT_METER, parseMeter } from './meter';
 import type { ChordAnchor, Song, SongRow } from '../types/song';
 
 export const STORAGE_KEY = 'nochords.songs.v1';
@@ -46,14 +47,31 @@ function sanitizeChord(value: unknown): ChordAnchor | null {
   return { symbol, index };
 }
 
+/**
+ * An optional positive number, absent in anything written before the field existed.
+ * `undefined` and `null` both mean "not set"; a wrong type is corruption and rejects the row.
+ */
+function sanitizeOptionalCount(value: unknown): number | null | undefined {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
+  return value;
+}
+
 function sanitizeRow(value: unknown): SongRow | null {
   if (!isRecord(value)) return null;
-  const { id, lyrics, chords, beats } = value;
+  const { id, lyrics, chords, beats, bars, meter } = value;
   if (typeof id !== 'string' || id === '') return null;
   if (typeof lyrics !== 'string') return null;
   if (!Array.isArray(chords)) return null;
   // `null` is the normal case: the line takes the song's default length.
   if (beats !== null && (typeof beats !== 'number' || !Number.isFinite(beats))) return null;
+
+  const sanitizedBars = sanitizeOptionalCount(bars);
+  if (sanitizedBars === undefined) return null;
+  // A row-level signature is optional and, if present, must be one: an unreadable one is dropped
+  // rather than fatal, since the song still plays in whatever meter is already running.
+  if (meter !== null && meter !== undefined && typeof meter !== 'string') return null;
+  const sanitizedMeter = typeof meter === 'string' && parseMeter(meter) ? meter : null;
 
   const sanitizedChords: ChordAnchor[] = [];
   for (const chord of chords) {
@@ -62,7 +80,7 @@ function sanitizeRow(value: unknown): SongRow | null {
     sanitizedChords.push(sanitized);
   }
 
-  return { id, lyrics, chords: sanitizedChords, beats };
+  return { id, lyrics, chords: sanitizedChords, beats, bars: sanitizedBars, meter: sanitizedMeter };
 }
 
 /**
@@ -73,8 +91,17 @@ function sanitizeRow(value: unknown): SongRow | null {
  */
 export function sanitizeSong(value: unknown): Song | null {
   if (!isRecord(value)) return null;
-  const { id, title, originalKey, currentKey, tempo, beatsPerLine, learningPlaythrough, rows } =
-    value;
+  const {
+    id,
+    title,
+    originalKey,
+    currentKey,
+    tempo,
+    beatsPerLine,
+    meter,
+    learningPlaythrough,
+    rows,
+  } = value;
 
   if (typeof id !== 'string' || id === '') return null;
   if (typeof title !== 'string') return null;
@@ -99,6 +126,8 @@ export function sanitizeSong(value: unknown): Song | null {
     currentKey,
     tempo,
     beatsPerLine,
+    // Songs written before meters existed are in four: that is what they were played as.
+    meter: typeof meter === 'string' && parseMeter(meter) ? meter : DEFAULT_METER,
     learningPlaythrough,
     rows: sanitizedRows,
   };

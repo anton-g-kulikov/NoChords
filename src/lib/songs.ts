@@ -8,6 +8,7 @@
 import { CONCEALMENT_STAGES } from './learning';
 import { formatInlineRow, parseInlineRow } from './inline';
 import { DEFAULT_BEATS_PER_LINE } from './playback';
+import { DEFAULT_METER } from './meter';
 import type { Song, SongRow } from '../types/song';
 
 export { DEFAULT_BEATS_PER_LINE };
@@ -30,7 +31,15 @@ function nextId(prefix: string): string {
 
 /** A new empty row. */
 export function createRow(overrides: Partial<SongRow> = {}): SongRow {
-  return { id: nextId('row'), lyrics: '', chords: [], beats: null, ...overrides };
+  return {
+    id: nextId('row'),
+    lyrics: '',
+    chords: [],
+    beats: null,
+    bars: null,
+    meter: null,
+    ...overrides,
+  };
 }
 
 /** A new song with one empty row, ready to type into. */
@@ -44,6 +53,7 @@ export function createSong(overrides: Partial<Song> = {}): Song {
     currentKey: originalKey,
     tempo: DEFAULT_TEMPO,
     beatsPerLine: DEFAULT_BEATS_PER_LINE,
+    meter: DEFAULT_METER,
     learningPlaythrough: 0,
     rows: [createRow()],
     ...overrides,

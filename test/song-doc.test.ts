@@ -10,6 +10,7 @@ const sample: Song = {
   currentKey: 'Cm',
   tempo: 80,
   beatsPerLine: 6,
+  meter: '3/4',
   learningPlaythrough: 3,
   rows: [
     {
@@ -21,12 +22,16 @@ const sample: Song = {
         { symbol: 'D', index: 24 },
       ],
       beats: null,
+      bars: null,
+      meter: null,
     },
     {
       id: 'r2',
       lyrics: 'Great God, and I for one.',
       chords: [{ symbol: 'Am', index: 0 }],
       beats: 12,
+      bars: null,
+      meter: null,
     },
   ],
 };

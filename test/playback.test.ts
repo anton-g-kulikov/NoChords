@@ -13,12 +13,12 @@ import {
 import type { SongRow } from '../src/types/song';
 
 function row(id: string, beats: number | null = null): SongRow {
-  return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats };
+  return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats, bars: null, meter: null };
 }
 
 /** A separator between verses: nothing but whitespace, and no chords. */
 function blank(id: string, lyrics = ''): SongRow {
-  return { id, chords: [], lyrics, beats: null };
+  return { id, chords: [], lyrics, beats: null, bars: null, meter: null };
 }
 
 /** At 120bpm a beat is 500ms, so these rows run 2000 / 2500 / 4000ms. */
@@ -133,8 +133,16 @@ describe('blank separator rows', () => {
     expect(isBlankRow(blank('b2', '   '))).toBe(true);
     expect(isBlankRow(row('r1'))).toBe(false);
     // An instrumental bar is not blank: it has chords and is meant to be played.
-    expect(isBlankRow({ id: 'i1', chords: [{ symbol: 'C', index: 0 }], lyrics: '  ', beats: null }))
-      .toBe(false);
+    expect(
+      isBlankRow({
+        id: 'i1',
+        chords: [{ symbol: 'C', index: 0 }],
+        lyrics: '  ',
+        beats: null,
+        bars: null,
+        meter: null,
+      })
+    ).toBe(false);
   });
 
   it('PB-11 leaves blank rows out of the schedule and charges them no time', () => {
@@ -180,3 +188,63 @@ describe('blank separator rows', () => {
     expect(rowIndexAt(schedule, 0)).toBe(-1);
   });
 });
+
+describe('bars and meter', () => {
+  /** A row that states its length in bars. */
+  function barRow(id: string, bars: number, meter: string | null = null): SongRow {
+    return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats: null, bars, meter };
+  }
+
+  it('PB-15 measures a bar count against the meter in effect', () => {
+    // Two bars of 6/8 is twelve beats; of 3/4, six.
+    expect(rowBeats(barRow('r1', 2), 4, '6/8')).toBe(12);
+    expect(rowBeats(barRow('r1', 2), 4, '3/4')).toBe(6);
+    expect(rowBeats(barRow('r1', 3), 4, '6/8')).toBe(18);
+  });
+
+  it('PB-16 lets an explicit beat count win over a bar count', () => {
+    // The solo that runs twenty-four beats over the same four chords.
+    const solo: SongRow = {
+      id: 'solo',
+      chords: [],
+      lyrics: 'solo',
+      beats: 24,
+      bars: 4,
+      meter: null,
+    };
+    expect(rowBeats(solo, 4, '6/8')).toBe(24);
+  });
+
+  it('PB-17 falls back to the song default when a row says neither', () => {
+    expect(rowBeats(row('r1'), 6, '6/8')).toBe(6);
+  });
+
+  it('PB-18 carries the accent spacing of the meter running at each row', () => {
+    const schedule = buildSchedule([row('r1'), row('r2')], TEMPO, 6, '6/8');
+    // 6/8 is felt in two: an accent every three beats, not one every six.
+    expect(schedule.map((entry) => entry.accentEvery)).toEqual([3, 3]);
+    expect(buildSchedule([row('r1')], TEMPO, 4, '4/4')[0].accentEvery).toBe(4);
+  });
+
+  it('PB-19 restarts the pulse where a signature changes mid-song', () => {
+    const rows = [row('r1'), barRow('r2', 1, '4/4'), row('r3')];
+    const schedule = buildSchedule(rows, TEMPO, 6, '6/8');
+
+    // Row 1 runs six beats of 6/8, then the bridge starts its own four.
+    expect(schedule.map((entry) => entry.startBeat)).toEqual([0, 6, 10]);
+    expect(schedule.map((entry) => entry.accentEvery)).toEqual([3, 4, 4]);
+    expect(schedule.map((entry) => entry.sectionStartBeat)).toEqual([0, 6, 6]);
+    // One bar of 4/4 is four beats, so the row after it starts at beat 10.
+    expect(schedule[1].beats).toBe(4);
+  });
+
+  it('PB-20 applies a signature written on a blank line between verses', () => {
+    const rows = [row('r1'), { ...blank('b1'), meter: '4/4' }, row('r2')];
+    const schedule = buildSchedule(rows, TEMPO, 6, '6/8');
+
+    // The blank still plays nothing, but the change it carries takes effect.
+    expect(schedule).toHaveLength(2);
+    expect(schedule.map((entry) => entry.accentEvery)).toEqual([3, 4]);
+  });
+});
+

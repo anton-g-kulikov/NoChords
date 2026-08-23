@@ -62,8 +62,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const lastTap = useRef<LastTap | null>(null);
 
   const schedule = useMemo(
-    () => buildSchedule(song.rows, song.tempo, song.beatsPerLine),
-    [song.rows, song.tempo, song.beatsPerLine]
+    () => buildSchedule(song.rows, song.tempo, song.beatsPerLine, song.meter),
+    [song.rows, song.tempo, song.beatsPerLine, song.meter]
   );
 
   const handleComplete = useCallback(() => {
@@ -94,7 +94,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     enabled: settings.metronomeEnabled,
     volume: settings.metronomeVolume,
     tempo: song.tempo,
-    beatsPerLine: song.beatsPerLine,
+    schedule,
     isPlaying,
     originMs,
     totalMs,

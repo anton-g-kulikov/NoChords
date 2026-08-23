@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { KeySelect } from './KeySelect';
+import { COMMON_METERS } from '../lib/meter';
 import { NumberField } from './NumberField';
 import { songToText, textToRows } from '../lib/songs';
 import type { Song } from '../types/song';
@@ -75,6 +76,21 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
           max={64}
           onCommit={(beatsPerLine) => onChange({ ...song, beatsPerLine })}
         />
+
+        <label className="field">
+          <span className="field__label">Meter</span>
+          <select
+            className="field__input"
+            value={song.meter}
+            onChange={(event) => onChange({ ...song, meter: event.target.value })}
+          >
+            {COMMON_METERS.map((meter) => (
+              <option key={meter} value={meter}>
+                {meter}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {transposed && (
@@ -100,8 +116,9 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
       <p className="editor__hint">
         One line per lyric line. Write chords in brackets where they fall in the words —{' '}
         <code>[Am]There is a [C]house</code>. A line lasts {song.beatsPerLine} beats unless it says
-        otherwise: end it with <code>/12/</code> to hold it for twelve. Everything saves as you
-        type.
+        otherwise: end it with <code>//2</code> to hold it for two bars of {song.meter}, or with{' '}
+        <code>/12/</code> for twelve beats flat. Start a line with <code>{'{3/4}'}</code> to change
+        meter from there on. Everything saves as you type.
       </p>
     </div>
   );

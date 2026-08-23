@@ -90,9 +90,11 @@ describe("example songs", () => {
       null,
       12,
     ]);
-    // The Rising Sun fixture is the full six-verse song and writes no holds at all: every line,
-    // lyric or instrumental, takes the song default.
+    // The Rising Sun fixture writes no holds at all: every line, lyric or instrumental, takes
+    // the song default, which in 6/8 is one bar.
     expect(risingSun.rows.every((row) => row.beats === null)).toBe(true);
+    expect(risingSun.rows.every((row) => row.bars === null)).toBe(true);
+    expect(risingSun.meter).toBe("6/8");
   });
 
   it("EX-03 keeps the lyric text intact and anchors each chord inside it", () => {
@@ -188,10 +190,12 @@ describe("example songs", () => {
   });
 
   it("EX-07 builds a playable schedule that runs its lines back to back", () => {
+    // The meter matters here: `//3` is three bars, and a bar of 6/8 is not a bar of 4/4.
     const schedule = buildSchedule(
       risingSun.rows,
       risingSun.tempo,
       risingSun.beatsPerLine,
+      risingSun.meter,
     );
     // A beat at 80bpm is 750ms, so every six-beat line is 4500ms and they simply follow on.
     expect(schedule[0].startMs).toBe(0);
@@ -203,6 +207,7 @@ describe("example songs", () => {
     const played = risingSun.rows.filter((row) => !isBlankRow(row));
     expect(risingSun.rows.some(isBlankRow)).toBe(true);
     expect(schedule).toHaveLength(played.length);
+
     expect(totalDurationMs(schedule)).toBe(4500 * played.length);
 
     // Playback starts on the first row and finishes cleanly after the last.

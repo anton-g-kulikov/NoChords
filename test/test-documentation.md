@@ -20,6 +20,7 @@ described at the end of this document.
 | Playback timing | `src/lib/playback.ts` | `playback.test.ts` |
 | Song state transitions | `src/lib/songs.ts` | `songs.test.ts` |
 | Metronome timing | `src/lib/metronome.ts` | `metronome.test.ts` |
+| Time signatures | `src/lib/meter.ts` | `meter.test.ts` |
 | Chord reveal on tap | `src/lib/reveal.ts` | `reveal.test.ts` |
 | Numeric field commits | `src/lib/numberField.ts` | `number-field.test.ts` |
 | Local persistence | `src/lib/storage.ts` | `storage.test.ts` |
@@ -107,6 +108,12 @@ described at the end of this document.
 | IN-16 | Removes the length tag before fixing chord offsets | ✅ |
 | IN-17 | Ignores a zero or malformed length | ✅ |
 | IN-18 | Writes the length back at the end of the line | ✅ |
+| IN-14 | `//3` at the end of a line reads as three bars | ✅ |
+| IN-15 | Bars and beats never collide: `//2` is not read as a beat tag | ✅ |
+| IN-16 | A line may state both a bar count and a beat count | ✅ |
+| IN-17 | `{4/4}` reads as a signature and leaves the lyric | ✅ |
+| IN-18 | Something that is not a signature stays literal lyric | ✅ |
+| IN-19 | Signature normalises to the head of the line, length tags to the tail | ✅ |
 
 ### Chord-over-lyric layout — `display.test.ts`
 
@@ -159,6 +166,12 @@ described at the end of this document.
 | PB-12 | Entries keep their song row index, so the active row never lands on a blank | ✅ |
 | PB-13 | Seeking a blank row lands on the next row that plays | ✅ |
 | PB-14 | A song of nothing but blanks has nothing to play | ✅ |
+| PB-15 | A `//n` bar count is measured against the meter in effect | ✅ |
+| PB-16 | **An explicit `/n/` beat count wins over a bar count** | ✅ |
+| PB-17 | A row stating neither takes the song default | ✅ |
+| PB-18 | Entries carry the accent spacing of the meter running at that row | ✅ |
+| PB-19 | A signature change restarts the pulse instead of inheriting the old phase | ✅ |
+| PB-20 | A signature on a blank line takes effect without the line playing | ✅ |
 | PB-10 | A line with no `/n/` takes the song's beats-per-line | ✅ |
 | PB-11 | A zero or negative beat count falls back to the default | ✅ |
 | PB-12 | **No seconds anywhere: doubling the tempo exactly halves the song** | ✅ |
@@ -216,6 +229,10 @@ described at the end of this document.
 | MT-11 | Accents follow the song's line length, not a fixed bar | ✅ |
 | MT-12 | Accents are correct through negative count-in beats | ✅ |
 | MT-13 | A nonsensical line length degrades to 4/4, not "accent everything" | ✅ |
+| MT-14 | **A 6/8 song pulses in two — accents on 1 and 4, not one click a bar** | ✅ |
+| MT-15 | The accent follows a signature change into the next section | ✅ |
+| MT-16 | Count-in beats are accented so the count lands on the downbeat | ✅ |
+| MT-17 | With nothing to play the accent falls back to a plain four | ✅ |
 
 ### Numeric field commits — `number-field.test.ts`
 
@@ -312,6 +329,21 @@ and then owned by the user, so the failure to avoid is bringing back songs someo
 | FR-07 | The flag lives under its own key, not inside the library | ✅ |
 | FR-08 | A flag written by an earlier session is honoured | ✅ |
 | FR-09 | A blocked or absent store reads as a fresh start and never throws | ✅ |
+
+### Time signatures — `meter.test.ts`
+
+Intent: turn a written signature into the two facts the app needs — how long a bar is, and where
+the accent falls. Compound meters are the reason this module exists.
+
+| # | Case | Status |
+|---|------|--------|
+| ME-01 | A signature reads into numerator and denominator | ✅ |
+| ME-02 | Anything that is not a signature is rejected | ✅ |
+| ME-03 | Simple meters accent once a bar | ✅ |
+| ME-04 | **Compound meters accent the dotted pulse: 6/8 clicks every three** | ✅ |
+| ME-05 | 3/8 is simple, since three eighths are one pulse | ✅ |
+| ME-06 | Nonsense falls back to 4/4 rather than failing | ✅ |
+| ME-07 | Bar length is reported for `//n` to measure against | ✅ |
 
 ### Device preferences — `settings.test.ts`
 

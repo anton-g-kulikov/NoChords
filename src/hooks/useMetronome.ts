@@ -6,7 +6,8 @@
  * this hook only owns the `AudioContext` and the lookahead loop.
  */
 import { useCallback, useEffect, useRef } from 'react';
-import { beatDurationMs, beatsInWindow, isAccent } from '../lib/metronome';
+import { accentAt, beatDurationMs, beatsInWindow } from '../lib/metronome';
+import type { ScheduleEntry } from '../lib/playback';
 
 /** How often the scheduler wakes. Short enough to be responsive, long enough to be cheap. */
 const TICK_MS = 25;
@@ -23,7 +24,8 @@ export interface MetronomeOptions {
   /** 0..1. */
   volume: number;
   tempo: number;
-  beatsPerLine: number;
+  /** The song's schedule, which carries the meter running at each beat (ADR-026). */
+  schedule: ScheduleEntry[];
   isPlaying: boolean;
   /**
    * `performance.now()` value corresponding to elapsed time zero — the song's first beat.
@@ -38,7 +40,7 @@ export function useMetronome({
   enabled,
   volume,
   tempo,
-  beatsPerLine,
+  schedule,
   isPlaying,
   originMs,
   totalMs,
@@ -55,10 +57,10 @@ export function useMetronome({
    */
   const audioOriginRef = useRef<number | null>(null);
 
-  const latest = useRef({ volume, tempo, beatsPerLine, originMs, totalMs });
+  const latest = useRef({ volume, tempo, schedule, originMs, totalMs });
   useEffect(() => {
-    latest.current = { volume, tempo, beatsPerLine, originMs, totalMs };
-  }, [volume, tempo, beatsPerLine, originMs, totalMs]);
+    latest.current = { volume, tempo, schedule, originMs, totalMs };
+  }, [volume, tempo, schedule, originMs, totalMs]);
 
   /** One click, scheduled at an absolute time on the audio clock. */
   const scheduleClick = useCallback((context: AudioContext, at: number, accent: boolean) => {
@@ -125,7 +127,7 @@ export function useMetronome({
         if (beatElapsed >= current.totalMs) continue;
         const at = audioOrigin + beatElapsed / 1000;
         if (at < ctx.currentTime) continue;
-        scheduleClick(ctx, at, isAccent(beat, current.beatsPerLine));
+        scheduleClick(ctx, at, accentAt(beat, current.schedule));
       }
     }, TICK_MS);
 

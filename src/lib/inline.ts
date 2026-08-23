@@ -1,10 +1,13 @@
 /**
- * The inline notation a song is written in: `[Dm]O, where are you [C]going?/6/`
+ * The inline notation a song is written in: `{6/8}[Dm]O, where are you [C]going?//2`
  *
- * `[Chord]` anchors a chord to the following character (ADR-007). `/n/` sets how many beats the
- * line lasts (ADR-011); omit it and the line uses the song's default. Everything else is lyric.
+ * `[Chord]` anchors a chord to the following character (ADR-007). `//n` sets how many bars the
+ * line lasts and `/n/` how many beats, for a line that does not sit on a bar boundary — a long
+ * solo over the same chords, say (ADR-026). `{n/d}` changes the time signature from this line on.
+ * Omit all of them and the line uses the song's default. Everything else is lyric.
  *
- * The two markups cannot collide: a slash chord keeps its slash inside its brackets.
+ * None of the markups collide: a slash chord keeps its slash inside its brackets, and bars are
+ * taken before beats so `//2` is never read as the tail of a beat tag.
  */
 import type { ChordAnchor } from '../types/song';
 
@@ -12,6 +15,8 @@ export interface InlineRow {
   lyrics: string;
   chords: ChordAnchor[];
   beats: number | null;
+  bars: number | null;
+  meter: string | null;
 }
 
 /** A bracketed chord. Nested brackets are not allowed, so an unclosed `[` stays literal. */
@@ -20,40 +25,59 @@ const CHORD_TAG = /\[([^[\]]*)\]/g;
 /** A line-length tag: a number between slashes. */
 const BEATS_TAG = /\/(\d+(?:\.\d+)?)\//g;
 
+/** A bar-count tag: a number after a double slash. Read before beats, so `//2` wins the slashes. */
+const BARS_TAG = /\/\/(\d+)/g;
+
+/** A time-signature tag: `{6/8}`. */
+const METER_TAG = /\{\s*(\d+)\s*\/\s*(\d+)\s*\}/g;
+
 /**
  * Splits one line of inline notation into its lyric, positioned chords, and length.
  * Anchors come back in ascending order, and the lyric keeps every character that was not markup.
  */
 export function parseInlineRow(text: string): InlineRow {
   let beats: number | null = null;
+  let bars: number | null = null;
+  let meter: string | null = null;
 
-  // Take the length tag out first so it cannot disturb the chord offsets.
-  const withoutBeats = text.replace(BEATS_TAG, (_match, value: string) => {
-    const parsed = Number(value);
-    // A later tag on the same line wins; zero or nonsense falls back to the song default.
-    if (Number.isFinite(parsed) && parsed > 0) beats = parsed;
-    return '';
-  });
+  // Take the tags out first so they cannot disturb the chord offsets. Bars before beats: `//2`
+  // shares its slashes with the beats pattern, and reading beats first would leave a stray one.
+  const withoutTags = text
+    .replace(METER_TAG, (_match, top: string, bottom: string) => {
+      meter = `${Number(top)}/${Number(bottom)}`;
+      return '';
+    })
+    .replace(BARS_TAG, (_match, value: string) => {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed) && parsed > 0) bars = parsed;
+      return '';
+    })
+    .replace(BEATS_TAG, (_match, value: string) => {
+      const parsed = Number(value);
+      // A later tag on the same line wins; zero or nonsense falls back to the song default.
+      if (Number.isFinite(parsed) && parsed > 0) beats = parsed;
+      return '';
+    });
 
   let lyrics = '';
   const chords: ChordAnchor[] = [];
   let cursor = 0;
 
-  for (const match of withoutBeats.matchAll(CHORD_TAG)) {
-    lyrics += withoutBeats.slice(cursor, match.index);
+  for (const match of withoutTags.matchAll(CHORD_TAG)) {
+    lyrics += withoutTags.slice(cursor, match.index);
     const symbol = match[1].trim();
     // `[]` is markup with nothing in it; drop it rather than storing an empty chord.
     if (symbol !== '') chords.push({ symbol, index: lyrics.length });
     cursor = match.index + match[0].length;
   }
 
-  lyrics += withoutBeats.slice(cursor);
-  return { lyrics, chords, beats };
+  lyrics += withoutTags.slice(cursor);
+  return { lyrics, chords, beats, bars, meter };
 }
 
 /**
- * Renders a row back to inline notation. Any length tag is written once at the end of the line,
- * so a tag typed mid-line is normalised to where it reads naturally.
+ * Renders a row back to inline notation. A signature is written at the head of the line and any
+ * length tag once at its end, so tags typed mid-line are normalised to where they read naturally.
  */
 export function formatInlineRow(row: InlineRow): string {
   // Insert from the end so earlier offsets stay valid; equal offsets keep their stored order.
@@ -68,5 +92,9 @@ export function formatInlineRow(row: InlineRow): string {
     text = `${text.slice(0, at)}[${chord.symbol}]${text.slice(at)}`;
   }
 
-  return row.beats && row.beats > 0 ? `${text}/${row.beats}/` : text;
+  if (row.meter) text = `{${row.meter}}${text}`;
+  // Bars are the usual way to say it; beats are for a line that does not land on a bar.
+  if (row.bars && row.bars > 0) text = `${text}//${row.bars}`;
+  if (row.beats && row.beats > 0) text = `${text}/${row.beats}/`;
+  return text;
 }

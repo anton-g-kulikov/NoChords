@@ -41,6 +41,17 @@ export interface PlaybackController {
   seekToRow(index: number): void;
 }
 
+/**
+ * How long after pressing play everything actually begins (ADR-030).
+ *
+ * The opening click has to be scheduled before it sounds, and latency compensation asks for it
+ * earlier still — both impossible if the timeline starts at the very instant of the press, which
+ * left the first click clamped and late. Starting a fraction of a second later gives the scheduler
+ * that room. It shifts the countdown by the same amount, so nothing drifts apart, and a quarter of
+ * a second before a count-in reads as nothing at all.
+ */
+const LEAD_IN_MS = 250;
+
 export interface PlaybackOptions {
   /** Length of the count-in before the song starts. */
   countInMs?: number;
@@ -80,7 +91,7 @@ export function usePlayback(
       return undefined;
     }
 
-    const origin = performance.now() - elapsedRef.current;
+    const origin = performance.now() + LEAD_IN_MS - elapsedRef.current;
     setOriginMs(origin);
     let frame = 0;
 
@@ -107,7 +118,12 @@ export function usePlayback(
   const finished = isComplete(schedule, elapsedMs);
   const activeIndex = rowIndexAt(schedule, elapsedMs);
   const countingIn = isPlaying && elapsedMs < 0;
-  const countInRemaining = countingIn && beatMs > 0 ? Math.ceil(-elapsedMs / beatMs) : 0;
+  // Capped at the length of the count-in: during the lead-in the clock has not reached the first
+  // beat yet, and the raw arithmetic would flash a number that is not part of the count.
+  const countInRemaining =
+    countingIn && beatMs > 0
+      ? Math.min(Math.ceil(-elapsedMs / beatMs), Math.ceil(countInMs / beatMs))
+      : 0;
 
   /** Starts from the count-in, or from the top if the song has already finished. */
   const startFrom = useCallback(

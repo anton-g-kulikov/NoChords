@@ -673,3 +673,37 @@ should be a list of songs.
 people and not others through no fault of theirs; the typed shim in the hook exists because
 `lib.dom` does not describe the event.
 
+---
+
+## ADR-030 — Clicks are fired early by the output latency, and playback starts a beat-fraction late
+
+**Decision.** Every metronome click is scheduled `outputLatency` seconds before its beat, and
+playback begins 250ms after the press rather than instantly. The scheduler's lookahead window is
+widened by the same latency so compensated clicks are still scheduled into the future.
+
+**What was wrong.** A click scheduled at audio time T is not heard at T: it reaches the speaker at
+T + the device's output latency, routinely a tenth of a second on a phone and far more over
+Bluetooth. The screen has no such delay. So the count-in was heard late against its own countdown —
+reported as the first click landing "between 4 and 3", which at 90bpm is about 330ms, squarely the
+latency of an ordinary Android output path.
+
+**Why the lead-in.** Compensation asks for the opening click *before* the run begins, which is
+impossible if the timeline starts at the instant of the press: the click gets clamped and is heard
+late by exactly the latency it was meant to lose. Starting everything a quarter of a second later
+gives the scheduler that room. The delay applies to the countdown too, so the two cannot drift
+apart, and 250ms before a count-in is imperceptible.
+
+**Why the lookahead grew.** Pulling clicks earlier by the latency while scanning only 150ms ahead
+would place them in their own past. The window is now `150ms + latency`, so the compensation always
+has somewhere to move the click to.
+
+**Why `outputLatency` with `baseLatency` as fallback.** `outputLatency` is what the device actually
+adds and is the number that matters; `baseLatency` describes only the graph's own buffering, which
+is the honest answer where a browser does not report the rest. Both are absent on some engines, and
+zero then means behaving exactly as before.
+
+**Cost.** The compensation is only as good as the number the browser reports, and Bluetooth latency
+in particular is often understated — a click can still sound late on a headset that lies about
+itself. Nothing here can be verified without a real device and a pair of ears; the tests cover the
+arithmetic, not the hearing.
+

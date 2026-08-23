@@ -235,6 +235,10 @@ described at the end of this document.
 | MT-15 | The accent follows a signature change into the next section | ✅ |
 | MT-16 | Count-in beats are accented so the count lands on the downbeat | ✅ |
 | MT-17 | With nothing to play the accent falls back to a plain four | ✅ |
+| MT-18 | **A click fires early by the output latency, so it is heard on the beat** | ✅ |
+| MT-19 | With no reported latency the timing is unchanged | ✅ |
+| MT-20 | Compensation shifts the grid without stretching it | ✅ |
+| MT-21 | A nonsensical latency never pushes a click later | ✅ |
 
 ### Numeric field commits — `number-field.test.ts`
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   accentAt,
   beatDurationMs,
+  clickAt,
   beatsInWindow,
   countInDurationMs,
   isAccent,
@@ -188,6 +189,31 @@ describe('accentAt', () => {
     expect(accentAt(0, [])).toBe(true);
     expect(accentAt(4, [])).toBe(true);
     expect(accentAt(5, [])).toBe(false);
+  });
+});
+
+describe('clickAt', () => {
+  it('MT-18 fires a click early by the output latency, so it is heard on the beat', () => {
+    // Origin at audio time 10s, beat at 2s in, device 150ms behind: fire at 11.85 to be heard
+    // at 12.0.
+    expect(clickAt(10, 2000, 0.15)).toBeCloseTo(11.85, 6);
+  });
+
+  it('MT-19 is the plain sum when the device reports no latency', () => {
+    expect(clickAt(10, 2000, 0)).toBeCloseTo(12, 6);
+  });
+
+  it('MT-20 keeps every click the same distance apart', () => {
+    // Compensation shifts the whole grid; it must not stretch it.
+    const a = clickAt(10, 0, 0.2);
+    const b = clickAt(10, 500, 0.2);
+    const c = clickAt(10, 1000, 0.2);
+    expect(b - a).toBeCloseTo(0.5, 6);
+    expect(c - b).toBeCloseTo(0.5, 6);
+  });
+
+  it('MT-21 refuses to push a click later on a nonsensical latency', () => {
+    expect(clickAt(10, 1000, -5)).toBeCloseTo(11, 6);
   });
 });
 

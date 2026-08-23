@@ -20,6 +20,25 @@ export function countInDurationMs(tempo: number, countInBeats: number): number {
 }
 
 /**
+ * When to fire a click so that it is *heard* on the beat.
+ *
+ * A click scheduled at audio time T reaches the speaker at T + the output latency, which on a
+ * phone is routinely a tenth of a second and over Bluetooth far more. Uncompensated, every click
+ * lands late against a screen that has no such delay — at 90bpm, a typical Android latency is
+ * half a beat, which is exactly what it sounds like (ADR-030).
+ *
+ * Times are in seconds, matching the audio clock; `beatElapsedMs` is in milliseconds, matching
+ * everything else in the app.
+ */
+export function clickAt(
+  audioOriginSec: number,
+  beatElapsedMs: number,
+  outputLatencySec: number
+): number {
+  return audioOriginSec + beatElapsedMs / 1000 - Math.max(outputLatencySec, 0);
+}
+
+/**
  * Beat indices whose time falls in `[fromMs, toMs)`.
  *
  * The window is half-open on purpose: a beat landing exactly on a boundary belongs to the later

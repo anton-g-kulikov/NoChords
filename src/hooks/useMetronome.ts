@@ -6,7 +6,7 @@
  * this hook only owns the `AudioContext` and the lookahead loop.
  */
 import { useCallback, useEffect, useRef } from 'react';
-import { accentAt, beatDurationMs, beatsInWindow } from '../lib/metronome';
+import { accentAt, beatDurationMs, beatsInWindow, clickAt } from '../lib/metronome';
 import type { ScheduleEntry } from '../lib/playback';
 
 /** How often the scheduler wakes. Short enough to be responsive, long enough to be cheap. */
@@ -55,6 +55,8 @@ export function useMetronome({
   totalMs,
 }: MetronomeOptions): void {
   const contextRef = useRef<AudioContext | null>(null);
+  /** Seconds between scheduling a sound and hearing it. Fixed once per run, with the origin. */
+  const latencyRef = useRef(0);
   // Where the last scan stopped, in elapsed milliseconds, so windows stay contiguous.
   const scannedToRef = useRef<number | null>(null);
   /**
@@ -128,11 +130,18 @@ export function useMetronome({
       // Pin the two clocks to each other exactly once, on the first tick of this run.
       if (audioOriginRef.current === null) {
         audioOriginRef.current = ctx.currentTime - elapsed / 1000;
+        // `outputLatency` is what the device actually adds; `baseLatency` is only the graph's own
+        // buffering, and is the honest fallback where the browser does not report the rest.
+        const withLatency = ctx as AudioContext & { outputLatency?: number };
+        latencyRef.current = withLatency.outputLatency || ctx.baseLatency || 0;
       }
       const audioOrigin = audioOriginRef.current;
+      const latency = latencyRef.current;
 
       const from = scannedToRef.current ?? elapsed;
-      const to = elapsed + LOOKAHEAD_MS;
+      // Compensation pulls every click earlier, so the window must reach past it or the clicks
+      // would be scheduled in their own past and clamped back to late.
+      const to = elapsed + LOOKAHEAD_MS + latency * 1000;
       scannedToRef.current = to;
 
       const beatMs = beatDurationMs(current.tempo);
@@ -140,7 +149,7 @@ export function useMetronome({
         const beatElapsed = beat * beatMs;
         // Stop at the end of the song; the count-in beats before zero still play.
         if (beatElapsed >= current.totalMs) continue;
-        const at = audioOrigin + beatElapsed / 1000;
+        const at = clickAt(audioOrigin, beatElapsed, latency);
         const lateByMs = (ctx.currentTime - at) * 1000;
         if (lateByMs > LATE_TOLERANCE_MS) continue;
         // A click a few milliseconds late still belongs at the top of the count: play it now

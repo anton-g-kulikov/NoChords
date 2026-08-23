@@ -87,7 +87,9 @@ while it counts, with the first line already visible so you can see what is comi
 
 Clicks are synthesised, so there is nothing to download, and they are scheduled onto the audio
 clock ahead of time rather than fired from the animation loop — measured beat-to-beat error is
-0.00ms, and a stuttering frame rate cannot make the click flam.
+0.00ms, and a stuttering frame rate cannot make the click flam. Each one is fired early by the
+device's output latency so that it is *heard* on the beat rather than a tenth of a second after it
+(ADR-030), which is also why playback begins a quarter of a second after you press it.
 
 These three preferences are per-device rather than per-song, since how loud a click should be
 depends on where you are playing, not on what.
@@ -127,9 +129,13 @@ older one when it takes over. **Bump the version before deploying**, or installe
 serving the previous release from a cache that still looks current:
 
 ```bash
-npm version patch    # or minor
+npm version patch --no-git-tag-version    # or minor
 npm run deploy
 ```
+
+The full sequence — verify, update the artifact that owns the change, commit granularly, bump,
+deploy, then check what is actually live — is in
+[`_meta/release-checklist.md`](_meta/release-checklist.md).
 
 A new release installs in the background and takes over on the next cold start, never mid-song. The
 version at the foot of the library screen is how you tell what an installed app is actually running.
@@ -179,7 +185,8 @@ npx metacoding init --template react --vendor claude-code
 ```
 
 The durable artifacts it works against are committed: `_meta/` for decisions and task state,
-`test/test-documentation.md` for test intent.
+`test/test-documentation.md` for test intent. Releasing follows
+[`_meta/release-checklist.md`](_meta/release-checklist.md).
 
 ## Accounts and sync
 

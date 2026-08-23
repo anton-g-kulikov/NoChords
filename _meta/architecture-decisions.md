@@ -492,3 +492,34 @@ cloud path entirely.
 **Cost.** A first-time visitor's library is not empty, so the empty-state copy in the song list is
 now reached only after deleting everything. Someone who wants the examples back has to retype
 them — the fixtures are in `_meta/example-songs.md`, but there is no longer a button.
+
+---
+
+## ADR-025 — Blank rows are structure, not time
+
+**Decision.** A row with no chords and no lyric text beyond whitespace is a separator. It is
+rendered in the chart exactly like any other line, but `buildSchedule` gives it no entry, so it
+takes no time and is never the active row. `isBlankRow` is the single definition, in `playback.ts`.
+
+**Why render them at all.** The empty line between verses is how a chart shows its shape. Strip it
+and six verses become one wall of text; the reader loses the thing that tells them where they are.
+
+**Why not play them.** A blank line is not a rest anyone wrote. Playing it holds the chart still for
+a full line — in the Rising Sun fixture, five of them at 4.5s each added 22.5 seconds of silence to
+a song that never asked for any. Someone who wants a real pause writes one, with `/12/` on the line
+before it (ADR-011).
+
+**Why the schedule keeps the song's row index.** Skipping rows makes the schedule shorter than the
+song, so position in one is no longer position in the other. Every entry already carried `index`,
+and everything downstream reads it, so the mismatch stays inside this module rather than becoming
+an off-by-blank bug in each caller. The one place that had assumed the two were parallel was
+`seekToRow`, which now asks `entryForRow`.
+
+**Seeking a blank.** A tap on a separator seeks forward to the next row that plays, rather than
+doing nothing. The tap was aimed at the verse it sits above, and silently ignoring it reads as a
+broken control.
+
+**Cost.** Two representations of "which row" now exist — the song's and the schedule's — and a
+caller reaching into `schedule[i]` by row index would be wrong. `entryForRow` is the supported way
+to cross between them.
+

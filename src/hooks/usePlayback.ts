@@ -9,7 +9,13 @@
  * proper begins as it crosses zero (ADR-015).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { isComplete, rowIndexAt, totalDurationMs, type ScheduleEntry } from '../lib/playback';
+import {
+  entryForRow,
+  isComplete,
+  rowIndexAt,
+  totalDurationMs,
+  type ScheduleEntry,
+} from '../lib/playback';
 
 export interface PlaybackController {
   isPlaying: boolean;
@@ -136,7 +142,8 @@ export function usePlayback(
 
   const seekToRow = useCallback(
     (index: number) => {
-      const entry = scheduleRef.current[index];
+      // By row index, not schedule position: blank rows have no entry, so the two differ (ADR-025).
+      const entry = entryForRow(scheduleRef.current, index);
       if (entry) setElapsed(entry.startMs);
     },
     [setElapsed]

@@ -12,6 +12,7 @@ import {
 } from "../src/lib/learning";
 import {
   buildSchedule,
+  isBlankRow,
   rowIndexAt,
   totalDurationMs,
 } from "../src/lib/playback";
@@ -196,7 +197,13 @@ describe("example songs", () => {
     expect(schedule[0].startMs).toBe(0);
     expect(schedule[0].endMs).toBe(4500);
     expect(schedule[4].startMs).toBe(4500 * 4);
-    expect(totalDurationMs(schedule)).toBe(4500 * risingSun.rows.length);
+
+    // The blank lines between verses are rendered but never played (ADR-025), so they are absent
+    // from the schedule and cost the song no time.
+    const played = risingSun.rows.filter((row) => !isBlankRow(row));
+    expect(risingSun.rows.some(isBlankRow)).toBe(true);
+    expect(schedule).toHaveLength(played.length);
+    expect(totalDurationMs(schedule)).toBe(4500 * played.length);
 
     // Playback starts on the first row and finishes cleanly after the last.
     expect(rowIndexAt(schedule, 0)).toBe(0);

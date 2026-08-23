@@ -27,6 +27,16 @@ export interface ScheduleEntry {
   beats: number;
 }
 
+/**
+ * Whether a row is a blank separator — no chords, and nothing but whitespace for lyrics.
+ *
+ * These are the empty lines between verses. They are structure, not music: they say where one
+ * verse ends, and holding silence on one is not what the writer meant (ADR-025).
+ */
+export function isBlankRow(row: SongRow): boolean {
+  return row.chords.length === 0 && row.lyrics.trim() === '';
+}
+
 /** Beats per line, falling back to the default for a missing or nonsensical value. */
 function safeBeats(beatsPerLine: number): number {
   return beatsPerLine && beatsPerLine > 0 ? beatsPerLine : DEFAULT_BEATS_PER_LINE;
@@ -43,7 +53,13 @@ export function rowDurationMs(row: SongRow, tempo: number, beatsPerLine: number)
   return (60000 / safeTempo) * rowBeats(row, beatsPerLine);
 }
 
-/** Builds the full schedule for a song. */
+/**
+ * Builds the full schedule for a song.
+ *
+ * Blank separator rows get no entry, so they take no time. Entries keep the index of the row they
+ * came from, which is what everything downstream refers to — the schedule can be shorter than the
+ * song without any caller having to know it (ADR-025).
+ */
 export function buildSchedule(
   rows: SongRow[],
   tempo: number,
@@ -53,6 +69,7 @@ export function buildSchedule(
   let cursor = 0;
 
   rows.forEach((row, index) => {
+    if (isBlankRow(row)) return;
     const durationMs = rowDurationMs(row, tempo, beatsPerLine);
     schedule.push({
       rowId: row.id,
@@ -86,6 +103,19 @@ export function rowIndexAt(schedule: ScheduleEntry[], elapsedMs: number): number
     if (elapsedMs < entry.endMs) return entry.index;
   }
   return -1;
+}
+
+/**
+ * The entry to play when someone asks for row `rowIndex`.
+ *
+ * A blank row has no entry of its own, so a tap on one lands on the next row that does play
+ * rather than doing nothing — the tap was aimed at the music that follows.
+ */
+export function entryForRow(
+  schedule: ScheduleEntry[],
+  rowIndex: number
+): ScheduleEntry | undefined {
+  return schedule.find((entry) => entry.index >= rowIndex);
 }
 
 /** Whether the schedule has run to its end. */

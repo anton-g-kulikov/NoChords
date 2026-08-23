@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_BEATS_PER_LINE,
   buildSchedule,
+  entryForRow,
+  isBlankRow,
   isComplete,
   rowBeats,
   rowDurationMs,
@@ -12,6 +14,11 @@ import type { SongRow } from '../src/types/song';
 
 function row(id: string, beats: number | null = null): SongRow {
   return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats };
+}
+
+/** A separator between verses: nothing but whitespace, and no chords. */
+function blank(id: string, lyrics = ''): SongRow {
+  return { id, chords: [], lyrics, beats: null };
 }
 
 /** At 120bpm a beat is 500ms, so these rows run 2000 / 2500 / 4000ms. */
@@ -117,5 +124,59 @@ describe('rowIndexAt', () => {
 
   it('treats a negative elapsed time as the first row', () => {
     expect(rowIndexAt(schedule, -100)).toBe(0);
+  });
+});
+
+describe('blank separator rows', () => {
+  it('PB-10 recognises a row with no chords and no lyric text', () => {
+    expect(isBlankRow(blank('b1'))).toBe(true);
+    expect(isBlankRow(blank('b2', '   '))).toBe(true);
+    expect(isBlankRow(row('r1'))).toBe(false);
+    // An instrumental bar is not blank: it has chords and is meant to be played.
+    expect(isBlankRow({ id: 'i1', chords: [{ symbol: 'C', index: 0 }], lyrics: '  ', beats: null }))
+      .toBe(false);
+  });
+
+  it('PB-11 leaves blank rows out of the schedule and charges them no time', () => {
+    const withGaps = [row('r1'), blank('b1'), row('r2'), blank('b2'), row('r3')];
+    const schedule = buildSchedule(withGaps, TEMPO, BEATS);
+
+    expect(schedule).toHaveLength(3);
+    // Three ordinary rows at 120bpm and four beats: 2000ms each, back to back.
+    expect(totalDurationMs(schedule)).toBe(6000);
+    expect(schedule.map((entry) => entry.startMs)).toEqual([0, 2000, 4000]);
+  });
+
+  it('PB-12 keeps entries pointing at the row they came from', () => {
+    const withGaps = [row('r1'), blank('b1'), row('r2'), blank('b2'), row('r3')];
+    const schedule = buildSchedule(withGaps, TEMPO, BEATS);
+
+    // The song's own indices, not positions in the schedule — the UI still renders every row.
+    expect(schedule.map((entry) => entry.index)).toEqual([0, 2, 4]);
+    expect(schedule.map((entry) => entry.rowId)).toEqual(['r1', 'r2', 'r3']);
+
+    // So the active row never lands on a blank one.
+    expect(rowIndexAt(schedule, 0)).toBe(0);
+    expect(rowIndexAt(schedule, 2500)).toBe(2);
+    expect(rowIndexAt(schedule, 4500)).toBe(4);
+  });
+
+  it('PB-13 seeks a blank row forward to the next row that plays', () => {
+    const withGaps = [row('r1'), blank('b1'), row('r2'), blank('b2'), row('r3')];
+    const schedule = buildSchedule(withGaps, TEMPO, BEATS);
+
+    expect(entryForRow(schedule, 2)?.rowId).toBe('r2');
+    // A tap on the gap was aimed at the verse after it.
+    expect(entryForRow(schedule, 1)?.rowId).toBe('r2');
+    expect(entryForRow(schedule, 3)?.rowId).toBe('r3');
+    // Nothing plays after a trailing blank, so there is nowhere to seek.
+    expect(entryForRow(buildSchedule([row('r1'), blank('b1')], TEMPO, BEATS), 1)).toBeUndefined();
+  });
+
+  it('PB-14 treats an all-blank song as having nothing to play', () => {
+    const schedule = buildSchedule([blank('b1'), blank('b2')], TEMPO, BEATS);
+    expect(schedule).toHaveLength(0);
+    expect(totalDurationMs(schedule)).toBe(0);
+    expect(rowIndexAt(schedule, 0)).toBe(-1);
   });
 });

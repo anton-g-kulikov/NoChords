@@ -154,6 +154,11 @@ described at the end of this document.
 | PB-07 | Elapsed time past the end reports completion | ✅ |
 | PB-08 | An empty song produces an empty schedule and zero duration | ✅ |
 | PB-09 | Faster tempo yields a shorter schedule | ✅ |
+| PB-10 | `isBlankRow` recognises a separator; an instrumental bar with chords is not one | ✅ |
+| PB-11 | **Blank separator rows are left out of the schedule and cost the song no time** | ✅ |
+| PB-12 | Entries keep their song row index, so the active row never lands on a blank | ✅ |
+| PB-13 | Seeking a blank row lands on the next row that plays | ✅ |
+| PB-14 | A song of nothing but blanks has nothing to play | ✅ |
 | PB-10 | A line with no `/n/` takes the song's beats-per-line | ✅ |
 | PB-11 | A zero or negative beat count falls back to the default | ✅ |
 | PB-12 | **No seconds anywhere: doubling the tempo exactly halves the song** | ✅ |

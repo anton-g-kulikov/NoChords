@@ -90,10 +90,14 @@ describe("example songs", () => {
       null,
       12,
     ]);
-    // The Rising Sun fixture writes no holds at all: every line, lyric or instrumental, takes
-    // the song default, which in 6/8 is one bar.
+    // The Rising Sun fixture writes no raw beat counts: lines take the song default, and the
+    // ending states its length in bars instead (ADR-026).
     expect(risingSun.rows.every((row) => row.beats === null)).toBe(true);
-    expect(risingSun.rows.every((row) => row.bars === null)).toBe(true);
+    expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([3]);
+    // The closing bars are written in 3/4, from the row that says so until the end.
+    expect(risingSun.rows.filter((row) => row.meter !== null).map((row) => row.meter)).toEqual([
+      "3/4",
+    ]);
     expect(risingSun.meter).toBe("6/8");
   });
 
@@ -208,7 +212,11 @@ describe("example songs", () => {
     expect(risingSun.rows.some(isBlankRow)).toBe(true);
     expect(schedule).toHaveLength(played.length);
 
-    expect(totalDurationMs(schedule)).toBe(4500 * played.length);
+    // Every line is one bar of 6/8 — six beats, 4500ms — except the closing lyric, held for
+    // three bars with `//3`, which is eighteen (ADR-026).
+    const held = schedule[schedule.length - 3];
+    expect(held.beats).toBe(18);
+    expect(totalDurationMs(schedule)).toBe(4500 * (played.length - 1) + 4500 * 3);
 
     // Playback starts on the first row and finishes cleanly after the last.
     expect(rowIndexAt(schedule, 0)).toBe(0);

@@ -101,8 +101,8 @@ To [Am]wear that [E]ball and [Am]chain.
 There [Am]is a [C]house in New [D]Orleans, [F]
 They [Am]call the [C]Rising [E]Sun,
 And it's [Am]been the [C]ruin of [D]many a poor boy, [F]
-Dear [Am]God, I [E]know I was [Am]one.
-[C] [D] [F]
+Dear [Am]God, I [E]know I was [Am]one.//3
+{3/4}[C] [D] [F]
 [Am] [E] [Am] [E]
 `;
 

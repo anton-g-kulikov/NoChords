@@ -6,7 +6,8 @@ interface AuthBarProps {
 }
 
 /**
- * Sign-in, and a plain statement of where songs are being kept.
+ * A plain statement of where songs are being kept, plus sign-out. Signing in is offered from the
+ * library header instead.
  *
  * Renders nothing when Firebase is not configured (ADR-022) — offering a button that cannot work
  * is worse than not offering one.
@@ -28,14 +29,9 @@ export function AuthBar({ auth, storedIn }: AuthBarProps) {
           </button>
         </>
       ) : (
-        <>
-          <span className="authbar__status">
-            {storedIn === 'local' ? 'Songs are saved on this device only' : ''}
-          </span>
-          <button type="button" className="button" onClick={() => void auth.signIn()}>
-            Sign in with Google
-          </button>
-        </>
+        <span className="authbar__status">
+          {storedIn === 'local' ? 'Songs are saved on this device only' : ''}
+        </span>
       )}
       {auth.error && <p className="authbar__error">{auth.error}</p>}
     </div>

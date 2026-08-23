@@ -24,7 +24,14 @@ npm run dev      # http://localhost:5173
 | `npm run deploy` | Build and deploy to Firebase Hosting |
 | `npm run deploy:rules` | Deploy the Firestore security rules |
 
-**Add example songs** on the library screen loads three traditional songs to try it out.
+A new library starts with three traditional songs already in it, so there is something to play with
+on the first run (ADR-024). They are ordinary songs — edit or delete them like any other; deleting
+them is remembered, and they do not come back. To change what everyone's first run contains, edit
+the fixtures in [`src/lib/examples.ts`](src/lib/examples.ts) and deploy; existing libraries keep the
+copies they already have.
+
+**Log in to Sync** on the library screen signs in with Google and moves the library to Firestore.
+Opening a song from the library lands on **Play**; a newly created one opens in **Edit**.
 
 ## Writing a song
 

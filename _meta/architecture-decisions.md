@@ -458,3 +458,37 @@ the split cannot be observed without supplying a key at build time.
 
 **Cost.** Sign-in pays a one-off chunk fetch, and the loaders are async where direct calls would
 have been synchronous. Both are invisible next to 180kB on every cold load.
+
+---
+
+## ADR-024 — A new library starts with the example songs, and then owns them
+
+**Decision.** The first time the app opens on a device with an empty library, the three example
+songs from `examples.ts` are written into it as ordinary songs. From that moment they are the
+user's: editable, transposable, deletable, and never restored. A flag beside the library
+(`nochords.examples-seeded.v1`) records that the decision was made; `firstRun.ts` holds it.
+
+This replaces the "Add example songs" button, which put the burden on a first-time visitor to
+guess that pressing it was how to see what the app does.
+
+**Why seeded songs rather than a read-only demo.** A demo the user cannot edit teaches nothing
+about the editor, and it needs its own rendering path, its own delete rules, and a second class of
+song for every feature after it to handle. Real rows in the real library cost none of that, and
+playing with them is the tutorial.
+
+**Why a flag and not "is the library empty?".** Emptiness is not memory. Someone who deletes all
+three has said what they want, and re-seeding on the next load would overrule them — the more
+annoying bug of the two, because it repeats.
+
+**Why only into an empty library.** An existing library belongs to someone who has already started.
+Three uninvited songs would read as a sync bug, not a welcome.
+
+**Why device-local, not per-account.** Seeding writes to the local store only, and never to
+Firestore. Signing in already has a defined behaviour for a device library meeting an empty account
+(ADR-022): it offers the import. A user who signs in on a fresh device is therefore offered their
+examples, and declines — a question, not a surprise, and it keeps the seeding decision out of the
+cloud path entirely.
+
+**Cost.** A first-time visitor's library is not empty, so the empty-state copy in the song list is
+now reached only after deleting everything. Someone who wants the examples back has to retype
+them — the fixtures are in `_meta/example-songs.md`, but there is no longer a button.

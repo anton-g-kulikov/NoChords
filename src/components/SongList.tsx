@@ -6,18 +6,21 @@ interface SongListProps {
   onOpen: (songId: string) => void;
   onCreate: () => void;
   onDelete: (songId: string) => void;
-  onLoadExamples: () => void;
+  /** Null when signing in is unavailable or already done. */
+  onSignIn: (() => void) | null;
 }
 
-export function SongList({ songs, onOpen, onCreate, onDelete, onLoadExamples }: SongListProps) {
+export function SongList({ songs, onOpen, onCreate, onDelete, onSignIn }: SongListProps) {
   return (
     <div className="library">
       <div className="library__head">
         <h1>NoChords</h1>
         <div className="library__actions">
-          <button type="button" className="button" onClick={onLoadExamples}>
-            Add example songs
-          </button>
+          {onSignIn && (
+            <button type="button" className="button" onClick={onSignIn}>
+              Log in to Sync
+            </button>
+          )}
           <button type="button" className="button button--primary" onClick={onCreate}>
             New song
           </button>
@@ -26,9 +29,8 @@ export function SongList({ songs, onOpen, onCreate, onDelete, onLoadExamples }: 
 
       {songs.length === 0 ? (
         <p className="library__empty">
-          No songs yet. Create one and type your lines with chords in brackets —{' '}
-          <code>[Am]There is a [C]house in New [D]Orleans,</code> — or add the example songs to see
-          how it works.
+          No songs yet. Create one and type your lines with chords in brackets, like{' '}
+          <code>[Am]There is a [C]house in New [D]Orleans</code>.
         </p>
       ) : (
         <ul className="library__list">

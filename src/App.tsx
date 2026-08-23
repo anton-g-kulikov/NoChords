@@ -18,7 +18,6 @@ export function App() {
     storedIn,
     importOffer,
     addSong,
-    addExampleSongs,
     updateSong,
     deleteSong,
     acceptImport,
@@ -26,7 +25,8 @@ export function App() {
   } = useSongLibrary(auth.user?.uid ?? null);
   const { settings, update: updateSettings } = useSettings();
   const [openSongId, setOpenSongId] = useState<string | null>(null);
-  const [pane, setPane] = useState<Pane>('edit');
+  // Opening an existing song lands on Play; only a brand new song starts in Edit.
+  const [pane, setPane] = useState<Pane>('play');
 
   const song = songs.find((item) => item.id === openSongId) ?? null;
 
@@ -46,14 +46,16 @@ export function App() {
         songs={songs}
         onOpen={(songId) => {
           setOpenSongId(songId);
-          setPane('edit');
+          setPane('play');
         }}
         onCreate={() => {
           setOpenSongId(addSong().id);
           setPane('edit');
         }}
         onDelete={deleteSong}
-        onLoadExamples={addExampleSongs}
+        onSignIn={
+          auth.available && !auth.loading && !auth.user ? () => void auth.signIn() : null
+        }
         />
       </>
     );

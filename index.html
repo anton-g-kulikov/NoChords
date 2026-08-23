@@ -6,6 +6,15 @@
     <title>NoChords</title>
     <meta name="description" content="Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo." />
     <meta name="theme-color" content="#12141a" />
+
+    <!-- Installable on Android and iOS (ADR-028). iOS reads none of the manifest's display or
+         icon fields, so it needs its own tags alongside it. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="NoChords" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2312141a'/%3E%3Ctext x='16' y='23' font-size='20' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%237fd1ff'%3E%E2%99%AA%3C/text%3E%3C/svg%3E"

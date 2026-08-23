@@ -362,7 +362,7 @@ the accent falls. Compound meters are the reason this module exists.
 | SET-05 | Volume is clamped into 0..1 | ✅ |
 | SET-06 | Count-in is clamped to a sane number of beats | ✅ |
 | SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
-| SET-08 | **A count-in stored in beats reads back as the same length in bars** | ✅ |
+| SET-08 | **A count-in stored in beats converts to the nearest whole bar, rounding** | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

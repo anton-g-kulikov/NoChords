@@ -75,15 +75,21 @@ describe('createSettingsStore', () => {
     expect(store.load().countInBars).toBeLessThanOrEqual(MAX_COUNT_IN_BARS);
   });
 
-  it('SET-08 reads a count-in written in beats as the same length in bars', () => {
-    // Preferences saved before the count-in was counted in bars (ADR-027): four beats was the
-    // default, and one bar is what it meant.
-    const stored = JSON.stringify({ countInBeats: 4 });
-    expect(createSettingsStore(memoryStorage({ [SETTINGS_KEY]: stored })).load().countInBars).toBe(
-      1
-    );
-    const two = JSON.stringify({ countInBeats: 8 });
-    expect(createSettingsStore(memoryStorage({ [SETTINGS_KEY]: two })).load().countInBars).toBe(2);
+  it('SET-08 converts a count-in written in beats to the nearest whole bar', () => {
+    // Preferences saved before the count-in was counted in bars (ADR-027) hold beats, and are
+    // read four to the bar — which was the only bar length the app had at the time.
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
+        .countInBars;
+
+    expect(load({ countInBeats: 4 })).toBe(1);
+    expect(load({ countInBeats: 8 })).toBe(2);
+    // Not a whole number of bars: it rounds, so the count-in changes length slightly. Preserving
+    // the intent — that there is one, and roughly how long — matters more than the exact beats,
+    // which no longer describe a fixed duration now that a bar is as long as the meter says.
+    expect(load({ countInBeats: 6 })).toBe(2);
+    expect(load({ countInBeats: 5 })).toBe(1);
+    expect(load({ countInBeats: 0 })).toBe(0);
   });
 
   it('SET-07 survives a storage backend that throws, and no backend at all', () => {

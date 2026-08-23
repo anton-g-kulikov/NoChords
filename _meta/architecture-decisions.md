@@ -591,8 +591,14 @@ so the opening click is always fractionally late. Sixty milliseconds is the cuto
 click still belongs at the top of the count and playing it now is right; above it the beat belongs
 to a stretch already gone by — after a seek — and playing it would flam against the next one.
 
-**Migration.** Preferences saved in beats are read as the same length in bars, four beats being one
-bar; nobody's setting resets.
+**Migration is approximate, and cannot be otherwise.** Preferences saved in beats are read four
+beats to the bar — the only bar length the app had when they were written. It rounds: six beats
+becomes two bars, five becomes one. And a bar is now as long as the meter says, so even an exact
+conversion changes the duration — one bar of 6/8 is six beats, not four.
+
+That is the point rather than a flaw in it. A count-in in beats no longer describes a fixed length
+of time, so there is nothing to preserve exactly; what carries over is the intent, that there is a
+count-in and roughly how long. Nobody's setting resets, which is what the migration is for.
 
 **Cost.** The longest count-in is now four bars rather than sixteen beats, which in 12/8 is a very
 long count. The field is labelled with the song's meter so the unit is not a guess.

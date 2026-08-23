@@ -565,3 +565,35 @@ before meters existed read back as 4/4 — which is what they were played as.
 meter: a line of two bars of 3/4 can be said either way. `beatsPerLine` remains the default because
 it is what an untagged line uses, but a song that tags its rows in bars will rarely touch it.
 
+---
+
+## ADR-027 — The count-in is measured in bars, and its first beat actually sounds
+
+**Decision.** The count-in preference counts bars, not beats, and a bar is as long as the song's
+meter says. One bar counts six in 6/8 and three in 3/4. Separately, the metronome's first scan of
+a run starts from the beat boundary at or before the run began, and a click a few milliseconds late
+is played immediately rather than dropped.
+
+**Why bars.** A count-in exists to put you in the song's time before it starts. Four fixed beats
+cannot do that in 6/8: the count runs out mid-bar, and the accent lands on the second click rather
+than the first, because accents are counted from the downbeat backwards. Whole bars always divide
+evenly into the accent pulse, so the count opens on an accent and closes on the downbeat, in every
+meter, with no special casing.
+
+**Two bugs, one report.** "It starts from the second beat" and "it ignores the meter" turned out to
+be separate faults that compounded. The scheduler wakes on an interval, so its first window began
+25ms after playback did and the click sitting exactly on the start fell into the gap before it —
+the count-in lost its "one" and appeared to start on two. Underneath that, a four-beat count-in in
+6/8 was accenting its second click. Fixing either alone would have left the count sounding wrong.
+
+**Why play a late click rather than skip it.** The first scan of a run can never precede the run,
+so the opening click is always fractionally late. Sixty milliseconds is the cutoff: below it the
+click still belongs at the top of the count and playing it now is right; above it the beat belongs
+to a stretch already gone by — after a seek — and playing it would flam against the next one.
+
+**Migration.** Preferences saved in beats are read as the same length in bars, four beats being one
+bar; nobody's setting resets.
+
+**Cost.** The longest count-in is now four bars rather than sixteen beats, which in 12/8 is a very
+long count. The field is labelled with the song's meter so the unit is not a guess.
+

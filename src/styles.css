@@ -660,3 +660,12 @@ kbd {
   text-align: center;
 }
 
+.library__install {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

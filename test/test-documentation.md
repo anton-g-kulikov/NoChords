@@ -29,6 +29,7 @@ described at the end of this document.
 | First-run example seeding | `src/lib/firstRun.ts` | `first-run.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Service worker decisions | `src/lib/pwa.ts` | `pwa.test.ts` |
+| Install affordance | `src/lib/install.ts` | `install.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
 
 ## Test Plan
@@ -378,6 +379,20 @@ logic a test cannot reach.
 | PW-09 | An unparseable url is passed through rather than throwing | ✅ |
 | PW-10 | A plain successful response is worth caching | ✅ |
 | PW-11 | Errors, partials and opaque responses are not | ✅ |
+
+### Install affordance — `install.test.ts`
+
+Intent: decide what, if anything, to offer someone who could install the app. Browsers no longer
+ask on their own, and iOS never did.
+
+| # | Case | Status |
+|---|------|--------|
+| IS-01 | An iPhone and an iPad are recognised | ✅ |
+| IS-02 | Android and desktop are not mistaken for iOS | ✅ |
+| IS-03 | A captured `beforeinstallprompt` becomes a button | ✅ |
+| IS-04 | iOS is told where its own Share-menu button is | ✅ |
+| IS-05 | **An app already installed is offered nothing** | ✅ |
+| IS-06 | A browser that has offered nothing stays quiet | ✅ |
 
 ### Fixture acceptance — `examples.test.ts`
 

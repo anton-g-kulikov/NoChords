@@ -1,3 +1,4 @@
+import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { concealmentFor } from '../lib/learning';
 import type { Song } from '../types/song';
 
@@ -11,6 +12,8 @@ interface SongListProps {
 }
 
 export function SongList({ songs, onOpen, onCreate, onDelete, onSignIn }: SongListProps) {
+  const install = useInstallPrompt();
+
   return (
     <div className="library">
       <div className="library__head">
@@ -65,7 +68,19 @@ export function SongList({ songs, onOpen, onCreate, onDelete, onSignIn }: SongLi
 
       {/* Which build this is. The service worker keys its cache on the same number, so this is
           also how you tell whether an installed app has picked up a release yet (ADR-028). */}
-      <p className="library__version">v{__APP_VERSION__}</p>
+      <p className="library__version">
+        v{__APP_VERSION__}
+        {install.affordance === 'prompt' && (
+          <>
+            {' · '}
+            <button type="button" className="library__install" onClick={install.install}>
+              Install app
+            </button>
+          </>
+        )}
+        {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
+        {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
+      </p>
     </div>
   );
 }

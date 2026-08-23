@@ -116,8 +116,9 @@ stage — the bar reports what is really concealed, not the stage number.
 
 ## Installing it
 
-NoChords is installable. On Android, Chrome offers to add it to the home screen; on iOS, use
-Share → Add to Home Screen. Installed, it opens without
+NoChords is installable. On Android the library screen offers **Install app** — browsers stopped
+prompting on their own, so the page has to ask (ADR-029). On iOS there is no API for it: use
+Share → Add to Home Screen, which the app says in the same place. Installed, it opens without
 browser chrome and starts offline: the app shell is precached, and songs are already local (or in
 Firestore's own cache when signed in).
 

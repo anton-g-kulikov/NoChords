@@ -9,21 +9,25 @@ import { defaultStorage, type StorageLike } from './storage';
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
-/** Longest count-in offered, in beats. Beyond a couple of bars it stops being useful. */
-export const MAX_COUNT_IN_BEATS = 16;
+/** Longest count-in offered, in bars. Beyond a couple of bars it stops being useful. */
+export const MAX_COUNT_IN_BARS = 4;
+
+/** What a count-in used to be measured in, before it was counted in bars (ADR-027). */
+const LEGACY_BEATS_PER_BAR = 4;
 
 export interface Settings {
   metronomeEnabled: boolean;
   /** 0..1. */
   metronomeVolume: number;
-  /** Beats counted in before the song starts; 0 for none. */
-  countInBeats: number;
+  /** Bars counted in before the song starts; 0 for none. A bar is as long as the song's
+   * meter says, so the count is in the song's own time (ADR-027). */
+  countInBars: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   metronomeEnabled: false,
   metronomeVolume: 0.5,
-  countInBeats: 4,
+  countInBars: 1,
 };
 
 export interface SettingsStore {
@@ -41,7 +45,14 @@ function sanitize(value: unknown): Settings {
   const record = value as Record<string, unknown>;
 
   const volume = record.metronomeVolume;
-  const countIn = record.countInBeats;
+  // Settings written before the count-in was measured in bars hold beats. Four beats was the
+  // default and one bar is its plain equivalent, so old preferences carry over rather than reset.
+  const countIn =
+    typeof record.countInBars === 'number'
+      ? record.countInBars
+      : typeof record.countInBeats === 'number'
+        ? record.countInBeats / LEGACY_BEATS_PER_BAR
+        : undefined;
 
   return {
     metronomeEnabled:
@@ -52,10 +63,10 @@ function sanitize(value: unknown): Settings {
       typeof volume === 'number' && Number.isFinite(volume)
         ? clamp(volume, 0, 1)
         : DEFAULT_SETTINGS.metronomeVolume,
-    countInBeats:
+    countInBars:
       typeof countIn === 'number' && Number.isFinite(countIn)
-        ? clamp(Math.round(countIn), 0, MAX_COUNT_IN_BEATS)
-        : DEFAULT_SETTINGS.countInBeats,
+        ? clamp(Math.round(countIn), 0, MAX_COUNT_IN_BARS)
+        : DEFAULT_SETTINGS.countInBars,
   };
 }
 

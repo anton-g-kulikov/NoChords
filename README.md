@@ -79,8 +79,9 @@ transposing is lossless and repeatable, and Nashville numbers never move.
 ## Metronome
 
 Turn the metronome on and it clicks every beat while the song plays, accented on the first beat of
-each line. **Volume** is a slider; **count-in** is how many beats to count before the song starts —
-set it to a bar or two of your song's meter, or to 0 for none. A big countdown fills the screen
+each line. **Volume** is a slider; **count-in** is how many *bars* to count before the song starts,
+or 0 for none — a bar is as long as the song's meter says, so one bar counts six in 6/8 and three
+in 3/4, and the count lands on the song's own downbeat. A big countdown fills the screen
 while it counts, with the first line already visible so you can see what is coming.
 
 Clicks are synthesised, so there is nothing to download, and they are scheduled onto the audio

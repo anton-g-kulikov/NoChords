@@ -3,12 +3,13 @@ import { KeySelect } from './KeySelect';
 import { NumberField } from './NumberField';
 import { SongRowView } from './SongRowView';
 import { buildSchedule } from '../lib/playback';
+import { beatsPerBarOf } from '../lib/meter';
 import { collectChordOccurrences, concealmentFor, createConcealment } from '../lib/learning';
 import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { beatDurationMs, countInDurationMs } from '../lib/metronome';
-import { MAX_COUNT_IN_BEATS, type Settings } from '../lib/settings';
+import { MAX_COUNT_IN_BARS, type Settings } from '../lib/settings';
 import {
   isDoubleTap,
   isRevealed,
@@ -74,7 +75,11 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   }, [mode, onChange, song]);
 
   const beatMs = beatDurationMs(song.tempo);
-  const countInMs = countInDurationMs(song.tempo, settings.countInBeats);
+  // A count-in is counted in the song's own time: one bar of 6/8 is six beats, of 3/4 three.
+  const countInMs = countInDurationMs(
+    song.tempo,
+    settings.countInBars * beatsPerBarOf(song.meter)
+  );
 
   const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
   const {
@@ -274,11 +279,11 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             </label>
 
             <NumberField
-              label="Count-in"
-              value={settings.countInBeats}
+              label={`Count-in (bars of ${song.meter})`}
+              value={settings.countInBars}
               min={0}
-              max={MAX_COUNT_IN_BEATS}
-              onCommit={(countInBeats) => onSettingsChange({ countInBeats })}
+              max={MAX_COUNT_IN_BARS}
+              onCommit={(countInBars) => onSettingsChange({ countInBars })}
             />
           </div>
         </div>

@@ -652,3 +652,11 @@ kbd {
   gap: 10px;
   flex-wrap: wrap;
 }
+
+.library__version {
+  margin: 2rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+

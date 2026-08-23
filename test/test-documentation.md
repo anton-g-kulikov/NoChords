@@ -28,6 +28,7 @@ described at the end of this document.
 | Sign-in import decision | `src/lib/cloudImport.ts` | `cloud-import.test.ts` |
 | First-run example seeding | `src/lib/firstRun.ts` | `first-run.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
+| Service worker decisions | `src/lib/pwa.ts` | `pwa.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
 
 ## Test Plan
@@ -357,6 +358,26 @@ the accent falls. Compound meters are the reason this module exists.
 | SET-06 | Count-in is clamped to a sane number of beats | ✅ |
 | SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
 | SET-08 | **A count-in stored in beats reads back as the same length in bars** | ✅ |
+
+### Service worker decisions — `pwa.test.ts`
+
+Intent: a service worker is the one part of the app that can serve someone a stale version of
+itself, indefinitely. Every judgement it makes is a pure function here, so the worker itself has no
+logic a test cannot reach.
+
+| # | Case | Status |
+|---|------|--------|
+| PW-01 | Every version owns its own cache | ✅ |
+| PW-02 | Older versions' caches are cleared on activate | ✅ |
+| PW-03 | Caches belonging to anything else are left alone | ✅ |
+| PW-04 | Hashed build output is served from cache | ✅ |
+| PW-05 | A page load lets the network decide, with the cache as fallback | ✅ |
+| PW-06 | **Cross-origin traffic is never touched, so Firestore keeps working** | ✅ |
+| PW-07 | Anything that is not a GET is passed through | ✅ |
+| PW-08 | The app's other files are served then refreshed | ✅ |
+| PW-09 | An unparseable url is passed through rather than throwing | ✅ |
+| PW-10 | A plain successful response is worth caching | ✅ |
+| PW-11 | Errors, partials and opaque responses are not | ✅ |
 
 ### Fixture acceptance — `examples.test.ts`
 

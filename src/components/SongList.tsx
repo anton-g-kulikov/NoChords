@@ -62,6 +62,10 @@ export function SongList({ songs, onOpen, onCreate, onDelete, onSignIn }: SongLi
           ))}
         </ul>
       )}
+
+      {/* Which build this is. The service worker keys its cache on the same number, so this is
+          also how you tell whether an installed app has picked up a release yet (ADR-028). */}
+      <p className="library__version">v{__APP_VERSION__}</p>
     </div>
   );
 }

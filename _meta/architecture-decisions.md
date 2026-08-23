@@ -597,3 +597,79 @@ bar; nobody's setting resets.
 **Cost.** The longest count-in is now four bars rather than sixteen beats, which in 12/8 is a very
 long count. The field is labelled with the song's meter so the unit is not a guess.
 
+---
+
+## ADR-028 — The app installs, works offline, and each release owns its cache
+
+**Decision.** A web manifest, a set of icons and a service worker make NoChords installable on
+Android and iOS. The worker precaches the app shell, serves it offline, and keys its cache on the
+package version: `nochords-v0.2.0`. Releasing means bumping that version. All of the worker's
+judgement lives in `lib/pwa.ts`, where tests can reach it.
+
+**Why hand-rolled rather than a plugin.** `vite-plugin-pwa` and Workbox would bring a build-time
+dependency and a runtime bundle to solve a problem this app states in about eighty lines. The
+worker is compiled from `src/sw.ts` by a small plugin in `vite.config.ts`, which is also the only
+place that knows the hashed asset names it needs to precache.
+
+**Why the version names the cache.** A deploy changes some file names and not others. Without a
+version, a cache accumulates a mixture of releases and there is no moment at which the old ones are
+known to be finished with. Naming the cache after the release makes that trivial: on activate,
+delete every `nochords-v*` that is not the current one. It also means a bad release can be undone
+by shipping another one, rather than by asking people to clear site data.
+
+**Why the shell only.** The precache holds the entry chunk, its styles, the icons and the manifest —
+not the Firebase chunk, which is 750kB and which ADR-023 exists to keep off the first load. It
+caches itself if it is ever fetched, which is to say only for people who sign in.
+
+**Why cross-origin requests are untouched.** The worker handles same-origin GETs and nothing else.
+Firestore's traffic is cross-origin: caching it would serve someone yesterday's songs, and
+intercepting its stream would break sync outright. Songs already work offline through local storage
+and Firestore's own cache, so the worker has no business in that path.
+
+**Why updates wait.** A new worker does not call `skipWaiting`. It installs in the background and
+takes over on the next cold start, so a deploy can never reload the page under someone in the
+middle of a song. The cost is that a long-lived tab can sit on an old version until it is closed,
+which is why the version is printed at the foot of the library.
+
+**`Vary` must be ignored when matching.** Hosting sends `Vary: Origin`. A precached response is
+stored against a fetch carrying no `Origin` header, while the module script and stylesheet the page
+requests do carry one — so the default cache match misses, falls through to a network that is not
+there, and the app loads its shell and then fails to boot. Every lookup passes `ignoreVary`. The
+cache only ever holds same-origin GETs whose URL fixes their contents, so `Vary` buys nothing here.
+This was found by killing the server and reloading, which is the only way it shows up.
+
+**Cost.** Releasing now has a step that can be forgotten: ship without bumping the version and
+installed apps keep the old cache under the old name. And a service worker is genuinely hard to
+reason about — hence the pure module, and hence the offline test being run by hand against a dead
+server rather than trusted to unit tests alone.
+
+---
+
+## ADR-029 — The app asks to be installed, because the browser will not
+
+**Decision.** The library screen offers "Install app" when the browser hands over a
+`beforeinstallprompt`, and on iOS says where the Share-menu item is instead. `lib/install.ts` holds
+the decision; the hook only catches events.
+
+**Why this is needed at all.** Shipping a manifest and a service worker makes an app installable,
+not installed. Chrome removed its automatic banner years ago: it now fires `beforeinstallprompt` and
+leaves the asking to the page, so an app that ignores the event is installable only through a menu
+item most people never open. iOS fires nothing, and installing is a manual step in the Share sheet
+that a page can only describe.
+
+**Why the event is captured rather than left alone.** `preventDefault` on it keeps whatever the
+browser might do out of the way and lets the page choose the moment. The event is single-use, so it
+is held until the button is pressed and dropped afterwards, whichever way the choice went.
+
+**Why the check for already-installed comes first.** A stale prompt would otherwise invite someone
+to install the app they are currently running. `display-mode: standalone`, plus the older
+`navigator.standalone` for iOS, is how that is known.
+
+**Where it sits.** Next to the version at the foot of the library, not in the header. The header
+already carries sign-in and New song, and a third button there would crowd the one screen that
+should be a list of songs.
+
+**Cost.** `beforeinstallprompt` is not standard and is Chromium-only, so the button appears for some
+people and not others through no fault of theirs; the typed shim in the hook exists because
+`lib.dom` does not describe the event.
+

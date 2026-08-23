@@ -21,6 +21,7 @@ npm run dev      # http://localhost:5173
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm run preview` | Serve the production build |
+| `npm version patch\|minor` | Bump the release, which names the offline cache |
 | `npm run deploy` | Build and deploy to Firebase Hosting |
 | `npm run deploy:rules` | Deploy the Firestore security rules |
 
@@ -113,6 +114,31 @@ The **first chord of every line stays visible** until the final stage, so you ke
 line while the detail goes. That means the share actually hidden can fall short of the nominal
 stage — the bar reports what is really concealed, not the stage number.
 
+## Installing it
+
+NoChords is installable. On Android, Chrome offers to add it to the home screen; on iOS, use
+Share → Add to Home Screen. Installed, it opens without
+browser chrome and starts offline: the app shell is precached, and songs are already local (or in
+Firestore's own cache when signed in).
+
+A service worker keeps a cache named after the release — `nochords-v0.2.0` — and deletes every
+older one when it takes over. **Bump the version before deploying**, or installed apps will keep
+serving the previous release from a cache that still looks current:
+
+```bash
+npm version patch    # or minor
+npm run deploy
+```
+
+A new release installs in the background and takes over on the next cold start, never mid-song. The
+version at the foot of the library screen is how you tell what an installed app is actually running.
+
+Icons are generated from the SVGs in `public/icons/`:
+
+```bash
+magick -background none icon.svg -resize 512x512 icon-512.png
+```
+
 ## How it is built
 
 React + TypeScript + Vite, no other runtime dependencies. All the real logic is in pure modules
@@ -121,7 +147,8 @@ under `src/lib/`, with React kept to rendering and event wiring:
 ```text
 src/
   lib/         chords, nashville, inline notation, learning, playback, metronome,
-               storage, settings, display
+               meter, storage, settings, display, pwa
+  sw.ts        the service worker, compiled to /sw.js at build time
   hooks/       usePlayback (the clock), useMetronome (audio), useSongLibrary, useSettings
   components/  SongList, SongEditor, Player, SongRowView, KeySelect
   types/       the Song / SongRow / ChordAnchor contract

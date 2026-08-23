@@ -36,7 +36,25 @@ jobs:
         run: npm test
 
       - name: Build
+        env:
+          # Folded into the bundle at build time (ADR-023), so it must be present *here*, in the
+          # job that builds — not in the deploy job, which only ships what this one produced.
+          # Public by design: it identifies the project and grants nothing on its own, which is
+          # why it is a variable rather than a secret. `firestore.rules` is what protects songs.
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
         run: npm run build
+
+      # A build without the key contains no Firebase whatsoever and silently loses sign-in — the
+      # app still works, so nothing fails and nobody notices until someone looks for the button.
+      # That shipped three times, each time a push quietly redeploying over a manual deploy.
+      - name: Check the build carries its Firebase config
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if ! grep -q 'firebaseapp' dist/assets/*.js; then
+            echo "::error::Built with no VITE_FIREBASE_API_KEY, so sign-in would vanish from production."
+            echo "::error::Set the repository variable VITE_FIREBASE_API_KEY under Settings -> Secrets and variables -> Actions -> Variables."
+            exit 1
+          fi
 
       # The deploy job publishes exactly these bytes rather than rebuilding,
       # so what ships is what was verified.

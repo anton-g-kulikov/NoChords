@@ -216,9 +216,14 @@ Firebase chunk is 183.6kB and is never requested by a signed-out visitor.
 
 ## Deploying
 
-The app is a static bundle, hosted on Firebase Hosting. It makes no Firebase SDK calls, so there is
-no Firebase config or API key in the client and nothing secret in this repo — `firebase.json` only
-describes how to serve `dist/`.
+The app is a static bundle, hosted on Firebase Hosting. **Pushing to `main` is what deploys** —
+see Continuous deployment below. A local `npm run deploy` works, but the next push overwrites it,
+so it is for trying something out rather than for releasing.
+
+The client does carry a Firebase web config, including the API key from `VITE_FIREBASE_API_KEY`.
+That value is public by design: it names the project and grants nothing on its own, and
+`firestore.rules` is what actually keeps one account's songs from another. The service account used
+to deploy is a real credential and is a different matter entirely.
 
 The target project (`nochords-18219`) is pinned in `.firebaserc`, so deploy needs no flags. Deploy
 authentication is per-developer and never committed:
@@ -239,6 +244,17 @@ rewrite to `index.html`, so a direct link to any URL loads the app.
 `.github/workflows/deploy.yml` typechecks, tests, and builds on every push and pull request. A push
 to `main` that passes then deploys to Hosting automatically. Pull requests are verified but never
 deployed, and the deploy publishes the artifact the verify job built, so what ships is what passed.
+
+The build needs `VITE_FIREBASE_API_KEY` in CI, or it produces a bundle with no Firebase in it at
+all and sign-in silently disappears from the deployed app. It is public by design, so it is a
+**variable**, not a secret:
+
+```bash
+gh variable set VITE_FIREBASE_API_KEY --body "<the key from .env>"
+```
+
+A push to `main` that would ship without it fails the build rather than deploying, because the app
+works perfectly well without sign-in and nothing else would notice.
 
 One-time setup — create a deploy service account and give it to GitHub as a secret:
 

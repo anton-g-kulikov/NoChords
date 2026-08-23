@@ -51,19 +51,25 @@ without bumping and every installed app keeps serving the previous release from 
 looks current — and there is no way to tell them otherwise, short of asking people to clear site
 data.
 
-## 5. Deploy
+## 5. Deploy by pushing
 
 ```bash
-npm run deploy
+git push origin main
 ```
 
-Requires `.env` with `VITE_FIREBASE_API_KEY` **in the directory you deploy from**. Vite folds that
-value in at build time, so a build without it contains no Firebase whatsoever (ADR-023) and sign-in
-silently disappears from the deployed app. This has shipped twice.
+CI builds and deploys every push to `main`. A local `npm run deploy` is not a release: the next
+push overwrites it, which is exactly how three keyless builds reached production — each one a push
+of mine quietly redeploying over a manual deploy I had just verified.
+
+The build needs `VITE_FIREBASE_API_KEY`, which in CI comes from the repository variable of that
+name, not from your `.env`. Without it the bundle contains no Firebase whatsoever (ADR-023) and
+sign-in vanishes with nothing failing. The workflow now checks the built bundle and refuses to
+deploy rather than shipping that.
 
 ## 6. Verify what is actually live
 
-The deploy succeeding does not mean the right thing is deployed.
+The deploy succeeding does not mean the right thing is deployed — and check *after CI has
+finished*, not after a local deploy, or you are looking at bytes that are about to be replaced.
 
 ```bash
 B=https://nochords-18219.web.app

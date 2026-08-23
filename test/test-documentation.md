@@ -327,12 +327,12 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | # | Case | Status |
 |---|------|--------|
 | EX-01 | The three fixtures load with their stated keys and tempos | ✅ |
-| EX-02 | Every row parses, with verse endings held for an extra bar (`/12/`) | ✅ |
+| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`/12/`), Rising Sun writes no holds | ✅ |
 | EX-03 | Lyric text is intact and each chord is anchored inside it | ✅ |
 | EX-04 | Relative representation matches the document (`Dm`→`1m`, `C`→`7`, etc.) | ✅ |
 | EX-05 | Blackbird G→A gives A/D/E with degrees unchanged, stored rows untouched | ✅ |
 | EX-06 | Each fixture has enough occurrences for every concealment step to be visible | ✅ |
-| EX-07 | Schedule honours the held lines, starts at row 1, completes cleanly | ✅ |
+| EX-07 | Schedule runs the Rising Sun lines back to back, starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
 

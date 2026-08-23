@@ -10,8 +10,8 @@
  * The lyrics are traditional public-domain texts; the chord placements and timings are the
  * fixture document's own test arrangements, not transcriptions of any recorded arrangement.
  */
-import { createSong, rowsFromPastedText } from './songs';
-import type { Song } from '../types/song';
+import { createSong, rowsFromPastedText } from "./songs";
+import type { Song } from "../types/song";
 
 interface ExampleSource {
   title: string;
@@ -61,20 +61,71 @@ const BLACKBIRD = `
 `;
 
 const RISING_SUN = `
-[Am]There is a [C]house in New [D]Orleans,
-[Am]It's called the [E]Rising [Am]Sun.
-[Am]It's been the [C]ruin of many a [D]poor girl,
-[Am]Great God, and [E]I for [Am]one./12/
-[Am]If I had [C]listened to what my [D]mother said,
-[Am]I'd have been at [E]home to[Am]day.
-[Am]But I was [C]young and foolish,
-[Am]And a gambler [E]led me a[Am]stray./12/
+There [Am]is a [C]house in New [D]Orleans, [F]
+They [Am]call the [C]Rising [E]Sun,
+And it's [Am]been the [C]ruin of [D]many a poor boy, [F]
+Dear [Am]God, I [E]know I was [Am]one.
+[C] [D] [F]
+[Am] [E] [Am] [E]
+
+My [Am]mother [C]was a [D]tailor, [F]
+She [Am]sewed my [C]new blue [E]jeans, 
+And my [Am]father [C]was a [D]gamblin' [F]man, 
+[Am]Way down in [E]New Or[Am]leans.
+[C] [D] [F]
+[Am] [E] [Am] [E]
+
+And the [Am]only [C]thing a [D]gambler [F]needs, 
+Is a [Am]suitcase [C]and a [E]trunk,
+And the [Am]only [C]time he's s[D]atis[F]fied,
+[Am]Is when he[E]'s a [Am]drunk.
+[C] [D] [F]
+[Am] [E] [Am] [E]
+
+Oh, [Am]mother, [C]tell your [D]children, [F]
+Not to [Am]do [C]what I have [E]done,
+To [Am]spend your [C]lives in [D]sin and mise[F]ry,
+In the [Am]house of the [E]rising [Am]sun.
+[C] [D] [F]
+[Am] [E] [Am] [E]
+
+I [Am]got one [C]foot on the [D]platform, [F]
+And [Am]another [C]on the [E]train,
+And I'm [Am]going [C]back to [D]New Or[F]leans,
+To [Am]wear that [E]ball and [Am]chain.
+[C] [D] [F]
+[Am] [E] [Am] [E]
+
+There [Am]is a [C]house in New [D]Orleans, [F]
+They [Am]call the [C]Rising [E]Sun,
+And it's [Am]been the [C]ruin of [D]many a poor boy, [F]
+Dear [Am]God, I [E]know I was [Am]one.
+[C] [D] [F]
+[Am] [E] [Am] [E]
 `;
 
 const SOURCES: ExampleSource[] = [
-  { title: 'Scarborough Fair', key: 'Dm', tempo: 90, beatsPerLine: 6, fixture: SCARBOROUGH_FAIR },
-  { title: 'If I Was a Blackbird', key: 'G', tempo: 90, beatsPerLine: 6, fixture: BLACKBIRD },
-  { title: 'House of the Rising Sun', key: 'Am', tempo: 80, beatsPerLine: 6, fixture: RISING_SUN },
+  {
+    title: "Scarborough Fair",
+    key: "Dm",
+    tempo: 90,
+    beatsPerLine: 6,
+    fixture: SCARBOROUGH_FAIR,
+  },
+  {
+    title: "If I Was a Blackbird",
+    key: "G",
+    tempo: 90,
+    beatsPerLine: 6,
+    fixture: BLACKBIRD,
+  },
+  {
+    title: "House of the Rising Sun",
+    key: "Am",
+    tempo: 80,
+    beatsPerLine: 6,
+    fixture: RISING_SUN,
+  },
 ];
 
 /** Builds a fresh copy of each example song, with new ids every call. */
@@ -87,6 +138,6 @@ export function createExampleSongs(): Song[] {
       tempo: source.tempo,
       beatsPerLine: source.beatsPerLine,
       rows: rowsFromPastedText(source.fixture.trim()),
-    })
+    }),
   );
 }

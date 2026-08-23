@@ -600,6 +600,10 @@ That is the point rather than a flaw in it. A count-in in beats no longer descri
 of time, so there is nothing to preserve exactly; what carries over is the intent, that there is a
 count-in and roughly how long. Nobody's setting resets, which is what the migration is for.
 
+The one place rounding is overruled: anything above zero converts to at least one bar. One to three
+beats would otherwise round to none, answering "I want a count-in" with silence — a wrong answer of
+a different kind from a slightly wrong length.
+
 **Cost.** The longest count-in is now four bars rather than sixteen beats, which in 12/8 is a very
 long count. The field is labelled with the song's meter so the unit is not a guess.
 

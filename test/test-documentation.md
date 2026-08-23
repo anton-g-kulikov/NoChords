@@ -363,6 +363,7 @@ the accent falls. Compound meters are the reason this module exists.
 | SET-06 | Count-in is clamped to a sane number of beats | ✅ |
 | SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
 | SET-08 | **A count-in stored in beats converts to the nearest whole bar, rounding** | ✅ |
+| SET-09 | **A count-in that was asked for never converts to none at all** | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

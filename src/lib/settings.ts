@@ -45,13 +45,18 @@ function sanitize(value: unknown): Settings {
   const record = value as Record<string, unknown>;
 
   const volume = record.metronomeVolume;
-  // Settings written before the count-in was measured in bars hold beats. Four beats was the
-  // default and one bar is its plain equivalent, so old preferences carry over rather than reset.
+  // Settings written before the count-in was measured in bars hold beats, read four to the bar —
+  // the only bar length the app had then. Anything short of half a bar would otherwise round to
+  // nothing, which would answer "I want a count-in" with silence; a count-in that was asked for
+  // survives as one bar (ADR-027).
+  const fromBeats = (beats: number): number =>
+    beats > 0 ? Math.max(1, Math.round(beats / LEGACY_BEATS_PER_BAR)) : 0;
+
   const countIn =
     typeof record.countInBars === 'number'
       ? record.countInBars
-      : typeof record.countInBeats === 'number'
-        ? record.countInBeats / LEGACY_BEATS_PER_BAR
+      : typeof record.countInBeats === 'number' && Number.isFinite(record.countInBeats)
+        ? fromBeats(record.countInBeats)
         : undefined;
 
   return {

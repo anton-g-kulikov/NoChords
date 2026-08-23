@@ -92,6 +92,21 @@ describe('createSettingsStore', () => {
     expect(load({ countInBeats: 0 })).toBe(0);
   });
 
+  it('SET-09 never converts an asked-for count-in into none at all', () => {
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
+        .countInBars;
+
+    // Under half a bar rounds to zero, which would answer "I want a count-in" with silence.
+    expect(load({ countInBeats: 1 })).toBe(1);
+    expect(load({ countInBeats: 2 })).toBe(1);
+    expect(load({ countInBeats: 3 })).toBe(1);
+    // Nothing asked for stays nothing, and nonsense falls back to the default.
+    expect(load({ countInBeats: 0 })).toBe(0);
+    expect(load({ countInBeats: -4 })).toBe(0);
+    expect(load({ countInBeats: 'lots' })).toBe(DEFAULT_SETTINGS.countInBars);
+  });
+
   it('SET-07 survives a storage backend that throws, and no backend at all', () => {
     const failing: StorageLike = {
       getItem: () => {

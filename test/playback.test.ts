@@ -12,34 +12,34 @@ import {
 } from '../src/lib/playback';
 import type { SongRow } from '../src/types/song';
 
-function row(id: string, beats: number | null = null): SongRow {
-  return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats, bars: null, meter: null };
+function row(id: string, bars: number | null = null): SongRow {
+  return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', bars, meter: null };
 }
 
 /** A separator between verses: nothing but whitespace, and no chords. */
 function blank(id: string, lyrics = ''): SongRow {
-  return { id, chords: [], lyrics, beats: null, bars: null, meter: null };
+  return { id, chords: [], lyrics, bars: null, meter: null };
 }
 
-/** At 120bpm a beat is 500ms, so these rows run 2000 / 2500 / 4000ms. */
-const rows: SongRow[] = [row('r1'), row('r2', 5), row('r3', 8)];
+/** At 120bpm a bar of 4/4 is 2000ms, so these rows run 2000 / 4000 / 6000ms. */
+const rows: SongRow[] = [row('r1'), row('r2', 2), row('r3', 3)];
 const TEMPO = 120;
 /** One bar per line, in the default 4/4: the four beats these cases are written around. */
 const BARS = 1;
 
 describe('rowDurationMs', () => {
-  it('PB-01 derives the duration from the tempo and the beat count', () => {
+  it('PB-01 derives the duration from the tempo and the bar count', () => {
     expect(DEFAULT_BARS_PER_LINE).toBe(1);
     expect(rowDurationMs(row('r1'), 120, BARS)).toBe(2000);
     expect(rowDurationMs(row('r1'), 60, BARS)).toBe(4000);
     expect(rowDurationMs(row('r1'), 240, BARS)).toBe(1000);
   });
 
-  it('PB-02 lets a line override the song default with its own beat count', () => {
-    // The fixtures are 3/4 songs written as two bars a line, with held verse endings.
-    expect(rowDurationMs(row('r1', 6), 90, 4)).toBe(4000);
-    expect(rowDurationMs(row('r1', 12), 90, 6)).toBe(8000);
-    expect(rowBeats(row('r1', 12), 6)).toBe(12);
+  it('PB-02 lets a line override the song default with its own bar count', () => {
+    // Two bars of 3/4 is six beats; four bars, twelve — the fixtures' held verse endings.
+    expect(rowBeats(row('r1', 2), 2, '3/4')).toBe(6);
+    expect(rowBeats(row('r1', 4), 2, '3/4')).toBe(12);
+    expect(rowDurationMs(row('r1', 4), 90, 2, '3/4')).toBe(12 * (60000 / 90));
   });
 
   it('PB-10 uses the song default when the line does not say', () => {
@@ -49,7 +49,7 @@ describe('rowDurationMs', () => {
     expect(rowDurationMs(row('r1'), 90, 6)).toBe(24 * (60000 / 90));
   });
 
-  it('PB-11 falls back to the default for a zero or negative beat count', () => {
+  it('PB-11 falls back to the default for a zero or negative bar count', () => {
     expect(rowDurationMs(row('r1', 0), 120, BARS)).toBe(2000);
     expect(rowDurationMs(row('r1', -4), 120, BARS)).toBe(2000);
     expect(rowDurationMs(row('r1'), 120, 0)).toBe(2000);
@@ -72,15 +72,16 @@ describe('rowDurationMs', () => {
 describe('buildSchedule', () => {
   it('PB-03 accumulates start times across rows', () => {
     const schedule = buildSchedule(rows, TEMPO, BARS);
-    expect(schedule.map((entry) => entry.startMs)).toEqual([0, 2000, 4500]);
-    expect(schedule.map((entry) => entry.endMs)).toEqual([2000, 4500, 8500]);
+    expect(schedule.map((entry) => entry.startMs)).toEqual([0, 2000, 6000]);
+    expect(schedule.map((entry) => entry.endMs)).toEqual([2000, 6000, 12000]);
     expect(schedule.map((entry) => entry.rowId)).toEqual(['r1', 'r2', 'r3']);
   });
 
   it('PB-04 totals the row durations', () => {
     const schedule = buildSchedule(rows, TEMPO, BARS);
-    expect(totalDurationMs(schedule)).toBe(2000 + 2500 + 4000);
-    expect(schedule.map((entry) => entry.beats)).toEqual([4, 5, 8]);
+    // One, two and three bars of 4/4: four, eight and twelve beats.
+    expect(totalDurationMs(schedule)).toBe(2000 + 4000 + 6000);
+    expect(schedule.map((entry) => entry.beats)).toEqual([4, 8, 12]);
   });
 
   it('PB-08 produces an empty schedule and zero duration for an empty song', () => {
@@ -106,9 +107,9 @@ describe('rowIndexAt', () => {
     expect(rowIndexAt(schedule, 0)).toBe(0);
     expect(rowIndexAt(schedule, 1999)).toBe(0);
     expect(rowIndexAt(schedule, 2000)).toBe(1);
-    expect(rowIndexAt(schedule, 4499)).toBe(1);
-    expect(rowIndexAt(schedule, 4500)).toBe(2);
-    expect(rowIndexAt(schedule, 8499)).toBe(2);
+    expect(rowIndexAt(schedule, 5999)).toBe(1);
+    expect(rowIndexAt(schedule, 6000)).toBe(2);
+    expect(rowIndexAt(schedule, 11999)).toBe(2);
   });
 
   it('PB-06 holds a longer line for its whole length', () => {
@@ -119,9 +120,9 @@ describe('rowIndexAt', () => {
   });
 
   it('PB-07 reports completion once the schedule has run out', () => {
-    expect(isComplete(schedule, 8499)).toBe(false);
-    expect(isComplete(schedule, 8500)).toBe(true);
-    expect(rowIndexAt(schedule, 8500)).toBe(-1);
+    expect(isComplete(schedule, 11999)).toBe(false);
+    expect(isComplete(schedule, 12000)).toBe(true);
+    expect(rowIndexAt(schedule, 12000)).toBe(-1);
     expect(rowIndexAt(schedule, 99999)).toBe(-1);
   });
 
@@ -141,7 +142,6 @@ describe('blank separator rows', () => {
         id: 'i1',
         chords: [{ symbol: 'C', index: 0 }],
         lyrics: '  ',
-        beats: null,
         bars: null,
         meter: null,
       })
@@ -195,7 +195,7 @@ describe('blank separator rows', () => {
 describe('bars and meter', () => {
   /** A row that states its length in bars. */
   function barRow(id: string, bars: number, meter: string | null = null): SongRow {
-    return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats: null, bars, meter };
+    return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', bars, meter };
   }
 
   it('PB-15 measures a bar count against the meter in effect', () => {
@@ -211,7 +211,6 @@ describe('bars and meter', () => {
       id: 'solo',
       chords: [],
       lyrics: 'solo',
-      beats: 24,
       bars: 4,
       meter: null,
     };

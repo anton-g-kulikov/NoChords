@@ -51,14 +51,10 @@ function safeBars(barsPerLine: number): number {
 }
 
 /**
- * Beats a row lasts.
- *
- * Its own `/n/` wins, because that is someone naming a length no bar count could express — the
- * solo that runs twenty-four beats over the same four chords. Otherwise `//n` bars, measured by
- * the meter in effect. Otherwise the song's default (ADR-026).
+ * Beats a row lasts: its own `|n|` bars if it has one, otherwise the song's default — measured
+ * either way by the meter in effect (ADR-032).
  */
 export function rowBeats(row: SongRow, barsPerLine: number, meter: string = DEFAULT_METER): number {
-  if (row.beats && row.beats > 0) return row.beats;
   const bars = row.bars && row.bars > 0 ? row.bars : safeBars(barsPerLine);
   return bars * beatsPerBarOf(meter);
 }

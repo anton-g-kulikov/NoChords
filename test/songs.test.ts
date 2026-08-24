@@ -21,7 +21,7 @@ describe('createSong', () => {
     expect(song.rows).toHaveLength(1);
     expect(song.rows[0].lyrics).toBe('');
     expect(song.rows[0].chords).toEqual([]);
-    expect(song.rows[0].beats).toBeNull();
+    expect(song.rows[0].bars).toBeNull();
     expect(song.barsPerLine).toBe(DEFAULT_BARS_PER_LINE);
     expect(song.originalKey).toBe('C');
     expect(song.currentKey).toBe('C');
@@ -50,7 +50,7 @@ describe('rowsFromPastedText', () => {
     const rows = rowsFromPastedText('line one\nline two\nline three');
     expect(rows).toHaveLength(3);
     expect(rows.map((r) => r.lyrics)).toEqual(['line one', 'line two', 'line three']);
-    expect(rows.every((r) => r.chords.length === 0 && r.beats === null)).toBe(true);
+    expect(rows.every((r) => r.chords.length === 0 && r.bars === null)).toBe(true);
     expect(new Set(rows.map((r) => r.id)).size).toBe(3);
   });
 
@@ -71,9 +71,9 @@ describe('rowsFromPastedText', () => {
     expect(rows[0].chords.map((c) => c.symbol)).toEqual(['G', 'C', 'G']);
   });
 
-  it('SG-13 reads a line length written as /n/', () => {
-    const rows = rowsFromPastedText('[Am]Great God, and [E]I for [Am]one./12/\n[Am]plain line');
-    expect(rows.map((r) => r.beats)).toEqual([12, null]);
+  it('SG-13 reads a line length written as |n|', () => {
+    const rows = rowsFromPastedText('[Am]Great God, and [E]I for [Am]one.|4|\n[Am]plain line');
+    expect(rows.map((r) => r.bars)).toEqual([4, null]);
     expect(rows[0].lyrics).toBe('Great God, and I for one.');
   });
 
@@ -86,8 +86,8 @@ describe('rowsFromPastedText', () => {
 describe('row editing', () => {
   const base = createSong({
     rows: [
-      { id: 'r1', lyrics: 'first', chords: [{ symbol: 'C', index: 0 }], beats: null, bars: null, meter: null },
-      { id: 'r2', lyrics: 'second', chords: [{ symbol: 'G', index: 0 }], beats: 12, bars: null, meter: null },
+      { id: 'r1', lyrics: 'first', chords: [{ symbol: 'C', index: 0 }], bars: null, meter: null },
+      { id: 'r2', lyrics: 'second', chords: [{ symbol: 'G', index: 0 }], bars: 4, meter: null },
     ],
   });
 
@@ -98,7 +98,7 @@ describe('row editing', () => {
 
   it('SG-06 keeps at least one row present', () => {
     const single = createSong({
-      rows: [{ id: 'only', lyrics: 'x', chords: [], beats: null, bars: null, meter: null }],
+      rows: [{ id: 'only', lyrics: 'x', chords: [], bars: null, meter: null }],
     });
     const next = deleteRow(single, 'only');
     expect(next.rows).toHaveLength(1);
@@ -114,7 +114,7 @@ describe('row editing', () => {
     const next = updateRow(base, 'r2', { chords: [{ symbol: 'Am', index: 0 }] });
     expect(next.rows[1].chords).toEqual([{ symbol: 'Am', index: 0 }]);
     expect(next.rows[1].lyrics).toBe('second');
-    expect(next.rows[1].beats).toBe(12);
+    expect(next.rows[1].bars).toBe(4);
     expect(next.rows[0]).toEqual(base.rows[0]);
   });
 });
@@ -122,7 +122,7 @@ describe('row editing', () => {
 describe('the whole song as text (ADR-010)', () => {
   const source = [
     '[Am]There is a [C]house in New [D]Orleans,',
-    "[Am]It's called the [E]Rising [Am]Sun./12/",
+    "[Am]It's called the [E]Rising [Am]Sun.|4|",
     '',
     'a line with no chords',
   ].join('\n');
@@ -135,8 +135,8 @@ describe('the whole song as text (ADR-010)', () => {
   it('SG-16 makes one row per line, blank lines included', () => {
     const rows = textToRows(source);
     expect(rows).toHaveLength(4);
-    expect(rows[2]).toMatchObject({ lyrics: '', chords: [], beats: null, bars: null, meter: null });
-    expect(rows[1].beats).toBe(12);
+    expect(rows[2]).toMatchObject({ lyrics: '', chords: [], bars: null, meter: null });
+    expect(rows[1].bars).toBe(4);
   });
 
   it('SG-17 keeps row ids stable when a line is edited', () => {
@@ -207,7 +207,6 @@ describe('setCurrentKey', () => {
             { symbol: 'C', index: 0 },
             { symbol: 'Am', index: 1 },
           ],
-          beats: null,
           bars: null,
           meter: null,
         },

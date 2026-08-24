@@ -21,7 +21,6 @@ const sample: Song = {
         { symbol: 'C', index: 11 },
         { symbol: 'D', index: 24 },
       ],
-      beats: null,
       bars: null,
       meter: null,
     },
@@ -29,8 +28,7 @@ const sample: Song = {
       id: 'r2',
       lyrics: 'Great God, and I for one.',
       chords: [{ symbol: 'Am', index: 0 }],
-      beats: 12,
-      bars: null,
+      bars: 4,
       meter: null,
     },
   ],
@@ -45,17 +43,17 @@ describe('songToDoc / songFromDoc', () => {
     expect(songToDoc(sample).id).toBe('song-1');
   });
 
-  it('SD-03 keeps rows with their chords, anchors and beat overrides', () => {
+  it('SD-03 keeps rows with their chords, anchors and bar overrides', () => {
     const back = songFromDoc(songToDoc(sample));
     expect(back?.rows).toHaveLength(2);
     expect(back?.rows[0].chords).toEqual(sample.rows[0].chords);
-    expect(back?.rows[1].beats).toBe(12);
+    expect(back?.rows[1].bars).toBe(4);
   });
 
-  it('SD-04 keeps beats: null rather than losing it', () => {
+  it('SD-04 keeps bars: null rather than losing it', () => {
     const doc = songToDoc(sample);
-    expect(doc.rows[0].beats).toBeNull();
-    expect(songFromDoc(doc)?.rows[0].beats).toBeNull();
+    expect(doc.rows[0].bars).toBeNull();
+    expect(songFromDoc(doc)?.rows[0].bars).toBeNull();
   });
 
   it('SD-05 rejects a document missing required fields', () => {

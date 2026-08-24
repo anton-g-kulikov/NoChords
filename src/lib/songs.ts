@@ -35,7 +35,6 @@ export function createRow(overrides: Partial<SongRow> = {}): SongRow {
     id: nextId('row'),
     lyrics: '',
     chords: [],
-    beats: null,
     bars: null,
     meter: null,
     ...overrides,

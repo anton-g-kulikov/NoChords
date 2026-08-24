@@ -790,9 +790,17 @@ rounded, floor one, so a song keeps the length it had rather than the number it 
 at a fifth of the lyric's opacity. Playing is reading lyrics; the number is for the one moment you
 wonder why a line is hanging, and should cost nothing the rest of the time.
 
-**Does `/n/` still earn its place?** Probably not. Any whole number of bars is now expressible, and
-a length that is *not* whole bars displaces every downbeat after it — the accent phase is counted
-from the start of the section, so a seven-beat line in 4/4 silently moves every bar line that
-follows. The honest way to write an odd bar is a meter change: `{7/8}` on that line and `{4/4}` on
-the next. It is left parsing, undocumented, pending a decision to remove it.
+**`/n/` is gone.** Any whole number of bars is expressible as bars, and a length that is *not*
+whole bars displaces every downbeat after it — the accent phase counts from the start of the
+section, so a seven-beat line in 4/4 silently moves every bar line that follows. The honest way to
+write an odd bar is a meter change: `{7/8}` on that line and `{4/4}` on the next. A row that still
+carries a stored beat count is read as the nearest whole bar, floor one; approximate on purpose,
+since the counts being converted are precisely the ones that did not sit on a bar line.
+
+A slashed number in a lyric is now ordinary text, which is the other half of the removal: nothing
+silently eats `/12/` out of a line about a date.
+
+**Bars per line is a playing control too.** It sits in the Play setup as well as the editor. It is
+the setting you reach for while the chart is scrolling at the wrong rate, and having to leave Play
+to change the rate at which Play scrolls is the wrong shape.
 

@@ -103,19 +103,16 @@ described at the end of this document.
 | IN-09 | Keeps a chord symbol it cannot interpret (`[N.C.]`) | ✅ |
 | IN-10 | Renders a parsed row back to its inline source | ✅ |
 | IN-11 | Round-trips every fixture-shaped line unchanged | ✅ |
-| IN-12 | Reads a line length written as `/12/` and keeps it out of the lyric | ✅ |
-| IN-13 | Leaves the length unset when the line does not say | ✅ |
-| IN-14 | Does not mistake a slash chord (`[C/G]`) for a line length | ✅ |
-| IN-15 | Keeps a lone slash in the lyric as text (`and/or`) | ✅ |
-| IN-16 | Removes the length tag before fixing chord offsets | ✅ |
-| IN-17 | Ignores a zero or malformed length | ✅ |
-| IN-18 | Writes the length back at the end of the line | ✅ |
-| IN-14 | `\|3\|` at the end of a line reads as three bars | ✅ |
-| IN-15 | Bars and beats never collide | ✅ |
-| IN-16 | A line may state both a bar count and a beat count | ✅ |
-| IN-17 | `{4/4}` reads as a signature and leaves the lyric | ✅ |
-| IN-18 | Something that is not a signature stays literal lyric | ✅ |
-| IN-19 | Signature normalises to the head of the line, length tags to the tail | ✅ |
+| IN-12 | A slashed number is ordinary lyric text, now that `/n/` is gone | ✅ |
+| IN-13 | A slash chord (`[C/G]`) is not mistaken for anything else | ✅ |
+| IN-14 | A lone slash stays in the lyric as text (`and/or`) | ✅ |
+| IN-15 | `\|3\|` at the end of a line reads as three bars | ✅ |
+| IN-16 | A zero, malformed or lone-pipe tag stays lyric | ✅ |
+| IN-17 | The tag is removed before chord offsets are fixed | ✅ |
+| IN-18 | The length is written back at the end of the line | ✅ |
+| IN-19 | `{4/4}` reads as a signature and leaves the lyric | ✅ |
+| IN-20 | Something that is not a signature stays literal lyric | ✅ |
+| IN-21 | Signature normalises to the head of the line, length to the tail | ✅ |
 
 ### Chord-over-lyric layout — `display.test.ts`
 

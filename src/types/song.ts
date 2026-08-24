@@ -27,13 +27,8 @@ export interface SongRow {
   /** Chords over this line, ordered by `index`. */
   chords: ChordAnchor[];
   /**
-   * How many beats this line lasts, written inline as `/6/` (ADR-010).
-   * `null` means the line takes its length from `bars`, or from the song's `barsPerLine`.
-   */
-  beats: number | null;
-  /**
    * How many bars this line lasts, written inline as `|2|` (ADR-032).
-   * A bar's length comes from the meter in effect here. `beats` wins if both are set.
+   * A bar's length comes from the meter in effect here. `null` means the song's `barsPerLine`.
    */
   bars: number | null;
   /**

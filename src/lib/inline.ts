@@ -5,27 +5,19 @@
  * line lasts (ADR-032), and `{n/d}` changes the time signature from this line on. Omit both and
  * the line uses the song's default. Everything else is lyric.
  *
- * `/n/` still parses as a raw beat count, for a line that does not sit on a bar boundary. Nothing
- * documents it, because a length that is not whole bars displaces every downbeat after it.
- *
- * None of the markups collide: a slash chord keeps its slash inside its brackets, and a bar tag
- * is pipes rather than slashes.
+ * A slash chord keeps its slash inside its brackets, so nothing collides.
  */
 import type { ChordAnchor } from '../types/song';
 
 export interface InlineRow {
   lyrics: string;
   chords: ChordAnchor[];
-  beats: number | null;
   bars: number | null;
   meter: string | null;
 }
 
 /** A bracketed chord. Nested brackets are not allowed, so an unclosed `[` stays literal. */
 const CHORD_TAG = /\[([^[\]]*)\]/g;
-
-/** A line-length tag: a number between slashes. */
-const BEATS_TAG = /\/(\d+(?:\.\d+)?)\//g;
 
 /** A bar-count tag: a number between pipes. */
 const BARS_TAG = /\|(\d+)\|/g;
@@ -38,7 +30,6 @@ const METER_TAG = /\{\s*(\d+)\s*\/\s*(\d+)\s*\}/g;
  * Anchors come back in ascending order, and the lyric keeps every character that was not markup.
  */
 export function parseInlineRow(text: string): InlineRow {
-  let beats: number | null = null;
   let bars: number | null = null;
   let meter: string | null = null;
 
@@ -50,13 +41,8 @@ export function parseInlineRow(text: string): InlineRow {
     })
     .replace(BARS_TAG, (_match, value: string) => {
       const parsed = Number(value);
-      if (Number.isFinite(parsed) && parsed > 0) bars = parsed;
-      return '';
-    })
-    .replace(BEATS_TAG, (_match, value: string) => {
-      const parsed = Number(value);
       // A later tag on the same line wins; zero or nonsense falls back to the song default.
-      if (Number.isFinite(parsed) && parsed > 0) beats = parsed;
+      if (Number.isFinite(parsed) && parsed > 0) bars = parsed;
       return '';
     });
 
@@ -73,7 +59,7 @@ export function parseInlineRow(text: string): InlineRow {
   }
 
   lyrics += withoutTags.slice(cursor);
-  return { lyrics, chords, beats, bars, meter };
+  return { lyrics, chords, bars, meter };
 }
 
 /**
@@ -94,8 +80,6 @@ export function formatInlineRow(row: InlineRow): string {
   }
 
   if (row.meter) text = `{${row.meter}}${text}`;
-  // Bars are how a line says its length; beats are the undocumented escape hatch.
   if (row.bars && row.bars > 0) text = `${text}|${row.bars}|`;
-  if (row.beats && row.beats > 0) text = `${text}/${row.beats}/`;
   return text;
 }

@@ -57,15 +57,30 @@ function sanitizeOptionalCount(value: unknown): number | null | undefined {
   return value;
 }
 
+/** The meter a row's own tag names, for reading a legacy beat count against. */
+function meterFor(value: Record<string, unknown>): string {
+  const { meter } = value;
+  return typeof meter === 'string' && parseMeter(meter) ? meter : DEFAULT_METER;
+}
+
+/**
+ * A beat count from before line lengths were bars, as the nearest whole bar.
+ *
+ * Approximate on purpose: the counts this converts are the ones that did not sit on a bar line,
+ * which is exactly why they were removed.
+ */
+function legacyBars(beats: unknown, meter: string): number | null {
+  if (typeof beats !== 'number' || !Number.isFinite(beats) || beats <= 0) return null;
+  return Math.max(1, Math.round(beats / beatsPerBarOf(meter)));
+}
+
 function sanitizeRow(value: unknown): SongRow | null {
   if (!isRecord(value)) return null;
   const { id, lyrics, chords, beats, bars, meter } = value;
+
   if (typeof id !== 'string' || id === '') return null;
   if (typeof lyrics !== 'string') return null;
   if (!Array.isArray(chords)) return null;
-  // `null` is the normal case: the line takes the song's default length.
-  if (beats !== null && (typeof beats !== 'number' || !Number.isFinite(beats))) return null;
-
   const sanitizedBars = sanitizeOptionalCount(bars);
   if (sanitizedBars === undefined) return null;
   // A row-level signature is optional and, if present, must be one: an unreadable one is dropped
@@ -80,7 +95,15 @@ function sanitizeRow(value: unknown): SongRow | null {
     sanitizedChords.push(sanitized);
   }
 
-  return { id, lyrics, chords: sanitizedChords, beats, bars: sanitizedBars, meter: sanitizedMeter };
+  return {
+    id,
+    lyrics,
+    chords: sanitizedChords,
+    // A raw beat count is no longer a thing a line can say (ADR-032). One written before is read
+    // as the bars it comes closest to, rounded, so the line keeps roughly the length it had.
+    bars: sanitizedBars ?? legacyBars(beats, meterFor(value)),
+    meter: sanitizedMeter,
+  };
 }
 
 /**

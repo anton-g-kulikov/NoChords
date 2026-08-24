@@ -47,7 +47,6 @@ describe('parseInlineRow', () => {
     expect(parseInlineRow('done[G]')).toEqual({
       lyrics: 'done',
       chords: [{ symbol: 'G', index: 4 }],
-      beats: null,
       bars: null,
       meter: null,
     });
@@ -57,7 +56,6 @@ describe('parseInlineRow', () => {
         { symbol: 'Am', index: 0 },
         { symbol: 'C', index: 0 },
       ],
-      beats: null,
       bars: null,
       meter: null,
     });
@@ -79,49 +77,30 @@ describe('parseInlineRow', () => {
     expect(parseInlineRow('[N.C.]silence').chords).toEqual([{ symbol: 'N.C.', index: 0 }]);
   });
 
-  it('IN-12 reads a line length written as /n/ and keeps it out of the lyric', () => {
+  it('IN-12 leaves a slashed number in the lyric, now that it means nothing', () => {
+    // `/12/` was a beat count until ADR-032 removed it. It is ordinary text again.
     const parsed = parseInlineRow('[Am]Great God, and [E]I for [Am]one./12/');
-    expect(parsed.beats).toBe(12);
-    expect(parsed.lyrics).toBe('Great God, and I for one.');
+    expect(parsed.lyrics).toBe('Great God, and I for one./12/');
+    expect(parsed.bars).toBeNull();
     expect(parsed.chords.map((c) => c.symbol)).toEqual(['Am', 'E', 'Am']);
   });
 
-  it('IN-13 leaves beats null when the line does not say', () => {
-    expect(parseInlineRow('[C]plain line').beats).toBeNull();
-  });
-
-  it('IN-14 does not mistake a slash chord for a line length', () => {
+  it('IN-13 does not mistake a slash chord for anything else', () => {
     const parsed = parseInlineRow('[C/G]over a bass note');
-    expect(parsed.beats).toBeNull();
     expect(parsed.chords).toEqual([{ symbol: 'C/G', index: 0 }]);
     expect(parsed.lyrics).toBe('over a bass note');
   });
 
-  it('IN-15 keeps a lone slash in the lyric as text', () => {
+  it('IN-14 keeps a lone slash in the lyric as text', () => {
     const parsed = parseInlineRow('and/or, he said');
-    expect(parsed.beats).toBeNull();
+    expect(parsed.bars).toBeNull();
     expect(parsed.lyrics).toBe('and/or, he said');
-  });
-
-  it('IN-16 takes the length tag out before fixing chord offsets', () => {
-    // The tag sits before a chord, so a naive parse would shift that chord four characters.
-    const parsed = parseInlineRow('/8/[C]start');
-    expect(parsed.beats).toBe(8);
-    expect(parsed.lyrics).toBe('start');
-    expect(parsed.chords).toEqual([{ symbol: 'C', index: 0 }]);
-  });
-
-  it('IN-17 ignores a zero or malformed length', () => {
-    expect(parseInlineRow('a/0/').beats).toBeNull();
-    expect(parseInlineRow('a/x/').beats).toBeNull();
-    expect(parseInlineRow('a/x/').lyrics).toBe('a/x/');
   });
 
   it('handles an empty string', () => {
     expect(parseInlineRow('')).toEqual({
       lyrics: '',
       chords: [],
-      beats: null,
       bars: null,
       meter: null,
     });
@@ -135,10 +114,10 @@ describe('formatInlineRow', () => {
   });
 
   it('IN-18 writes the line length back at the end of the line', () => {
-    const source = '[Am]Great God, and [E]I for [Am]one./12/';
+    const source = '[Am]Great God, and [E]I for [Am]one.|4|';
     expect(formatInlineRow(parseInlineRow(source))).toBe(source);
     // A tag typed at the front is normalised to where it reads.
-    expect(formatInlineRow(parseInlineRow('/8/[C]start'))).toBe('[C]start/8/');
+    expect(formatInlineRow(parseInlineRow('|8|[C]start'))).toBe('[C]start|8|');
   });
 
   it('IN-11 round-trips every fixture-shaped line unchanged', () => {
@@ -162,7 +141,6 @@ describe('formatInlineRow', () => {
       formatInlineRow({
         lyrics: 'ab',
         chords: [{ symbol: 'G', index: 99 }],
-        beats: null,
         bars: null,
         meter: null,
       })
@@ -171,40 +149,41 @@ describe('formatInlineRow', () => {
 });
 
 describe('bar and meter tags', () => {
-  it('IN-14 reads a bar count from pipes at the end of the line', () => {
+  it('IN-15 reads a bar count from pipes at the end of the line', () => {
     const row = parseInlineRow('[Am]Dear God, I know I was one.|3|');
     expect(row.bars).toBe(3);
-    expect(row.beats).toBeNull();
     expect(row.lyrics).toBe('Dear God, I know I was one.');
   });
 
-  it('IN-15 keeps bars and beats apart', () => {
-    expect(parseInlineRow('a line|2|').bars).toBe(2);
-    expect(parseInlineRow('a line|2|').beats).toBeNull();
-    expect(parseInlineRow('a line/12/').beats).toBe(12);
-    expect(parseInlineRow('a line/12/').bars).toBeNull();
+  it('IN-16 ignores a malformed bar tag', () => {
+    expect(parseInlineRow('a line|0|').bars).toBeNull();
+    expect(parseInlineRow('a line|x|').bars).toBeNull();
+    expect(parseInlineRow('a line|x|').lyrics).toBe('a line|x|');
+    // A single pipe is not a tag, and stays where it was typed.
+    expect(parseInlineRow('either|or').lyrics).toBe('either|or');
   });
 
-  it('IN-16 lets a line name both, for a solo that does not sit on a bar', () => {
-    // Both stated: beats win at playback, and both survive the round trip.
-    const row = parseInlineRow('[Am]solo|4|/24/');
-    expect(row.bars).toBe(4);
-    expect(row.beats).toBe(24);
+  it('IN-17 takes the length tag out before fixing chord offsets', () => {
+    // The tag sits before a chord, so a naive parse would shift that chord four characters.
+    const parsed = parseInlineRow('|8|[C]start');
+    expect(parsed.bars).toBe(8);
+    expect(parsed.lyrics).toBe('start');
+    expect(parsed.chords).toEqual([{ symbol: 'C', index: 0 }]);
   });
 
-  it('IN-17 reads a signature and drops it out of the lyric', () => {
+  it('IN-19 reads a signature and drops it out of the lyric', () => {
     const row = parseInlineRow('{4/4}[C]Here the bridge starts,');
     expect(row.meter).toBe('4/4');
     expect(row.lyrics).toBe('Here the bridge starts,');
     expect(row.chords).toEqual([{ symbol: 'C', index: 0 }]);
   });
 
-  it('IN-18 ignores a signature that is not one', () => {
+  it('IN-20 ignores a signature that is not one', () => {
     expect(parseInlineRow('{fast}a line').meter).toBeNull();
     expect(parseInlineRow('{fast}a line').lyrics).toBe('{fast}a line');
   });
 
-  it('IN-19 round-trips the new tags to where they read naturally', () => {
+  it('IN-21 round-trips the new tags to where they read naturally', () => {
     const text = '{6/8}[Am]Dear God, I know I was [Am]one.|3|';
     expect(formatInlineRow(parseInlineRow(text))).toBe(text);
     // A signature typed mid-line is normalised to the head, a bar count to the tail.

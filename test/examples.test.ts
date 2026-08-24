@@ -98,9 +98,6 @@ describe("example songs", () => {
     expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
       3, 2, 2,
     ]);
-
-    // Nothing anywhere states a raw beat count: bars and the meter say it all.
-    expect(examples.every((song) => song.rows.every((row) => row.beats === null))).toBe(true);
   });
 
   it("EX-03 keeps the lyric text intact and anchors each chord inside it", () => {

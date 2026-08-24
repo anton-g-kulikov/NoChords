@@ -34,15 +34,13 @@ const sample: Song = {
         { symbol: 'Dm', index: 0 },
         { symbol: 'C', index: 17 },
       ],
-      beats: 12,
-      bars: null,
+      bars: 4,
       meter: null,
     },
     {
       id: 'r2',
       lyrics: 'Savoury, sage, rosemary and thyme,',
       chords: [{ symbol: 'Dm', index: 0 }],
-      beats: null,
       bars: null,
       meter: null,
     },
@@ -90,9 +88,9 @@ describe('createSongStore', () => {
       null,
       'nonsense',
       { ...sample, id: 'song-2', rows: 'not an array' },
-      { ...sample, id: 'song-3', rows: [{ id: 'r1', lyrics: 'x', chords: 'a string', beats: null, bars: null, meter: null }] },
+      { ...sample, id: 'song-3', rows: [{ id: 'r1', lyrics: 'x', chords: 'a string', bars: null, meter: null }] },
       { ...sample, id: 'song-4', barsPerLine: 'six' },
-      { ...sample, id: 'song-5', rows: [{ id: 'r1', lyrics: 'x', chords: [], beats: 'many' }] },
+      { ...sample, id: 'song-5', rows: [{ id: 'r1', lyrics: 'x', chords: [], bars: 'many' }] },
     ]);
     const loaded = (await createSongStore(memoryStorage({ [STORAGE_KEY]: payload })).load());
     expect(loaded).toEqual([sample]);
@@ -109,8 +107,8 @@ describe('createSongStore', () => {
     saveAll(store, [sample]);
     const [loaded] = (await store.load());
     expect(loaded.rows).toEqual(sample.rows);
-    expect(loaded.rows[0].beats).toBe(12);
-    expect(loaded.rows[1].beats).toBeNull();
+    expect(loaded.rows[0].bars).toBe(4);
+    expect(loaded.rows[1].bars).toBeNull();
     expect(loaded.barsPerLine).toBe(6);
     expect(loaded.rows[0].chords).toEqual([
       { symbol: 'Dm', index: 0 },

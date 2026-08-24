@@ -34,7 +34,6 @@ export function songToDoc(song: Song): SongDoc {
       chords: row.chords.map((chord) => ({ symbol: chord.symbol, index: chord.index })),
       // `null` rather than omitted: the fields mean "use the song default", and Firestore
       // would reject `undefined` outright.
-      beats: row.beats ?? null,
       bars: row.bars ?? null,
       meter: row.meter ?? null,
     })),

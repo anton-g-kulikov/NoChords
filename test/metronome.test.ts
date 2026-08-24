@@ -137,7 +137,7 @@ describe('isAccent', () => {
 
 describe('accentAt', () => {
   function row(id: string): SongRow {
-    return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', beats: null, bars: null, meter: null };
+    return { id, chords: [{ symbol: 'C', index: 0 }], lyrics: 'a line', bars: null, meter: null };
   }
 
   it('MT-14 pulses a 6/8 song in two, not once a bar', () => {
@@ -160,7 +160,6 @@ describe('accentAt', () => {
       id: 'r2',
       chords: [],
       lyrics: 'bridge',
-      beats: null,
       bars: 2,
       meter: '4/4',
     };

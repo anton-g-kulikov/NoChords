@@ -717,3 +717,43 @@ in particular is often understated — a click can still sound late on a headset
 itself. Nothing here can be verified without a real device and a pair of ears; the tests cover the
 arithmetic, not the hearing.
 
+---
+
+## ADR-031 — The import checks that it worked
+
+**Decision.** Accepting the import writes every local song to the account, then reads the account
+back and compares by id. The prompt stays until nothing is missing, saying how many did not make
+it, and a flag in local storage remembers an unfinished import so a reload does not strand what is
+left. `dismissImport` clears it: declining is an answer, not a failure.
+
+**What was wrong.** Every write was wrapped in `.catch(() => {})` and the prompt was dismissed
+before the first one went out. A partial import was indistinguishable from a complete one — the
+question disappeared, some songs did not arrive, and nothing anywhere said so. The failure was
+found by a user counting three songs on the device and one in the account.
+
+**Why it went unnoticed for so long.** The project had no Firestore database at all. Auth is a
+separate product and worked, so signing in succeeded; `persistentLocalCache` committed writes to
+the browser and queued them for a server that would never accept them; and `getDocs` fell back to
+that cache. The app therefore looked like it was syncing while nothing had ever left the device.
+Every layer degraded gracefully, and the sum of graceful degradations was a feature that had never
+worked once.
+
+**Why reading back rather than trusting the writes.** A write that resolves has reached the local
+cache, not necessarily the account — that is the whole point of an offline-capable client. Only the
+account's own contents answer the question the user is actually asking, which is whether their
+songs are somewhere other than this device.
+
+**Why retrying is safe.** Each song is written under its own id, so the import is idempotent:
+running it again overwrites rather than duplicating. That is what lets the offer stand until it
+succeeds, and it is why the comparison is by id rather than by count.
+
+**Why the offer returns for an unfinished import only.** ADR-022 offers the import only into an
+empty account, so that two unrelated libraries are never concatenated. A partial import leaves the
+account non-empty, which under that rule means the offer never comes back and the remaining songs
+have no way up. The flag is the narrowest exception: it re-asks only where this device already
+began an import that did not finish, leaving the two-device case exactly as ADR-022 decided it.
+
+**Cost.** A device that begins an import and then goes offline for good keeps a flag nobody will
+clear, so it asks again on each sign-in until dismissed. Asking twice is a far better failure than
+losing songs quietly, which is what it replaces.
+

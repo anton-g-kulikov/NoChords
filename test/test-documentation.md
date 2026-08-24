@@ -314,9 +314,19 @@ up. Getting this wrong either duplicates a library or appears to lose one.
 | CI-03 | No local songs → nothing to offer, whatever is in the cloud | ✅ |
 | CI-04 | Neither side has songs → nothing to offer | ✅ |
 | CI-05 | The decision is a pure function of the two counts, with no inspection of content | ✅ |
+| CI-06 | Songs that did not reach the account are named | ✅ |
+| CI-07 | Nothing is missing once they have all arrived | ✅ |
+| CI-08 | An empty account is missing everything | ✅ |
+| CI-09 | Songs in the account from other devices are not this device's concern | ✅ |
+| CI-10 | The comparison is by id, so a re-run overwrites rather than duplicating | ✅ |
+| CI-11 | A device that has never imported has nothing pending | ✅ |
+| CI-12 | **An unfinished import survives a reload, so the rest is not stranded** | ✅ |
+| CI-13 | The flag clears once everything has arrived | ✅ |
+| CI-14 | A blocked or absent store reads as nothing pending and never throws | ✅ |
 
-If the local library happens to be only the example songs, the offer is still made and the user
-declines it. Recognising the examples would mean matching on their titles, which breaks as soon as
+An accepted import now checks itself: it reads the account back and compares by id, and the offer
+stays until everything is there (ADR-031). If the local library happens to be only the example
+songs, the offer is still made and the user declines it. Recognising the examples would mean matching on their titles, which breaks as soon as
 one is renamed — a worse failure than one extra question.
 
 ### First-run seeding — `first-run.test.ts`

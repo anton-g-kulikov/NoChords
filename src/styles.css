@@ -669,3 +669,8 @@ kbd {
   text-decoration: underline;
   cursor: pointer;
 }
+
+.import-prompt__error {
+  margin: 0;
+  color: var(--accent);
+}

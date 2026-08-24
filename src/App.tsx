@@ -17,6 +17,7 @@ export function App() {
     loading,
     storedIn,
     importOffer,
+    importError,
     addSong,
     updateSong,
     deleteSong,
@@ -37,6 +38,7 @@ export function App() {
         {importOffer && (
           <ImportPrompt
             localCount={importOffer.localCount}
+            error={importError}
             onAccept={() => void acceptImport()}
             onDismiss={dismissImport}
           />

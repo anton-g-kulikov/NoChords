@@ -7,7 +7,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSongStore, defaultStorage, type SongStore } from '../lib/storage';
 import { loadCloudStore } from '../lib/firebase';
-import { shouldOfferImport } from '../lib/cloudImport';
+import {
+  hasUnfinishedImport,
+  markImportUnfinished,
+  missingFromAccount,
+  shouldOfferImport,
+} from '../lib/cloudImport';
 import { hasSeededExamples, markExamplesSeeded, shouldSeedExamples } from '../lib/firstRun';
 import { createExampleSongs } from '../lib/examples';
 import { createSong } from '../lib/songs';
@@ -29,6 +34,8 @@ export interface SongLibrary {
   storedIn: 'local' | 'cloud';
   /** Set when signing in found local songs and an empty account (ADR-022). */
   importOffer: { localCount: number } | null;
+  /** Set when an import did not carry everything up, naming how much is still behind (ADR-031). */
+  importError: { missingCount: number } | null;
   addSong(): Song;
   updateSong(song: Song): void;
   deleteSong(songId: string): void;
@@ -65,6 +72,7 @@ export function useSongLibrary(uid: string | null): SongLibrary {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [importOffer, setImportOffer] = useState<{ localCount: number } | null>(null);
+  const [importError, setImportError] = useState<{ missingCount: number } | null>(null);
 
   const storeRef = useRef(store);
   useEffect(() => {
@@ -98,10 +106,20 @@ export function useSongLibrary(uid: string | null): SongLibrary {
         setLoading(false);
 
         // Signing in to an empty account with songs on the device: ask before uploading (ADR-022).
+        // An import that did not finish asks again, however full the account looks — otherwise the
+        // songs it left behind have no way up, since the offer is only made into an empty one.
         if (cloudStore) {
           const local = await localStore.load();
-          if (!cancelled && shouldOfferImport(local.length, loaded.length)) {
-            setImportOffer({ localCount: local.length });
+          const unfinished = hasUnfinishedImport(storage);
+          if (!cancelled && local.length > 0) {
+            if (shouldOfferImport(local.length, loaded.length) || unfinished) {
+              const missing = missingFromAccount(
+                local.map((song) => song.id),
+                loaded.map((song) => song.id)
+              );
+              if (missing.length > 0) setImportOffer({ localCount: missing.length });
+              else markImportUnfinished(storage, false);
+            }
           }
         }
       })
@@ -183,22 +201,55 @@ export function useSongLibrary(uid: string | null): SongLibrary {
     void storeRef.current.deleteSong(songId).catch(() => {});
   }, []);
 
+  /**
+   * Copies the device's songs into the account, and checks that they arrived (ADR-031).
+   *
+   * Every write used to be wrapped in a `catch` that discarded the error, so a partial import was
+   * indistinguishable from a complete one: the prompt vanished, some songs did not, and nothing
+   * said so. Now the offer stays until the account actually holds them.
+   */
   const acceptImport = useCallback(async () => {
-    setImportOffer(null);
+    setImportError(null);
     const local = await localStore.load();
+    // Remembered before writing, not after: a reload mid-import must still know to ask again.
+    markImportUnfinished(storage, true);
+
     for (const song of local) {
+      // One song failing must not stop the others, but it must not pass unnoticed either — the
+      // check below is what notices.
       await storeRef.current.saveSong(song).catch(() => {});
     }
-    setSongs(await storeRef.current.load());
-  }, [localStore]);
 
-  const dismissImport = useCallback(() => setImportOffer(null), []);
+    const after = await storeRef.current.load().catch(() => [] as Song[]);
+    const missing = missingFromAccount(
+      local.map((song) => song.id),
+      after.map((song) => song.id)
+    );
+    setSongs(after);
+
+    if (missing.length === 0) {
+      markImportUnfinished(storage, false);
+      setImportOffer(null);
+      return;
+    }
+    // Left standing deliberately: the songs are still on the device, and the offer is the way back.
+    setImportError({ missingCount: missing.length });
+    setImportOffer({ localCount: missing.length });
+  }, [localStore, storage]);
+
+  const dismissImport = useCallback(() => {
+    setImportOffer(null);
+    setImportError(null);
+    // Declining is an answer, not a failure: stop asking on every load.
+    markImportUnfinished(storage, false);
+  }, [storage]);
 
   return {
     songs,
     loading,
     storedIn,
     importOffer,
+    importError,
     addSong,
     updateSong,
     deleteSong,

@@ -35,8 +35,11 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
 
   const transposed = song.currentKey !== song.originalKey;
 
-  const placeholder =
-    '[Am]There is a [C]house in New [D]Orleans,\n[Am]Great God, and [E]I for [Am]one.|4|';
+  // The legend teaches by example, so its examples have to be this song's: a hint that says
+  // "two bars of 4/4" to someone writing in 6/8 teaches the wrong thing twice over.
+  const longerLine = song.barsPerLine + 1;
+  const otherMeter = song.meter === '4/4' ? '3/4' : '4/4';
+  const placeholder = `[Am]There is a [C]house in New [D]Orleans,\n[Am]Great God, and [E]I for [Am]one.|${longerLine}|`;
 
   return (
     <div className="editor">
@@ -103,6 +106,19 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
         </p>
       )}
 
+      {/* Above the text area, not below it: it is instructions for what you are about to type,
+          and it reads in this song's own terms rather than in examples from another one. */}
+      <p className="editor__hint">
+        One line per lyric line. Write chords in brackets where they fall in the words —{' '}
+        <code>[Am]There is a [C]house</code>. A line lasts{' '}
+        <strong>
+          {song.barsPerLine} bar{song.barsPerLine === 1 ? '' : 's'} of {song.meter}
+        </strong>{' '}
+        unless it says otherwise: end it with <code>|{longerLine}|</code> to give it{' '}
+        {longerLine} bars instead. Start a line with <code>{'{'}{otherMeter}{'}'}</code> to change
+        meter from there on, and it stays changed until the next one. Everything saves as you type.
+      </p>
+
       <label className="field">
         <span className="field__label">Song</span>
         <textarea
@@ -115,13 +131,6 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
           onChange={(event) => handleText(event.target.value)}
         />
       </label>
-
-      <p className="editor__hint">
-        One line per lyric line. Write chords in brackets where they fall in the words —{' '}
-        <code>[Am]There is a [C]house</code>. A line lasts {song.barsPerLine} bars of {song.meter}{' '}
-        unless it says otherwise: end it with <code>|4|</code> to give it four bars. Start a line
-        with <code>{'{3/4}'}</code> to change meter from there on. Everything saves as you type.
-      </p>
     </div>
   );
 }

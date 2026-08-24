@@ -23,7 +23,7 @@ export function songToDoc(song: Song): SongDoc {
     originalKey: song.originalKey,
     currentKey: song.currentKey,
     tempo: song.tempo,
-    beatsPerLine: song.beatsPerLine,
+    barsPerLine: song.barsPerLine,
     // Never `undefined`: Firestore rejects the entire document for one undefined field, which
     // would lose a whole song rather than one value.
     meter: song.meter ?? DEFAULT_METER,

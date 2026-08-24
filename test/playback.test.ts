@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_BEATS_PER_LINE,
+  DEFAULT_BARS_PER_LINE,
   buildSchedule,
   entryForRow,
   isBlankRow,
@@ -24,14 +24,15 @@ function blank(id: string, lyrics = ''): SongRow {
 /** At 120bpm a beat is 500ms, so these rows run 2000 / 2500 / 4000ms. */
 const rows: SongRow[] = [row('r1'), row('r2', 5), row('r3', 8)];
 const TEMPO = 120;
-const BEATS = 4;
+/** One bar per line, in the default 4/4: the four beats these cases are written around. */
+const BARS = 1;
 
 describe('rowDurationMs', () => {
   it('PB-01 derives the duration from the tempo and the beat count', () => {
-    expect(DEFAULT_BEATS_PER_LINE).toBe(4);
-    expect(rowDurationMs(row('r1'), 120, BEATS)).toBe(2000);
-    expect(rowDurationMs(row('r1'), 60, BEATS)).toBe(4000);
-    expect(rowDurationMs(row('r1'), 240, BEATS)).toBe(1000);
+    expect(DEFAULT_BARS_PER_LINE).toBe(1);
+    expect(rowDurationMs(row('r1'), 120, BARS)).toBe(2000);
+    expect(rowDurationMs(row('r1'), 60, BARS)).toBe(4000);
+    expect(rowDurationMs(row('r1'), 240, BARS)).toBe(1000);
   });
 
   it('PB-02 lets a line override the song default with its own beat count', () => {
@@ -42,46 +43,48 @@ describe('rowDurationMs', () => {
   });
 
   it('PB-10 uses the song default when the line does not say', () => {
-    expect(rowBeats(row('r1'), 6)).toBe(6);
-    expect(rowDurationMs(row('r1'), 90, 6)).toBe(4000);
+    // Bars, not beats: six bars of the default 4/4 is twenty-four (ADR-032).
+    expect(rowBeats(row('r1'), 6)).toBe(24);
+    // Twenty-four beats at 90bpm: the duration follows the bar count, not the number typed.
+    expect(rowDurationMs(row('r1'), 90, 6)).toBe(24 * (60000 / 90));
   });
 
   it('PB-11 falls back to the default for a zero or negative beat count', () => {
-    expect(rowDurationMs(row('r1', 0), 120, BEATS)).toBe(2000);
-    expect(rowDurationMs(row('r1', -4), 120, BEATS)).toBe(2000);
+    expect(rowDurationMs(row('r1', 0), 120, BARS)).toBe(2000);
+    expect(rowDurationMs(row('r1', -4), 120, BARS)).toBe(2000);
     expect(rowDurationMs(row('r1'), 120, 0)).toBe(2000);
   });
 
   it('PB-12 has no notion of seconds: tempo rescales the whole song', () => {
-    const slow = totalDurationMs(buildSchedule(rows, 60, BEATS));
-    const fast = totalDurationMs(buildSchedule(rows, 120, BEATS));
+    const slow = totalDurationMs(buildSchedule(rows, 60, BARS));
+    const fast = totalDurationMs(buildSchedule(rows, 120, BARS));
     // Doubling the tempo exactly halves every line, held ones included.
     expect(slow).toBe(fast * 2);
   });
 
   it('guards against a zero or negative tempo', () => {
-    expect(Number.isFinite(rowDurationMs(row('r1'), 0, BEATS))).toBe(true);
-    expect(rowDurationMs(row('r1'), 0, BEATS)).toBeGreaterThan(0);
-    expect(Number.isFinite(rowDurationMs(row('r1'), -30, BEATS))).toBe(true);
+    expect(Number.isFinite(rowDurationMs(row('r1'), 0, BARS))).toBe(true);
+    expect(rowDurationMs(row('r1'), 0, BARS)).toBeGreaterThan(0);
+    expect(Number.isFinite(rowDurationMs(row('r1'), -30, BARS))).toBe(true);
   });
 });
 
 describe('buildSchedule', () => {
   it('PB-03 accumulates start times across rows', () => {
-    const schedule = buildSchedule(rows, TEMPO, BEATS);
+    const schedule = buildSchedule(rows, TEMPO, BARS);
     expect(schedule.map((entry) => entry.startMs)).toEqual([0, 2000, 4500]);
     expect(schedule.map((entry) => entry.endMs)).toEqual([2000, 4500, 8500]);
     expect(schedule.map((entry) => entry.rowId)).toEqual(['r1', 'r2', 'r3']);
   });
 
   it('PB-04 totals the row durations', () => {
-    const schedule = buildSchedule(rows, TEMPO, BEATS);
+    const schedule = buildSchedule(rows, TEMPO, BARS);
     expect(totalDurationMs(schedule)).toBe(2000 + 2500 + 4000);
     expect(schedule.map((entry) => entry.beats)).toEqual([4, 5, 8]);
   });
 
   it('PB-08 produces an empty schedule and zero duration for an empty song', () => {
-    const schedule = buildSchedule([], TEMPO, BEATS);
+    const schedule = buildSchedule([], TEMPO, BARS);
     expect(schedule).toEqual([]);
     expect(totalDurationMs(schedule)).toBe(0);
     expect(rowIndexAt(schedule, 0)).toBe(-1);
@@ -89,15 +92,15 @@ describe('buildSchedule', () => {
   });
 
   it('PB-09 produces a shorter schedule at a faster tempo', () => {
-    const slow = totalDurationMs(buildSchedule(rows, 60, BEATS));
-    const fast = totalDurationMs(buildSchedule(rows, 180, BEATS));
+    const slow = totalDurationMs(buildSchedule(rows, 60, BARS));
+    const fast = totalDurationMs(buildSchedule(rows, 180, BARS));
     expect(fast).toBeLessThan(slow);
     expect(fast).toBeGreaterThan(0);
   });
 });
 
 describe('rowIndexAt', () => {
-  const schedule = buildSchedule(rows, TEMPO, BEATS);
+  const schedule = buildSchedule(rows, TEMPO, BARS);
 
   it('PB-05 resolves the active row for a given elapsed time', () => {
     expect(rowIndexAt(schedule, 0)).toBe(0);
@@ -147,7 +150,7 @@ describe('blank separator rows', () => {
 
   it('PB-11 leaves blank rows out of the schedule and charges them no time', () => {
     const withGaps = [row('r1'), blank('b1'), row('r2'), blank('b2'), row('r3')];
-    const schedule = buildSchedule(withGaps, TEMPO, BEATS);
+    const schedule = buildSchedule(withGaps, TEMPO, BARS);
 
     expect(schedule).toHaveLength(3);
     // Three ordinary rows at 120bpm and four beats: 2000ms each, back to back.
@@ -157,7 +160,7 @@ describe('blank separator rows', () => {
 
   it('PB-12 keeps entries pointing at the row they came from', () => {
     const withGaps = [row('r1'), blank('b1'), row('r2'), blank('b2'), row('r3')];
-    const schedule = buildSchedule(withGaps, TEMPO, BEATS);
+    const schedule = buildSchedule(withGaps, TEMPO, BARS);
 
     // The song's own indices, not positions in the schedule — the UI still renders every row.
     expect(schedule.map((entry) => entry.index)).toEqual([0, 2, 4]);
@@ -171,18 +174,18 @@ describe('blank separator rows', () => {
 
   it('PB-13 seeks a blank row forward to the next row that plays', () => {
     const withGaps = [row('r1'), blank('b1'), row('r2'), blank('b2'), row('r3')];
-    const schedule = buildSchedule(withGaps, TEMPO, BEATS);
+    const schedule = buildSchedule(withGaps, TEMPO, BARS);
 
     expect(entryForRow(schedule, 2)?.rowId).toBe('r2');
     // A tap on the gap was aimed at the verse after it.
     expect(entryForRow(schedule, 1)?.rowId).toBe('r2');
     expect(entryForRow(schedule, 3)?.rowId).toBe('r3');
     // Nothing plays after a trailing blank, so there is nowhere to seek.
-    expect(entryForRow(buildSchedule([row('r1'), blank('b1')], TEMPO, BEATS), 1)).toBeUndefined();
+    expect(entryForRow(buildSchedule([row('r1'), blank('b1')], TEMPO, BARS), 1)).toBeUndefined();
   });
 
   it('PB-14 treats an all-blank song as having nothing to play', () => {
-    const schedule = buildSchedule([blank('b1'), blank('b2')], TEMPO, BEATS);
+    const schedule = buildSchedule([blank('b1'), blank('b2')], TEMPO, BARS);
     expect(schedule).toHaveLength(0);
     expect(totalDurationMs(schedule)).toBe(0);
     expect(rowIndexAt(schedule, 0)).toBe(-1);
@@ -197,9 +200,9 @@ describe('bars and meter', () => {
 
   it('PB-15 measures a bar count against the meter in effect', () => {
     // Two bars of 6/8 is twelve beats; of 3/4, six.
-    expect(rowBeats(barRow('r1', 2), 4, '6/8')).toBe(12);
-    expect(rowBeats(barRow('r1', 2), 4, '3/4')).toBe(6);
-    expect(rowBeats(barRow('r1', 3), 4, '6/8')).toBe(18);
+    expect(rowBeats(barRow('r1', 2), 1, '6/8')).toBe(12);
+    expect(rowBeats(barRow('r1', 2), 1, '3/4')).toBe(6);
+    expect(rowBeats(barRow('r1', 3), 1, '6/8')).toBe(18);
   });
 
   it('PB-16 lets an explicit beat count win over a bar count', () => {
@@ -212,15 +215,19 @@ describe('bars and meter', () => {
       bars: 4,
       meter: null,
     };
-    expect(rowBeats(solo, 4, '6/8')).toBe(24);
+    expect(rowBeats(solo, 1, '6/8')).toBe(24);
   });
 
   it('PB-17 falls back to the song default when a row says neither', () => {
-    expect(rowBeats(row('r1'), 6, '6/8')).toBe(6);
+    // One bar of 6/8 is six beats; two bars, twelve. The default is a bar count now, so the
+    // length of a plain line follows the meter it is in (ADR-032).
+    expect(rowBeats(row('r1'), 1, '6/8')).toBe(6);
+    expect(rowBeats(row('r1'), 2, '6/8')).toBe(12);
+    expect(rowBeats(row('r1'), 1, '3/4')).toBe(3);
   });
 
   it('PB-18 carries the accent spacing of the meter running at each row', () => {
-    const schedule = buildSchedule([row('r1'), row('r2')], TEMPO, 6, '6/8');
+    const schedule = buildSchedule([row('r1'), row('r2')], TEMPO, 1, '6/8');
     // 6/8 is felt in two: an accent every three beats, not one every six.
     expect(schedule.map((entry) => entry.accentEvery)).toEqual([3, 3]);
     expect(buildSchedule([row('r1')], TEMPO, 4, '4/4')[0].accentEvery).toBe(4);
@@ -228,7 +235,7 @@ describe('bars and meter', () => {
 
   it('PB-19 restarts the pulse where a signature changes mid-song', () => {
     const rows = [row('r1'), barRow('r2', 1, '4/4'), row('r3')];
-    const schedule = buildSchedule(rows, TEMPO, 6, '6/8');
+    const schedule = buildSchedule(rows, TEMPO, 1, '6/8');
 
     // Row 1 runs six beats of 6/8, then the bridge starts its own four.
     expect(schedule.map((entry) => entry.startBeat)).toEqual([0, 6, 10]);
@@ -240,7 +247,7 @@ describe('bars and meter', () => {
 
   it('PB-20 applies a signature written on a blank line between verses', () => {
     const rows = [row('r1'), { ...blank('b1'), meter: '4/4' }, row('r2')];
-    const schedule = buildSchedule(rows, TEMPO, 6, '6/8');
+    const schedule = buildSchedule(rows, TEMPO, 1, '6/8');
 
     // The blank still plays nothing, but the change it carries takes effect.
     expect(schedule).toHaveLength(2);

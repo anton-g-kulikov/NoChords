@@ -46,16 +46,18 @@ where they fall in the words:
 [Am]Great God, and [E]I for [Am]one./12/
 ```
 
-Every line lasts the song's **beats per line** unless it says otherwise. End a line with `//2` to
-hold it for two bars, which is how you write a pause at the end of a verse, or with `/12/` for a
-flat twelve beats when the length does not sit on a bar line — a solo over the same four chords,
-say. Bars are measured by the song's **meter**: `//2` is twelve beats in 6/8 and six in 3/4.
+Every line lasts the song's **bars per line** unless it says otherwise: end a line with `|4|` to
+give it four bars, which is how you write a pause at the end of a verse. A bar is as long as the
+song's **meter** says, so one bar is six beats in 6/8 and three in 3/4 — and a line's length
+follows the meter it is in.
 
 Songs that change meter say so inline. Open a line with `{4/4}` and the signature runs from there
-until the next one, so a bridge in four inside a song in six clicks in four while it lasts.
+until the next one, so a bridge in four inside a song in six clicks in four while it lasts. A line
+whose length differs from the song's default says so in the margin while you play, at a fifth of
+the lyric's weight — there to be found, not to be read.
 
-Timing is beats throughout — there are no seconds anywhere, so changing the tempo rescales the
-whole song, held lines included. Just type; everything saves as you go.
+Timing is bars and beats throughout — there are no seconds anywhere, so changing the tempo rescales
+the whole song, held lines included. Just type; everything saves as you go.
 
 ## Playing
 

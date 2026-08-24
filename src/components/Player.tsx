@@ -63,8 +63,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const lastTap = useRef<LastTap | null>(null);
 
   const schedule = useMemo(
-    () => buildSchedule(song.rows, song.tempo, song.beatsPerLine, song.meter),
-    [song.rows, song.tempo, song.beatsPerLine, song.meter]
+    () => buildSchedule(song.rows, song.tempo, song.barsPerLine, song.meter),
+    [song.rows, song.tempo, song.barsPerLine, song.meter]
   );
 
   const handleComplete = useCallback(() => {
@@ -348,8 +348,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               concealed={concealed}
               revealed={isRevealed(reveals, row.id, now)}
             />
-            {row.beats && row.beats !== song.beatsPerLine && (
-              <span className="sheet__beats">{row.beats}</span>
+            {row.bars && row.bars !== song.barsPerLine && (
+              <span className="sheet__beats">{row.bars}</span>
             )}
           </li>
         ))}

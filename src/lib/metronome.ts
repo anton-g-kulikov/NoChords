@@ -7,7 +7,10 @@
  *
  * Beat 0 is the first beat of the song. The count-in runs at negative indices (ADR-015).
  */
-import { DEFAULT_BEATS_PER_LINE, MIN_TEMPO, type ScheduleEntry } from './playback';
+import { MIN_TEMPO, type ScheduleEntry } from './playback';
+
+/** Where the accent falls when a meter cannot say: the first beat of a bar of four. */
+const DEFAULT_ACCENT_EVERY = 4;
 
 /** Length of one beat at a tempo, floored so a nonsensical tempo cannot divide by zero. */
 export function beatDurationMs(tempo: number): number {
@@ -63,7 +66,7 @@ export function beatsInWindow(tempo: number, fromMs: number, toMs: number): numb
  * every beat.
  */
 export function isAccent(beatIndex: number, accentEvery: number, sectionStartBeat = 0): boolean {
-  const per = accentEvery > 0 ? Math.round(accentEvery) : DEFAULT_BEATS_PER_LINE;
+  const per = accentEvery > 0 ? Math.round(accentEvery) : DEFAULT_ACCENT_EVERY;
   const offset = beatIndex - sectionStartBeat;
   return (((offset % per) + per) % per) === 0;
 }
@@ -77,7 +80,7 @@ export function isAccent(beatIndex: number, accentEvery: number, sectionStartBea
  * so that beat 0 — the downbeat the count-in is leading to — lands on an accent.
  */
 export function accentAt(beatIndex: number, schedule: ScheduleEntry[]): boolean {
-  if (schedule.length === 0) return isAccent(beatIndex, DEFAULT_BEATS_PER_LINE);
+  if (schedule.length === 0) return isAccent(beatIndex, DEFAULT_ACCENT_EVERY);
   if (beatIndex < 0) return isAccent(beatIndex, schedule[0].accentEvery);
 
   // The last entry whose section has started by this beat; the song's own beat clock is

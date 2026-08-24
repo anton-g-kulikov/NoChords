@@ -57,8 +57,10 @@ describe("example songs", () => {
     expect([scarborough.originalKey, scarborough.tempo]).toEqual(["Dm", 90]);
     expect([blackbird.originalKey, blackbird.tempo]).toEqual(["G", 90]);
     expect([risingSun.originalKey, risingSun.tempo]).toEqual(["Am", 80]);
-    // All three are 3/4 written two bars to a line.
-    expect(examples.every((song) => song.beatsPerLine === 6)).toBe(true);
+    // Six beats to a line either way: two bars of 3/4, or one of 6/8 (ADR-032).
+    expect([scarborough.meter, scarborough.barsPerLine]).toEqual(['3/4', 2]);
+    expect([blackbird.meter, blackbird.barsPerLine]).toEqual(['3/4', 2]);
+    expect([risingSun.meter, risingSun.barsPerLine]).toEqual(['6/8', 1]);
     // A fixture opens in its own key.
     expect(examples.every((song) => song.currentKey === song.originalKey)).toBe(
       true,
@@ -71,34 +73,34 @@ describe("example songs", () => {
     expect(blackbird.rows).toHaveLength(16);
     expect(risingSun.rows).toHaveLength(41);
 
-    // A line takes the song default unless it is a verse ending, which holds for twelve beats.
-    expect(scarborough.rows.map((row) => row.beats)).toEqual([
+    // A line takes the song default unless it says otherwise, and it says so in bars (ADR-032).
+    // Scarborough and Blackbird hold each verse ending for four bars against a usual two.
+    expect(scarborough.rows.map((row) => row.bars)).toEqual([
       null,
       null,
       null,
-      12,
+      4,
       null,
       null,
       null,
-      12,
+      4,
       null,
       null,
       null,
-      12,
+      4,
       null,
       null,
       null,
-      12,
+      4,
     ]);
-    // The Rising Sun fixture writes no raw beat counts: lines take the song default, and the
-    // ending states its length in bars instead (ADR-026).
-    expect(risingSun.rows.every((row) => row.beats === null)).toBe(true);
-    expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([3]);
-    // The closing bars are written in 3/4, from the row that says so until the end.
-    expect(risingSun.rows.filter((row) => row.meter !== null).map((row) => row.meter)).toEqual([
-      "3/4",
+    // Rising Sun writes only its ending: three bars on the last line, then two on each of the
+    // closing instrumental rows, which are in 3/4 where a bar is half as long.
+    expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
+      3, 2, 2,
     ]);
-    expect(risingSun.meter).toBe("6/8");
+
+    // Nothing anywhere states a raw beat count: bars and the meter say it all.
+    expect(examples.every((song) => song.rows.every((row) => row.beats === null))).toBe(true);
   });
 
   it("EX-03 keeps the lyric text intact and anchors each chord inside it", () => {
@@ -198,7 +200,7 @@ describe("example songs", () => {
     const schedule = buildSchedule(
       risingSun.rows,
       risingSun.tempo,
-      risingSun.beatsPerLine,
+      risingSun.barsPerLine,
       risingSun.meter,
     );
     // A beat at 80bpm is 750ms, so every six-beat line is 4500ms and they simply follow on.

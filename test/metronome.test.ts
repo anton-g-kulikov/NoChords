@@ -141,7 +141,7 @@ describe('accentAt', () => {
   }
 
   it('MT-14 pulses a 6/8 song in two, not once a bar', () => {
-    const schedule = buildSchedule([row('r1'), row('r2')], 80, 6, '6/8');
+    const schedule = buildSchedule([row('r1'), row('r2')], 80, 1, '6/8');
     // Beats 0 and 3 of each six-beat bar carry the click.
     expect([0, 1, 2, 3, 4, 5, 6, 7].map((beat) => accentAt(beat, schedule))).toEqual([
       true,
@@ -164,7 +164,7 @@ describe('accentAt', () => {
       bars: 2,
       meter: '4/4',
     };
-    const schedule = buildSchedule([row('r1'), bridge], 80, 6, '6/8');
+    const schedule = buildSchedule([row('r1'), bridge], 80, 1, '6/8');
 
     // Six beats of 6/8, accented at 0 and 3; then 4/4 from beat 6, accented at 6 and 10.
     expect([0, 3, 6, 7, 10].map((beat) => accentAt(beat, schedule))).toEqual([
@@ -179,7 +179,7 @@ describe('accentAt', () => {
   });
 
   it('MT-16 accents the count-in so it lands on the downbeat', () => {
-    const schedule = buildSchedule([row('r1')], 80, 6, '6/8');
+    const schedule = buildSchedule([row('r1')], 80, 1, '6/8');
     expect(accentAt(-3, schedule)).toBe(true);
     expect(accentAt(-2, schedule)).toBe(false);
     expect(accentAt(0, schedule)).toBe(true);

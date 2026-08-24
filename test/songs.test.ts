@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_BEATS_PER_LINE,
+  DEFAULT_BARS_PER_LINE,
   MAX_LEARNING_PLAYTHROUGH,
   completeLearningPlaythrough,
   createRow,
@@ -22,7 +22,7 @@ describe('createSong', () => {
     expect(song.rows[0].lyrics).toBe('');
     expect(song.rows[0].chords).toEqual([]);
     expect(song.rows[0].beats).toBeNull();
-    expect(song.beatsPerLine).toBe(DEFAULT_BEATS_PER_LINE);
+    expect(song.barsPerLine).toBe(DEFAULT_BARS_PER_LINE);
     expect(song.originalKey).toBe('C');
     expect(song.currentKey).toBe('C');
     expect(song.tempo).toBeGreaterThan(0);

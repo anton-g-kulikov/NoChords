@@ -7,11 +7,11 @@
  */
 import { CONCEALMENT_STAGES } from './learning';
 import { formatInlineRow, parseInlineRow } from './inline';
-import { DEFAULT_BEATS_PER_LINE } from './playback';
+import { DEFAULT_BARS_PER_LINE } from './playback';
 import { DEFAULT_METER } from './meter';
 import type { Song, SongRow } from '../types/song';
 
-export { DEFAULT_BEATS_PER_LINE };
+export { DEFAULT_BARS_PER_LINE };
 
 /** Playthrough count at which concealment reaches 100%. Counting beyond it has no effect. */
 export const MAX_LEARNING_PLAYTHROUGH = CONCEALMENT_STAGES.length - 1;
@@ -52,7 +52,7 @@ export function createSong(overrides: Partial<Song> = {}): Song {
     // A new song is displayed in the key it was written in until the user transposes it.
     currentKey: originalKey,
     tempo: DEFAULT_TEMPO,
-    beatsPerLine: DEFAULT_BEATS_PER_LINE,
+    barsPerLine: DEFAULT_BARS_PER_LINE,
     meter: DEFAULT_METER,
     learningPlaythrough: 0,
     rows: [createRow()],

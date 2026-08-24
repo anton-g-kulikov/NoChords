@@ -8,7 +8,7 @@
  * Stored data is untrusted input — another tab, an older app version, or a user with devtools can
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
-import { DEFAULT_METER, parseMeter } from './meter';
+import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
 import type { ChordAnchor, Song, SongRow } from '../types/song';
 
 export const STORAGE_KEY = 'nochords.songs.v1';
@@ -98,6 +98,7 @@ export function sanitizeSong(value: unknown): Song | null {
     currentKey,
     tempo,
     beatsPerLine,
+    barsPerLine,
     meter,
     learningPlaythrough,
     rows,
@@ -107,7 +108,18 @@ export function sanitizeSong(value: unknown): Song | null {
   if (typeof title !== 'string') return null;
   if (typeof originalKey !== 'string' || typeof currentKey !== 'string') return null;
   if (typeof tempo !== 'number' || !Number.isFinite(tempo)) return null;
-  if (typeof beatsPerLine !== 'number' || !Number.isFinite(beatsPerLine)) return null;
+
+  // Line length moved from beats to bars (ADR-032). A song written in beats is converted by the
+  // bar length of its own meter, so it keeps the length it had rather than the number it had.
+  const songMeter = typeof meter === 'string' && parseMeter(meter) ? meter : DEFAULT_METER;
+  const bars =
+    typeof barsPerLine === 'number' && Number.isFinite(barsPerLine)
+      ? barsPerLine
+      : typeof beatsPerLine === 'number' && Number.isFinite(beatsPerLine)
+        ? Math.max(1, Math.round(beatsPerLine / beatsPerBarOf(songMeter)))
+        : null;
+  if (bars === null) return null;
+
   if (typeof learningPlaythrough !== 'number' || !Number.isFinite(learningPlaythrough)) return null;
   if (!Array.isArray(rows)) return null;
 
@@ -125,9 +137,9 @@ export function sanitizeSong(value: unknown): Song | null {
     originalKey,
     currentKey,
     tempo,
-    beatsPerLine,
+    barsPerLine: bars,
     // Songs written before meters existed are in four: that is what they were played as.
-    meter: typeof meter === 'string' && parseMeter(meter) ? meter : DEFAULT_METER,
+    meter: songMeter,
     learningPlaythrough,
     rows: sanitizedRows,
   };

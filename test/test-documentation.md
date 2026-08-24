@@ -14,7 +14,7 @@ described at the end of this document.
 |------|-------------------|------|
 | Chord parsing and transposition | `src/lib/chords.ts` | `chords.test.ts` |
 | Nashville conversion | `src/lib/nashville.ts` | `nashville.test.ts` |
-| Inline `[Chord]lyric` and `/n/` notation | `src/lib/inline.ts` | `inline.test.ts` |
+| Inline `[Chord]lyric`, `\|n\|` and `{n/d}` notation | `src/lib/inline.ts` | `inline.test.ts` |
 | Chord-over-lyric layout | `src/lib/display.ts` | `display.test.ts` |
 | Learning concealment | `src/lib/learning.ts` | `learning.test.ts` |
 | Playback timing | `src/lib/playback.ts` | `playback.test.ts` |
@@ -110,8 +110,8 @@ described at the end of this document.
 | IN-16 | Removes the length tag before fixing chord offsets | ✅ |
 | IN-17 | Ignores a zero or malformed length | ✅ |
 | IN-18 | Writes the length back at the end of the line | ✅ |
-| IN-14 | `//3` at the end of a line reads as three bars | ✅ |
-| IN-15 | Bars and beats never collide: `//2` is not read as a beat tag | ✅ |
+| IN-14 | `\|3\|` at the end of a line reads as three bars | ✅ |
+| IN-15 | Bars and beats never collide | ✅ |
 | IN-16 | A line may state both a bar count and a beat count | ✅ |
 | IN-17 | `{4/4}` reads as a signature and leaves the lyric | ✅ |
 | IN-18 | Something that is not a signature stays literal lyric | ✅ |
@@ -168,9 +168,9 @@ described at the end of this document.
 | PB-12 | Entries keep their song row index, so the active row never lands on a blank | ✅ |
 | PB-13 | Seeking a blank row lands on the next row that plays | ✅ |
 | PB-14 | A song of nothing but blanks has nothing to play | ✅ |
-| PB-15 | A `//n` bar count is measured against the meter in effect | ✅ |
+| PB-15 | A `\|n\|` bar count is measured against the meter in effect | ✅ |
 | PB-16 | **An explicit `/n/` beat count wins over a bar count** | ✅ |
-| PB-17 | A row stating neither takes the song default | ✅ |
+| PB-17 | A row stating neither takes the song default, in bars of its own meter | ✅ |
 | PB-18 | Entries carry the accent spacing of the meter running at that row | ✅ |
 | PB-19 | A signature change restarts the pulse instead of inheriting the old phase | ✅ |
 | PB-20 | A signature on a blank line takes effect without the line playing | ✅ |

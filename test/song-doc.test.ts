@@ -9,7 +9,7 @@ const sample: Song = {
   originalKey: 'Am',
   currentKey: 'Cm',
   tempo: 80,
-  beatsPerLine: 6,
+  barsPerLine: 6,
   meter: '3/4',
   learningPlaythrough: 3,
   rows: [
@@ -67,7 +67,7 @@ describe('songToDoc / songFromDoc', () => {
 
   it('SD-06 rejects wrongly typed fields', () => {
     expect(songFromDoc({ ...songToDoc(sample), tempo: 'fast' })).toBeNull();
-    expect(songFromDoc({ ...songToDoc(sample), beatsPerLine: null })).toBeNull();
+    expect(songFromDoc({ ...songToDoc(sample), barsPerLine: null })).toBeNull();
     expect(songFromDoc({ ...songToDoc(sample), rows: 'not an array' })).toBeNull();
   });
 

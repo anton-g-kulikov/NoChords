@@ -1,13 +1,15 @@
 /**
- * The inline notation a song is written in: `{6/8}[Dm]O, where are you [C]going?//2`
+ * The inline notation a song is written in: `{6/8}[Dm]O, where are you [C]going?|2|`
  *
- * `[Chord]` anchors a chord to the following character (ADR-007). `//n` sets how many bars the
- * line lasts and `/n/` how many beats, for a line that does not sit on a bar boundary — a long
- * solo over the same chords, say (ADR-026). `{n/d}` changes the time signature from this line on.
- * Omit all of them and the line uses the song's default. Everything else is lyric.
+ * `[Chord]` anchors a chord to the following character (ADR-007). `|n|` sets how many bars the
+ * line lasts (ADR-032), and `{n/d}` changes the time signature from this line on. Omit both and
+ * the line uses the song's default. Everything else is lyric.
  *
- * None of the markups collide: a slash chord keeps its slash inside its brackets, and bars are
- * taken before beats so `//2` is never read as the tail of a beat tag.
+ * `/n/` still parses as a raw beat count, for a line that does not sit on a bar boundary. Nothing
+ * documents it, because a length that is not whole bars displaces every downbeat after it.
+ *
+ * None of the markups collide: a slash chord keeps its slash inside its brackets, and a bar tag
+ * is pipes rather than slashes.
  */
 import type { ChordAnchor } from '../types/song';
 
@@ -25,8 +27,8 @@ const CHORD_TAG = /\[([^[\]]*)\]/g;
 /** A line-length tag: a number between slashes. */
 const BEATS_TAG = /\/(\d+(?:\.\d+)?)\//g;
 
-/** A bar-count tag: a number after a double slash. Read before beats, so `//2` wins the slashes. */
-const BARS_TAG = /\/\/(\d+)/g;
+/** A bar-count tag: a number between pipes. */
+const BARS_TAG = /\|(\d+)\|/g;
 
 /** A time-signature tag: `{6/8}`. */
 const METER_TAG = /\{\s*(\d+)\s*\/\s*(\d+)\s*\}/g;
@@ -40,8 +42,7 @@ export function parseInlineRow(text: string): InlineRow {
   let bars: number | null = null;
   let meter: string | null = null;
 
-  // Take the tags out first so they cannot disturb the chord offsets. Bars before beats: `//2`
-  // shares its slashes with the beats pattern, and reading beats first would leave a stray one.
+  // Take the tags out first so they cannot disturb the chord offsets.
   const withoutTags = text
     .replace(METER_TAG, (_match, top: string, bottom: string) => {
       meter = `${Number(top)}/${Number(bottom)}`;
@@ -93,8 +94,8 @@ export function formatInlineRow(row: InlineRow): string {
   }
 
   if (row.meter) text = `{${row.meter}}${text}`;
-  // Bars are the usual way to say it; beats are for a line that does not land on a bar.
-  if (row.bars && row.bars > 0) text = `${text}//${row.bars}`;
+  // Bars are how a line says its length; beats are the undocumented escape hatch.
+  if (row.bars && row.bars > 0) text = `${text}|${row.bars}|`;
   if (row.beats && row.beats > 0) text = `${text}/${row.beats}/`;
   return text;
 }

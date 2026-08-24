@@ -35,6 +35,9 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
 
   const transposed = song.currentKey !== song.originalKey;
 
+  const placeholder =
+    '[Am]There is a [C]house in New [D]Orleans,\n[Am]Great God, and [E]I for [Am]one.|4|';
+
   return (
     <div className="editor">
       <div className="editor__meta">
@@ -70,11 +73,11 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
         />
 
         <NumberField
-          label="Beats per line"
-          value={song.beatsPerLine}
+          label="Bars per line"
+          value={song.barsPerLine}
           min={1}
           max={64}
-          onCommit={(beatsPerLine) => onChange({ ...song, beatsPerLine })}
+          onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
         />
 
         <label className="field">
@@ -108,17 +111,16 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
           spellCheck={false}
           rows={20}
           aria-label="Song text"
-          placeholder={'[Am]There is a [C]house in New [D]Orleans,\n[Am]Great God, and [E]I for [Am]one./12/'}
+          placeholder={placeholder}
           onChange={(event) => handleText(event.target.value)}
         />
       </label>
 
       <p className="editor__hint">
         One line per lyric line. Write chords in brackets where they fall in the words —{' '}
-        <code>[Am]There is a [C]house</code>. A line lasts {song.beatsPerLine} beats unless it says
-        otherwise: end it with <code>//2</code> to hold it for two bars of {song.meter}, or with{' '}
-        <code>/12/</code> for twelve beats flat. Start a line with <code>{'{3/4}'}</code> to change
-        meter from there on. Everything saves as you type.
+        <code>[Am]There is a [C]house</code>. A line lasts {song.barsPerLine} bars of {song.meter}{' '}
+        unless it says otherwise: end it with <code>|4|</code> to give it four bars. Start a line
+        with <code>{'{3/4}'}</code> to change meter from there on. Everything saves as you type.
       </p>
     </div>
   );

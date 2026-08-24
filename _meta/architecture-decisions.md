@@ -762,3 +762,37 @@ narrow exceptions reopen it, and neither touches the two-device case ADR-022 was
 clear, so it asks again on each sign-in until dismissed. Asking twice is a far better failure than
 losing songs quietly, which is what it replaces.
 
+---
+
+## ADR-032 — A line's length is bars, written `|n|`
+
+**Decision.** A song's default line length is `barsPerLine`, and a line overrides it with `|n|` at
+its end — four bars is `|4|`. `//n` is gone. The raw beat tag `/n/` still parses but is documented
+nowhere. The editor's legend moved above the text area and speaks in the song's own numbers.
+
+**Why bars rather than beats.** A bar is the unit the music is actually counted in, and it is the
+one the metronome accents. Saying "six beats" for a line of two bars of 3/4 states the same fact in
+a unit nobody counts in, and it stops meaning what it meant the moment the meter changes.
+
+**Why pipes.** `//2` shared its slashes with the beat tag `/2/`, so the parser had to take bars
+first and hope. A pipe is a bar line, which is what it marks.
+
+**The consequence worth knowing.** A plain line's length now follows the meter it is in. Rising
+Sun's closing rows are in `{3/4}`, where a bar is half of the 6/8 bar the rest of the song is in,
+so they halved — and had to say `|2|` to keep the length they always had. That is the model being
+honest rather than a bug: "one bar per line" means one bar, whatever a bar currently is.
+
+**Migration.** A stored `beatsPerLine` is divided by the bar length of the song's own meter and
+rounded, floor one, so a song keeps the length it had rather than the number it had. Six beats in
+3/4 becomes two bars; six in 6/8, one.
+
+**Why the marker in the player is nearly invisible.** A line that runs long says so in the margin
+at a fifth of the lyric's opacity. Playing is reading lyrics; the number is for the one moment you
+wonder why a line is hanging, and should cost nothing the rest of the time.
+
+**Does `/n/` still earn its place?** Probably not. Any whole number of bars is now expressible, and
+a length that is *not* whole bars displaces every downbeat after it — the accent phase is counted
+from the start of the section, so a seven-beat line in 4/4 silently moves every bar line that
+follows. The honest way to write an odd bar is a meter change: `{7/8}` on that line and `{4/4}` on
+the next. It is left parsing, undocumented, pending a decision to remove it.
+

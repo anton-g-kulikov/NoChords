@@ -9,8 +9,8 @@
 import { DEFAULT_METER, accentEveryOf, beatsPerBarOf, parseMeter } from './meter';
 import type { SongRow } from '../types/song';
 
-/** Beats each line occupies when a song does not say otherwise. One bar in common time. */
-export const DEFAULT_BEATS_PER_LINE = 4;
+/** Bars each line occupies when a song does not say otherwise. */
+export const DEFAULT_BARS_PER_LINE = 1;
 
 /** Floor applied to tempo so a zero or negative value cannot produce an infinite duration. */
 export const MIN_TEMPO = 20;
@@ -45,9 +45,9 @@ export function isBlankRow(row: SongRow): boolean {
   return row.chords.length === 0 && row.lyrics.trim() === '';
 }
 
-/** Beats per line, falling back to the default for a missing or nonsensical value. */
-function safeBeats(beatsPerLine: number): number {
-  return beatsPerLine && beatsPerLine > 0 ? beatsPerLine : DEFAULT_BEATS_PER_LINE;
+/** Bars per line, falling back to the default for a missing or nonsensical value. */
+function safeBars(barsPerLine: number): number {
+  return barsPerLine && barsPerLine > 0 ? barsPerLine : DEFAULT_BARS_PER_LINE;
 }
 
 /**
@@ -57,21 +57,21 @@ function safeBeats(beatsPerLine: number): number {
  * solo that runs twenty-four beats over the same four chords. Otherwise `//n` bars, measured by
  * the meter in effect. Otherwise the song's default (ADR-026).
  */
-export function rowBeats(row: SongRow, beatsPerLine: number, meter: string = DEFAULT_METER): number {
+export function rowBeats(row: SongRow, barsPerLine: number, meter: string = DEFAULT_METER): number {
   if (row.beats && row.beats > 0) return row.beats;
-  if (row.bars && row.bars > 0) return row.bars * beatsPerBarOf(meter);
-  return safeBeats(beatsPerLine);
+  const bars = row.bars && row.bars > 0 ? row.bars : safeBars(barsPerLine);
+  return bars * beatsPerBarOf(meter);
 }
 
 /** How long a row is held. Everything is beats at the song tempo — no seconds (ADR-011). */
 export function rowDurationMs(
   row: SongRow,
   tempo: number,
-  beatsPerLine: number,
+  barsPerLine: number,
   meter: string = DEFAULT_METER
 ): number {
   const safeTempo = Math.max(tempo, MIN_TEMPO);
-  return (60000 / safeTempo) * rowBeats(row, beatsPerLine, meter);
+  return (60000 / safeTempo) * rowBeats(row, barsPerLine, meter);
 }
 
 /**
@@ -84,7 +84,7 @@ export function rowDurationMs(
 export function buildSchedule(
   rows: SongRow[],
   tempo: number,
-  beatsPerLine: number = DEFAULT_BEATS_PER_LINE,
+  barsPerLine: number = DEFAULT_BARS_PER_LINE,
   songMeter: string = DEFAULT_METER
 ): ScheduleEntry[] {
   const schedule: ScheduleEntry[] = [];
@@ -102,8 +102,8 @@ export function buildSchedule(
     }
     if (isBlankRow(row)) return;
 
-    const beats = rowBeats(row, beatsPerLine, meter);
-    const durationMs = rowDurationMs(row, tempo, beatsPerLine, meter);
+    const beats = rowBeats(row, barsPerLine, meter);
+    const durationMs = rowDurationMs(row, tempo, barsPerLine, meter);
     schedule.push({
       rowId: row.id,
       index,

@@ -28,11 +28,11 @@ export interface SongRow {
   chords: ChordAnchor[];
   /**
    * How many beats this line lasts, written inline as `/6/` (ADR-010).
-   * `null` means the line takes its length from `bars`, or from the song's `beatsPerLine`.
+   * `null` means the line takes its length from `bars`, or from the song's `barsPerLine`.
    */
   beats: number | null;
   /**
-   * How many bars this line lasts, written inline as `//2` (ADR-026).
+   * How many bars this line lasts, written inline as `|2|` (ADR-032).
    * A bar's length comes from the meter in effect here. `beats` wins if both are set.
    */
   bars: number | null;
@@ -53,8 +53,8 @@ export interface Song {
   currentKey: string;
   /** Beats per minute driving playback. */
   tempo: number;
-  /** Default length of a line in beats; a line may override it with `/n/` (ADR-011). */
-  beatsPerLine: number;
+  /** Default length of a line in bars; a line may override it with `|n|` (ADR-032). */
+  barsPerLine: number;
   /** The song's time signature, e.g. `6/8`. Sets bar length and the accent pulse (ADR-026). */
   meter: string;
   /** Completed learning playthroughs, saturating at `CONCEALMENT_STAGES.length - 1`. */

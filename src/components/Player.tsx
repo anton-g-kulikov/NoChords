@@ -236,6 +236,16 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             onChange={(key) => onChange(setCurrentKey(song, key))}
           />
 
+          {/* Line length belongs here as much as in the editor: it is the setting you reach for
+              while playing, when the chart is scrolling at the wrong rate (ADR-032). */}
+          <NumberField
+            label={`Bars per line (of ${song.meter})`}
+            value={song.barsPerLine}
+            min={1}
+            max={64}
+            onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
+          />
+
           <label className="field field--tempo">
             <span className="field__label">Tempo {song.tempo} bpm</span>
             <input

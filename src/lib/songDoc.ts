@@ -8,6 +8,7 @@
  *
  * Writing is the mirror image, and must never emit `undefined` — Firestore refuses it.
  */
+import { DEFAULT_METER } from './meter';
 import { sanitizeSong } from './storage';
 import type { Song } from '../types/song';
 
@@ -23,7 +24,9 @@ export function songToDoc(song: Song): SongDoc {
     currentKey: song.currentKey,
     tempo: song.tempo,
     beatsPerLine: song.beatsPerLine,
-    meter: song.meter,
+    // Never `undefined`: Firestore rejects the entire document for one undefined field, which
+    // would lose a whole song rather than one value.
+    meter: song.meter ?? DEFAULT_METER,
     learningPlaythrough: song.learningPlaythrough,
     rows: song.rows.map((row) => ({
       id: row.id,

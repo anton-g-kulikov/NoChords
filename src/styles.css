@@ -675,3 +675,84 @@ kbd {
   margin: 0;
   color: var(--accent);
 }
+
+/*
+ * The notation guide.
+ *
+ * Reading prose, not a chart: a narrower column than the library, and generous line height. It
+ * borrows the app's own type so a term looks the same here as it does in the editor.
+ */
+.guide {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+  line-height: 1.6;
+}
+
+.guide__head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.guide__head h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.guide__section {
+  margin-bottom: 2rem;
+}
+
+.guide__section h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.guide__section p {
+  margin: 0 0 0.75rem;
+}
+
+.guide__aside {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.guide__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.guide__table th,
+.guide__table td {
+  padding: 0.4rem 0.75rem 0.4rem 0;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.guide__table th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.guide__terms {
+  margin: 0;
+}
+
+.guide__terms dt {
+  margin-top: 0.9rem;
+  font-weight: 600;
+}
+
+.guide__terms dd {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+}
+

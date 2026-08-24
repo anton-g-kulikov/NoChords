@@ -9,9 +9,17 @@ interface SongListProps {
   onDelete: (songId: string) => void;
   /** Null when signing in is unavailable or already done. */
   onSignIn: (() => void) | null;
+  onOpenGuide: () => void;
 }
 
-export function SongList({ songs, onOpen, onCreate, onDelete, onSignIn }: SongListProps) {
+export function SongList({
+  songs,
+  onOpen,
+  onCreate,
+  onDelete,
+  onSignIn,
+  onOpenGuide,
+}: SongListProps) {
   const install = useInstallPrompt();
 
   return (
@@ -69,7 +77,10 @@ export function SongList({ songs, onOpen, onCreate, onDelete, onSignIn }: SongLi
       {/* Which build this is. The service worker keys its cache on the same number, so this is
           also how you tell whether an installed app has picked up a release yet (ADR-028). */}
       <p className="library__version">
-        v{__APP_VERSION__}
+        <button type="button" className="library__install" onClick={onOpenGuide}>
+          Bars, beats and meter
+        </button>
+        {' · '}v{__APP_VERSION__}
         {install.affordance === 'prompt' && (
           <>
             {' · '}

@@ -7,6 +7,7 @@ import type { Song } from '../types/song';
 
 interface SongEditorProps {
   song: Song;
+  onOpenGuide: () => void;
   onChange: (song: Song) => void;
 }
 
@@ -18,7 +19,7 @@ interface SongEditorProps {
  * normalising a line (moving a `/6/` to the end, say) would jump the caret mid-word. It is only
  * re-seeded when a different song is opened.
  */
-export function SongEditor({ song, onChange }: SongEditorProps) {
+export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
   const [text, setText] = useState(() => songToText(song));
   const openSongId = useRef(song.id);
 
@@ -116,7 +117,10 @@ export function SongEditor({ song, onChange }: SongEditorProps) {
         </strong>{' '}
         unless it says otherwise: end it with <code>|{longerLine}|</code> to give it{' '}
         {longerLine} bars instead. Start a line with <code>{'{'}{otherMeter}{'}'}</code> to change
-        meter from there on, and it stays changed until the next one. Everything saves as you type.
+        meter from there on, and it stays changed until the next one. Everything saves as you type.{' '}
+        <button type="button" className="library__install" onClick={onOpenGuide}>
+          What is a bar?
+        </button>
       </p>
 
       <label className="field">

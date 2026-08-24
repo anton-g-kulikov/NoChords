@@ -804,3 +804,31 @@ silently eats `/12/` out of a line about a date.
 the setting you reach for while the chart is scrolling at the wrong rate, and having to leave Play
 to change the rate at which Play scrolls is the wrong shape.
 
+---
+
+## ADR-033 — The notation guide is a page in the app, not a link out
+
+**Decision.** A short page — beats, bars, time signatures, why 6/8 clicks twice a bar, and what each
+piece of the app's notation means — reachable from the foot of the library and from the editor's
+legend ("What is a bar?"). No external links.
+
+**Why in the app.** It is installable and works offline (ADR-028). Someone practising on a train
+with no signal is exactly the person who wonders what `{3/4}` does, and sending them to the web is
+sending them nowhere. It also costs nothing: it is prose in the bundle, and the shell is precached.
+
+**Why it teaches the app and the theory together.** The two are not separable here. "Bars per line"
+means nothing without bars, and a definition of a bar that never mentions the click the user just
+heard is a worse definition. Each concept is followed by where it shows up on screen.
+
+**Why it is short.** Someone opens it because a word in the editor meant nothing to them and they
+want to get back to the song. Six sections, one screen of reading. It is not a theory chapter, and
+the moment it grows into one it stops being read.
+
+**Two entry points, deliberately.** The editor legend is where the question arises — a term you are
+about to type. The library footer is for browsing before there is a song to write. Neither is a menu
+item, because the app has no menu and does not need one for two links.
+
+**Cost.** It is prose, so nothing tests it: the claims about compound meter and the accent pattern
+are true of the code today and could drift from it silently. They are written to match `meter.ts`,
+and the fixtures are the examples it cites, which is the closest thing to a check it has.
+

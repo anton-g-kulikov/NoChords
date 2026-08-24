@@ -59,6 +59,10 @@ the lyric's weight — there to be found, not to be read.
 Timing is bars and beats throughout — there are no seconds anywhere, so changing the tempo rescales
 the whole song, held lines included. Just type; everything saves as you go.
 
+**New to any of this?** The app has a short page on bars, beats and time signatures, and what each
+part of the notation means — at the foot of the library, or "What is a bar?" under the editor. It
+works offline like everything else (ADR-033).
+
 ## Playing
 
 Press **Play** (or <kbd>Space</kbd>) and the chart scrolls itself, highlighting the active row.

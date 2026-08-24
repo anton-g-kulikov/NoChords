@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Player } from './components/Player';
 import { SongEditor } from './components/SongEditor';
+import { NotationGuide } from './components/NotationGuide';
 import { SongList } from './components/SongList';
 import { AuthBar } from './components/AuthBar';
 import { ImportPrompt } from './components/ImportPrompt';
@@ -26,10 +27,13 @@ export function App() {
   } = useSongLibrary(auth.user?.uid ?? null);
   const { settings, update: updateSettings } = useSettings();
   const [openSongId, setOpenSongId] = useState<string | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
   // Opening an existing song lands on Play; only a brand new song starts in Edit.
   const [pane, setPane] = useState<Pane>('play');
 
   const song = songs.find((item) => item.id === openSongId) ?? null;
+
+  if (showGuide) return <NotationGuide onClose={() => setShowGuide(false)} />;
 
   if (!song) {
     return (
@@ -55,6 +59,7 @@ export function App() {
           setPane('edit');
         }}
         onDelete={deleteSong}
+        onOpenGuide={() => setShowGuide(true)}
         onSignIn={
           auth.available && !auth.loading && !auth.user ? () => void auth.signIn() : null
         }
@@ -91,7 +96,7 @@ export function App() {
       </header>
 
       {pane === 'edit' ? (
-        <SongEditor song={song} onChange={updateSong} />
+        <SongEditor song={song} onChange={updateSong} onOpenGuide={() => setShowGuide(true)} />
       ) : (
         <Player
           song={song}

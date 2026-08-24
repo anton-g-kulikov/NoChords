@@ -84,3 +84,37 @@ the app shell. Checking the status code proves nothing — check the content typ
 
 On a phone, hard-reload once before judging anything: a page with no service worker needs a fresh
 navigation to pick one up.
+
+## 7. For anything with a backend: check the resource exists
+
+Shipping the code is not shipping the feature. Cloud sync was deployed, tested and used for days
+against a project that **had no Firestore database at all** — the console offered "Create database"
+the whole time. Nobody noticed, because every layer failed politely:
+
+| Layer | What it did | What it looked like |
+|---|---|---|
+| Auth | worked — a separate product, and it was provisioned | signed in, name shown |
+| `setDoc` | committed to the browser's cache, queued for a server that would never accept it | write resolved |
+| `getDocs` | fell back to that same cache | songs listed |
+| the import | swallowed every error and dismissed its own prompt | looked like it worked |
+
+Each of those is sensible on its own. Summed, they made a feature that had never worked once look
+like it was working, and it took a user counting three songs on a device and one in the account to
+find it.
+
+So for any feature with a backing resource, check the resource — not the page:
+
+```bash
+npx firebase-tools firestore:databases:list --project nochords-18219   # "No databases found" = nothing works
+npm run deploy:rules                                                   # rules are not deployed by CI
+```
+
+Then exercise the feature end to end and confirm it in the backend's own console, not in the app:
+sign in, save something, and look at `users/{uid}/songs` in Firestore. **If the app is the only
+thing that says it worked, it has not been verified** — an offline-capable client is specifically
+designed to look identical when the server is missing.
+
+The general shape, worth remembering beyond this project: a stack of graceful degradations is
+indistinguishable from success. Anywhere the code is written to carry on when something is absent,
+something absent will eventually go unnoticed for a long time.
+

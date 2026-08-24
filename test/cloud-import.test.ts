@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   UNFINISHED_IMPORT_KEY,
+  hasImportedHere,
   hasUnfinishedImport,
   markImportUnfinished,
   missingFromAccount,
@@ -116,6 +117,24 @@ describe('the unfinished-import flag', () => {
     expect(hasUnfinishedImport(blockedStorage())).toBe(false);
     expect(() => markImportUnfinished(null, true)).not.toThrow();
     expect(() => markImportUnfinished(blockedStorage(), true)).not.toThrow();
+  });
+});
+
+describe('hasImportedHere', () => {
+  it('CI-15 **recognises an account this device has already imported into**', () => {
+    // A shared id can only have got there from here: songs are written under the id they have on
+    // the device. This is what lets a half-finished import be completed.
+    expect(hasImportedHere(['song-1', 'song-2'], ['song-1'])).toBe(true);
+  });
+
+  it('CI-16 does not mistake another device library for this one', () => {
+    // Two unrelated libraries share no ids, so this stays the merge ADR-022 refused to make.
+    expect(hasImportedHere(['song-1'], ['other-1', 'other-2'])).toBe(false);
+  });
+
+  it('CI-17 says no when either side is empty', () => {
+    expect(hasImportedHere([], ['song-1'])).toBe(false);
+    expect(hasImportedHere(['song-1'], [])).toBe(false);
   });
 });
 

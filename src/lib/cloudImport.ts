@@ -25,6 +25,21 @@ export function missingFromAccount(localIds: string[], accountIds: string[]): st
   return localIds.filter((id) => !present.has(id));
 }
 
+/**
+ * Whether this device has already imported into this account.
+ *
+ * A shared id says so: songs are written under the id they have on the device, so an account
+ * holding one of them was written to from here. Finishing that import is not the merge of two
+ * unrelated libraries ADR-022 refused — it is completing what this device started, which is why
+ * the offer may be made even into an account that is not empty (ADR-031).
+ *
+ * This is what rescues an import that failed before there was a flag to record it.
+ */
+export function hasImportedHere(localIds: string[], accountIds: string[]): boolean {
+  const present = new Set(accountIds);
+  return localIds.some((id) => present.has(id));
+}
+
 /** Where an unfinished import is remembered, so a reload does not strand the rest. */
 export const UNFINISHED_IMPORT_KEY = 'nochords.import-unfinished.v1';
 

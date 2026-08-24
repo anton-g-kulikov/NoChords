@@ -747,11 +747,16 @@ songs are somewhere other than this device.
 running it again overwrites rather than duplicating. That is what lets the offer stand until it
 succeeds, and it is why the comparison is by id rather than by count.
 
-**Why the offer returns for an unfinished import only.** ADR-022 offers the import only into an
-empty account, so that two unrelated libraries are never concatenated. A partial import leaves the
-account non-empty, which under that rule means the offer never comes back and the remaining songs
-have no way up. The flag is the narrowest exception: it re-asks only where this device already
-began an import that did not finish, leaving the two-device case exactly as ADR-022 decided it.
+**Why the offer returns at all.** ADR-022 offers the import only into an empty account, so that two
+unrelated libraries are never concatenated. A partial import leaves the account non-empty, which
+under that rule means the offer never comes back and the remaining songs have no way up. Two
+narrow exceptions reopen it, and neither touches the two-device case ADR-022 was protecting:
+
+- the flag, where this device began an import that did not finish;
+- a **shared id** between the device and the account, which can only have got there from here,
+  since songs are written under the id they already have. That one is retroactive: it rescues an
+  import that failed before there was a flag to record it, which is exactly the case that led to
+  this ADR — a device stranded with two songs and no way to offer them.
 
 **Cost.** A device that begins an import and then goes offline for good keeps a flag nobody will
 clear, so it asks again on each sign-in until dismissed. Asking twice is a far better failure than

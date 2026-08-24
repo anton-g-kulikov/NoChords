@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSongStore, defaultStorage, type SongStore } from '../lib/storage';
 import { loadCloudStore } from '../lib/firebase';
 import {
+  hasImportedHere,
   hasUnfinishedImport,
   markImportUnfinished,
   missingFromAccount,
@@ -112,14 +113,18 @@ export function useSongLibrary(uid: string | null): SongLibrary {
           const local = await localStore.load();
           const unfinished = hasUnfinishedImport(storage);
           if (!cancelled && local.length > 0) {
-            if (shouldOfferImport(local.length, loaded.length) || unfinished) {
-              const missing = missingFromAccount(
-                local.map((song) => song.id),
-                loaded.map((song) => song.id)
-              );
-              if (missing.length > 0) setImportOffer({ localCount: missing.length });
-              else markImportUnfinished(storage, false);
-            }
+            const localIds = local.map((song) => song.id);
+            const accountIds = loaded.map((song) => song.id);
+            const missing = missingFromAccount(localIds, accountIds);
+            // Empty account: the original offer (ADR-022). Unfinished, or an account already
+            // holding songs from this device: finishing what this device started (ADR-031).
+            const worthAsking =
+              shouldOfferImport(local.length, loaded.length) ||
+              unfinished ||
+              hasImportedHere(localIds, accountIds);
+
+            if (missing.length > 0 && worthAsking) setImportOffer({ localCount: missing.length });
+            else if (missing.length === 0) markImportUnfinished(storage, false);
           }
         }
       })

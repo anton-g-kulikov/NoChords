@@ -323,6 +323,9 @@ up. Getting this wrong either duplicates a library or appears to lose one.
 | CI-12 | **An unfinished import survives a reload, so the rest is not stranded** | ✅ |
 | CI-13 | The flag clears once everything has arrived | ✅ |
 | CI-14 | A blocked or absent store reads as nothing pending and never throws | ✅ |
+| CI-15 | **An account this device already imported into is recognised by a shared id** | ✅ |
+| CI-16 | Another device's library is not mistaken for this one | ✅ |
+| CI-17 | An empty side means no shared history | ✅ |
 
 An accepted import now checks itself: it reads the account back and compares by id, and the offer
 stays until everything is there (ADR-031). If the local library happens to be only the example

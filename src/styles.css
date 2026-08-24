@@ -466,13 +466,14 @@ kbd {
   background: var(--surface);
 }
 
-.sheet__beats {
+.sheet__bars {
   position: absolute;
   top: 10px;
   right: 12px;
-  color: var(--muted);
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
+  /* A fifth of the lyric's presence: visible when looked for, invisible when reading. */
+  opacity: 0.2;
 }
 
 /*

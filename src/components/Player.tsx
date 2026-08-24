@@ -348,8 +348,10 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               concealed={concealed}
               revealed={isRevealed(reveals, row.id, now)}
             />
+            {/* A line that runs longer or shorter than the song's default says so, quietly:
+                the chart is for reading lyrics, and this is a note in the margin (ADR-032). */}
             {row.bars && row.bars !== song.barsPerLine && (
-              <span className="sheet__beats">{row.bars}</span>
+              <span className="sheet__bars">{row.bars} bars</span>
             )}
           </li>
         ))}

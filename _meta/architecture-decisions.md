@@ -604,8 +604,13 @@ The one place rounding is overruled: anything above zero converts to at least on
 beats would otherwise round to none, answering "I want a count-in" with silence — a wrong answer of
 a different kind from a slightly wrong length.
 
-**Cost.** The longest count-in is now four bars rather than sixteen beats, which in 12/8 is a very
-long count. The field is labelled with the song's meter so the unit is not a guess.
+**Cost.** A bar is a bigger step than a beat, so the count-in is coarser than it was: four beats of
+4/4 can be asked for, three cannot. That is the trade for a count that always lands on the downbeat.
+The field is labelled with the song's meter so the unit is not a guess.
+
+**The ceiling is 24 bars**, raised from 4. Counting yourself in through a long intro, or setting up
+a groove before a slow song, are both real; the limit exists to stop a typo becoming a ten-minute
+wait, not to have a view about how long is sensible.
 
 ---
 

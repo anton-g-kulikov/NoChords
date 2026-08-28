@@ -9,8 +9,14 @@ import { defaultStorage, type StorageLike } from './storage';
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
-/** Longest count-in offered, in bars. Beyond a couple of bars it stops being useful. */
-export const MAX_COUNT_IN_BARS = 4;
+/**
+ * Longest count-in offered, in bars.
+ *
+ * Generous rather than opinionated: counting yourself in for a long intro, or setting up a groove
+ * before a slow song, are both real. The ceiling is here to stop a typo becoming a ten-minute
+ * wait, not to have a view about how long is sensible.
+ */
+export const MAX_COUNT_IN_BARS = 24;
 
 /** What a count-in used to be measured in, before it was counted in bars (ADR-027). */
 const LEGACY_BEATS_PER_BAR = 4;

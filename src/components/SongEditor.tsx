@@ -40,7 +40,7 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
   // "two bars of 4/4" to someone writing in 6/8 teaches the wrong thing twice over.
   const longerLine = song.barsPerLine + 1;
   const otherMeter = song.meter === '4/4' ? '3/4' : '4/4';
-  const placeholder = `[Am]There is a [C]house in New [D]Orleans,\n[Am]Great God, and [E]I for [Am]one.|${longerLine}|`;
+  const placeholder = `There [Am]is a [C]house in New [D]Orleans,\nThey [Am]call the [C]Rising [E]Sun,|${longerLine}|`;
 
   return (
     <div className="editor">
@@ -111,7 +111,7 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
           and it reads in this song's own terms rather than in examples from another one. */}
       <p className="editor__hint">
         One line per lyric line. Write chords in brackets where they fall in the words —{' '}
-        <code>[Am]There is a [C]house</code>. A line lasts{' '}
+        <code>There [Am]is a [C]house</code>. A line lasts{' '}
         <strong>
           {song.barsPerLine} bar{song.barsPerLine === 1 ? '' : 's'} of {song.meter}
         </strong>{' '}

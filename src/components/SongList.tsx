@@ -41,7 +41,7 @@ export function SongList({
       {songs.length === 0 ? (
         <p className="library__empty">
           No songs yet. Create one and type your lines with chords in brackets, like{' '}
-          <code>[Am]There is a [C]house in New [D]Orleans</code>.
+          <code>There [Am]is a [C]house in New [D]Orleans</code>.
         </p>
       ) : (
         <ul className="library__list">

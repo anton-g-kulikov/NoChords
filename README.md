@@ -40,10 +40,10 @@ The whole song lives in one text area, one line per lyric line. Chords go inline
 where they fall in the words:
 
 ```
-[Am]There is a [C]house in New [D]Orleans,
-[Am]It's called the [E]Rising [Am]Sun.
-[Am]It's been the [C]ruin of many a [D]poor boy,
-[Am]Great God, and [E]I for [Am]one./12/
+There [Am]is a [C]house in New [D]Orleans,
+They [Am]call the [C]Rising [E]Sun,
+And it's [Am]been the [C]ruin of [D]many a poor boy,
+Dear [Am]God, I [E]know I was [Am]one.|3|
 ```
 
 Every line lasts the song's **bars per line** unless it says otherwise: end a line with `|4|` to

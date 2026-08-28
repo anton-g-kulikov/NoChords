@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { KeySelect } from './KeySelect';
+import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
 import { SongRowView } from './SongRowView';
 import { buildSchedule } from '../lib/playback';
@@ -214,88 +214,112 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         </div>
 
         <div className={setupOpen ? 'controls__setup' : 'controls__setup controls__setup--closed'}>
-          <div className="controls__group" role="group" aria-label="Display mode">
-            {MODES.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                title={option.hint}
-                aria-pressed={mode === option.value}
-                className={mode === option.value ? 'segment segment--active' : 'segment'}
-                onClick={() => setMode(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+          {/*
+           * Three groups, because there are three questions: how the chart reads, how fast it
+           * moves, and whether it clicks. Before this they were one row of eight controls in the
+           * order they happened to be written (ADR-034).
+           */}
+          <section className="setup__group" aria-label="Display">
+            <h2 className="setup__legend">Display</h2>
+            <div className="setup__row">
+              <div className="controls__group" role="group" aria-label="Display mode">
+                {MODES.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    title={option.hint}
+                    aria-pressed={mode === option.value}
+                    className={mode === option.value ? 'segment segment--active' : 'segment'}
+                    onClick={() => setMode(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
 
-          <KeySelect
-            label="Key"
-            value={song.currentKey}
-            originalKey={song.originalKey}
-            onChange={(key) => onChange(setCurrentKey(song, key))}
-          />
-
-          {/* Line length belongs here as much as in the editor: it is the setting you reach for
-              while playing, when the chart is scrolling at the wrong rate (ADR-032). */}
-          <NumberField
-            label={`Bars per line (of ${song.meter})`}
-            value={song.barsPerLine}
-            min={1}
-            max={64}
-            onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
-          />
-
-          <label className="field field--tempo">
-            <span className="field__label">Tempo {song.tempo} bpm</span>
-            <input
-              className="field__range"
-              type="range"
-              min={40}
-              max={200}
-              value={song.tempo}
-              aria-label="Tempo in beats per minute"
-              onChange={(event) => onChange({ ...song, tempo: Number(event.target.value) })}
-            />
-          </label>
-
-          <div className="metronome">
-            <button
-              type="button"
-              className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
-              aria-pressed={settings.metronomeEnabled}
-              title="Click on every beat while playing"
-              onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
-            >
-              {settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
-            </button>
-
-            <label className="field field--narrow">
-              <span className="field__label">
-                Volume {Math.round(settings.metronomeVolume * 100)}%
-              </span>
-              <input
-                className="field__range"
-                type="range"
-                min={0}
-                max={100}
-                value={Math.round(settings.metronomeVolume * 100)}
-                disabled={!settings.metronomeEnabled}
-                aria-label="Metronome volume"
-                onChange={(event) =>
-                  onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
-                }
+              <KeyStepper
+                value={song.currentKey}
+                originalKey={song.originalKey}
+                onChange={(key) => onChange(setCurrentKey(song, key))}
               />
-            </label>
+            </div>
+          </section>
 
-            <NumberField
-              label={`Count-in (bars of ${song.meter})`}
-              value={settings.countInBars}
-              min={0}
-              max={MAX_COUNT_IN_BARS}
-              onCommit={(countInBars) => onSettingsChange({ countInBars })}
-            />
-          </div>
+          <section className="setup__group" aria-label="Timing">
+            <h2 className="setup__legend">Timing</h2>
+            <div className="setup__row">
+              <label className="field field--tempo">
+                <span className="field__label">Tempo {song.tempo} bpm</span>
+                <input
+                  className="field__range"
+                  type="range"
+                  min={40}
+                  max={300}
+                  value={song.tempo}
+                  aria-label="Tempo in beats per minute"
+                  onChange={(event) => onChange({ ...song, tempo: Number(event.target.value) })}
+                />
+              </label>
+
+              {/* Line length belongs here as much as in the editor: it is the setting you reach
+                  for while playing, when the chart is scrolling at the wrong rate (ADR-032). */}
+              <NumberField
+                label="Bars per line"
+                value={song.barsPerLine}
+                min={1}
+                max={64}
+                onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
+              />
+
+              {/* Shown, not offered: the meter decides what a bar is, and changing it here would
+                  silently re-time every line of the song (ADR-034). */}
+              <div className="field field--narrow">
+                <span className="field__label">Meter</span>
+                <p className="field__static">{song.meter}</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="setup__group" aria-label="Metronome">
+            <h2 className="setup__legend">Metronome</h2>
+            <div className="setup__row">
+              <button
+                type="button"
+                className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
+                aria-pressed={settings.metronomeEnabled}
+                title="Click on every beat while playing"
+                onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
+              >
+                {settings.metronomeEnabled ? 'On' : 'Off'}
+              </button>
+
+              <label className="field field--narrow">
+                <span className="field__label">
+                  Volume {Math.round(settings.metronomeVolume * 100)}%
+                </span>
+                <input
+                  className="field__range"
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round(settings.metronomeVolume * 100)}
+                  disabled={!settings.metronomeEnabled}
+                  aria-label="Metronome volume"
+                  onChange={(event) =>
+                    onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
+                  }
+                />
+              </label>
+
+              <NumberField
+                label="Count-in (bars)"
+                value={settings.countInBars}
+                min={0}
+                max={MAX_COUNT_IN_BARS}
+                onCommit={(countInBars) => onSettingsChange({ countInBars })}
+              />
+            </div>
+          </section>
         </div>
       </div>
 

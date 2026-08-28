@@ -832,3 +832,33 @@ item, because the app has no menu and does not need one for two links.
 are true of the code today and could drift from it silently. They are written to match `meter.ts`,
 and the fixtures are the examples it cites, which is the closest thing to a check it has.
 
+---
+
+## ADR-034 — Transposing steps; the meter is shown but not offered; the setup is grouped
+
+**Three decisions about the Play controls, which had grown by accretion.**
+
+**Transposing is a stepper, not a list.** `[−] Am [+]`, moving a semitone at a time and keeping the
+mode. A list of keys invites picking A when the song is in Am, which is not a transposition but a
+change of mode — the chords cannot survive it, and the app would have to either refuse or silently
+produce nonsense. Minus and plus can only move by a semitone, so the question is never asked. The
+label carries the distance from the original (`Key (+2)`), which is the number a capo needs.
+
+**The meter is shown while playing, and cannot be changed there.** It decides what a bar is, so
+changing it re-times every line of the song at once — a thing to do while writing, not while
+playing. But it has to be *visible*, because "bars per line" and "count-in (bars)" both mean
+nothing without it. Read-only is the honest middle.
+
+**The setup is three groups: Display, Timing, Metronome.** It was one row of eight controls in the
+order they were written, and two of the labels had grown parentheticals ("bars per line (of 6/8)")
+to explain units the row could not otherwise convey. With the meter shown once in Timing, those
+parentheticals go. Three questions, three groups, one heading each.
+
+**Also.** The Play tempo slider went from 40–200 to 40–300, matching the editor. In a compound
+meter the tempo counts eighths, so a 6/8 song at a natural pulse sits well above 200 — the slider
+could not reach the tempo the editor could set, which made Play the worse place to adjust it.
+
+**Cost.** The setup panel is taller than the row it replaces, so it covers more of the chart while
+open. That is survivable because it collapses during playback (ADR-017), which is when the chart
+matters.
+

@@ -386,11 +386,11 @@ kbd {
   text-transform: capitalize;
 }
 
+/* The groups stack; the controls inside each one sit in a row (ADR-034). */
 .controls__setup {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 16px;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .controls__setup--closed {
@@ -754,5 +754,75 @@ kbd {
 .guide__terms dd {
   margin: 0.15rem 0 0;
   color: var(--muted);
+}
+
+/*
+ * Play setup: three groups rather than one long row.
+ *
+ * Each answers a different question — how the chart reads, how fast it moves, whether it clicks —
+ * and a heading is cheaper than making someone infer the grouping from spacing.
+ */
+.setup__group {
+  padding: 0.6rem 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.setup__group:first-child {
+  border-top: 0;
+}
+
+.setup__legend {
+  margin: 0 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.setup__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 1.25rem;
+}
+
+/* A value the player may read but not change. */
+.field__static {
+  margin: 0;
+  padding: 0.45rem 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Transposing: minus, the key, plus. */
+.stepper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stepper__button {
+  min-width: 2.2rem;
+  border: 0;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.stepper__button:hover {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.stepper__value {
+  min-width: 3.5rem;
+  padding: 0.45rem 0.5rem;
+  background: var(--surface);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 

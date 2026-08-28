@@ -12,7 +12,7 @@ described at the end of this document.
 
 | Area | Module under test | File |
 |------|-------------------|------|
-| Chord parsing and transposition | `src/lib/chords.ts` | `chords.test.ts` |
+| Chord parsing and transposition | `src/lib/chords.ts`, `src/lib/keys.ts` | `chords.test.ts` |
 | Nashville conversion | `src/lib/nashville.ts` | `nashville.test.ts` |
 | Inline `[Chord]lyric`, `\|n\|` and `{n/d}` notation | `src/lib/inline.ts` | `inline.test.ts` |
 | Chord-over-lyric layout | `src/lib/display.ts` | `display.test.ts` |
@@ -68,6 +68,11 @@ described at the end of this document.
 | CH-15 | Round trip C→G→C restores the original spelling | ✅ |
 | CH-16 | Transposes between minor keys (`Am`→`Bm`) | ✅ |
 | CH-17 | Spells minor keys with flats where convention expects them (`Dm`, `Gm`) | ✅ |
+| KY-01 | **A key steps by semitone and keeps its mode: Am goes to Bbm, never to A** | ✅ |
+| KY-02 | Stepping wraps around the octave | ✅ |
+| KY-03 | The result is spelled the way the offered key lists spell it | ✅ |
+| KY-04 | Something that is not a key is left alone | ✅ |
+| KY-05 | The distance from the original is reported the short way round | ✅ |
 
 ### Nashville conversion — `nashville.test.ts`
 

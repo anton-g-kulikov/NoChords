@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseChord, formatChord, transposeChord } from '../src/lib/chords';
+import { MAJOR_KEYS, MINOR_KEYS, semitonesBetween, transposeKey } from '../src/lib/keys';
 
 describe('parseChord', () => {
   it('CH-01 parses a bare root', () => {
@@ -150,5 +151,45 @@ describe('transposing a whole progression', () => {
     expect(transposeChord('A', 'Am', 'Dm')).toBe('D');
     expect(transposeChord('F', 'Am', 'Dm')).toBe('Bb');
     expect(transposeChord('G', 'Am', 'Gm')).toBe('F');
+  });
+});
+
+describe('transposeKey', () => {
+  it('KY-01 moves a key by semitones and keeps its mode', () => {
+    // The point of the stepper: Am can never become A (ADR-034).
+    expect(transposeKey('Am', 1)).toBe('Bbm');
+    expect(transposeKey('Am', 2)).toBe('Bm');
+    expect(transposeKey('Am', -1)).toBe('G#m');
+    expect(transposeKey('C', 2)).toBe('D');
+    expect(transposeKey('C', -1)).toBe('B');
+  });
+
+  it('KY-02 wraps around the octave', () => {
+    expect(transposeKey('Am', 12)).toBe('Am');
+    expect(transposeKey('C', -12)).toBe('C');
+    expect(transposeKey('B', 1)).toBe('C');
+    expect(transposeKey('C', -1)).toBe('B');
+  });
+
+  it('KY-03 spells the result the way the key lists do', () => {
+    // Never Cb or E#: the offered spelling for each pitch is the one a musician would write.
+    for (const step of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]) {
+      expect(MAJOR_KEYS).toContain(transposeKey('C', step));
+      expect(MINOR_KEYS).toContain(transposeKey('Am', step));
+    }
+  });
+
+  it('KY-04 leaves something that is not a key alone', () => {
+    expect(transposeKey('', 1)).toBe('');
+    expect(transposeKey('nonsense', 1)).toBe('nonsense');
+  });
+
+  it('KY-05 reports the distance the short way round', () => {
+    expect(semitonesBetween('Am', 'Bm')).toBe(2);
+    expect(semitonesBetween('Am', 'G#m')).toBe(-1);
+    expect(semitonesBetween('Am', 'Am')).toBe(0);
+    // Six is the far side; beyond it the shorter direction is negative.
+    expect(semitonesBetween('C', 'F#')).toBe(6);
+    expect(semitonesBetween('C', 'G')).toBe(-5);
   });
 });

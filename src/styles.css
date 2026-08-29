@@ -1065,3 +1065,9 @@ kbd {
   width: 96px;
 }
 
+/* Editing is a state you are in, so the button shows it rather than a tab showing which of two. */
+.pane-toggle--editing {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+

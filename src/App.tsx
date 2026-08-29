@@ -94,24 +94,33 @@ export function App() {
         ) : (
           <h1 className="song-view__title">{song.title || 'Untitled song'}</h1>
         )}
-        <div className="controls__group" role="group" aria-label="Pane">
-          <button
-            type="button"
-            aria-pressed={pane === 'edit'}
-            className={pane === 'edit' ? 'segment segment--active' : 'segment'}
-            onClick={() => setPane('edit')}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            aria-pressed={pane === 'play'}
-            className={pane === 'play' ? 'segment segment--active' : 'segment'}
-            onClick={() => setPane('play')}
-          >
-            Play
-          </button>
-        </div>
+        {/* One button rather than two segments (ADR-043): editing is a thing you enter and
+            leave, not one of two equal places, and the header has no room for both. */}
+        <button
+          type="button"
+          className={
+            pane === 'edit'
+              ? 'button button--icon pane-toggle pane-toggle--editing'
+              : 'button button--icon pane-toggle'
+          }
+          aria-pressed={pane === 'edit'}
+          aria-label={pane === 'edit' ? 'Done editing' : 'Edit song'}
+          title={pane === 'edit' ? 'Done editing' : 'Edit song'}
+          onClick={() => setPane(pane === 'edit' ? 'play' : 'edit')}
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            >
+              <path d="M4 20.5l.9-3.6L15.6 6.2l2.7 2.7L7.6 19.6 4 20.5z" />
+              <path d="M13.6 8.2l2.7 2.7" />
+            </g>
+          </svg>
+        </button>
       </header>
 
       {pane === 'edit' ? (

@@ -1110,3 +1110,25 @@ mode segments give their padding back — the third control tightened for a phon
 the last that can be. The strip is now full: modes, two icons, no slack. Anything further needs
 something to leave, not another few pixels.
 
+---
+
+## ADR-043 — Editing is a pencil you press, not one of two tabs
+
+**Decision.** The `Edit | Play` segmented control in the song header is a single pencil button.
+Pressing it enters editing; pressing it again returns to playing. It takes the accent colour while
+editing, and its label alternates between "Edit song" and "Done editing".
+
+**Why.** The two were never equal places. Play is where a song is used and where it opens (ADR-024);
+editing is something you enter, do, and leave. A tab pair says "two halves of one thing" and spends
+the width to say it — on a phone that width was pushing the title onto two lines.
+
+**Why a pencil.** It is the one editing icon that needs no explanation, and it matches the strip
+below it, which is now icons throughout.
+
+**Why the state is on the button rather than in a label.** The editor is unmistakable when you are
+in it — fields, a text area, an editable title. The button only has to say that pressing it again
+gets you out, which the accent colour and the alternating label do.
+
+**Cost.** A first-time visitor sees a pencil rather than the word "Edit". Against that, the header
+now fits a long title on one line, which is what a phone actually shows.
+

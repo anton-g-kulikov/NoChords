@@ -22,6 +22,21 @@ interface SongEditorProps {
  */
 export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
   const [text, setText] = useState(() => songToText(song));
+
+  /**
+   * The text area grows to its content rather than scrolling inside itself (ADR-049).
+   *
+   * With its own scrollbar it swallowed the drag: a finger on the song scrolled the song, never
+   * the page, so the fields above it never left the screen and the bottom of the editor could not
+   * be reached at all. One scroller for the screen, and this is not it.
+   */
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const area = textRef.current;
+    if (!area) return;
+    area.style.height = 'auto';
+    area.style.height = `${area.scrollHeight}px`;
+  }, [text]);
   const openSongId = useRef(song.id);
 
   useEffect(() => {
@@ -117,10 +132,11 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
       <label className="field">
         <span className="field__label">Song</span>
         <textarea
+          ref={textRef}
           className="editor__text"
           value={text}
           spellCheck={false}
-          rows={20}
+          rows={8}
           aria-label="Song text"
           placeholder={placeholder}
           onChange={(event) => handleText(event.target.value)}

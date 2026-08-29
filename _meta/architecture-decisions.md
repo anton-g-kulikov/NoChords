@@ -1258,3 +1258,21 @@ keep the rest of the bar.
 one you press without looking" — is what says restart does not need one. If it turns out to be
 reached for as often as Play, it should get its word back.
 
+---
+
+## ADR-049 — The song text area grows; the screen scrolls
+
+**Decision.** The editor's text area has no scrollbar of its own. It is resized to its content on
+every change, and the screen's scroll area does the scrolling.
+
+**Why.** At `min-height: 60vh` with its own overflow it swallowed the drag: a finger on the song
+scrolled the song *inside the box*, never the page. So the fields above it never left the screen —
+which read as a sticky panel — and the bottom of the editor could not be reached at all, because
+reaching it required scrolling the container the text area had captured.
+
+**Why growing rather than filling the screen.** Filling it would keep the fields pinned, which is
+the thing being complained about. Growing means one scroller for the whole screen: drag anywhere,
+the fields scroll away, and the song has the full height when you are deep in it.
+
+**Cost.** A long song makes a very tall element, and the browser lays all of it out. At the size a
+song is that is free; a text file would not be.

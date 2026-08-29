@@ -405,9 +405,10 @@ kbd {
   outline-offset: -1px;
 }
 
+/* Height follows the content (ADR-049); the screen does the scrolling. */
 .editor__text {
   width: 100%;
-  min-height: 60vh;
+  min-height: 12rem;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -416,10 +417,11 @@ kbd {
   font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
   font-size: 1rem;
   line-height: 1.9;
-  resize: vertical;
+  resize: none;
   white-space: pre;
   overflow-wrap: normal;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .editor__text:focus {

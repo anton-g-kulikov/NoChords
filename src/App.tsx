@@ -74,7 +74,19 @@ export function App() {
         <button type="button" className="button" onClick={() => setOpenSongId(null)}>
           ← Songs
         </button>
-        <h1 className="song-view__title">{song.title || 'Untitled song'}</h1>
+        {/* Edited where it is read, rather than in a field further down the page (ADR-038).
+            Only while editing: in Play a stray tap on the title should do nothing. */}
+        {pane === 'edit' ? (
+          <input
+            className="song-view__title song-view__title--input"
+            value={song.title}
+            placeholder="Untitled song"
+            aria-label="Song title"
+            onChange={(event) => updateSong({ ...song, title: event.target.value })}
+          />
+        ) : (
+          <h1 className="song-view__title">{song.title || 'Untitled song'}</h1>
+        )}
         <div className="controls__group" role="group" aria-label="Pane">
           <button
             type="button"

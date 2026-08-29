@@ -45,16 +45,6 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
   return (
     <div className="editor">
       <div className="editor__meta">
-        <label className="field">
-          <span className="field__label">Title</span>
-          <input
-            className="field__input"
-            value={song.title}
-            placeholder="Untitled song"
-            onChange={(event) => onChange({ ...song, title: event.target.value })}
-          />
-        </label>
-
         <KeySelect
           label="Original key"
           value={song.originalKey}

@@ -300,6 +300,36 @@ kbd {
   min-width: 160px;
 }
 
+/*
+ * The title as a heading you can type into (ADR-038). It carries the heading's own type and no
+ * chrome until you reach for it, so the page reads as a title rather than as a form.
+ */
+.song-view__title--input {
+  padding: 4px 8px;
+  margin: -4px -8px;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+}
+
+.song-view__title--input:hover {
+  border-color: var(--border);
+}
+
+.song-view__title--input:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--accent);
+}
+
+.song-view__title--input::placeholder {
+  color: var(--muted);
+  font-weight: 400;
+}
+
 /* ---------- Editor ---------- */
 
 .editor__meta {

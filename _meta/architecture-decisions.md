@@ -969,3 +969,26 @@ Expo shell would be built from, so this is a step towards that rather than away 
 `.screen__scroll`. A screen that forgets is a screen that cannot be scrolled at all — a loud
 failure, at least, rather than a quiet one.
 
+---
+
+## ADR-038 — The title is edited where it is read
+
+**Decision.** The song title is typed into the heading at the top of the screen, not into a Title
+field in the editor's meta row. The field is gone. In Play the heading is plain text.
+
+**Why.** The title was already displayed in the header, so the editor's field was a second copy of
+the same fact, further down the page, with the real one in view above it. Editing in place removes
+the copy and the question of which one is authoritative.
+
+**Why it looks like a heading rather than a field.** It carries the heading's own type and no chrome
+until you reach for it: a border on hover, a background and an accent border on focus. A page that
+announces "this is a form" at the top is a page that reads as a form.
+
+**Why only while editing.** In Play a stray tap on the title should do nothing at all. That mode
+exists to be read from with an instrument in your hands, and a title that can be typed into by
+accident is a title that will be.
+
+**Cost.** The affordance is quieter than a labelled field — you have to notice the hover, or try it.
+Against that, the thing you would type into is the thing you are looking at, which is the whole
+point of editing in place.
+

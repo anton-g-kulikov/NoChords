@@ -906,3 +906,29 @@ existed, which is a screen that dims — annoying, not broken.
 padding, so nothing is unreachable. And the wake lock is the one feature here whose behaviour
 cannot be verified from this machine — it needs a phone that dims.
 
+---
+
+## ADR-036 — Settings pin to the top, the transport to the bottom
+
+**Decision.** The Play screen has two pinned strips with two different jobs. Settings — display mode,
+key, timing, metronome — open from a strip at the top. Play, Restart and the elapsed time sit in the
+bar at the bottom. The disclosure moved out of the transport, which now holds only transport.
+
+**Why split them.** They are used at different moments and by different hands. The transport is
+touched constantly and mid-song, so it belongs under a thumb (ADR-035). Settings are touched between
+runs, deliberately, and often with the phone held up to read from — putting them under the same
+thumb made the bottom bar a menu with a Play button in it. This is the arrangement every native
+player has arrived at: transport below, everything else above.
+
+**Why the settings strip is pinned rather than in the page header.** The app header scrolls away,
+and a chart is long. Pinned, the panel opens from wherever you are in the song rather than only from
+the top of it. It is `sticky` rather than `fixed` because its parent spans the whole chart, which
+gets the same result without taking the strip out of the flow.
+
+**Why the panel opens downward again.** It hung upward out of the bottom bar in ADR-035, which was
+right while the disclosure lived there. Anchored to a strip at the top, down is the direction that
+does not cover the thing you just tapped.
+
+**Cost.** Two pinned strips take about 126px of vertical space between them, which on a phone is
+real. The alternative was one strip holding both jobs, which is what this replaces.
+

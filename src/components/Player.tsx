@@ -193,29 +193,20 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
   return (
     <div className="player">
-      <div className="controls">
-        <div className="controls__transport">
-          <button type="button" className="button button--primary" onClick={toggle}>
-            {isPlaying ? 'Pause' : finished ? 'Play again' : 'Play'}
-          </button>
-          <button type="button" className="button" onClick={restart}>
-            Restart
-          </button>
-          <span className="controls__time">
-            {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
-            {formatTime(totalMs)}
-          </span>
-
-          <button
-            type="button"
-            className="button controls__disclosure"
-            aria-expanded={setupOpen}
-            onClick={() => setSetupOpen((open) => !open)}
-          >
-            {/* The mode needs no label here: the chart itself shows names, numerals or blur. */}
-            {setupOpen ? 'Hide' : 'Setup'}
-          </button>
-        </div>
+      {/*
+       * Settings live at the top and the transport at the bottom (ADR-036): two different jobs,
+       * and on a phone only one of them belongs under a thumb. The strip is pinned so the panel
+       * can be opened from anywhere in a long song, not only from the top of it.
+       */}
+      <div className="settings-bar">
+        <button
+          type="button"
+          className="button settings-bar__toggle"
+          aria-expanded={setupOpen}
+          onClick={() => setSetupOpen((open) => !open)}
+        >
+          {setupOpen ? 'Hide settings' : 'Settings'}
+        </button>
 
         <div className={setupOpen ? 'controls__setup' : 'controls__setup controls__setup--closed'}>
           {/*
@@ -325,6 +316,22 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             </div>
           </section>
         </div>
+      </div>
+
+      <div className="controls">
+        <div className="controls__transport">
+          <button type="button" className="button button--primary" onClick={toggle}>
+            {isPlaying ? 'Pause' : finished ? 'Play again' : 'Play'}
+          </button>
+          <button type="button" className="button" onClick={restart}>
+            Restart
+          </button>
+          <span className="controls__time">
+            {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
+            {formatTime(totalMs)}
+          </span>
+        </div>
+
       </div>
 
       {countingIn && (

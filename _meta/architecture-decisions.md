@@ -1386,3 +1386,61 @@ offered `♩.`; one migrated into 6/8 keeps `♪`.
 **Cost.** Two fields where there was one, in every fixture, document and stored song. The unit
 selector also costs a control in the player's setup row, which is already tight — it is 60px wide
 and holds three glyphs.
+
+---
+
+## ADR-053 — The count-in shows the bar, not a number
+
+**Decision.** The count-in is a row of dots, one per beat, sized by where the accent falls and
+filling left to right as the clicks sound. When the count is spent the block fades out in place
+rather than being removed or reset. Its height went from about 90px to 33px.
+
+**Why a bar and not a number.** A number counting 4-3-2-1 tells you how many beats are left, which
+is not the thing you are waiting for — you are waiting for the downbeat, and in 6/8 you are also
+waiting to feel where the two pulses fall. The dots say both at once: six of them, the first and
+fourth larger, is a picture of the bar you are about to play. The accents come from `accentAt`, the
+same function the metronome clicks on, so what is drawn cannot drift from what is heard.
+
+**Why fade rather than reset.** It used to show the full count again the moment playing began — a
+four that had just finished counting down to one, reading as though it were about to start over. It
+keeps its space, because that is the whole point of ADR-047: removing it would move every line at
+the exact moment playing starts. Invisible and still there is the honest version of "done".
+
+**Why smaller.** It was the largest thing on the playing screen and it matters for two seconds. The
+chart it sits above is the thing being read.
+
+**Cost.** Dots do not survive being counted at a glance past about a bar of 12/8 — at 24 beats the
+row is a dotted line, not a count. The label still names the bars and the meter, which is what
+carries the information when the dots stop being countable.
+
+---
+
+## ADR-054 — The chart shrinks to fit its longest line
+
+**Decision.** The playing screen measures every line and sets one type scale for the whole song, so
+the longest line fits on one row. `lib/fit.ts` does the arithmetic, `hooks/useFitScale.ts` takes the
+measurements. It never goes below 0.62 of full size; past that the line wraps as before.
+
+**Why.** A wrapped line puts a chord above the wrong word. The whole chord-over-lyric layout exists
+so that a chord's position comes from the lyric beneath it (ADR-007), and wrapping breaks exactly
+that. Smaller type is the lesser loss.
+
+**One scale for the song, not one per line.** Per-line scaling would fit every line perfectly and
+make the chart a ransom note. The longest line sets the size and the rest follow it.
+
+**Measured by summing segments.** A line that has already wrapped reports the width of its box, not
+of its text, so reading the line's own width would measure the symptom. Summing the segment boxes
+gives the width the line wants, wrapped or not.
+
+**The scale is read back off the element, never remembered.** A measurement only means something
+next to the size it was taken at. A remembered value can be a step ahead of the DOM — an observer
+firing twice before a paint is enough — and then every ratio is normalised against a size that is
+not on screen and the chart hunts between two sizes. It was doing exactly that, pinned at 1 on a
+375px screen where the widest line needed 0.74. What the element reports is by definition what was
+measured.
+
+**Cost.** Type size now depends on content, so two songs sit at different sizes and one long line
+shrinks the whole song. Neither is free, and both beat a chord over the wrong syllable. The
+measuring is also invisible to the test suite: `fitScale` is unit-tested, but whether a resize is
+noticed at all depends on `ResizeObserver` delivery, which a hidden tab never performs — that part
+was verified by hand at three widths, not by a test.

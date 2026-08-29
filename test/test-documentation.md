@@ -241,6 +241,8 @@ described at the end of this document.
 | MT-16 | Count-in beats are accented so the count lands on the downbeat | ✅ |
 | MT-17 | With nothing to play the accent falls back to a plain four | ✅ |
 | MT-18 | With no song to read a pulse from, the count-in uses the beat it is given | ✅ |
+| MT-19 | **One count-in beat has sounded on the first click, all of them on the last** | ✅ |
+| MT-20 | Nothing is lit when nothing is counting, and never a beat that is not there | ✅ |
 | MT-18 | **A click fires early by the output latency, so it is heard on the beat** | ✅ |
 | MT-19 | With no reported latency the timing is unchanged | ✅ |
 | MT-20 | Compensation shifts the grid without stretching it | ✅ |
@@ -393,6 +395,20 @@ notes and no meter gets a special case (ADR-052).
 | TU-12 | **Five bars of 6/8 last ten seconds at ♪=180 and at ♩.=60, with identical beat grids** | ✅ |
 | TU-13 | Bars stay whole — 7/8 at ♩=120 is one bar of 1750ms, never a fractional bar | ✅ |
 | TU-14 | The tempo bounds stay usable at both ends | ✅ |
+
+### Fitting the chart — `fit.test.ts`
+
+Intent: keep the longest line on one row by shrinking the type, since a wrapped line puts a chord
+above the wrong word (ADR-054). The measurements are the caller's; this is the arithmetic over them.
+
+| # | Case | Status |
+|---|------|--------|
+| FT-01 | A song that already fits is left at full size | ✅ |
+| FT-02 | **The widest line sets the size; the roomy ones do not get a vote** | ✅ |
+| FT-03 | Ratios are read against the scale already applied, so one pass lands on the answer | ✅ |
+| FT-04 | It never shrinks past legibility — the line wraps instead | ✅ |
+| FT-05 | Rounded down, so the widest line never lands back over the edge | ✅ |
+| FT-06 | Measurements taken before there is anything to measure are ignored | ✅ |
 
 ### Device preferences — `settings.test.ts`
 

@@ -111,6 +111,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     originMs,
   } = playback;
 
+  /*
+   * Counted and done with.
+   *
+   * It used to snap back to the full count the moment playing began — a four that had just finished
+   * counting down to one, reading as though the count were about to start again. It keeps its space
+   * (that is the whole point of ADR-047) and fades out instead.
+   */
+  const countInSpent = isPlaying && !countingIn;
+
   // A chart you are reading from is a page you never touch, so the phone dims it mid-verse.
   useWakeLock(isPlaying);
 
@@ -393,9 +402,17 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
       {(countingIn || (settings.metronomeEnabled && countInBeats > 0)) && (
         <div
-          className={countingIn ? 'count-in count-in--counting' : 'count-in'}
+          className={
+            countingIn
+              ? 'count-in count-in--counting'
+              : countInSpent
+                ? 'count-in count-in--spent'
+                : 'count-in'
+          }
           role="status"
           aria-live="polite"
+          /* Once it has been counted the block is only holding its space; nothing left to say. */
+          aria-hidden={countInSpent || undefined}
         >
           <span className="count-in__number">
             {countingIn ? countInRemaining : countInBeats}

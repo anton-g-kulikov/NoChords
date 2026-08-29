@@ -824,12 +824,22 @@ kbd {
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--muted);
+  /* Fading out when the count is spent, rather than snapping back to a full count. */
+  transition: opacity 500ms ease 150ms, border-color 150ms ease;
 }
 
 /* It lights up for the two seconds it is actually counting. */
 .count-in--counting {
   border-color: var(--accent);
   color: var(--text);
+}
+
+/*
+ * Counted, and now only holding its space so the chart does not jump (ADR-047). Invisible rather
+ * than absent: removing it would move every line at the exact moment playing begins.
+ */
+.count-in--spent {
+  opacity: 0;
 }
 
 .count-in__number {

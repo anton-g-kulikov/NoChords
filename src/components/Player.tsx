@@ -264,6 +264,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               />
 
               <NumberField
+                className="field field--compact"
                 label="Tempo (bpm)"
                 value={song.tempo}
                 min={MIN_TEMPO}
@@ -273,7 +274,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
               {/* Shown, not offered: the meter decides what a bar is, and changing it here would
                   silently re-time every line of the song (ADR-034). */}
-              <div className="field field--narrow">
+              <div className="field field--tiny">
                 <span className="field__label">Meter</span>
                 <p className="field__static">{song.meter}</p>
               </div>
@@ -285,26 +286,41 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               This device <span className="setup__aside">— every song</span>
             </h2>
             <div className="setup__row">
-              {/* Labelled, because "On" alone says nothing once it shares a row (ADR-038). */}
-              <div className="field field--narrow field--button">
-                <span className="field__label">Metronome</span>
-                <button
-                  type="button"
-                  className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
-                  aria-pressed={settings.metronomeEnabled}
-                  title="Click on every beat while playing"
-                  onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
-                >
-                  {settings.metronomeEnabled ? 'On' : 'Off'}
-                </button>
-              </div>
+              {/* Icons, because at 375px this row has no room for three labels (ADR-041). The
+                  metronome's state is its colour, and the slider beside a speaker is a volume. */}
+              <button
+                type="button"
+                className={
+                  settings.metronomeEnabled
+                    ? 'button button--icon metronome__toggle metronome__toggle--on'
+                    : 'button button--icon metronome__toggle'
+                }
+                aria-pressed={settings.metronomeEnabled}
+                aria-label={settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
+                title="Click on every beat while playing"
+                onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                  <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                    <path d="M12 3 18 20H6z" />
+                    <path d="M9.5 14h5" />
+                    <path d="M12 20 16 7" strokeLinecap="round" />
+                  </g>
+                </svg>
+              </button>
 
-              <label className="field field--narrow">
-                <span className="field__label">
-                  Volume {Math.round(settings.metronomeVolume * 100)}%
-                </span>
+              <label className="metronome__volume" title={`Metronome volume ${Math.round(settings.metronomeVolume * 100)}%`}>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                  <path
+                    fill="currentColor"
+                    d="M4 9.5h3.2L12 5.5v13l-4.8-4H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1z"
+                  />
+                  <g fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                    <path d="M15.5 9.2a4 4 0 0 1 0 5.6" />
+                  </g>
+                </svg>
                 <input
-                  className="field__range"
+                  className="field__range metronome__range"
                   type="range"
                   min={0}
                   max={100}

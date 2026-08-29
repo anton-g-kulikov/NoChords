@@ -1056,3 +1056,33 @@ one question, which is what the chords look like.
 padding below 430px rather than the row wrapping to two lines. That is the second control this
 release to be tightened for a phone, which suggests the next one added will not fit.
 
+---
+
+## ADR-041 — Two rows of settings fit a phone, by sizing fields to what they hold
+
+**Decision.** Every field in the Play panel is now as wide as its contents rather than a uniform
+130px: 96px for a three-digit tempo, 72px for a meter, 130px where a label needs it. The metronome
+toggle and its volume became icons. Both rows fit 375px on one line each, and the panel came down
+from about 340px to 236.
+
+**Why it did not fit before.** `field--narrow` set every field to 130px whatever it held, so a row
+of three came to 430px in a 335px column and wrapped — a meter of two characters taking exactly as
+much room as a key stepper. The metronome row missed by a single pixel.
+
+**Why icons for the metronome and not the count-in.** The first two say what they are by their
+shape: a slider beside a speaker is a volume, and a toggle that turns accent-coloured is on. A
+count-in has no such shape, and "1" without a label says nothing at all — so it keeps its words and
+the width they need.
+
+**Faders, not a cog, for settings.** A cog says "configure the system". These are values to set
+while you play.
+
+**What was predicted and then happened.** ADR-040 noted that the phone header was full and the next
+control added would not fit, and that the honest fix was icons rather than another few pixels of
+padding. Two controls later, that is what this is. The tightening in ADR-040 was reverted: the icon
+freed more room than it did.
+
+**Cost.** Two controls now depend on being recognised rather than read, and one of them — the
+metronome triangle — is a shape people know from the object rather than from software. It has a
+`title` and an `aria-label`, which is not the same as being obvious.
+

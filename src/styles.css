@@ -961,7 +961,16 @@ kbd {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0.75rem 1.25rem;
+  gap: 0.75rem;
+}
+
+/* Fields sized to what they hold, so a row of three fits 335px (ADR-041). */
+.field--compact {
+  flex: 0 0 96px;
+}
+
+.field--tiny {
+  flex: 0 0 72px;
 }
 
 /* A value the player may read but not change. */
@@ -1021,5 +1030,26 @@ kbd {
   padding-right: 0;
   font-size: 1.1rem;
   line-height: 1;
+}
+
+/*
+ * The metronome row on a phone (ADR-041): a toggle, a volume, a count-in, in 335px. Three labels
+ * do not fit; two of the three say what they are by their shape instead.
+ */
+.metronome__toggle--on {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.metronome__volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  color: var(--muted);
+}
+
+.metronome__range {
+  width: 96px;
 }
 

@@ -68,9 +68,16 @@ worker.addEventListener('fetch', (event) => {
   }
 
   if (strategy === 'navigate') {
-    // The network decides what the app is; the cache is only the offline answer.
+    /*
+     * The network decides what the app is; the cache is only the offline answer.
+     *
+     * `cache: 'reload'` because a plain fetch reads the browser's HTTP cache first, and that cache
+     * is not ours to reason about: the app was pinned to an old release for an hour at a time by a
+     * cacheable response on `/`, restarting it as often as you liked (ADR-056). "Network-first"
+     * has to mean the network or it means nothing.
+     */
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request.url, { cache: 'reload', credentials: 'same-origin' })
         .then((response) => keep(event.request, response))
         .catch(async () => (await caches.match('/index.html', MATCH)) ?? Response.error())
     );

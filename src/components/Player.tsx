@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Brain, Metronome, SlidersVertical } from 'lucide-react';
+import { Brain, ListMinus, ListRestart, Metronome, SlidersVertical } from 'lucide-react';
 import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
@@ -469,16 +469,32 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
       <div className="controls">
         <div className="controls__transport">
-          <button type="button" className="button button--primary" onClick={toggle}>
+          {/* Play keeps its word — the one control that must be unmistakable mid-song — and takes
+              40% of the bar. Time in the middle; restart at the far end, furthest from a thumb
+              aiming at Play (ADR-048). */}
+          <button
+            type="button"
+            className="button button--primary controls__play"
+            onClick={toggle}
+          >
+            <ListMinus size={18} aria-hidden />
             {isPlaying ? 'Pause' : finished ? 'Play again' : 'Play'}
           </button>
-          <button type="button" className="button" onClick={restart}>
-            Restart
-          </button>
+
           <span className="controls__time">
             {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
             {formatTime(totalMs)}
           </span>
+
+          <button
+            type="button"
+            className="button button--icon controls__restart"
+            aria-label="Restart"
+            title="Restart"
+            onClick={restart}
+          >
+            <ListRestart size={20} aria-hidden />
+          </button>
         </div>
 
       </div>

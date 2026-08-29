@@ -531,11 +531,28 @@ kbd {
 }
 
 /* One row, always: a transport bar that wraps to two lines is not a transport bar (ADR-035). */
+/*
+ * Play takes 40% of the bar and keeps its word; the time fills the middle; restart sits at the far
+ * end — the furthest point from a thumb aiming at Play (ADR-048).
+ */
 .controls__transport {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: nowrap;
+}
+
+.controls__play {
+  flex: 0 0 40%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.controls__restart {
+  flex: none;
+  margin-left: auto;
 }
 
 /* On a phone the four items come to within a few pixels of the width, and the time ellipsises to
@@ -601,6 +618,8 @@ kbd {
 }
 
 .controls__time {
+  flex: 1;
+  text-align: center;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   font-size: 0.95rem;
@@ -1149,4 +1168,3 @@ kbd {
   padding-left: 4px;
   padding-right: 4px;
 }
-

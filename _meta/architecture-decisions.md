@@ -1236,3 +1236,25 @@ case keeps its countdown rather than losing it to a tidier rule.
 count-in setting is right above it, so anyone who does not want the reminder can set it to zero and
 have both back.
 
+---
+
+## ADR-048 — The transport is Play, the time, then restart
+
+**Decision.** Play takes 40% of the bar and keeps its word beside a `ListMinus`; the elapsed time
+fills the middle; restart is a `ListRestart` icon at the far end. The row spans the full width.
+
+**Why Play keeps its label when everything else lost one.** It is the control pressed most, pressed
+without looking, and pressed with an instrument in the other hand. It is also the only one whose
+meaning changes — Play, Pause, Play again — which an icon alone cannot carry.
+
+**Why restart is furthest away.** It is the one control here that undoes something: pressed by
+mistake mid-song it costs you your place. Putting it at the opposite end from Play means a thumb
+aiming for Play cannot reach it, which matters more than the symmetry of matching sizes.
+
+**Why 40%.** Large enough to hit without looking on a phone, small enough that the time and restart
+keep the rest of the bar.
+
+**Cost.** Restart is now an icon like the others, so the same argument that keeps Play's word — "the
+one you press without looking" — is what says restart does not need one. If it turns out to be
+reached for as often as Play, it should get its word back.
+

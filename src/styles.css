@@ -700,13 +700,14 @@ kbd {
 .sheet__row {
   position: relative;
   padding: 10px 16px;
-  border-left: 4px solid transparent;
+  /* Carried by every row, transparent until active, so nothing shifts as the song moves. */
+  border-bottom: 4px solid transparent;
   border-radius: 6px;
   cursor: pointer;
 }
 
 .sheet__row--active {
-  border-left-color: var(--accent);
+  border-bottom-color: var(--accent);
   background: var(--surface);
 }
 

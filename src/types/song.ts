@@ -5,6 +5,7 @@
  * song can round-trip through `localStorage` today and through a backend later without the UI
  * changing (see `_meta/architecture-decisions.md` ADR-005).
  */
+import type { TempoUnit } from '../lib/tempo';
 
 /**
  * One chord, anchored to the character in the lyric it is played over (ADR-007).
@@ -46,8 +47,10 @@ export interface Song {
   originalKey: string;
   /** The key chords are displayed in. A view setting only. */
   currentKey: string;
-  /** Beats per minute driving playback. */
+  /** The tempo number driving playback: this many `tempoUnit`s a minute. */
   tempo: number;
+  /** The note value the tempo counts — `♪`, `♩` or `♩.` (ADR-052). */
+  tempoUnit: TempoUnit;
   /** Default length of a line in bars; a line may override it with `|n|` (ADR-032). */
   barsPerLine: number;
   /** The song's time signature, e.g. `6/8`. Sets bar length and the accent pulse (ADR-026). */

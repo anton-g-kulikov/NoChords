@@ -9,6 +9,7 @@ const sample: Song = {
   originalKey: 'Am',
   currentKey: 'Cm',
   tempo: 80,
+  tempoUnit: 'quarter',
   barsPerLine: 6,
   meter: '3/4',
   learningPlaythrough: 3,
@@ -80,6 +81,14 @@ describe('songToDoc / songFromDoc', () => {
   it('SD-08 drops unknown fields rather than letting them into the app', () => {
     const withExtras = { ...songToDoc(sample), sneaky: 'value', updatedAt: 12345 };
     expect(songFromDoc(withExtras)).toEqual(sample);
+  });
+
+  it('SD-10 carries the tempo unit, and supplies one for a document written without it', () => {
+    expect(songToDoc(sample).tempoUnit).toBe('quarter');
+
+    const { tempoUnit: _dropped, ...legacy } = songToDoc({ ...sample, meter: '6/8' });
+    // A document from before units is read the way it was played: 6/8 counted in eighths.
+    expect(songFromDoc(legacy)?.tempoUnit).toBe('eighth');
   });
 
   it('SD-09 writes no undefined, which Firestore refuses', () => {

@@ -9,6 +9,7 @@
  * Writing is the mirror image, and must never emit `undefined` — Firestore refuses it.
  */
 import { DEFAULT_METER } from './meter';
+import { DEFAULT_TEMPO_UNIT } from './tempo';
 import { sanitizeSong } from './storage';
 import type { Song } from '../types/song';
 
@@ -23,6 +24,7 @@ export function songToDoc(song: Song): SongDoc {
     originalKey: song.originalKey,
     currentKey: song.currentKey,
     tempo: song.tempo,
+    tempoUnit: song.tempoUnit ?? DEFAULT_TEMPO_UNIT,
     barsPerLine: song.barsPerLine,
     // Never `undefined`: Firestore rejects the entire document for one undefined field, which
     // would lose a whole song rather than one value.

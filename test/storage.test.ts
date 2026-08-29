@@ -23,6 +23,7 @@ const sample: Song = {
   originalKey: 'Dm',
   currentKey: 'Em',
   tempo: 96,
+  tempoUnit: 'quarter',
   barsPerLine: 6,
   meter: '3/4',
   learningPlaythrough: 3,
@@ -116,6 +117,30 @@ describe('createSongStore', () => {
     ]);
     expect(loaded.originalKey).toBe('Dm');
     expect(loaded.currentKey).toBe('Em');
+  });
+
+  it('ST-09 reads a song stored before tempo units as the unit that keeps its timing', async () => {
+    // The old number counted the meter's own denominator, so a 6/8 song counted eighths. Reading
+    // it as the conventional dotted quarter would play it three times too fast (ADR-052).
+    const { tempoUnit: _dropped, ...withoutUnit } = sample;
+    const stored = JSON.stringify([
+      { ...withoutUnit, meter: '6/8' },
+      { ...withoutUnit, id: 'song-2', meter: '3/4' },
+    ]);
+    const [compound, simple] = await createSongStore(
+      memoryStorage({ [STORAGE_KEY]: stored })
+    ).load();
+
+    expect(compound.tempoUnit).toBe('eighth');
+    expect(simple.tempoUnit).toBe('quarter');
+    // The number itself is untouched: the migration renames what it counts, it does not retune.
+    expect(compound.tempo).toBe(sample.tempo);
+  });
+
+  it('ST-10 refuses a tempo unit it does not offer', async () => {
+    const stored = JSON.stringify([{ ...sample, tempoUnit: 'half' }]);
+    const [loaded] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(loaded.tempoUnit).toBe('quarter');
   });
 
   it('ST-08 survives a storage backend that refuses to write', async () => {

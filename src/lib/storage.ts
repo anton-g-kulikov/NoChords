@@ -9,6 +9,7 @@
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
+import { isTempoUnit, unitFromMeterDenominator } from './tempo';
 import type { ChordAnchor, Song, SongRow } from '../types/song';
 
 export const STORAGE_KEY = 'nochords.songs.v1';
@@ -120,6 +121,7 @@ export function sanitizeSong(value: unknown): Song | null {
     originalKey,
     currentKey,
     tempo,
+    tempoUnit,
     beatsPerLine,
     barsPerLine,
     meter,
@@ -143,6 +145,14 @@ export function sanitizeSong(value: unknown): Song | null {
         : null;
   if (bars === null) return null;
 
+  /*
+   * A song written before tempo units existed carries a bare number, and that number meant beats
+   * of the meter's own denominator — eighths in 6/8 (ADR-052). Reading it that way is what keeps
+   * an old song sounding exactly as it did; the conventional dotted-quarter reading would play it
+   * three times too fast.
+   */
+  const unit = isTempoUnit(tempoUnit) ? tempoUnit : unitFromMeterDenominator(songMeter);
+
   if (typeof learningPlaythrough !== 'number' || !Number.isFinite(learningPlaythrough)) return null;
   if (!Array.isArray(rows)) return null;
 
@@ -160,6 +170,7 @@ export function sanitizeSong(value: unknown): Song | null {
     originalKey,
     currentKey,
     tempo,
+    tempoUnit: unit,
     barsPerLine: bars,
     // Songs written before meters existed are in four: that is what they were played as.
     meter: songMeter,

@@ -11,12 +11,15 @@
  * fixture document's own test arrangements, not transcriptions of any recorded arrangement.
  */
 import { createSong, rowsFromPastedText } from "./songs";
+import type { TempoUnit } from "./tempo";
 import type { Song } from "../types/song";
 
 interface ExampleSource {
   title: string;
   key: string;
   tempo: number;
+  /** What the tempo counts. The 6/8 fixture is written in eighths, not its dotted pulse. */
+  tempoUnit: TempoUnit;
   /** How many bars a line lasts by default (ADR-032). */
   barsPerLine: number;
   /** The time signature, which sets bar length and where the accent falls (ADR-026). */
@@ -111,6 +114,7 @@ const SOURCES: ExampleSource[] = [
     title: "Scarborough Fair",
     key: "Dm",
     tempo: 90,
+    tempoUnit: "quarter",
     barsPerLine: 2,
     meter: "3/4",
     fixture: SCARBOROUGH_FAIR,
@@ -119,6 +123,7 @@ const SOURCES: ExampleSource[] = [
     title: "If I Was a Blackbird",
     key: "G",
     tempo: 90,
+    tempoUnit: "quarter",
     barsPerLine: 2,
     meter: "3/4",
     fixture: BLACKBIRD,
@@ -127,6 +132,7 @@ const SOURCES: ExampleSource[] = [
     title: "House of the Rising Sun",
     key: "Am",
     tempo: 80,
+    tempoUnit: "eighth",
     barsPerLine: 1,
     meter: "6/8",
     fixture: RISING_SUN,
@@ -141,6 +147,7 @@ export function createExampleSongs(): Song[] {
       originalKey: source.key,
       currentKey: source.key,
       tempo: source.tempo,
+      tempoUnit: source.tempoUnit,
       barsPerLine: source.barsPerLine,
       meter: source.meter,
       rows: rowsFromPastedText(source.fixture.trim()),

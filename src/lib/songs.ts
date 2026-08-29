@@ -9,6 +9,7 @@ import { CONCEALMENT_STAGES } from './learning';
 import { formatInlineRow, parseInlineRow } from './inline';
 import { DEFAULT_BARS_PER_LINE } from './playback';
 import { DEFAULT_METER } from './meter';
+import { preferredTempoUnit } from './tempo';
 import type { Song, SongRow } from '../types/song';
 
 export { DEFAULT_BARS_PER_LINE };
@@ -51,6 +52,9 @@ export function createSong(overrides: Partial<Song> = {}): Song {
     // A new song is displayed in the key it was written in until the user transposes it.
     currentKey: originalKey,
     tempo: DEFAULT_TEMPO,
+    // New songs get the unit their meter is counted in; old ones get the one that preserves how
+    // they already sounded (ADR-052).
+    tempoUnit: preferredTempoUnit(overrides.meter ?? DEFAULT_METER),
     barsPerLine: DEFAULT_BARS_PER_LINE,
     meter: DEFAULT_METER,
     learningPlaythrough: 0,

@@ -1343,3 +1343,46 @@ belt and braces for a mechanism neither of us has seen.
 not the one that runs on the reporter's phone. That is the wrong way round for testing, and it is
 why this ADR says "suspected" rather than "fixed".
 
+
+---
+
+## ADR-052 — A tempo is a note and a number
+
+**Decision.** `Song.tempo` keeps its number and gains `Song.tempoUnit`, one of `eighth`, `quarter`
+or `dottedQuarter`. All timing runs through `lib/tempo.ts`, which converts by way of quarter notes:
+a bar is `numerator × (4 / denominator)` quarters, a tempo beat is worth 0.5, 1 or 1.5 of them, and
+one bar's length falls out of the two. `rowDurationMs` multiplies bars by that; nothing else in the
+app divides 60000 by anything.
+
+**Why.** A bare BPM is ambiguous the moment the meter is compound. "6/8 at 180" means eighths to one
+musician and the dotted-quarter pulse to another, and the two differ by a factor of three — the
+whole song at a third of the speed, which is not a subtle wrongness. Two fields say what one number
+could not.
+
+**Migration reads the old number as the meter's denominator, not as the conventional pulse.** A song
+stored without a unit gets `eighth` in 6/8 and `quarter` in 3/4, because that is what the old engine
+actually did: it counted the meter's own denominator at the given BPM. The conventional reading
+would have been dotted-quarter for 6/8, and would have played every existing 6/8 song three times
+too fast. Preserving how a song sounded beats migrating it to the tidier number.
+
+**Consequences for meter changes.** A `{3/4}` section inside a 6/8 song used to keep the same beat
+*length* — the beat quietly became a quarter without becoming any longer, so the section played at
+triple speed in note terms and nobody could see why. With the unit pinned, a quarter is now two
+eighths wherever it appears, and the section is a real hemiola. This is a behaviour change, not a
+refactor: the Rising Sun fixture's closing `{3/4}` rows drop from `|2|` to `|1|` to keep the length
+they had. Any song of the user's own with an inline change to a different denominator will play
+those sections differently — correctly, but differently.
+
+**The metronome now reads the schedule.** Its click times used to come from one beat length for the
+whole song, which was consistent only because a beat was 60000/tempo everywhere. Now that a beat's
+length depends on the meter running at the time, `beatsInWindow` walks the schedule and takes each
+beat's time from the row it belongs to. The count-in runs on the opening row's beat.
+
+**Changing the meter never rewrites the unit.** The default is chosen once — when a song is created,
+or when an old one is migrated — and after that it is the writer's. There is no way to tell "chose
+♩ deliberately" from "left it at ♩", so the only safe rule is not to touch it. A new song in 6/8 is
+offered `♩.`; one migrated into 6/8 keeps `♪`.
+
+**Cost.** Two fields where there was one, in every fixture, document and stored song. The unit
+selector also costs a control in the player's setup row, which is already tight — it is 60px wide
+and holds three glyphs.

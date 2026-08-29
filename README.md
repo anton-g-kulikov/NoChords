@@ -56,8 +56,11 @@ until the next one, so a bridge in four inside a song in six clicks in four whil
 whose length differs from the song's default says so in the margin while you play, at a fifth of
 the lyric's weight — there to be found, not to be read.
 
-Timing is bars and beats throughout — there are no seconds anywhere, so changing the tempo rescales
-the whole song, held lines included. Just type; everything saves as you go.
+Tempo is a note and a number — `♩ = 90`, or `♪ = 180` — because a bare BPM does not say what it is
+counting. In 6/8 that is the difference between the eighth and the dotted-quarter pulse, a factor of
+three; both readings are offered and play identically. Timing is bars and beats throughout — there
+are no seconds anywhere, so changing the tempo rescales the whole song, held lines included. Just
+type; everything saves as you go.
 
 **New to any of this?** The app has a short page on bars, beats and time signatures, and what each
 part of the notation means — at the foot of the library, or "What is a bar?" under the editor. It

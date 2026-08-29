@@ -216,14 +216,16 @@ described at the end of this document.
 | ST-06 | Learning progress round-trips with the song | ✅ |
 | ST-07 | Row fields (chords, beats, pause, keys) round-trip exactly | ✅ |
 | ST-08 | A failing storage backend (quota, blocked) does not crash save or load | ✅ |
+| ST-09 | **A song stored before tempo units is read as the unit that preserves its timing** | ✅ |
+| ST-10 | A tempo unit the app does not offer is refused | ✅ |
 
 ### Metronome timing — `metronome.test.ts`
 
 | # | Case | Status |
 |---|------|--------|
-| MT-01 | Beat length derives from the tempo (120bpm → 500ms) | ✅ |
-| MT-02 | A zero or negative tempo cannot divide by zero | ✅ |
-| MT-03 | Count-in length is its beats at the song tempo | ✅ |
+| MT-01 | Each beat's time comes from the row it belongs to | ✅ |
+| MT-02 | **A meter change is followed: a `{3/4}` section clicks quarters inside a 6/8 song** | ✅ |
+| MT-03 | Count-in length is its beats at one beat's length | ✅ |
 | MT-04 | A negative count-in is treated as none | ✅ |
 | MT-05 | `beatsInWindow` returns the beats falling in a window | ✅ |
 | MT-06 | **The window is half-open, so contiguous scans never double a click** | ✅ |
@@ -238,6 +240,7 @@ described at the end of this document.
 | MT-15 | The accent follows a signature change into the next section | ✅ |
 | MT-16 | Count-in beats are accented so the count lands on the downbeat | ✅ |
 | MT-17 | With nothing to play the accent falls back to a plain four | ✅ |
+| MT-18 | With no song to read a pulse from, the count-in uses the beat it is given | ✅ |
 | MT-18 | **A click fires early by the output latency, so it is heard on the beat** | ✅ |
 | MT-19 | With no reported latency the timing is unchanged | ✅ |
 | MT-20 | Compensation shifts the grid without stretching it | ✅ |
@@ -304,6 +307,7 @@ lossless for good data and must refuse bad data rather than letting it into the 
 | SD-07 | A document with a malformed row is rejected whole | ✅ |
 | SD-08 | Unknown extra fields are dropped rather than carried into the app | ✅ |
 | SD-09 | The document contains no `undefined`, which Firestore rejects | ✅ |
+| SD-10 | The tempo unit is written, and supplied for a document stored without one | ✅ |
 
 ### Sign-in import decision — `cloud-import.test.ts`
 
@@ -366,6 +370,29 @@ the accent falls. Compound meters are the reason this module exists.
 | ME-05 | 3/8 is simple, since three eighths are one pulse | ✅ |
 | ME-06 | Nonsense falls back to 4/4 rather than failing | ✅ |
 | ME-07 | Bar length is reported for `//n` to measure against | ✅ |
+
+### Tempo units — `tempo.test.ts`
+
+Intent: make a tempo say what it counts. A bare BPM is ambiguous in a compound meter — "6/8 at 180"
+is either eighths or the dotted pulse, three times apart — so everything converts through quarter
+notes and no meter gets a special case (ADR-052).
+
+| # | Case | Status |
+|---|------|--------|
+| TU-01 | A bar is measured in quarter notes: 6/8 is three, 7/8 is three and a half | ✅ |
+| TU-02 | An unreadable meter falls back to a bar of four | ✅ |
+| TU-03 | Each unit is worth 0.5, 1 or 1.5 quarter notes | ✅ |
+| TU-04 | **Bar length from meter, number and unit: 4/4 ♩=120 → 2s, 3/4 ♩=60 → 3s, 6/8 ♩.=60 → 2s, 6/8 ♪=180 → 2s** | ✅ |
+| TU-05 | **6/8 ♪=180 and 6/8 ♩.=60 are the same music** | ✅ |
+| TU-06 | A zero or negative tempo is floored rather than lasting forever | ✅ |
+| TU-07 | The metronome's beat is the meter's unit, not the tempo's | ✅ |
+| TU-08 | **An old bare number is read as the meter's denominator, so 6/8 stays in eighths** | ✅ |
+| TU-09 | A new song is offered the unit its meter is counted in (6/8, 9/8, 12/8 → ♩.) | ✅ |
+| TU-10 | Only the three offered units are accepted | ✅ |
+| TU-11 | Each unit writes as its note: ♪, ♩, ♩. | ✅ |
+| TU-12 | **Five bars of 6/8 last ten seconds at ♪=180 and at ♩.=60, with identical beat grids** | ✅ |
+| TU-13 | Bars stay whole — 7/8 at ♩=120 is one bar of 1750ms, never a fractional bar | ✅ |
+| TU-14 | The tempo bounds stay usable at both ends | ✅ |
 
 ### Device preferences — `settings.test.ts`
 
@@ -435,7 +462,7 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | # | Case | Status |
 |---|------|--------|
 | EX-01 | The three fixtures load with their stated keys and tempos | ✅ |
-| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`/12/`), Rising Sun writes no holds | ✅ |
+| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`|4|`), Rising Sun's ending is three bars then two single `{3/4}` bars | ✅ |
 | EX-03 | Lyric text is intact and each chord is anchored inside it | ✅ |
 | EX-04 | Relative representation matches the document (`Dm`→`1m`, `C`→`7`, etc.) | ✅ |
 | EX-05 | Blackbird G→A gives A/D/E with degrees unchanged, stored rows untouched | ✅ |

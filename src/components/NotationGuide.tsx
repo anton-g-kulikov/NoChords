@@ -28,10 +28,17 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
       <section className="guide__section">
         <h2>Beats</h2>
         <p>
-          The beat is what you tap your foot to. <strong>Tempo</strong> counts them: 90 bpm is
-          ninety beats a minute, so each one lasts two thirds of a second. Everything in NoChords is
-          measured in beats and bars rather than seconds, which is why changing the tempo stretches
-          the whole song evenly instead of pulling it out of shape.
+          The beat is what you tap your foot to. <strong>Tempo</strong> is how many of them fit in
+          a minute — but a number on its own does not say <em>which</em> note it is counting, so a
+          tempo here is written as a note and a number: <code>♩ = 90</code> is ninety quarter notes
+          a minute, each lasting two thirds of a second.
+        </p>
+        <p>
+          That matters most in 6/8, where the same music can honestly be written{' '}
+          <code>♪ = 180</code> or <code>♩. = 60</code>. Both play identically; pick whichever you
+          count in. Everything in NoChords is measured in beats and bars rather than seconds, which
+          is why changing the tempo stretches the whole song evenly instead of pulling it out of
+          shape.
         </p>
       </section>
 
@@ -106,10 +113,17 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
           <dt>Meter</dt>
           <dd>The song's time signature. It sets how long a bar is and where the click falls.</dd>
 
+          <dt>Tempo</dt>
+          <dd>
+            A note and a number — <code>♪</code>, <code>♩</code> or <code>♩.</code> — saying how
+            many of that note fill a minute. Changing the meter leaves it alone: what you chose to
+            count in is yours.
+          </dd>
+
           <dt>Bars per line</dt>
           <dd>
-            How many bars one line of lyrics takes. Two bars of 3/4 and one bar of 6/8 are both six
-            beats — the same length, counted differently.
+            How many bars one line of lyrics takes. A bar of 6/8 is six eighths and a bar of 3/4 is
+            three quarters — the same length as each other, counted differently.
           </dd>
 
           <dt>

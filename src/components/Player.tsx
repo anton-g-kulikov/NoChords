@@ -216,8 +216,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
            * moves, and whether it clicks. Before this they were one row of eight controls in the
            * order they happened to be written (ADR-034).
            */}
-          <section className="setup__group" aria-label="Playback">
-            <h2 className="setup__legend">Playback</h2>
+          {/*
+           * Grouped by how long a change lasts, not by what it looks like (ADR-039). The three
+           * used to sit in one row: a display mode forgotten on the way out, a key saved to this
+           * song, and a count-in that quietly changed every song on the device.
+           */}
+          <section className="setup__group" aria-label="View">
+            <h2 className="setup__legend">View</h2>
             <div className="setup__row">
               <div className="controls__group" role="group" aria-label="Display mode">
                 {MODES.map((option) => (
@@ -233,14 +238,44 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                   </button>
                 ))}
               </div>
+            </div>
+          </section>
 
+          <section className="setup__group" aria-label="This song">
+            <h2 className="setup__legend">This song</h2>
+            <div className="setup__row">
               <KeyStepper
                 value={song.currentKey}
                 originalKey={song.originalKey}
                 onChange={(key) => onChange(setCurrentKey(song, key))}
               />
 
+              <TempoField value={song.tempo} onChange={(tempo) => onChange({ ...song, tempo })} />
 
+              {/* Line length belongs here as much as in the editor: it is the setting you reach
+                  for while playing, when the chart is scrolling at the wrong rate (ADR-032). */}
+              <NumberField
+                label="Bars per line"
+                value={song.barsPerLine}
+                min={1}
+                max={64}
+                onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
+              />
+
+              {/* Shown, not offered: the meter decides what a bar is, and changing it here would
+                  silently re-time every line of the song (ADR-034). */}
+              <div className="field field--narrow">
+                <span className="field__label">Meter</span>
+                <p className="field__static">{song.meter}</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="setup__group" aria-label="This device">
+            <h2 className="setup__legend">
+              This device <span className="setup__aside">— every song</span>
+            </h2>
+            <div className="setup__row">
               {/* Labelled, because "On" alone says nothing once it shares a row (ADR-038). */}
               <div className="field field--narrow field--button">
                 <span className="field__label">Metronome</span>
@@ -280,30 +315,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 max={MAX_COUNT_IN_BARS}
                 onCommit={(countInBars) => onSettingsChange({ countInBars })}
               />
-            </div>
-          </section>
-
-          <section className="setup__group" aria-label="Timing">
-            <h2 className="setup__legend">Timing</h2>
-            <div className="setup__row">
-              <TempoField value={song.tempo} onChange={(tempo) => onChange({ ...song, tempo })} />
-
-              {/* Line length belongs here as much as in the editor: it is the setting you reach
-                  for while playing, when the chart is scrolling at the wrong rate (ADR-032). */}
-              <NumberField
-                label="Bars per line"
-                value={song.barsPerLine}
-                min={1}
-                max={64}
-                onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
-              />
-
-              {/* Shown, not offered: the meter decides what a bar is, and changing it here would
-                  silently re-time every line of the song (ADR-034). */}
-              <div className="field field--narrow">
-                <span className="field__label">Meter</span>
-                <p className="field__static">{song.meter}</p>
-              </div>
             </div>
           </section>
         </div>

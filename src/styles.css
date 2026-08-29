@@ -1011,3 +1011,10 @@ kbd {
   margin-bottom: 10px;
 }
 
+/* The half of a heading that says how long a change lasts, not what it is. */
+.setup__aside {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+

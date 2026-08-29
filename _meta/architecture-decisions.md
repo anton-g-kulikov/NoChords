@@ -1132,3 +1132,32 @@ gets you out, which the accent colour and the alternating label do.
 **Cost.** A first-time visitor sees a pencil rather than the word "Edit". Against that, the header
 now fits a long title on one line, which is what a phone actually shows.
 
+---
+
+## ADR-044 — The mode buttons show the mode, and the strip is five equal buttons
+
+**Decision.** The three chord modes no longer say "Full", "Nashville", "Learning". They show what
+each one does: the current key (`C#m`), the first chord as a numeral (`i`), and a brain. All five
+buttons in the strip — three modes, two disclosures — share one width, sized to hold a
+four-character minor key.
+
+**Why labels that demonstrate.** "Nashville" names a system; `i` shows you what you will be reading.
+The key label doubles as a readout, so the strip says which key the chart is in without opening
+anything. And they are far shorter than the words, which is what made room for two disclosures on a
+phone.
+
+**Why one width for all five.** Their contents differ wildly — three characters, one character,
+three different icons — and boxes that resize as the key changes read as broken rather than as
+compact. Fixed at 52px, with the segments' padding cut so that five of them still fit the 335px a
+phone gives the strip. The two disclosures get 12px between them and 44px of height, having been
+squeezed against each other before.
+
+**Icons come from Lucide.** `Metronome`, `Brain`, `SlidersVertical` and `Pencil`, imported as
+components. Four hand-drawn attempts at a brain produced a circle with a line through it: legible
+icons at 20px are a craft, and the repository is not the place to practise it. It costs a runtime
+dependency and about 1kB gzipped for the four, tree-shaken.
+
+**Cost.** The strip is now four icons and two glyphs with no words at all. Every one carries a
+`title` and an `aria-label`, which is not the same as being self-evident — a first-time visitor has
+to try them. Against that, they fit, and the mode buttons in particular teach by showing.
+

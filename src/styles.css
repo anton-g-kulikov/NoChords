@@ -461,11 +461,25 @@ kbd {
 }
 
 /* An icon, so the strip holds the modes and this on one row even at 375px (ADR-040). */
+/* Two icon buttons, sized and spaced as targets rather than squeezed to fit (ADR-044). */
+.settings-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 12px;
+}
+
+/* Wins over `.button--icon`, which is defined later and sizes every icon button at 40. */
+.settings-bar__actions .button--icon {
+  width: var(--strip-button);
+  min-width: var(--strip-button);
+}
+
 .settings-bar__toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
+  min-height: 44px;
   color: var(--muted);
 }
 
@@ -512,13 +526,6 @@ kbd {
 /* On a phone the four items come to within a few pixels of the width, and the time ellipsises to
    "2:..." — which reads as broken. Tighter spacing buys back the room it needs. */
 @media (max-width: 430px) {
-  /* Two icons rather than one puts the strip 10px over 335 (ADR-042). The segments give the room
-     back — the third thing to be tightened for a phone, and the last that can be. */
-  .settings-bar .segment {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
   .controls {
     padding-left: 12px;
     padding-right: 12px;
@@ -1069,5 +1076,31 @@ kbd {
 .pane-toggle--editing {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+/*
+ * All five strip buttons share one width (ADR-044): the three modes and the two disclosures.
+ *
+ * Their contents differ wildly — "C#m", "i", three icons — and boxes that resize as the key
+ * changes read as broken rather than as compact. The width is the widest thing any of them has to
+ * hold, which is a four-character minor key, and the segments' padding comes down so that five of
+ * them still fit the 335px a phone gives the strip.
+ */
+.settings-bar {
+  --strip-button: 52px;
+}
+
+.settings-bar .controls__group {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--strip-button);
+}
+
+.settings-bar .segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 

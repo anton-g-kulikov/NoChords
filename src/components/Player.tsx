@@ -89,6 +89,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   );
 
   const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
+
+  /**
+   * Beats the count-in will run for, and whether to show it at all (ADR-047).
+   *
+   * Shown as soon as the metronome is on rather than only once counting has started: as a box in
+   * the flow it used to appear at the downbeat and vanish at the first line, moving the chart
+   * twice in the two seconds you are least able to follow it.
+   */
+  const countInBeats = settings.countInBars * beatsPerBarOf(song.meter);
   const {
     activeIndex,
     isPlaying,
@@ -381,10 +390,18 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
       </div>
 
 
-      {countingIn && (
-        <div className="count-in" role="status" aria-live="polite">
-          <span className="count-in__number">{countInRemaining}</span>
-          <span className="count-in__label">counting in</span>
+      {(countingIn || (settings.metronomeEnabled && countInBeats > 0)) && (
+        <div
+          className={countingIn ? 'count-in count-in--counting' : 'count-in'}
+          role="status"
+          aria-live="polite"
+        >
+          <span className="count-in__number">
+            {countingIn ? countInRemaining : countInBeats}
+          </span>
+          <span className="count-in__label">
+            {countingIn ? 'counting in' : `count-in · ${settings.countInBars} bar${settings.countInBars === 1 ? '' : 's'} of ${song.meter}`}
+          </span>
         </div>
       )}
 

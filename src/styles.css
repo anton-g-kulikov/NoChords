@@ -768,6 +768,11 @@ kbd {
  * The count-in indicator. Large and central because it is read at a glance from a music stand,
  * in the two seconds before playing starts.
  */
+/*
+ * Present from the moment the metronome is on (ADR-047): waiting, then counting, then waiting
+ * again — rather than appearing at the downbeat and vanishing at the first line, which moved the
+ * chart twice at the worst possible moment.
+ */
 .count-in {
   display: flex;
   align-items: baseline;
@@ -775,17 +780,28 @@ kbd {
   gap: 14px;
   padding: 20px 16px;
   margin-bottom: 16px;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  color: var(--muted);
+}
+
+/* It lights up for the two seconds it is actually counting. */
+.count-in--counting {
+  border-color: var(--accent);
+  color: var(--text);
 }
 
 .count-in__number {
   font-size: 3rem;
   font-weight: 700;
   line-height: 1;
-  color: var(--accent);
+  color: inherit;
   font-variant-numeric: tabular-nums;
+}
+
+.count-in--counting .count-in__number {
+  color: var(--accent);
 }
 
 .count-in__label {

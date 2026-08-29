@@ -1209,3 +1209,30 @@ scrolling now slides the panel up under a toggle that stays put. The stickiness 
 modes stay reachable while the chart scrolls during playback (ADR-040), which is a real need; but
 the two behaviours no longer agree, and that is worth resolving rather than leaving.
 
+---
+
+## ADR-047 — The count-in is on screen before it counts
+
+**Decision.** The count-in box appears as soon as the metronome is on and a count-in is set, showing
+how many beats it will count. It lights up and counts down while counting, and returns to waiting
+afterwards. It is no longer conditional on playing.
+
+**Why.** It is a box in the flow, about a hundred pixels tall. Rendered only while counting, it
+appeared at the downbeat and vanished at the first line — moving the chart down and then up again
+in the two seconds you are least able to follow it, and least able to look away from it.
+
+**Why it shows beats rather than bars.** The countdown counts beats, so the number waiting is the
+number it will start from: 6 for a bar of 6/8, not 1. The label carries the bars — "count-in · 1 bar
+of 6/8" — which is the setting, in the meter it is measured in.
+
+**Why the colour changes.** Waiting it is muted with a plain border; counting it takes the accent.
+That distinguishes a readout from a live count without moving anything, which is the whole point.
+
+**Why `countingIn` still shows it regardless.** A count-in runs even with the metronome off — the
+delay is silent, but it happens. The box stays conditional on `countingIn || (metronome on)` so that
+case keeps its countdown rather than losing it to a tidier rule.
+
+**Cost.** A hundred pixels of chart, permanently, for anyone who plays with the metronome on. The
+count-in setting is right above it, so anyone who does not want the reminder can set it to zero and
+have both back.
+

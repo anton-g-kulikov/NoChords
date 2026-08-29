@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Player } from './components/Player';
 import { SongEditor } from './components/SongEditor';
+import { Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
 import { SongList } from './components/SongList';
 import { AuthBar } from './components/AuthBar';
@@ -108,18 +109,7 @@ export function App() {
           title={pane === 'edit' ? 'Done editing' : 'Edit song'}
           onClick={() => setPane(pane === 'edit' ? 'play' : 'edit')}
         >
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-            <g
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            >
-              <path d="M4 20.5l.9-3.6L15.6 6.2l2.7 2.7L7.6 19.6 4 20.5z" />
-              <path d="M13.6 8.2l2.7 2.7" />
-            </g>
-          </svg>
+          <Pencil size={20} aria-hidden />
         </button>
       </header>
 

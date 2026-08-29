@@ -161,7 +161,8 @@ magick -background none icon.svg -resize 512x512 icon-512.png
 
 ## How it is built
 
-React + TypeScript + Vite, no other runtime dependencies. All the real logic is in pure modules
+React + TypeScript + Vite, plus Firebase for sync and Lucide for icons. All the real logic is in
+pure modules
 under `src/lib/`, with React kept to rendering and event wiring:
 
 ```text

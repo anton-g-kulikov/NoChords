@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Brain, Metronome, SlidersVertical } from 'lucide-react';
+import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
 import { SongRowView } from './SongRowView';
@@ -29,11 +31,12 @@ interface PlayerProps {
   onSettingsChange: (patch: Partial<Settings>) => void;
 }
 
-const MODES: Array<{ value: DisplayMode; label: string; hint: string }> = [
-  { value: 'full', label: 'Full', hint: 'Chord names in the current key' },
-  { value: 'nashville', label: 'Nashville', hint: 'Scale degrees relative to the original key' },
-  { value: 'learning', label: 'Learning', hint: 'Chord names with a share of them concealed' },
+const MODES: Array<{ value: DisplayMode; hint: string }> = [
+  { value: 'full', hint: 'Chord names in the current key' },
+  { value: 'nashville', hint: 'Scale degrees relative to the original key' },
+  { value: 'learning', hint: 'Chord names with a share of them concealed' },
 ];
+
 
 const EMPTY_CONCEALMENT: Set<string> = new Set();
 
@@ -193,6 +196,18 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const totalChords = useMemo(() => collectChordOccurrences(song.rows).length, [song.rows]);
   // Re-read on every render; playback drives those while playing, and the expiry timer when not.
   const now = Date.now();
+  /*
+   * Each button previews its own mode (ADR-044): the key you would read, the numeral you would
+   * read instead, and a brain for the one that hides them. Shorter than the words, and it answers
+   * "what is Nashville?" by showing the answer rather than naming it.
+   */
+  const firstChord = song.rows.find((row) => row.chords.length > 0)?.chords[0]?.symbol;
+  const modeLabels: Record<DisplayMode, ReactNode> = {
+    full: song.currentKey,
+    nashville: firstChord ? toNashville(firstChord, song.originalKey) : 'I',
+    learning: <Brain size={20} aria-hidden />,
+  };
+
   const concealmentPercent =
     totalChords === 0 ? 0 : Math.round((concealed.size / totalChords) * 100);
   const stagePercent = Math.round(concealmentFor(song.learningPlaythrough) * 100);
@@ -215,11 +230,12 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 key={option.value}
                 type="button"
                 title={option.hint}
+                aria-label={option.value}
                 aria-pressed={mode === option.value}
                 className={mode === option.value ? 'segment segment--active' : 'segment'}
                 onClick={() => setMode(option.value)}
               >
-                {option.label}
+                {modeLabels[option.value]}
               </button>
             ))}
           </div>
@@ -240,13 +256,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             title={settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
             onClick={() => setMetronomeOpen((open) => !open)}
           >
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-              <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
-                <path d="M12 3 18 20H6z" />
-                <path d="M9.5 14h5" />
-                <path d="M12 20 16 7" strokeLinecap="round" />
-              </g>
-            </svg>
+            <Metronome size={20} aria-hidden />
           </button>
 
           <button
@@ -262,16 +272,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             onClick={() => setSetupOpen((open) => !open)}
           >
             {/* Faders rather than a cog: these are values to be set, not a system to configure. */}
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-              <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </g>
-              <g fill="currentColor">
-                <circle cx="16" cy="7" r="2.6" />
-                <circle cx="9" cy="12" r="2.6" />
-                <circle cx="14" cy="17" r="2.6" />
-              </g>
-            </svg>
+            <SlidersVertical size={20} aria-hidden />
           </button>
         </div>
 

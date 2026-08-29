@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- `viewport-fit=cover` is what makes env(safe-area-inset-*) non-zero, which the
-         bottom transport needs to clear the home indicator (ADR-050). -->
+    <!-- `viewport-fit=cover` makes env(safe-area-inset-*) non-zero, which the bottom transport
+         needs to clear the gesture bar; `interactive-widget=resizes-content` makes the on-screen
+         keyboard shrink the layout rather than cover the editor (ADR-050). -->
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
     <title>NoChords</title>
     <meta name="description" content="Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo." />

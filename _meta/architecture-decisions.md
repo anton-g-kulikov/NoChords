@@ -947,13 +947,17 @@ head, a middle that scrolls itself, and — in Play — the transport as the las
 `position: fixed` any more.
 
 **What was wrong.** The transport was `position: fixed; bottom: 0`, which is correct on paper and
-worked in every browser here. On iOS it did not: the bar was invisible until you scrolled most of a
-screen, whether the settings panel was open or not. Reported from a phone, not reproducible on this
-machine — no transformed ancestor, no containing block, the bar flush at the viewport bottom in
-Chrome at every scroll position.
+worked in every browser here. On the reporter's phone it did not: the bar was invisible until you
+scrolled most of a screen, whether the settings panel was open or not.
 
-**Why not chase the iOS bug.** A fix aimed at a mechanism I cannot see would be a guess, and a
-guess I could not verify. The shell removes the dependency instead: a flex row at the bottom of a
+*Corrected later:* this was written as an iOS problem. The phone was **Android**, and the mechanism
+is well documented there — Chrome positions `fixed` against the layout viewport, which keeps the
+height it has with the toolbar hidden, so a bar at `bottom: 0` sits below the visible area until
+scrolling collapses the toolbar. Diagnosed here as "not reproducible, cause unknown" because the
+platform was assumed rather than asked.
+
+**Why not chase the bug directly.** A fix aimed at a mechanism I could not see would have been a
+guess, and a guess I could not verify. The shell removes the dependency instead: a flex row at the bottom of a
 viewport-height column cannot be mispositioned by anything, because nothing is positioning it.
 
 **Why `dvh`.** `vh` on a phone is the viewport with the browser chrome *ignored*, which is exactly
@@ -1179,8 +1183,8 @@ nothing on the screen said which app this was. The middle of a title bar is wher
 the row had the space once the title left it.
 
 **Why the boxes are stated rather than derived.** They were `min-height` plus padding, which came
-out identical in Chrome and visibly unequal on iOS, where a button's own metrics are added on top of
-whatever you ask for. Width, height, zero padding and `appearance: none` leave nothing for a
+out identical in Chrome on a desktop and visibly unequal on the phone, where the platform adds a
+button's own metrics on top of whatever you ask for. Width, height, zero padding and `appearance: none` leave nothing for a
 platform to add. Measured equal at 52×44 across all five.
 
 **Cost.** A fixed box cannot grow for a longer label, so it is sized for the widest thing it will
@@ -1285,19 +1289,30 @@ song is that is free; a text file would not be.
 `overflow: hidden` with `overscroll-behavior: none`, and the viewport meta carries
 `viewport-fit=cover`.
 
-**Why.** `100dvh` was close but not exact. Installed on iOS it resolved taller than the visible
-area, so the transport at the end of the column sat under the home indicator — and further out of
-sight the more the panel above it grew, which is why it showed up as "opening settings pushes the
-bar away". `inset: 0` on a fixed element is the visible area by definition; there is no unit to be
-wrong about it.
+**Why.** `100dvh` was close but not exact. On Android Chrome the layout viewport keeps the height it
+has with the toolbar hidden, while the visible area shrinks when the toolbar comes back — so a
+column measured against the tall one puts its last row below what you can see. Opening a panel is
+exactly the kind of interaction that brings the toolbar back, which is why it read as "the panel
+pushes the transport away".
 
-**Why `viewport-fit=cover` matters here.** Without it, `env(safe-area-inset-bottom)` is zero, so the
-padding the transport already carried to clear the home indicator did nothing. The two go together:
-cover the whole screen, then pad back the parts of it you cannot use.
+`svh` is the height with the toolbar showing, the smallest it gets, so the bottom row is always on
+screen. The cost is a strip of unused space when the toolbar hides; in the installed app, where
+there is no toolbar, all three units are equal and it costs nothing.
 
-**A pattern worth noticing.** This is the third iOS layout problem in a row — the fixed transport,
-the sticky strip, this — and all three were invisible in Chrome. The fix each time was to stop
-describing the viewport and start binding to it.
+**Why not `position: fixed`.** It was the first fix tried and it is the wrong one here: `fixed`
+resolves against the layout viewport, the tall one, which is the mechanism behind the original
+vanishing transport (ADR-037). It would have reintroduced the bug it was meant to fix.
+
+**Why `viewport-fit=cover` and `interactive-widget=resizes-content`.** The first makes
+`env(safe-area-inset-*)` non-zero, so the padding the transport carries to clear the gesture bar
+stops resolving to zero. The second makes the on-screen keyboard shrink the layout instead of
+covering the editor.
+
+**A pattern, and a correction.** Three layout bugs in a row were attributed to iOS in these notes.
+The phone was Android throughout. The symptoms were real and reported accurately; the platform was
+assumed from screenshots and never asked, and two of the three fixes were reasoned from the wrong
+engine's behaviour. They happened to be right anyway — the shell in ADR-037 removes the dependency
+on any of it — but the reasoning recorded for them was not.
 
 **Cost.** Nothing scrolls the document any more, so any screen that wants scrolling must say so.
 That is already true of every screen here (ADR-037), and it fails loudly rather than quietly.

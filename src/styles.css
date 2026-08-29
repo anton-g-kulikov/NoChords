@@ -52,16 +52,19 @@ body {
 }
 
 /*
- * Pinned to the viewport rather than sized in viewport units (ADR-050).
+ * Sized to the *small* viewport (ADR-050).
  *
- * `100dvh` was close but not exact: installed on iOS it resolved taller than what you can see, so
- * the transport at the end of the column sat under the home indicator — and further off the more
- * the panel above it grew. `position: fixed; inset: 0` is the visible area by definition, and the
- * document cannot scroll or rubber-band behind it.
+ * On Android Chrome the layout viewport keeps the height it has with the toolbar hidden, while the
+ * visible area shrinks when the toolbar comes back. Anything measured against the tall one puts its
+ * last row below what you can see: `100dvh` does it when the toolbar reappears mid-interaction, and
+ * `position: fixed` does it always, which was the original vanishing transport.
+ *
+ * `svh` is the height with the toolbar showing — the smallest it gets — so the bottom row is always
+ * on screen. The cost is a strip of unused space when the toolbar hides. In the installed app all
+ * three units are equal and this costs nothing.
  */
 #root {
-  position: fixed;
-  inset: 0;
+  height: 100svh;
   display: flex;
   flex-direction: column;
   overflow: hidden;

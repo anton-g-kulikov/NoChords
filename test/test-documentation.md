@@ -30,6 +30,7 @@ described at the end of this document.
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Service worker decisions | `src/lib/pwa.ts` | `pwa.test.ts` |
 | Install affordance | `src/lib/install.ts` | `install.test.ts` |
+| Screen wake lock | `src/lib/wakeLock.ts` | `wake-lock.test.ts` |
 | Fixture acceptance | `src/lib/examples.ts` | `examples.test.ts` |
 
 ## Test Plan
@@ -413,6 +414,19 @@ ask on their own, and iOS never did.
 | IS-04 | iOS is told where its own Share-menu button is | ✅ |
 | IS-05 | **An app already installed is offered nothing** | ✅ |
 | IS-06 | A browser that has offered nothing stays quiet | ✅ |
+
+### Screen wake lock — `wake-lock.test.ts`
+
+Intent: decide when to keep the screen awake. The API call itself cannot be tested in node, so the
+rule is separated from it and the hook holds no judgement of its own.
+
+| # | Case | Status |
+|---|------|--------|
+| WL-01 | A browser offering the API is recognised | ✅ |
+| WL-02 | An older browser reports no support rather than throwing | ✅ |
+| WL-03 | **The screen is held awake while a song plays** | ✅ |
+| WL-04 | Nothing playing lets the screen sleep | ✅ |
+| WL-05 | Nothing is requested while the page is hidden | ✅ |
 
 ### Fixture acceptance — `examples.test.ts`
 

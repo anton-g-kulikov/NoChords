@@ -357,28 +357,64 @@ kbd {
  * The sticky header. While playing it is only the transport, so the chart keeps the screen; the
  * setup controls collapse behind a disclosure and come back when playback stops.
  */
+/*
+ * The transport lives at the bottom of the screen, where a native player puts it and where a
+ * thumb already is (ADR-035). It is fixed rather than sticky so it is reachable from any scroll
+ * position, and it clears the iOS home indicator.
+ */
 .controls {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 12px 0;
-  margin-bottom: 8px;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
 }
 
+.controls > * {
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+/* One row, always: a transport bar that wraps to two lines is not a transport bar (ADR-035). */
 .controls__transport {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+/* On a phone the four items come to within a few pixels of the width, and the time ellipsises to
+   "2:..." — which reads as broken. Tighter spacing buys back the room it needs. */
+@media (max-width: 430px) {
+  .controls {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .controls__transport {
+    gap: 6px;
+  }
+
+  .controls__disclosure {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .controls__time {
+    font-size: 0.85rem;
+  }
 }
 
 .controls__disclosure {
   margin-left: auto;
+  flex-shrink: 0;
   padding: 8px 14px;
   min-height: 40px;
   font-size: 0.9rem;
@@ -386,11 +422,29 @@ kbd {
   text-transform: capitalize;
 }
 
-/* The groups stack; the controls inside each one sit in a row (ADR-034). */
+/*
+ * The groups stack; the controls inside each one sit in a row (ADR-034).
+ *
+ * The panel hangs below the transport rather than sitting inside it, so the pinned bar stays the
+ * height of Play/Restart alone (ADR-035). Opened, it covers the top of the chart; before, it
+ * pushed the chart down and pinned 400px of a 720px screen — most of a phone.
+ */
 .controls__setup {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  /* A sheet, not a takeover: on a phone the whole panel is taller than the screen, and a chart
+     you can still see a line of is worth more than the last row of controls (ADR-035). */
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0.75rem 20px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
 }
 
 .controls__setup--closed {
@@ -405,6 +459,11 @@ kbd {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   font-size: 0.95rem;
+  /* The first thing to give up room when the bar is narrow, and the least missed. */
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .learning-bar {

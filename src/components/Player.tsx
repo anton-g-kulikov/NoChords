@@ -8,6 +8,7 @@ import { collectChordOccurrences, concealmentFor, createConcealment } from '../l
 import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
+import { useWakeLock } from '../hooks/useWakeLock';
 import { beatDurationMs, countInDurationMs } from '../lib/metronome';
 import { MAX_COUNT_IN_BARS, type Settings } from '../lib/settings';
 import {
@@ -94,6 +95,9 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     countInRemaining,
     originMs,
   } = playback;
+
+  // A chart you are reading from is a page you never touch, so the phone dims it mid-verse.
+  useWakeLock(isPlaying);
 
   useMetronome({
     enabled: settings.metronomeEnabled,

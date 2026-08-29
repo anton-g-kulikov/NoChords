@@ -68,6 +68,10 @@ works offline like everything else (ADR-033).
 Press **Play** (or <kbd>Space</kbd>) and the chart scrolls itself, highlighting the active row.
 Click any row to jump to it.
 
+The transport sits in a bar fixed to the bottom of the screen, where a native player puts it and
+where your thumb already is; the setup opens upward out of it as a sheet. While a song plays the
+app holds a screen wake lock, so the phone does not dim halfway through a verse (ADR-035).
+
 When playback starts the setup controls fold away, leaving just Play/Pause, Restart and the time —
 on a phone that takes the header from 475px to 69px, which is the difference between seeing none of
 the song and seeing seven lines of it. **Setup** brings them back at any point; pausing deliberately

@@ -867,3 +867,42 @@ could not reach the tempo the editor could set, which made Play the worse place 
 open. That is survivable because it collapses during playback (ADR-017), which is when the chart
 matters.
 
+---
+
+## ADR-035 — The transport is a fixed bottom bar, and the screen stays awake while playing
+
+**Decision.** Play, Restart and the elapsed time sit in a bar fixed to the bottom of the screen. The
+setup panel opens upward out of it as a sheet, capped at 60vh. While a song plays, the app holds a
+screen wake lock.
+
+**Why the bottom.** It is where a native player puts its transport and where a thumb already is on a
+phone. Pinned to the top it was reachable, but reaching for it meant crossing the whole screen, and
+every native music app has trained the opposite expectation.
+
+**Why fixed rather than sticky.** Sticky is bounded by its parent's box, so a transport that must
+stay put for the whole scroll has to be fixed. That also decouples it from the panel: before this,
+the pinned element was the *whole* controls block, which with the setup open was 409px of a 720px
+viewport — most of a phone, permanently. Now the pinned part is 69px, and the panel hangs off it.
+
+**Why the sheet is capped.** Opened on a phone the full panel is taller than the screen. Capping it
+at 60vh with its own scroll leaves a line or two of chart visible, which is enough to keep your
+place. A control panel that hides the thing it controls has lost the plot.
+
+**Why the bar never wraps.** At 375px the four items came within three pixels of the width and the
+time ellipsised to "2:…", which reads as broken rather than as tight. `nowrap` plus tighter spacing
+below 430px fits them properly.
+
+**Why the wake lock is tied to playback.** A chart you are reading from is a page you never touch,
+so the phone dims and locks it mid-verse. The Screen Wake Lock API exists for this; it needs HTTPS,
+which the installed app always is. It is held only while playing and only while visible: over a
+paused song it is a flat battery, and while hidden the browser takes it back anyway — which is why
+it is requested again on `visibilitychange` rather than assumed to survive.
+
+**Failure is silent by design.** An unsupported browser, a refusal under battery saver, or a lock
+the system reclaims are all normal. Each leaves the app exactly as it was before the feature
+existed, which is a screen that dims — annoying, not broken.
+
+**Cost.** A fixed bar overlays the chart's last lines; the sheet already reserves 60vh of bottom
+padding, so nothing is unreachable. And the wake lock is the one feature here whose behaviour
+cannot be verified from this machine — it needs a phone that dims.
+

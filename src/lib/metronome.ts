@@ -7,19 +7,21 @@
  *
  * Beat 0 is the first beat of the song. The count-in runs at negative indices (ADR-015).
  */
-import { MIN_TEMPO, type ScheduleEntry } from './playback';
+import type { ScheduleEntry } from './playback';
 
 /** Where the accent falls when a meter cannot say: the first beat of a bar of four. */
 const DEFAULT_ACCENT_EVERY = 4;
 
-/** Length of one beat at a tempo, floored so a nonsensical tempo cannot divide by zero. */
-export function beatDurationMs(tempo: number): number {
-  return 60000 / Math.max(tempo, MIN_TEMPO);
+/** A beat to play: its index on the song's beat clock, and when it falls. */
+export interface ScheduledBeat {
+  index: number;
+  /** Milliseconds from the song's first beat; negative during the count-in. */
+  atMs: number;
 }
 
-/** How long the count-in lasts. */
-export function countInDurationMs(tempo: number, countInBeats: number): number {
-  return Math.max(0, countInBeats) * beatDurationMs(tempo);
+/** How long the count-in lasts, at the length of one beat of the opening meter. */
+export function countInDurationMs(beatMs: number, countInBeats: number): number {
+  return Math.max(0, countInBeats) * Math.max(beatMs, 0);
 }
 
 /**
@@ -42,22 +44,52 @@ export function clickAt(
 }
 
 /**
- * Beat indices whose time falls in `[fromMs, toMs)`.
+ * Beats whose time falls in `[fromMs, toMs)`, taken from the schedule itself.
+ *
+ * The times come from each row's own window rather than from one beat length for the whole song,
+ * because a beat is not a fixed length any more: with the tempo pinned to a note value, a `{3/4}`
+ * section counts quarters where the 6/8 around it counts eighths, and the two are not the same
+ * duration (ADR-052). Reading the schedule keeps the clicks on the rows they belong to.
  *
  * The window is half-open on purpose: a beat landing exactly on a boundary belongs to the later
  * window only, so scanning forward in slices plays every beat once and none twice.
  */
-export function beatsInWindow(tempo: number, fromMs: number, toMs: number): number[] {
+export function beatsInWindow(
+  schedule: ScheduleEntry[],
+  countInBeatMs: number,
+  fromMs: number,
+  toMs: number
+): ScheduledBeat[] {
   if (!(toMs > fromMs)) return [];
+  const beats: ScheduledBeat[] = [];
 
-  const beat = beatDurationMs(tempo);
-  const first = Math.ceil(fromMs / beat);
-  const beats: number[] = [];
-
-  for (let index = first; index * beat < toMs; index += 1) {
-    beats.push(index);
+  // The count-in runs at negative indices, on the pulse of the meter the song opens in.
+  const leadBeat = schedule.length > 0 ? entryBeatMs(schedule[0]) : Math.max(countInBeatMs, 0);
+  const leadEnd = Math.min(toMs, 0);
+  if (leadBeat > 0) {
+    for (let index = Math.ceil(fromMs / leadBeat); index * leadBeat < leadEnd; index += 1) {
+      beats.push({ index, atMs: index * leadBeat });
+    }
   }
+
+  for (const entry of schedule) {
+    if (entry.endMs <= fromMs) continue;
+    if (entry.startMs >= toMs) break;
+
+    const beatMs = entryBeatMs(entry);
+    for (let offset = 0; offset < entry.beats; offset += 1) {
+      const atMs = entry.startMs + offset * beatMs;
+      if (atMs < fromMs || atMs >= toMs) continue;
+      beats.push({ index: entry.startBeat + offset, atMs });
+    }
+  }
+
   return beats;
+}
+
+/** Length of one beat inside a row: its window divided by the beats it holds. */
+function entryBeatMs(entry: ScheduleEntry): number {
+  return entry.durationMs / Math.max(entry.beats, 1);
 }
 
 /**

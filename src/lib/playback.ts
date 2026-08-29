@@ -7,21 +7,14 @@
  * `currentTime` without any of this logic changing (ADR-003).
  */
 import { DEFAULT_METER, accentEveryOf, beatsPerBarOf, parseMeter } from './meter';
+import { type TempoUnit, msPerBar, unitFromMeterDenominator } from './tempo';
 import type { SongRow } from '../types/song';
+
+/** Tempo bounds live with the tempo maths; re-exported here, where callers have always found them. */
+export { MIN_TEMPO, MAX_TEMPO } from './tempo';
 
 /** Bars each line occupies when a song does not say otherwise. */
 export const DEFAULT_BARS_PER_LINE = 1;
-
-/** Floor applied to tempo so a zero or negative value cannot produce an infinite duration. */
-export const MIN_TEMPO = 20;
-
-/**
- * Highest tempo offered.
- *
- * High because in a compound meter the tempo counts eighths: a 6/8 song at a natural pulse sits
- * well above what a quarter-note number would suggest (ADR-039).
- */
-export const MAX_TEMPO = 300;
 
 /** One row's time window: its normal duration at tempo, plus its trailing pause. */
 export interface ScheduleEntry {
@@ -58,24 +51,35 @@ function safeBars(barsPerLine: number): number {
   return barsPerLine && barsPerLine > 0 ? barsPerLine : DEFAULT_BARS_PER_LINE;
 }
 
-/**
- * Beats a row lasts: its own `|n|` bars if it has one, otherwise the song's default — measured
- * either way by the meter in effect (ADR-032).
- */
-export function rowBeats(row: SongRow, barsPerLine: number, meter: string = DEFAULT_METER): number {
-  const bars = row.bars && row.bars > 0 ? row.bars : safeBars(barsPerLine);
-  return bars * beatsPerBarOf(meter);
+/** Bars a row lasts: its own `|n|` if it has one, otherwise the song's default (ADR-032). */
+export function rowBars(row: SongRow, barsPerLine: number): number {
+  return row.bars && row.bars > 0 ? row.bars : safeBars(barsPerLine);
 }
 
-/** How long a row is held. Everything is beats at the song tempo — no seconds (ADR-011). */
+/**
+ * Beats a row lasts, counted in the meter's own unit — eighths in 6/8, quarters in 3/4.
+ *
+ * This is the metronome's grid, which belongs to the meter and not to however the tempo happens to
+ * be written down (ADR-052).
+ */
+export function rowBeats(row: SongRow, barsPerLine: number, meter: string = DEFAULT_METER): number {
+  return rowBars(row, barsPerLine) * beatsPerBarOf(meter);
+}
+
+/**
+ * How long a row is held: its bars at the song's tempo (ADR-011).
+ *
+ * Bars, not beats, because a bar is the thing the meter and the tempo agree on. The unit defaults
+ * to the meter's denominator, which is what a tempo meant before units were written down.
+ */
 export function rowDurationMs(
   row: SongRow,
   tempo: number,
   barsPerLine: number,
-  meter: string = DEFAULT_METER
+  meter: string = DEFAULT_METER,
+  tempoUnit: TempoUnit = unitFromMeterDenominator(meter)
 ): number {
-  const safeTempo = Math.max(tempo, MIN_TEMPO);
-  return (60000 / safeTempo) * rowBeats(row, barsPerLine, meter);
+  return rowBars(row, barsPerLine) * msPerBar(meter, tempo, tempoUnit);
 }
 
 /**
@@ -89,7 +93,8 @@ export function buildSchedule(
   rows: SongRow[],
   tempo: number,
   barsPerLine: number = DEFAULT_BARS_PER_LINE,
-  songMeter: string = DEFAULT_METER
+  songMeter: string = DEFAULT_METER,
+  tempoUnit: TempoUnit = unitFromMeterDenominator(songMeter)
 ): ScheduleEntry[] {
   const schedule: ScheduleEntry[] = [];
   let cursor = 0;
@@ -107,7 +112,7 @@ export function buildSchedule(
     if (isBlankRow(row)) return;
 
     const beats = rowBeats(row, barsPerLine, meter);
-    const durationMs = rowDurationMs(row, tempo, barsPerLine, meter);
+    const durationMs = rowDurationMs(row, tempo, barsPerLine, meter, tempoUnit);
     schedule.push({
       rowId: row.id,
       index,

@@ -11,6 +11,16 @@ import {
   tempoUnitSymbol,
   unitFromMeterDenominator,
 } from '../src/lib/tempo';
+import { buildSchedule } from '../src/lib/playback';
+import type { SongRow } from '../src/types/song';
+
+const row = (id: string): SongRow => ({
+  id,
+  lyrics: id,
+  chords: [],
+  bars: null,
+  meter: null,
+});
 
 describe('quarterNotesPerBar', () => {
   it('TU-01 measures a bar in quarter notes', () => {
@@ -98,7 +108,27 @@ describe('unit defaults', () => {
   });
 });
 
-describe('the bounds', () => {
+describe('a line at a tempo', () => {
+  it('TU-12 times a five-bar line the same either way round (ADR-052)', () => {
+    const line = [{ ...row('a'), bars: 5 }];
+
+    const inEighths = buildSchedule(line, 180, 1, '6/8', 'eighth');
+    const inDotted = buildSchedule(line, 60, 1, '6/8', 'dottedQuarter');
+
+    expect(inEighths[0].durationMs).toBe(10000);
+    expect(inDotted[0].durationMs).toBe(10000);
+    // Identical playback, not merely equal durations: the beat grid matches too.
+    expect(inEighths[0].beats).toBe(inDotted[0].beats);
+    expect(inEighths).toEqual(inDotted);
+  });
+
+  it('TU-13 keeps bars whole — a tempo unit never splits one', () => {
+    // 7/8 at a quarter-note tempo is three and a half quarters a bar, and still exactly one bar.
+    const schedule = buildSchedule([row('a')], 120, 1, '7/8', 'quarter');
+    expect(schedule[0].durationMs).toBe(1750);
+    expect(schedule[0].beats).toBe(7);
+  });
+
   it('TU-14 bounds stay usable at both ends', () => {
     expect(MIN_TEMPO).toBeLessThan(MAX_TEMPO);
     expect(msPerBar('4/4', MAX_TEMPO, 'quarter')).toBeGreaterThan(0);

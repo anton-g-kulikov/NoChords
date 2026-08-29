@@ -6,7 +6,7 @@
  * this hook only owns the `AudioContext` and the lookahead loop.
  */
 import { useCallback, useEffect, useRef } from 'react';
-import { accentAt, beatDurationMs, beatsInWindow, clickAt } from '../lib/metronome';
+import { accentAt, beatsInWindow, clickAt } from '../lib/metronome';
 import type { ScheduleEntry } from '../lib/playback';
 
 /** How often the scheduler wakes. Short enough to be responsive, long enough to be cheap. */
@@ -32,7 +32,8 @@ export interface MetronomeOptions {
   enabled: boolean;
   /** 0..1. */
   volume: number;
-  tempo: number;
+  /** Length of one beat of the song's opening meter, which the count-in runs on (ADR-052). */
+  beatMs: number;
   /** The song's schedule, which carries the meter running at each beat (ADR-026). */
   schedule: ScheduleEntry[];
   isPlaying: boolean;
@@ -48,7 +49,7 @@ export interface MetronomeOptions {
 export function useMetronome({
   enabled,
   volume,
-  tempo,
+  beatMs,
   schedule,
   isPlaying,
   originMs,
@@ -68,10 +69,10 @@ export function useMetronome({
    */
   const audioOriginRef = useRef<number | null>(null);
 
-  const latest = useRef({ volume, tempo, schedule, originMs, totalMs });
+  const latest = useRef({ volume, beatMs, schedule, originMs, totalMs });
   useEffect(() => {
-    latest.current = { volume, tempo, schedule, originMs, totalMs };
-  }, [volume, tempo, schedule, originMs, totalMs]);
+    latest.current = { volume, beatMs, schedule, originMs, totalMs };
+  }, [volume, beatMs, schedule, originMs, totalMs]);
 
   /** One click, scheduled at an absolute time on the audio clock. */
   const scheduleClick = useCallback((context: AudioContext, at: number, accent: boolean) => {
@@ -116,7 +117,7 @@ export function useMetronome({
     // first tick happens to land. Otherwise the opening click — the "one" of the count-in — falls
     // into the gap before the first scan and the count comes in on two.
     const runStart = performance.now() - originMs;
-    scannedToRef.current = Math.floor(runStart / beatDurationMs(tempo)) * beatDurationMs(tempo);
+    scannedToRef.current = Math.floor(runStart / beatMs) * beatMs;
 
     const timer = window.setInterval(() => {
       const ctx = contextRef.current;
@@ -144,17 +145,15 @@ export function useMetronome({
       const to = elapsed + LOOKAHEAD_MS + latency * 1000;
       scannedToRef.current = to;
 
-      const beatMs = beatDurationMs(current.tempo);
-      for (const beat of beatsInWindow(current.tempo, from, to)) {
-        const beatElapsed = beat * beatMs;
+      for (const { index, atMs } of beatsInWindow(current.schedule, current.beatMs, from, to)) {
         // Stop at the end of the song; the count-in beats before zero still play.
-        if (beatElapsed >= current.totalMs) continue;
-        const at = clickAt(audioOrigin, beatElapsed, latency);
+        if (atMs >= current.totalMs) continue;
+        const at = clickAt(audioOrigin, atMs, latency);
         const lateByMs = (ctx.currentTime - at) * 1000;
         if (lateByMs > LATE_TOLERANCE_MS) continue;
         // A click a few milliseconds late still belongs at the top of the count: play it now
         // rather than dropping it, which is what silenced the first count-in beat.
-        scheduleClick(ctx, Math.max(at, ctx.currentTime), accentAt(beat, current.schedule));
+        scheduleClick(ctx, Math.max(at, ctx.currentTime), accentAt(index, current.schedule));
       }
     }, TICK_MS);
 
@@ -163,7 +162,7 @@ export function useMetronome({
       scannedToRef.current = null;
       audioOriginRef.current = null;
     };
-  }, [enabled, isPlaying, originMs, tempo, scheduleClick]);
+  }, [enabled, isPlaying, originMs, beatMs, scheduleClick]);
 
   // Release the audio device when the player goes away.
   useEffect(

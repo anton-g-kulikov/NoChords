@@ -5,13 +5,14 @@ import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
 import { SongRowView } from './SongRowView';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
+import { msPerMeterBeat } from '../lib/tempo';
 import { beatsPerBarOf } from '../lib/meter';
 import { collectChordOccurrences, concealmentFor, createConcealment } from '../lib/learning';
 import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { useWakeLock } from '../hooks/useWakeLock';
-import { beatDurationMs, countInDurationMs } from '../lib/metronome';
+import { countInDurationMs } from '../lib/metronome';
 import { MAX_COUNT_IN_BARS, type Settings } from '../lib/settings';
 import {
   isDoubleTap,
@@ -70,8 +71,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const lastTap = useRef<LastTap | null>(null);
 
   const schedule = useMemo(
-    () => buildSchedule(song.rows, song.tempo, song.barsPerLine, song.meter),
-    [song.rows, song.tempo, song.barsPerLine, song.meter]
+    () => buildSchedule(song.rows, song.tempo, song.barsPerLine, song.meter, song.tempoUnit),
+    [song.rows, song.tempo, song.barsPerLine, song.meter, song.tempoUnit]
   );
 
   const handleComplete = useCallback(() => {
@@ -81,12 +82,10 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     setConcealSeed(randomSeed());
   }, [mode, onChange, song]);
 
-  const beatMs = beatDurationMs(song.tempo);
+  // One beat of the song's own meter — an eighth in 6/8 — at whatever note value its tempo counts.
+  const beatMs = msPerMeterBeat(song.meter, song.tempo, song.tempoUnit);
   // A count-in is counted in the song's own time: one bar of 6/8 is six beats, of 3/4 three.
-  const countInMs = countInDurationMs(
-    song.tempo,
-    settings.countInBars * beatsPerBarOf(song.meter)
-  );
+  const countInMs = countInDurationMs(beatMs, settings.countInBars * beatsPerBarOf(song.meter));
 
   const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
 
@@ -117,7 +116,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   useMetronome({
     enabled: settings.metronomeEnabled,
     volume: settings.metronomeVolume,
-    tempo: song.tempo,
+    beatMs,
     schedule,
     isPlaying,
     originMs,

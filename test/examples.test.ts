@@ -93,10 +93,12 @@ describe("example songs", () => {
       null,
       4,
     ]);
-    // Rising Sun writes only its ending: three bars on the last line, then two on each of the
-    // closing instrumental rows, which are in 3/4 where a bar is half as long.
+    // Rising Sun writes only its ending: three bars on the last line, then one on each of the
+    // closing instrumental rows. Those are in 3/4, and with the tempo counting eighths a 3/4 bar
+    // and a 6/8 bar last exactly the same — the ending regroups the pulse, it does not slow down
+    // (ADR-052).
     expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
-      3, 2, 2,
+      3, 1, 1,
     ]);
   });
 

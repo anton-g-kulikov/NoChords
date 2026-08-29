@@ -36,6 +36,37 @@ export function countInSounded(countInBeats: number, countInRemaining: number): 
   return Math.min(Math.max(countInBeats - countInRemaining + 1, 0), Math.max(countInBeats, 0));
 }
 
+/** Where a count-in has got to: how far into the bar going by, and how many bars are left. */
+export interface CountInProgress {
+  /** Beats sounded in the bar going by, from 1; zero when nothing is counting. */
+  inBar: number;
+  /** Bars of the count still to run, counting the one going by. */
+  barsLeft: number;
+}
+
+/**
+ * Reads the count-in as one bar going round rather than as a long line of beats (ADR-053).
+ *
+ * A count can run to twenty-four bars, which is hundreds of beats at 12/8 and unreadable drawn out
+ * in full. One bar cycling, with the bars counted down beside it, says the same thing in a shape
+ * that can be taken in at a glance.
+ */
+export function countInProgress(
+  countInBars: number,
+  beatsPerBar: number,
+  countInRemaining: number
+): CountInProgress {
+  const bars = Math.max(countInBars, 0);
+  const perBar = Math.max(Math.round(beatsPerBar), 1);
+  const sounded = countInSounded(bars * perBar, countInRemaining);
+  if (sounded <= 0) return { inBar: 0, barsLeft: bars };
+
+  return {
+    inBar: ((sounded - 1) % perBar) + 1,
+    barsLeft: bars - Math.floor((sounded - 1) / perBar),
+  };
+}
+
 /**
  * When to fire a click so that it is *heard* on the beat.
  *

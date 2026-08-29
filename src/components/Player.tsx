@@ -22,7 +22,7 @@ import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } fro
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { useWakeLock } from '../hooks/useWakeLock';
-import { accentAt, countInDurationMs, countInSounded } from '../lib/metronome';
+import { accentAt, countInDurationMs, countInProgress } from '../lib/metronome';
 import { MAX_COUNT_IN_BARS, type Settings } from '../lib/settings';
 import {
   isDoubleTap,
@@ -106,7 +106,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * the flow it used to appear at the downbeat and vanish at the first line, moving the chart
    * twice in the two seconds you are least able to follow it.
    */
-  const countInBeats = settings.countInBars * beatsPerBarOf(song.meter);
+  const beatsPerBar = beatsPerBarOf(song.meter);
+  const countInBeats = settings.countInBars * beatsPerBar;
   const {
     activeIndex,
     isPlaying,
@@ -125,12 +126,21 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    *
    * It used to snap back to the full count the moment playing began — a four that had just finished
    * counting down to one, reading as though the count were about to start again. It keeps its space
-   * (that is the whole point of ADR-047) and goes to half strength instead.
-   *
-   * A fact about where the song is, not about whether it happens to be running: pausing mid-verse
-   * used to bring the whole count back, which read as though playing on would count you in again.
+   * (that is the whole point of ADR-047) and fades out instead.
    */
   const countInSpent = !countingIn && elapsedMs > 0;
+
+  /*
+   * One bar of dots, cycled, rather than every beat of the count laid out at once (ADR-053).
+   *
+   * A count-in can run to 24 bars (ADR-046); at 12/8 that is 288 dots, and even four bars of four
+   * is a row nobody counts at a glance.
+   */
+  const { inBar: soundedInBar, barsLeft: countInBarsLeft } = countInProgress(
+    settings.countInBars,
+    beatsPerBar,
+    countInRemaining
+  );
 
   /*
    * The chart shrinks to fit its longest line rather than letting it wrap (ADR-054). It depends on
@@ -436,18 +446,17 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           aria-hidden={countInSpent || undefined}
         >
           <span className="count-in__beats" aria-hidden="true">
-            {Array.from({ length: countInBeats }, (_, position) => {
-              // The metronome's own indices: the count runs -n..-1 into the downbeat at zero, so
-              // the dots are accented by exactly what will be heard (ADR-026).
-              const beat = position - countInBeats;
-              const sounded = countingIn && position < countInSounded(countInBeats, countInRemaining);
+            {Array.from({ length: beatsPerBar }, (_, position) => {
+              // The metronome's own indices: the last bar of the count runs -beatsPerBar..-1 into
+              // the downbeat at zero, so the dots are accented by exactly what will be heard.
+              const beat = position - beatsPerBar;
               return (
                 <span
                   key={position}
                   className={[
                     'count-in__beat',
                     accentAt(beat, schedule) ? 'count-in__beat--accent' : '',
-                    sounded ? 'count-in__beat--sounded' : '',
+                    position < soundedInBar ? 'count-in__beat--sounded' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')}
@@ -456,8 +465,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             })}
           </span>
           <span className="count-in__label">
-            {countingIn
-              ? 'counting in'
+            {countingIn && settings.countInBars > 1
+              ? `${countInBarsLeft}/${settings.countInBars} bars of ${song.meter}`
               : `${settings.countInBars} bar${settings.countInBars === 1 ? '' : 's'} of ${song.meter}`}
           </span>
         </div>

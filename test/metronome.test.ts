@@ -4,6 +4,7 @@ import {
   clickAt,
   beatsInWindow,
   countInDurationMs,
+  countInProgress,
   countInSounded,
   isAccent,
 } from '../src/lib/metronome';
@@ -65,6 +66,26 @@ describe('countInSounded', () => {
     // The lead-in can report more left than there are beats; it never lights a beat that is not there.
     expect(countInSounded(4, 9)).toBe(0);
     expect(countInSounded(4, 5)).toBe(0);
+  });
+});
+
+describe('countInProgress', () => {
+  it('MT-21 cycles one bar and counts the bars down', () => {
+    // Two bars of 6/8: twelve beats, counted down from twelve.
+    const at = (left: number) => countInProgress(2, 6, left);
+
+    expect(at(12)).toEqual({ inBar: 1, barsLeft: 2 });
+    expect(at(7)).toEqual({ inBar: 6, barsLeft: 2 });
+    // The seventh click starts the bar again, with one bar left to run.
+    expect(at(6)).toEqual({ inBar: 1, barsLeft: 1 });
+    expect(at(1)).toEqual({ inBar: 6, barsLeft: 1 });
+  });
+
+  it('MT-22 reads as a full count with nothing sounded when it is not counting', () => {
+    expect(countInProgress(2, 6, 0)).toEqual({ inBar: 0, barsLeft: 2 });
+    expect(countInProgress(0, 6, 0)).toEqual({ inBar: 0, barsLeft: 0 });
+    // A meter that cannot say how long a bar is still cycles rather than dividing by zero.
+    expect(countInProgress(1, 0, 1)).toEqual({ inBar: 1, barsLeft: 1 });
   });
 });
 

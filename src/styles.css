@@ -577,21 +577,18 @@ kbd {
  * height of Play/Restart alone (ADR-035). Opened, it covers the top of the chart; before, it
  * pushed the chart down and pinned 400px of a 720px screen — most of a phone.
  */
+/*
+ * In the flow, not over the chart (ADR-046).
+ *
+ * Positioned absolutely it covered the line you were reading the moment you opened it, and on a
+ * phone it covered most of them. In the flow it pushes the song down instead: the chart moves,
+ * nothing is hidden, and closing the panel puts it back.
+ */
 .controls__setup {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  /* A sheet, not a takeover: on a phone the whole panel is taller than the screen, and a chart
-     you can still see a line of is worth more than the last row of controls (ADR-035). */
-  max-height: 60vh;
-  overflow-y: auto;
   padding: 0.75rem 0;
-  background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
 

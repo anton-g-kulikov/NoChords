@@ -275,14 +275,17 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             <SlidersVertical size={20} aria-hidden />
           </button>
         </div>
+      </div>
 
-        <div
-          className={
-            setupOpen || metronomeOpen
-              ? 'controls__setup'
-              : 'controls__setup controls__setup--closed'
-          }
-        >
+      {/* In the flow rather than over the chart (ADR-046): opening settings moves the song down
+          instead of covering the line you were reading. */}
+      <div
+        className={
+          setupOpen || metronomeOpen
+            ? 'controls__setup'
+            : 'controls__setup controls__setup--closed'
+        }
+      >
           {/*
            * Three groups, because there are three questions: how the chart reads, how fast it
            * moves, and whether it clicks. Before this they were one row of eight controls in the
@@ -375,7 +378,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             </div>
           </section>
           )}
-        </div>
       </div>
 
 

@@ -1187,3 +1187,25 @@ platform to add. Measured equal at 52×44 across all five.
 hold — a four-character minor key. A five-character one would clip rather than expand, which is the
 trade for boxes that do not move as you transpose.
 
+---
+
+## ADR-046 — The settings panel pushes the song down rather than covering it
+
+**Decision.** The panel is in the normal flow, below the strip, instead of absolutely positioned
+over the chart. Opening it moves the song down; closing it moves the song back. The 60vh cap and
+its own scrollbar are gone with the overlay.
+
+**Why.** Overlaid, it covered the line you were reading the moment you opened it — and on a phone it
+covered most of them, which is why it needed a height cap and an inner scrollbar in the first place.
+Those were both treatments for a problem that only existed because it floated. In the flow the chart
+simply moves: 124px down when the panel opens, back up when it closes.
+
+**What it costs.** Opening settings reflows the chart, so the line you were on moves. That is a
+visible change rather than a hidden one, and it is undone by closing the panel — where an overlay
+hid a line and gave no clue what it had covered.
+
+**A loose end this creates.** The strip above it is still `sticky` while the panel is not, so
+scrolling now slides the panel up under a toggle that stays put. The stickiness exists so the chord
+modes stay reachable while the chart scrolls during playback (ADR-040), which is a real need; but
+the two behaviours no longer agree, and that is worth resolving rather than leaving.
+

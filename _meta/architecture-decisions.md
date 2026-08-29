@@ -932,6 +932,12 @@ does not cover the thing you just tapped.
 **Cost.** Two pinned strips take about 126px of vertical space between them, which on a phone is
 real. The alternative was one strip holding both jobs, which is what this replaces.
 
+**Later: two groups, not three.** The metronome moved up into the first row, which is now Playback
+— mode, key, metronome, volume, count-in — with Timing below it. Three groups meant three headings
+and three rows for eleven controls, and on a phone the panel needed its own scrollbar to show them.
+Two rows fit without one. The toggle gained a "Metronome" label of its own, because "On" alone says
+nothing once it sits between a key stepper and a volume slider.
+
 ---
 
 ## ADR-037 — The app is a fixed shell, not a scrolling document

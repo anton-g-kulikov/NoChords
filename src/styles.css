@@ -961,3 +961,8 @@ kbd {
   font-variant-numeric: tabular-nums;
 }
 
+/* A labelled field holding a button: the button is as wide as its word, not as its column. */
+.field--button {
+  align-items: flex-start;
+}
+

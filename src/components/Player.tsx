@@ -215,8 +215,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
            * moves, and whether it clicks. Before this they were one row of eight controls in the
            * order they happened to be written (ADR-034).
            */}
-          <section className="setup__group" aria-label="Display">
-            <h2 className="setup__legend">Display</h2>
+          <section className="setup__group" aria-label="Playback">
+            <h2 className="setup__legend">Playback</h2>
             <div className="setup__row">
               <div className="controls__group" role="group" aria-label="Display mode">
                 {MODES.map((option) => (
@@ -237,6 +237,47 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 value={song.currentKey}
                 originalKey={song.originalKey}
                 onChange={(key) => onChange(setCurrentKey(song, key))}
+              />
+
+
+              {/* Labelled, because "On" alone says nothing once it shares a row (ADR-038). */}
+              <div className="field field--narrow field--button">
+                <span className="field__label">Metronome</span>
+                <button
+                  type="button"
+                  className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
+                  aria-pressed={settings.metronomeEnabled}
+                  title="Click on every beat while playing"
+                  onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
+                >
+                  {settings.metronomeEnabled ? 'On' : 'Off'}
+                </button>
+              </div>
+
+              <label className="field field--narrow">
+                <span className="field__label">
+                  Volume {Math.round(settings.metronomeVolume * 100)}%
+                </span>
+                <input
+                  className="field__range"
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round(settings.metronomeVolume * 100)}
+                  disabled={!settings.metronomeEnabled}
+                  aria-label="Metronome volume"
+                  onChange={(event) =>
+                    onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
+                  }
+                />
+              </label>
+
+              <NumberField
+                label="Count-in (bars)"
+                value={settings.countInBars}
+                min={0}
+                max={MAX_COUNT_IN_BARS}
+                onCommit={(countInBars) => onSettingsChange({ countInBars })}
               />
             </div>
           </section>
@@ -273,47 +314,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 <span className="field__label">Meter</span>
                 <p className="field__static">{song.meter}</p>
               </div>
-            </div>
-          </section>
-
-          <section className="setup__group" aria-label="Metronome">
-            <h2 className="setup__legend">Metronome</h2>
-            <div className="setup__row">
-              <button
-                type="button"
-                className={settings.metronomeEnabled ? 'button button--primary' : 'button'}
-                aria-pressed={settings.metronomeEnabled}
-                title="Click on every beat while playing"
-                onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
-              >
-                {settings.metronomeEnabled ? 'On' : 'Off'}
-              </button>
-
-              <label className="field field--narrow">
-                <span className="field__label">
-                  Volume {Math.round(settings.metronomeVolume * 100)}%
-                </span>
-                <input
-                  className="field__range"
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={Math.round(settings.metronomeVolume * 100)}
-                  disabled={!settings.metronomeEnabled}
-                  aria-label="Metronome volume"
-                  onChange={(event) =>
-                    onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
-                  }
-                />
-              </label>
-
-              <NumberField
-                label="Count-in (bars)"
-                value={settings.countInBars}
-                min={0}
-                max={MAX_COUNT_IN_BARS}
-                onCommit={(countInBars) => onSettingsChange({ countInBars })}
-              />
             </div>
           </section>
         </div>

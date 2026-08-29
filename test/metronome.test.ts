@@ -4,6 +4,7 @@ import {
   clickAt,
   beatsInWindow,
   countInDurationMs,
+  countInSounded,
   isAccent,
 } from '../src/lib/metronome';
 import { buildSchedule } from '../src/lib/playback';
@@ -49,6 +50,21 @@ describe('beatsInWindow times', () => {
       { index: 7, atMs: 4000 },
       { index: 8, atMs: 5000 },
     ]);
+  });
+});
+
+describe('countInSounded', () => {
+  it('MT-19 lights one beat on the first click and all of them on the last', () => {
+    // A count-in of four counts down 4, 3, 2, 1.
+    expect([4, 3, 2, 1].map((left) => countInSounded(4, left))).toEqual([1, 2, 3, 4]);
+  });
+
+  it('MT-20 has nothing sounded when nothing is counting', () => {
+    expect(countInSounded(4, 0)).toBe(0);
+    expect(countInSounded(0, 0)).toBe(0);
+    // The lead-in can report more left than there are beats; it never lights a beat that is not there.
+    expect(countInSounded(4, 9)).toBe(0);
+    expect(countInSounded(4, 5)).toBe(0);
   });
 });
 

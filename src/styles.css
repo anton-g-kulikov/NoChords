@@ -815,14 +815,13 @@ kbd {
  */
 .count-in {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 20px 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  padding: 7px 12px;
+  margin-bottom: 8px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--surface);
   color: var(--muted);
   /* Fading out when the count is spent, rather than snapping back to a full count. */
   transition: opacity 500ms ease 150ms, border-color 150ms ease;
@@ -842,23 +841,41 @@ kbd {
   opacity: 0;
 }
 
-.count-in__number {
-  font-size: 3rem;
-  font-weight: 700;
-  line-height: 1;
-  color: inherit;
-  font-variant-numeric: tabular-nums;
+/*
+ * One dot a beat, accented where the click is (ADR-053).
+ *
+ * A number counting 4-3-2-1 says how many are left; the dots say where in the bar you are, which
+ * is the thing you are actually waiting for. They fill left to right as the clicks sound.
+ */
+.count-in__beats {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
-.count-in--counting .count-in__number {
-  color: var(--accent);
+.count-in__beat {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background-color 80ms linear;
+}
+
+/* The pulse of the bar: bigger, not merely brighter, so it reads before it lights. */
+.count-in__beat--accent {
+  width: 11px;
+  height: 11px;
+}
+
+.count-in__beat--sounded {
+  background: var(--accent);
 }
 
 .count-in__label {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
 }
 
 @media (max-width: 720px) {

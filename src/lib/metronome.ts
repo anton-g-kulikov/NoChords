@@ -25,6 +25,18 @@ export function countInDurationMs(beatMs: number, countInBeats: number): number 
 }
 
 /**
+ * How many count-in beats have sounded, from how many are left.
+ *
+ * `countInRemaining` counts down from n to 1, so on the first click one beat has sounded and on the
+ * last one they all have — the fencepost the count-in display would otherwise get wrong in a way
+ * only a running clock could show (ADR-053).
+ */
+export function countInSounded(countInBeats: number, countInRemaining: number): number {
+  if (countInRemaining <= 0) return 0;
+  return Math.min(Math.max(countInBeats - countInRemaining + 1, 0), Math.max(countInBeats, 0));
+}
+
+/**
  * When to fire a click so that it is *heard* on the beat.
  *
  * A click scheduled at audio time T reaches the speaker at T + the output latency, which on a

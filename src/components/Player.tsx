@@ -13,7 +13,7 @@ import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } fro
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { useWakeLock } from '../hooks/useWakeLock';
-import { countInDurationMs } from '../lib/metronome';
+import { accentAt, countInDurationMs, countInSounded } from '../lib/metronome';
 import { MAX_COUNT_IN_BARS, type Settings } from '../lib/settings';
 import {
   isDoubleTap,
@@ -414,11 +414,30 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           /* Once it has been counted the block is only holding its space; nothing left to say. */
           aria-hidden={countInSpent || undefined}
         >
-          <span className="count-in__number">
-            {countingIn ? countInRemaining : countInBeats}
+          <span className="count-in__beats" aria-hidden="true">
+            {Array.from({ length: countInBeats }, (_, position) => {
+              // The metronome's own indices: the count runs -n..-1 into the downbeat at zero, so
+              // the dots are accented by exactly what will be heard (ADR-026).
+              const beat = position - countInBeats;
+              const sounded = countingIn && position < countInSounded(countInBeats, countInRemaining);
+              return (
+                <span
+                  key={position}
+                  className={[
+                    'count-in__beat',
+                    accentAt(beat, schedule) ? 'count-in__beat--accent' : '',
+                    sounded ? 'count-in__beat--sounded' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                />
+              );
+            })}
           </span>
           <span className="count-in__label">
-            {countingIn ? 'counting in' : `count-in · ${settings.countInBars} bar${settings.countInBars === 1 ? '' : 's'} of ${song.meter}`}
+            {countingIn
+              ? 'counting in'
+              : `${settings.countInBars} bar${settings.countInBars === 1 ? '' : 's'} of ${song.meter}`}
           </span>
         </div>
       )}

@@ -34,8 +34,28 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
   useEffect(() => {
     const area = textRef.current;
     if (!area) return;
+
+    /*
+     * Where the browser can size a text area to its content, let it: `field-sizing: content` does
+     * this without ever collapsing the box, which is what the fallback below has to do in order to
+     * measure. That collapse is the suspected cause of the view jumping on paste — suspected, not
+     * proven, because it does not reproduce on a desktop (ADR-051).
+     */
+    if (typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content')) {
+      // Drop any height this fallback set before, or it would override the browser's sizing.
+      area.style.height = '';
+      return;
+    }
+
+    // Preserve the scroll position across the measurement, since the page is briefly shorter than
+    // its own scroll offset while the box is collapsed.
+    const scroller = area.closest('.screen__scroll');
+    const scrollTop = scroller?.scrollTop;
+
     area.style.height = 'auto';
     area.style.height = `${area.scrollHeight}px`;
+
+    if (scroller && scrollTop !== undefined) scroller.scrollTop = scrollTop;
   }, [text]);
   const openSongId = useRef(song.id);
 

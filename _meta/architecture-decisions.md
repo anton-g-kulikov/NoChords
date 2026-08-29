@@ -1317,3 +1317,29 @@ on any of it — but the reasoning recorded for them was not.
 **Cost.** Nothing scrolls the document any more, so any screen that wants scrolling must say so.
 That is already true of every screen here (ADR-037), and it fails loudly rather than quietly.
 
+---
+
+## ADR-051 — The browser sizes the text area where it can
+
+**Decision.** `.editor__text` carries `field-sizing: content`, so the browser grows the box to its
+content with no script involved. The JavaScript measurement from ADR-049 stays as a fallback and
+runs only where `field-sizing` is unsupported, clearing any height it had set.
+
+**Why.** Measuring a text area means collapsing it to `auto` first, reading `scrollHeight`, then
+setting the height back. Reported symptom: pasting made the view jump to the top of the song.
+Collapsing the box is the obvious suspect — while it is short the page is briefly shorter than its
+own scroll position — and `field-sizing` removes that step entirely rather than compensating for it.
+
+**Said plainly: this is not a confirmed fix.** The jump does not reproduce on a desktop. I set the
+scroll position to 900, collapsed the box by hand, and the position held; so the mechanism I first
+patched around was not demonstrated, only assumed. What is demonstrated is that the browser now
+sizes the box without collapsing it, which removes the suspected cause instead of correcting for it.
+
+**Support.** `field-sizing` is Chrome 123+, which covers the phone this was reported from. Elsewhere
+the fallback behaves as before, now with the scroll position preserved across the measurement —
+belt and braces for a mechanism neither of us has seen.
+
+**Cost.** Two code paths for one behaviour until support is universal, and the one that runs here is
+not the one that runs on the reporter's phone. That is the wrong way round for testing, and it is
+why this ADR says "suspected" rather than "fixed".
+

@@ -417,8 +417,14 @@ kbd {
   outline-offset: -1px;
 }
 
-/* Height follows the content (ADR-049); the screen does the scrolling. */
+/*
+ * Height follows the content (ADR-049); the screen does the scrolling.
+ *
+ * `field-sizing` does it in the browser, with no measuring and so no collapsing of the box — the
+ * JavaScript fallback in SongEditor only runs where this is unsupported (ADR-051).
+ */
 .editor__text {
+  field-sizing: content;
   width: 100%;
   min-height: 12rem;
   padding: 14px 16px;

@@ -711,6 +711,15 @@ kbd {
   background: var(--surface);
 }
 
+/*
+ * Sung already, and behind you. Halved rather than hidden — glancing back at the line you have just
+ * come off is the most ordinary thing to do while playing.
+ */
+.sheet__row--played {
+  opacity: 0.5;
+  transition: opacity 300ms ease;
+}
+
 .sheet__bars {
   position: absolute;
   top: 10px;

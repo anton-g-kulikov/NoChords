@@ -12,8 +12,14 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
   return (
     <div className="screen guide">
       <div className="screen__head guide__head">
-        <button type="button" className="button" onClick={onClose}>
-          ← Songs
+        <button
+          type="button"
+          className="button button--icon"
+          aria-label="Back to songs"
+          title="Back to songs"
+          onClick={onClose}
+        >
+          ←
         </button>
         <h1>Bars, beats and meter</h1>
       </div>

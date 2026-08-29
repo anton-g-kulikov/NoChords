@@ -1028,3 +1028,13 @@ kbd {
   text-transform: none;
   letter-spacing: 0;
 }
+
+/* A button whose label is a single glyph: square, so the glyph sits in the middle of it. */
+.button--icon {
+  min-width: 40px;
+  padding-left: 0;
+  padding-right: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+

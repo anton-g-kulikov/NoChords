@@ -71,8 +71,15 @@ export function App() {
   return (
     <div className="screen song-view">
       <header className="screen__head song-view__head">
-        <button type="button" className="button" onClick={() => setOpenSongId(null)}>
-          ← Songs
+        {/* The arrow is the whole message, and the title beside it says where you are. */}
+        <button
+          type="button"
+          className="button button--icon"
+          aria-label="Back to songs"
+          title="Back to songs"
+          onClick={() => setOpenSongId(null)}
+        >
+          ←
         </button>
         {/* Edited where it is read, rather than in a field further down the page (ADR-038).
             Only while editing: in Play a stray tap on the title should do nothing. */}

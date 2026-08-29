@@ -1391,9 +1391,13 @@ and holds three glyphs.
 
 ## ADR-053 — The count-in shows the bar, not a number
 
-**Decision.** The count-in is a row of dots, one per beat, sized by where the accent falls and
-filling left to right as the clicks sound. When the count is spent the block fades out in place
-rather than being removed or reset. Its height went from about 90px to 33px.
+**Decision.** The count-in is one bar of dots, sized by where the accent falls, filling left to
+right as the clicks sound and starting again each bar; the label counts the bars down beside it
+(`3/3 bars of 6/8`, then `2/3`). While it counts it carries the playing marker, which moves to the
+first lyric line on the downbeat. Once spent it drops to half strength in place, and stays there
+when playing is paused. Its height went from about 90px to 33px.
+
+*Revised in v0.13.0: the first version drew every beat of the count and faded to nothing.*
 
 **Why a bar and not a number.** A number counting 4-3-2-1 tells you how many beats are left, which
 is not the thing you are waiting for — you are waiting for the downbeat, and in 6/8 you are also
@@ -1401,17 +1405,34 @@ waiting to feel where the two pulses fall. The dots say both at once: six of the
 fourth larger, is a picture of the bar you are about to play. The accents come from `accentAt`, the
 same function the metronome clicks on, so what is drawn cannot drift from what is heard.
 
+**Why one bar cycling rather than the whole count.** A count-in runs to 24 bars (ADR-046), which is
+288 dots at 12/8 — and even four bars of four is a row nobody counts at a glance. One bar is a shape
+you can read; how many bars are left is a number, and the label is where numbers belong. Between
+them they say more than any length of dotted line.
+
+**Why it takes the marker while it counts.** Nothing is being sung yet, so marking the first lyric
+line as current is a small lie — it says "here" for two seconds before "here" is true. The strip is
+the current line until the downbeat, and it hands the marker over at exactly the moment the words
+start.
+
 **Why fade rather than reset.** It used to show the full count again the moment playing began — a
 four that had just finished counting down to one, reading as though it were about to start over. It
 keeps its space, because that is the whole point of ADR-047: removing it would move every line at
-the exact moment playing starts. Invisible and still there is the honest version of "done".
+the exact moment playing starts.
+
+**Half strength, not invisible, and it stays that way through a pause.** The bars and the meter are
+worth a glance mid-song, and a block that vanishes entirely is a block you cannot check. "Spent" is
+now a fact about the song's position rather than about whether it happens to be playing — pausing
+in the middle of a verse used to bring the full count back, which read as though pressing play again
+would count you in from the top. It would not.
 
 **Why smaller.** It was the largest thing on the playing screen and it matters for two seconds. The
 chart it sits above is the thing being read.
 
-**Cost.** Dots do not survive being counted at a glance past about a bar of 12/8 — at 24 beats the
-row is a dotted line, not a count. The label still names the bars and the meter, which is what
-carries the information when the dots stop being countable.
+**Cost.** A bar of 12/8 is still twelve dots, which is at the edge of what reads as a count rather
+than a dotted line — but it is now the worst case rather than the starting point. And the count no
+longer shows its own length as a picture: how long you have to wait is something you read rather
+than see.
 
 ---
 
@@ -1444,3 +1465,22 @@ shrinks the whole song. Neither is free, and both beat a chord over the wrong sy
 measuring is also invisible to the test suite: `fitScale` is unit-tested, but whether a resize is
 noticed at all depends on `ResizeObserver` delivery, which a hidden tab never performs — that part
 was verified by hand at three widths, not by a test.
+
+---
+
+## ADR-055 — Lines already sung recede
+
+**Decision.** Rows before the playing line drop to half strength.
+
+**Why.** The chart is a page you are reading forward through, and on a phone most of what is on
+screen is behind you. Dimming it makes the front of the song the part that is lit, so the eye lands
+on the line being sung and the ones about to come without having to search for the marker.
+
+**Half, not hidden.** Glancing back at the line you have just come off is one of the most ordinary
+things to do while playing — you missed a word, or you want to see the chord you have just left.
+Half strength stays readable; hiding would not.
+
+**Cost.** Two levels of dimming now mean two different things on the same screen — a played line and
+a spent count-in are both at half strength, and neither is a concealed chord, which is blurred
+rather than dimmed (ADR-007). Three visual languages for three kinds of "not the thing you are
+looking at" is one more than is comfortable.

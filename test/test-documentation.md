@@ -243,6 +243,8 @@ described at the end of this document.
 | MT-18 | With no song to read a pulse from, the count-in uses the beat it is given | ✅ |
 | MT-19 | **One count-in beat has sounded on the first click, all of them on the last** | ✅ |
 | MT-20 | Nothing is lit when nothing is counting, and never a beat that is not there | ✅ |
+| MT-21 | **The count cycles one bar of dots and counts the bars down beside it** | ✅ |
+| MT-22 | Not counting reads as a full count with nothing sounded; a zero-length bar cannot divide by zero | ✅ |
 | MT-18 | **A click fires early by the output latency, so it is heard on the beat** | ✅ |
 | MT-19 | With no reported latency the timing is unchanged | ✅ |
 | MT-20 | Compensation shifts the grid without stretching it | ✅ |

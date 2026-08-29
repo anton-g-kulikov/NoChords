@@ -3,6 +3,7 @@ import { Brain, ListMinus, ListRestart, Metronome, SlidersVertical } from 'lucid
 import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
+import { TempoField } from './TempoField';
 import { SongRowView } from './SongRowView';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
 import { msPerMeterBeat } from '../lib/tempo';
@@ -314,13 +315,14 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 onChange={(key) => onChange(setCurrentKey(song, key))}
               />
 
-              <NumberField
-                className="field field--compact"
-                label="Tempo (bpm)"
+              <TempoField
+                className="field field--tempo-compact"
                 value={song.tempo}
+                unit={song.tempoUnit}
                 min={MIN_TEMPO}
                 max={MAX_TEMPO}
                 onCommit={(tempo) => onChange({ ...song, tempo })}
+                onUnitChange={(tempoUnit) => onChange({ ...song, tempoUnit })}
               />
 
               {/* Shown, not offered: the meter decides what a bar is, and changing it here would

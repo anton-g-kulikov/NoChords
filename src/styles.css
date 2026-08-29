@@ -190,8 +190,9 @@ h1 {
   flex: 0 0 130px;
 }
 
+/* The same width as the fields beside it, so the editor keeps two to a row. */
 .field--tempo {
-  flex: 1 1 220px;
+  flex: 0 0 130px;
 }
 
 .field__label {
@@ -1057,6 +1058,33 @@ kbd {
 
 .field--tiny {
   flex: 0 0 72px;
+}
+
+/* Tempo reads as one fact — the note value, then the number (ADR-052). */
+.tempo {
+  display: flex;
+  gap: 4px;
+}
+
+/* The three note glyphs are the whole control, so it keeps no room for a caret it does not draw. */
+.tempo__unit {
+  flex: 0 0 46px;
+  text-align: center;
+  text-align-last: center;
+  padding-inline: 2px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.tempo__value {
+  flex: 1 1 58px;
+  min-width: 0;
+  padding-inline: 8px;
+}
+
+/* Sized so the player's setup still fits key, tempo and meter across 335px (ADR-041). */
+.field--tempo-compact {
+  flex: 0 0 108px;
 }
 
 /* A value the player may read but not change. */

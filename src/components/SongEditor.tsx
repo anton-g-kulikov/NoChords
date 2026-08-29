@@ -3,6 +3,7 @@ import { KeySelect } from './KeySelect';
 import { COMMON_METERS } from '../lib/meter';
 import { MAX_TEMPO, MIN_TEMPO } from '../lib/playback';
 import { NumberField } from './NumberField';
+import { TempoField } from './TempoField';
 import { songToText, textToRows } from '../lib/songs';
 import type { Song } from '../types/song';
 
@@ -109,12 +110,15 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
           </select>
         </label>
 
-        <NumberField
-          label="Tempo (bpm)"
+        {/* The meter next door does not touch this: a unit the writer chose is theirs to change,
+            so switching to 6/8 never silently rewrites what the number counts (ADR-052). */}
+        <TempoField
           value={song.tempo}
+          unit={song.tempoUnit}
           min={MIN_TEMPO}
           max={MAX_TEMPO}
           onCommit={(tempo) => onChange({ ...song, tempo })}
+          onUnitChange={(tempoUnit) => onChange({ ...song, tempoUnit })}
         />
 
         <NumberField

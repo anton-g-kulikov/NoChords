@@ -1,6 +1,7 @@
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { concealmentFor } from '../lib/learning';
 import type { Song } from '../types/song';
+import { tempoUnitSymbol } from '../lib/tempo';
 
 interface SongListProps {
   songs: Song[];
@@ -53,7 +54,8 @@ export function SongList({
                 <span className="library__meta">
                   {song.originalKey}
                   {song.currentKey !== song.originalKey ? ` → ${song.currentKey}` : ''} ·{' '}
-                  {song.tempo} bpm · {song.rows.length} line
+                  {/* `♩ = 90`, not `90 bpm`: the number means nothing without the note (ADR-052). */}
+                  {tempoUnitSymbol(song.tempoUnit)} = {song.tempo} · {song.rows.length} line
                   {song.rows.length === 1 ? '' : 's'} ·{' '}
                   {Math.round(concealmentFor(song.learningPlaythrough) * 100)}% learned
                 </span>

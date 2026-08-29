@@ -27,6 +27,19 @@
   box-sizing: border-box;
 }
 
+/*
+ * A full-height shell: header, a scrolling middle, and a bar at the bottom (ADR-037).
+ *
+ * The transport used to be `position: fixed`, which iOS placed somewhere other than the bottom of
+ * what you can see — the bar only appeared after scrolling most of a screen. Nothing here relies
+ * on fixed positioning any more: the bar is simply the last row of a column that is exactly as
+ * tall as the viewport, which is also how the native shell will be built.
+ */
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -37,9 +50,37 @@ body {
 }
 
 #root {
+  /* `dvh` rather than `vh`: on a phone the two differ by the height of the browser chrome, and
+     `vh` is the one that hides a bottom bar behind it. */
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Every screen fills the shell and scrolls its own middle. */
+.screen {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 24px 20px 96px;
+}
+
+/* The part of a screen that scrolls, with the page's own gutters. */
+.screen__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 20px 24px;
+}
+
+.screen__head {
+  flex: none;
+  padding: 24px 20px 0;
 }
 
 h1 {
@@ -357,11 +398,22 @@ kbd {
  * The sticky header. While playing it is only the transport, so the chart keeps the screen; the
  * setup controls collapse behind a disclosure and come back when playback stops.
  */
+/* The player fills the shell: chart scrolls, transport is the last row (ADR-037). */
+.player {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The settings panel hangs off the pinned strip, so the strip is its containing block. */
+.settings-bar {
+  position: sticky;
+}
+
 /*
- * Settings pin to the top, transport to the bottom (ADR-036).
- *
- * Sticky rather than fixed: its parent spans the whole chart, so it stays put for the entire
- * scroll without being taken out of the flow, and the panel below it can push nothing around.
+ * Settings pin to the top of the scrolling area, transport is the shell's last row (ADR-036,
+ * ADR-037).
  */
 .settings-bar {
   position: sticky;
@@ -387,11 +439,7 @@ kbd {
  * position, and it clears the iOS home indicator.
  */
 .controls {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
+  flex: none;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -686,14 +734,18 @@ kbd {
 
 /* ---------- Account ---------- */
 
+/* Above every screen, so it carries the shell's own gutters rather than touching the edge. */
 .authbar {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 12px;
-  padding-bottom: 16px;
-  margin-bottom: 8px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 8px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border);
 }
 

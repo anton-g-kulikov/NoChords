@@ -10,14 +10,15 @@ interface NotationGuideProps {
 
 export function NotationGuide({ onClose }: NotationGuideProps) {
   return (
-    <div className="guide">
-      <div className="guide__head">
+    <div className="screen guide">
+      <div className="screen__head guide__head">
         <button type="button" className="button" onClick={onClose}>
           ← Songs
         </button>
         <h1>Bars, beats and meter</h1>
       </div>
 
+      <div className="screen__scroll">
       <section className="guide__section">
         <h2>Beats</h2>
         <p>
@@ -140,6 +141,7 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
           <code>{'{2/4}'}</code> for the short bar, then <code>{'{4/4}'}</code> to go back.
         </p>
       </section>
+      </div>
     </div>
   );
 }

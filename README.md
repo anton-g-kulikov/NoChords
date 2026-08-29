@@ -68,8 +68,9 @@ works offline like everything else (ADR-033).
 Press **Play** (or <kbd>Space</kbd>) and the chart scrolls itself, highlighting the active row.
 Click any row to jump to it.
 
-The transport sits in a bar fixed to the bottom of the screen, where a native player puts it and
-where your thumb already is. Settings — mode, key, timing, metronome — open from a strip pinned at
+The app is a fixed shell — a header, a middle that scrolls, and the transport as the bottom row —
+so the controls sit where a native player puts them and where your thumb already is, without
+depending on fixed positioning (ADR-037). Settings — mode, key, timing, metronome — open from a strip pinned at
 the top, so they are reachable from anywhere in a long song without sharing space with the controls
 you touch mid-verse (ADR-036). While a song plays the app holds a screen wake lock, so the phone
 does not dim halfway through (ADR-035).

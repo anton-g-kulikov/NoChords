@@ -932,3 +932,34 @@ does not cover the thing you just tapped.
 **Cost.** Two pinned strips take about 126px of vertical space between them, which on a phone is
 real. The alternative was one strip holding both jobs, which is what this replaces.
 
+---
+
+## ADR-037 — The app is a fixed shell, not a scrolling document
+
+**Decision.** `#root` is a column exactly `100dvh` tall with `overflow: hidden`. Each screen is a
+head, a middle that scrolls itself, and — in Play — the transport as the last row. Nothing uses
+`position: fixed` any more.
+
+**What was wrong.** The transport was `position: fixed; bottom: 0`, which is correct on paper and
+worked in every browser here. On iOS it did not: the bar was invisible until you scrolled most of a
+screen, whether the settings panel was open or not. Reported from a phone, not reproducible on this
+machine — no transformed ancestor, no containing block, the bar flush at the viewport bottom in
+Chrome at every scroll position.
+
+**Why not chase the iOS bug.** A fix aimed at a mechanism I cannot see would be a guess, and a
+guess I could not verify. The shell removes the dependency instead: a flex row at the bottom of a
+viewport-height column cannot be mispositioned by anything, because nothing is positioning it.
+
+**Why `dvh`.** `vh` on a phone is the viewport with the browser chrome *ignored*, which is exactly
+the extra height that hides a bottom bar. `dvh` is the height you can actually see.
+
+**Why every screen, not just Play.** One structure is easier to hold than two, and the library and
+guide get the same benefit: their heads stay put and their content scrolls under them.
+
+**It is also the shape of the native app.** A header, a scrolling middle and a bottom bar is what an
+Expo shell would be built from, so this is a step towards that rather than away from it.
+
+**Cost.** The document no longer scrolls, so anything expecting page scroll has to be inside a
+`.screen__scroll`. A screen that forgets is a screen that cannot be scrolled at all — a loud
+failure, at least, rather than a quiet one.
+

@@ -69,8 +69,8 @@ export function App() {
   }
 
   return (
-    <div className="song-view">
-      <header className="song-view__head">
+    <div className="screen song-view">
+      <header className="screen__head song-view__head">
         <button type="button" className="button" onClick={() => setOpenSongId(null)}>
           ← Songs
         </button>
@@ -96,7 +96,9 @@ export function App() {
       </header>
 
       {pane === 'edit' ? (
-        <SongEditor song={song} onChange={updateSong} onOpenGuide={() => setShowGuide(true)} />
+        <div className="screen__scroll">
+          <SongEditor song={song} onChange={updateSong} onOpenGuide={() => setShowGuide(true)} />
+        </div>
       ) : (
         <Player
           song={song}

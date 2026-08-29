@@ -23,8 +23,8 @@ export function SongList({
   const install = useInstallPrompt();
 
   return (
-    <div className="library">
-      <div className="library__head">
+    <div className="screen library">
+      <div className="screen__head library__head">
         <h1>NoChords</h1>
         <div className="library__actions">
           {onSignIn && (
@@ -38,6 +38,7 @@ export function SongList({
         </div>
       </div>
 
+      <div className="screen__scroll">
       {songs.length === 0 ? (
         <p className="library__empty">
           No songs yet. Create one and type your lines with chords in brackets, like{' '}
@@ -92,6 +93,7 @@ export function SongList({
         {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
         {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
       </p>
+      </div>
     </div>
   );
 }

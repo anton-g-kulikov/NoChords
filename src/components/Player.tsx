@@ -193,6 +193,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
   return (
     <div className="player">
+      <div className="screen__scroll player__chart">
       {/*
        * Settings live at the top and the transport at the bottom (ADR-036): two different jobs,
        * and on a phone only one of them belongs under a thumb. The strip is pinned so the panel
@@ -318,21 +319,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         </div>
       </div>
 
-      <div className="controls">
-        <div className="controls__transport">
-          <button type="button" className="button button--primary" onClick={toggle}>
-            {isPlaying ? 'Pause' : finished ? 'Play again' : 'Play'}
-          </button>
-          <button type="button" className="button" onClick={restart}>
-            Restart
-          </button>
-          <span className="controls__time">
-            {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
-            {formatTime(totalMs)}
-          </span>
-        </div>
-
-      </div>
 
       {countingIn && (
         <div className="count-in" role="status" aria-live="polite">
@@ -401,6 +387,23 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           </li>
         ))}
       </ol>
+      </div>
+
+      <div className="controls">
+        <div className="controls__transport">
+          <button type="button" className="button button--primary" onClick={toggle}>
+            {isPlaying ? 'Pause' : finished ? 'Play again' : 'Play'}
+          </button>
+          <button type="button" className="button" onClick={restart}>
+            Restart
+          </button>
+          <span className="controls__time">
+            {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
+            {formatTime(totalMs)}
+          </span>
+        </div>
+
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
+import { TempoField } from './TempoField';
 import { SongRowView } from './SongRowView';
 import { buildSchedule } from '../lib/playback';
 import { beatsPerBarOf } from '../lib/meter';
@@ -285,18 +286,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           <section className="setup__group" aria-label="Timing">
             <h2 className="setup__legend">Timing</h2>
             <div className="setup__row">
-              <label className="field field--tempo">
-                <span className="field__label">Tempo {song.tempo} bpm</span>
-                <input
-                  className="field__range"
-                  type="range"
-                  min={40}
-                  max={300}
-                  value={song.tempo}
-                  aria-label="Tempo in beats per minute"
-                  onChange={(event) => onChange({ ...song, tempo: Number(event.target.value) })}
-                />
-              </label>
+              <TempoField value={song.tempo} onChange={(tempo) => onChange({ ...song, tempo })} />
 
               {/* Line length belongs here as much as in the editor: it is the setting you reach
                   for while playing, when the chart is scrolling at the wrong rate (ADR-032). */}

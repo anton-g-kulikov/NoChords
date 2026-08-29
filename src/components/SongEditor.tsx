@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { KeySelect } from './KeySelect';
 import { COMMON_METERS } from '../lib/meter';
 import { NumberField } from './NumberField';
+import { TempoField } from './TempoField';
 import { songToText, textToRows } from '../lib/songs';
 import type { Song } from '../types/song';
 
@@ -73,13 +74,7 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
           </select>
         </label>
 
-        <NumberField
-          label="Tempo (bpm)"
-          value={song.tempo}
-          min={20}
-          max={300}
-          onCommit={(tempo) => onChange({ ...song, tempo })}
-        />
+        <TempoField value={song.tempo} onChange={(tempo) => onChange({ ...song, tempo })} />
 
         <NumberField
           label="Bars per line"

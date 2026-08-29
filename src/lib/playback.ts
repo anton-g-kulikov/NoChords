@@ -15,6 +15,14 @@ export const DEFAULT_BARS_PER_LINE = 1;
 /** Floor applied to tempo so a zero or negative value cannot produce an infinite duration. */
 export const MIN_TEMPO = 20;
 
+/**
+ * Highest tempo offered.
+ *
+ * High because in a compound meter the tempo counts eighths: a 6/8 song at a natural pulse sits
+ * well above what a quarter-note number would suggest (ADR-039).
+ */
+export const MAX_TEMPO = 300;
+
 /** One row's time window: its normal duration at tempo, plus its trailing pause. */
 export interface ScheduleEntry {
   rowId: string;

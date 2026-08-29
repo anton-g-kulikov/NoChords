@@ -992,3 +992,37 @@ accident is a title that will be.
 Against that, the thing you would type into is the thing you are looking at, which is the whole
 point of editing in place.
 
+---
+
+## ADR-039 — Settings are grouped by how long a change lasts, and tempo is one control
+
+**Two findings from comparing the Play and Edit surfaces.**
+
+**Three lifetimes looked identical.** The Play panel's first row held a display mode forgotten on
+the way out of the song, a key saved to that song, and a metronome, volume and count-in saved for
+*every song on the device* — in one row, in identical fields, with nothing to distinguish them.
+Changing the count-in for one difficult song changed it for all of them, silently.
+
+The panel is now grouped by lifetime rather than by kind: **View** (this session), **This song**,
+and **This device — every song**. The heading is the whole mechanism: it costs a line and answers
+the only question the controls could not.
+
+This undoes part of the compaction that put the metronome beside mode and key. That change was
+right about the layout — three headings for eleven controls was wasteful — and wrong about which
+controls belong together, because it grouped by size rather than by consequence.
+
+**Tempo was two controls over two ranges.** A number field in Edit, 20–300; a slider in Play,
+40–300. A song written at 30bpm met a slider that started at 40: it showed the tempo pinned at the
+minimum and moved it on the first drag. One `TempoField` now serves both — a number and a slider
+side by side over `MIN_TEMPO`–`MAX_TEMPO` — so a tempo can be dragged to or typed, and neither mode
+can express a value the other cannot.
+
+**What is deliberately still asymmetric.** Meter is editable in Edit and read-only in Play, while
+bars per line is editable in both, and the ADR-034 justification for that ("changing it re-times
+every line") applies just as well to bars per line. It is a real inconsistency, left standing until
+it is decided rather than papered over.
+
+**Cost.** The panel is three rows again rather than two. On a phone that is most of the gain from
+the previous change given back — for a heading that says whether a setting follows the song or the
+device, which is worth more than the line it costs.
+

@@ -996,3 +996,18 @@ kbd {
   align-items: flex-start;
 }
 
+/* Number and slider together: type a tempo, or drag to find one (ADR-039). */
+.tempo-field {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex: 1 1 320px;
+  min-width: 220px;
+}
+
+.tempo-field__range {
+  flex: 1;
+  min-width: 120px;
+  margin-bottom: 10px;
+}
+

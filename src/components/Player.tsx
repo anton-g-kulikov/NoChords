@@ -221,10 +221,10 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
            * used to sit in one row: a display mode forgotten on the way out, a key saved to this
            * song, and a count-in that quietly changed every song on the device.
            */}
-          <section className="setup__group" aria-label="View">
-            <h2 className="setup__legend">View</h2>
+          <section className="setup__group" aria-label="Chords">
+            <h2 className="setup__legend">Chords</h2>
             <div className="setup__row">
-              <div className="controls__group" role="group" aria-label="Display mode">
+              <div className="controls__group" role="group" aria-label="Chord display">
                 {MODES.map((option) => (
                   <button
                     key={option.value}

@@ -1003,7 +1003,7 @@ the way out of the song, a key saved to that song, and a metronome, volume and c
 *every song on the device* — in one row, in identical fields, with nothing to distinguish them.
 Changing the count-in for one difficult song changed it for all of them, silently.
 
-The panel is now grouped by lifetime rather than by kind: **View** (this session), **This song**,
+The panel is now grouped by lifetime rather than by kind: **Chords** (this session), **This song**,
 and **This device — every song**. The heading is the whole mechanism: it costs a line and answers
 the only question the controls could not.
 

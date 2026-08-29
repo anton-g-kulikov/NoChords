@@ -125,9 +125,12 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    *
    * It used to snap back to the full count the moment playing began — a four that had just finished
    * counting down to one, reading as though the count were about to start again. It keeps its space
-   * (that is the whole point of ADR-047) and fades out instead.
+   * (that is the whole point of ADR-047) and goes to half strength instead.
+   *
+   * A fact about where the song is, not about whether it happens to be running: pausing mid-verse
+   * used to bring the whole count back, which read as though playing on would count you in again.
    */
-  const countInSpent = isPlaying && !countingIn;
+  const countInSpent = !countingIn && elapsedMs > 0;
 
   /*
    * The chart shrinks to fit its longest line rather than letting it wrap (ADR-054). It depends on

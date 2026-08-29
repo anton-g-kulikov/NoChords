@@ -841,11 +841,11 @@ kbd {
 }
 
 /*
- * Counted, and now only holding its space so the chart does not jump (ADR-047). Invisible rather
- * than absent: removing it would move every line at the exact moment playing begins.
+ * Counted. It stays legible at half strength rather than disappearing: the bars and the meter are
+ * worth a glance mid-song, and it holds its space either way so the chart never jumps (ADR-047).
  */
 .count-in--spent {
-  opacity: 0;
+  opacity: 0.5;
 }
 
 /*

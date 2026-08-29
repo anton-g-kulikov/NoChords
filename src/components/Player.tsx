@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
-import { TempoField } from './TempoField';
 import { SongRowView } from './SongRowView';
-import { buildSchedule } from '../lib/playback';
+import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
 import { beatsPerBarOf } from '../lib/meter';
 import { collectChordOccurrences, concealmentFor, createConcealment } from '../lib/learning';
 import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
@@ -221,11 +220,27 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
         <button
           type="button"
-          className="button settings-bar__toggle"
+          className={
+            setupOpen
+              ? 'button button--icon settings-bar__toggle settings-bar__toggle--open'
+              : 'button button--icon settings-bar__toggle'
+          }
           aria-expanded={setupOpen}
+          aria-label={setupOpen ? 'Hide settings' : 'Settings'}
+          title={setupOpen ? 'Hide settings' : 'Settings'}
           onClick={() => setSetupOpen((open) => !open)}
         >
-          {setupOpen ? 'Hide settings' : 'Settings'}
+          {/* Faders rather than a cog: these are values to be set, not a system to configure. */}
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </g>
+            <g fill="currentColor">
+              <circle cx="16" cy="7" r="2.6" />
+              <circle cx="9" cy="12" r="2.6" />
+              <circle cx="14" cy="17" r="2.6" />
+            </g>
+          </svg>
         </button>
 
         <div className={setupOpen ? 'controls__setup' : 'controls__setup controls__setup--closed'}>
@@ -248,16 +263,12 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 onChange={(key) => onChange(setCurrentKey(song, key))}
               />
 
-              <TempoField value={song.tempo} onChange={(tempo) => onChange({ ...song, tempo })} />
-
-              {/* Line length belongs here as much as in the editor: it is the setting you reach
-                  for while playing, when the chart is scrolling at the wrong rate (ADR-032). */}
               <NumberField
-                label="Bars per line"
-                value={song.barsPerLine}
-                min={1}
-                max={64}
-                onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
+                label="Tempo (bpm)"
+                value={song.tempo}
+                min={MIN_TEMPO}
+                max={MAX_TEMPO}
+                onCommit={(tempo) => onChange({ ...song, tempo })}
               />
 
               {/* Shown, not offered: the meter decides what a bar is, and changing it here would

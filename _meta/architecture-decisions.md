@@ -1013,14 +1013,16 @@ controls belong together, because it grouped by size rather than by consequence.
 
 **Tempo was two controls over two ranges.** A number field in Edit, 20–300; a slider in Play,
 40–300. A song written at 30bpm met a slider that started at 40: it showed the tempo pinned at the
-minimum and moved it on the first drag. One `TempoField` now serves both — a number and a slider
-side by side over `MIN_TEMPO`–`MAX_TEMPO` — so a tempo can be dragged to or typed, and neither mode
-can express a value the other cannot.
+minimum and moved it on the first drag. Both are now the same number field over
+`MIN_TEMPO`–`MAX_TEMPO`, so neither mode can express a value the other cannot. The slider went with
+it: a tempo is a number you know or nudge by one, and dragging a 280-pixel track to land on 92 is
+worse at that than two taps on a stepper.
 
-**What is deliberately still asymmetric.** Meter is editable in Edit and read-only in Play, while
-bars per line is editable in both, and the ADR-034 justification for that ("changing it re-times
-every line") applies just as well to bars per line. It is a real inconsistency, left standing until
-it is decided rather than papered over.
+**The asymmetry is resolved by subtraction.** Meter was editable in Edit and read-only in Play
+while bars per line was editable in both, which the ADR-034 justification could not support. Bars
+per line has now left Play entirely: how many bars a line holds is a property of how the song is
+written down, decided once while transcribing, not something reached for while playing it. Play
+keeps key, tempo and the meter it shows but cannot change.
 
 **Cost.** The panel is three rows again rather than two. On a phone that is most of the gain from
 the previous change given back — for a heading that says whether a setting follows the song or the

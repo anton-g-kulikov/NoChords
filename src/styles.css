@@ -460,11 +460,19 @@ kbd {
   border-bottom: 1px solid var(--border);
 }
 
+/* An icon, so the strip holds the modes and this on one row even at 375px (ADR-040). */
 .settings-bar__toggle {
-  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 40px;
-  font-size: 0.9rem;
   color: var(--muted);
+}
+
+/* Open is a state the label used to carry; without the label it has to be visible. */
+.settings-bar__toggle--open {
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 /*
@@ -499,13 +507,6 @@ kbd {
 /* On a phone the four items come to within a few pixels of the width, and the time ellipsises to
    "2:..." — which reads as broken. Tighter spacing buys back the room it needs. */
 @media (max-width: 430px) {
-  /* The strip needs 347px of 335: twelve pixels short, so the segments give up a little padding
-     rather than the whole row wrapping to two lines (ADR-040). */
-  .settings-bar .segment {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
   .controls {
     padding-left: 12px;
     padding-right: 12px;
@@ -1006,22 +1007,6 @@ kbd {
 .field--button {
   align-items: flex-start;
 }
-
-/* Number and slider together: type a tempo, or drag to find one (ADR-039). */
-.tempo-field {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex: 1 1 320px;
-  min-width: 220px;
-}
-
-.tempo-field__range {
-  flex: 1;
-  min-width: 120px;
-  margin-bottom: 10px;
-}
-
 /* The half of a heading that says how long a change lasts, not what it is. */
 .setup__aside {
   font-weight: 400;

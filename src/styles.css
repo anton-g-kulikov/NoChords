@@ -742,7 +742,8 @@ kbd {
 
 .seg__chord {
   font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
-  font-size: 1.4rem;
+  /* Scaled together with the lyric so the chart shrinks as one thing (ADR-054). */
+  font-size: calc(1.4rem * var(--sheet-scale, 1));
   font-weight: 700;
   line-height: 1.35;
   color: var(--chord);
@@ -759,7 +760,7 @@ kbd {
 }
 
 .seg__lyric {
-  font-size: 1.6rem;
+  font-size: calc(1.6rem * var(--sheet-scale, 1));
   line-height: 1.35;
   white-space: pre;
 }
@@ -782,11 +783,11 @@ kbd {
   }
 
   .seg__lyric {
-    font-size: 1.25rem;
+    font-size: calc(1.25rem * var(--sheet-scale, 1));
   }
 
   .seg__chord {
-    font-size: 1.1rem;
+    font-size: calc(1.1rem * var(--sheet-scale, 1));
   }
 }
 

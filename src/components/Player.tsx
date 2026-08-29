@@ -1,10 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { Brain, ListMinus, ListRestart, Metronome, SlidersVertical } from 'lucide-react';
 import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
 import { NumberField } from './NumberField';
 import { TempoField } from './TempoField';
 import { SongRowView } from './SongRowView';
+import { useFitScale } from '../hooks/useFitScale';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
 import { msPerMeterBeat } from '../lib/tempo';
 import { beatsPerBarOf } from '../lib/meter';
@@ -119,6 +128,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * (that is the whole point of ADR-047) and fades out instead.
    */
   const countInSpent = isPlaying && !countingIn;
+
+  /*
+   * The chart shrinks to fit its longest line rather than letting it wrap (ADR-054). It depends on
+   * the rows, the key the chords are shown in, and the mode — Nashville numerals are narrower than
+   * chord names, and a transposed key can be wider than the one it came from. Not on concealment:
+   * a concealed chord keeps its box and only blurs, which is exactly what ADR-007 buys.
+   */
+  const sheetRef = useRef<HTMLOListElement>(null);
+  const sheetScale = useFitScale(sheetRef, [song.rows, song.currentKey, mode]);
 
   // A chart you are reading from is a page you never touch, so the phone dims it mid-verse.
   useWakeLock(isPlaying);
@@ -477,7 +495,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         </div>
       )}
 
-      <ol className="sheet">
+      {/* One type scale for the whole song, set by its longest line (ADR-054). */}
+      <ol className="sheet" ref={sheetRef} style={{ '--sheet-scale': sheetScale } as CSSProperties}>
         {song.rows.map((row, index) => (
           <li
             key={row.id}

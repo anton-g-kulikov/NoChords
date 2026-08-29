@@ -1161,3 +1161,29 @@ dependency and about 1kB gzipped for the four, tree-shaken.
 `title` and an `aria-label`, which is not the same as being self-evident — a first-time visitor has
 to try them. Against that, they fit, and the mode buttons in particular teach by showing.
 
+---
+
+## ADR-045 — The header is a title bar and a title, and the strip's boxes are stated outright
+
+**Decision.** The song header is two rows: back, the app's name centred, and the pencil — then the
+song title on a row of its own. Every button in the settings strip has its width *and* height set
+explicitly, with the platform's own button metrics turned off.
+
+**Why the title gets its own row.** It shared a row with two controls, so a long title — "Lament For
+The Fishermans Wife" — wrapped to two lines *between* them, and the row's height moved with the
+length of the name. A title is the one thing on the screen whose length cannot be predicted, so it
+gets the row that is allowed to grow.
+
+**Why the app's name is there at all.** Installed, there is no browser chrome and no address bar:
+nothing on the screen said which app this was. The middle of a title bar is where that belongs, and
+the row had the space once the title left it.
+
+**Why the boxes are stated rather than derived.** They were `min-height` plus padding, which came
+out identical in Chrome and visibly unequal on iOS, where a button's own metrics are added on top of
+whatever you ask for. Width, height, zero padding and `appearance: none` leave nothing for a
+platform to add. Measured equal at 52×44 across all five.
+
+**Cost.** A fixed box cannot grow for a longer label, so it is sized for the widest thing it will
+hold — a four-character minor key. A five-character one would clip rather than expand, which is the
+trade for boxes that do not move as you transpose.
+

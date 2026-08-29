@@ -72,18 +72,41 @@ export function App() {
   return (
     <div className="screen song-view">
       <header className="screen__head song-view__head">
-        {/* The arrow is the whole message, and the title beside it says where you are. */}
-        <button
-          type="button"
-          className="button button--icon"
-          aria-label="Back to songs"
-          title="Back to songs"
-          onClick={() => setOpenSongId(null)}
-        >
-          ←
-        </button>
-        {/* Edited where it is read, rather than in a field further down the page (ADR-038).
-            Only while editing: in Play a stray tap on the title should do nothing. */}
+        {/* The app's own row: back, name, edit — the two controls at the edges where a native
+            title bar puts them, and the name centred between them (ADR-045). */}
+        <div className="song-view__bar">
+          <button
+            type="button"
+            className="button button--icon"
+            aria-label="Back to songs"
+            title="Back to songs"
+            onClick={() => setOpenSongId(null)}
+          >
+            ←
+          </button>
+
+          <span className="song-view__app">NoChords</span>
+
+          {/* One button rather than two segments (ADR-043): editing is a thing you enter and
+              leave, not one of two equal places. */}
+          <button
+            type="button"
+            className={
+              pane === 'edit'
+                ? 'button button--icon pane-toggle pane-toggle--editing'
+                : 'button button--icon pane-toggle'
+            }
+            aria-pressed={pane === 'edit'}
+            aria-label={pane === 'edit' ? 'Done editing' : 'Edit song'}
+            title={pane === 'edit' ? 'Done editing' : 'Edit song'}
+            onClick={() => setPane(pane === 'edit' ? 'play' : 'edit')}
+          >
+            <Pencil size={20} aria-hidden />
+          </button>
+        </div>
+
+        {/* A row of its own, so a long title never squeezes the controls or wraps around them
+            (ADR-045). Edited where it is read (ADR-038), and only while editing. */}
         {pane === 'edit' ? (
           <input
             className="song-view__title song-view__title--input"
@@ -95,22 +118,6 @@ export function App() {
         ) : (
           <h1 className="song-view__title">{song.title || 'Untitled song'}</h1>
         )}
-        {/* One button rather than two segments (ADR-043): editing is a thing you enter and
-            leave, not one of two equal places, and the header has no room for both. */}
-        <button
-          type="button"
-          className={
-            pane === 'edit'
-              ? 'button button--icon pane-toggle pane-toggle--editing'
-              : 'button button--icon pane-toggle'
-          }
-          aria-pressed={pane === 'edit'}
-          aria-label={pane === 'edit' ? 'Done editing' : 'Edit song'}
-          title={pane === 'edit' ? 'Done editing' : 'Edit song'}
-          onClick={() => setPane(pane === 'edit' ? 'play' : 'edit')}
-        >
-          <Pencil size={20} aria-hidden />
-        </button>
       </header>
 
       {pane === 'edit' ? (

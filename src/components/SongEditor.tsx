@@ -57,12 +57,7 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
             })
           }
         />
-      </div>
 
-      {/* Meter first, because it decides what a bar is; then the tempo those bars run at, then
-          how many of them a line takes. Title and key are what the song is; these are how it
-          moves. */}
-      <div className="editor__meta">
         <label className="field field--narrow">
           <span className="field__label">Meter</span>
           <select

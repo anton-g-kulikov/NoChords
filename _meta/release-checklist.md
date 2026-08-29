@@ -82,6 +82,17 @@ curl -s -o /dev/null -w '%{content_type}\n' $B/manifest.webmanifest  # must be m
 That last one matters: hosting rewrites `**` to `/index.html`, so a missing file answers `200` with
 the app shell. Checking the status code proves nothing — check the content type.
 
+**Check the header on the URL the app opens, not on the file it serves** (ADR-056):
+
+```bash
+curl -sI https://nochords-18219.web.app/ | grep -i cache-control   # must be no-cache
+```
+
+Header rules match the request path. `start_url` is `/`, the rewrite serves `index.html` for it, and
+a rule written for `/index.html` does not apply — so `/` quietly took Firebase's default hour and the
+installed app stayed on the previous release for an hour after each deploy. Everything above still
+passed while that was true, because `curl` has no HTTP cache and the origin was always correct.
+
 On a phone, hard-reload once before judging anything: a page with no service worker needs a fresh
 navigation to pick one up.
 

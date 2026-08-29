@@ -1484,3 +1484,46 @@ Half strength stays readable; hiding would not.
 a spent count-in are both at half strength, and neither is a concealed chord, which is blurred
 rather than dimmed (ADR-007). Three visual languages for three kinds of "not the thing you are
 looking at" is one more than is comfortable.
+
+---
+
+## ADR-056 — The start URL is a different path from the file it serves
+
+**Decision.** `firebase.json` carries a `Cache-Control: no-cache` rule for `/` as well as for
+`/index.html`, and the service worker fetches navigations with `cache: 'reload'`.
+
+**Why.** Reported symptom: the installed app kept showing v0.12.0 after v0.13.0 was deployed and
+verified live, however many times it was fully closed and reopened.
+
+The header rules match on **request path**, not on the file that ends up being served. The app's
+`start_url` is `/`; the `**` rewrite serves `index.html` for it; and the rule written for
+`/index.html` never applied to it. So the two paths carried different headers for byte-identical
+content:
+
+```
+/            → cache-control: max-age=3600
+/index.html  → cache-control: no-cache
+```
+
+An hour of HTTP caching on the one path the app actually opens. The worker's navigation strategy is
+network-first, but a plain `fetch` reads the HTTP cache on its way out, so "the network" handed back
+the same stale HTML — which names the old hashed bundle, which is cached `immutable` and so loads
+instantly and correctly. Every layer did its job and the result was an app pinned to a release it
+had already replaced.
+
+**Why both fixes.** The header is the cause and fixes it for every client immediately, including
+those running old workers. The `cache: 'reload'` makes the worker's own intent true rather than
+dependent on hosting configuration, and would have made this a non-event. It only takes effect from
+the release *after* the one that ships it, since the worker that serves a navigation is the one
+already installed — which is precisely why the server-side half is not optional.
+
+**What this cost.** Three releases were verified as live and correct at the origin while the phone
+was still on an older one, and `curl` could not have caught it: curl has no HTTP cache. The check
+that would have caught it is reading `Cache-Control` on the URL the app actually opens, which is now
+in the release checklist.
+
+**Not fixed here: the worker still waits.** A new version does not call `skipWaiting`, so it takes
+over on a cold start rather than swapping under someone mid-song (ADR-028). That remains right, and
+it is now nearly invisible: with fresh HTML a cold start loads the new bundle immediately whichever
+worker is in control. The stale caches that pile up until a worker finally activates are the
+remaining visible trace.

@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- `viewport-fit=cover` is what makes env(safe-area-inset-*) non-zero, which the
+         bottom transport needs to clear the home indicator (ADR-050). -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>NoChords</title>
     <meta name="description" content="Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo." />
     <meta name="theme-color" content="#12141a" />

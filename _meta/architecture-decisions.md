@@ -1276,3 +1276,29 @@ the fields scroll away, and the song has the full height when you are deep in it
 
 **Cost.** A long song makes a very tall element, and the browser lays all of it out. At the size a
 song is that is free; a text file would not be.
+
+---
+
+## ADR-050 — The shell is pinned to the viewport, not measured in viewport units
+
+**Decision.** `#root` is `position: fixed; inset: 0` rather than `height: 100dvh`, `html`/`body` are
+`overflow: hidden` with `overscroll-behavior: none`, and the viewport meta carries
+`viewport-fit=cover`.
+
+**Why.** `100dvh` was close but not exact. Installed on iOS it resolved taller than the visible
+area, so the transport at the end of the column sat under the home indicator — and further out of
+sight the more the panel above it grew, which is why it showed up as "opening settings pushes the
+bar away". `inset: 0` on a fixed element is the visible area by definition; there is no unit to be
+wrong about it.
+
+**Why `viewport-fit=cover` matters here.** Without it, `env(safe-area-inset-bottom)` is zero, so the
+padding the transport already carried to clear the home indicator did nothing. The two go together:
+cover the whole screen, then pad back the parts of it you cannot use.
+
+**A pattern worth noticing.** This is the third iOS layout problem in a row — the fixed transport,
+the sticky strip, this — and all three were invisible in Chrome. The fix each time was to stop
+describing the viewport and start binding to it.
+
+**Cost.** Nothing scrolls the document any more, so any screen that wants scrolling must say so.
+That is already true of every screen here (ADR-037), and it fails loudly rather than quietly.
+

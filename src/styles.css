@@ -823,15 +823,20 @@ kbd {
   padding: 7px 12px;
   margin-bottom: 8px;
   border: 1px solid var(--border);
+  /* The same marker the playing line carries, in its slot from the start so nothing shifts. */
+  border-bottom: 4px solid transparent;
   border-radius: var(--radius);
   color: var(--muted);
   /* Fading out when the count is spent, rather than snapping back to a full count. */
   transition: opacity 500ms ease 150ms, border-color 150ms ease;
 }
 
-/* It lights up for the two seconds it is actually counting. */
+/*
+ * While it counts, it *is* the current line — nothing is being sung yet — so it takes the marker
+ * and hands it to the first lyric line on the downbeat.
+ */
 .count-in--counting {
-  border-color: var(--accent);
+  border-bottom-color: var(--accent);
   color: var(--text);
 }
 

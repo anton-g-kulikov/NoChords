@@ -503,7 +503,11 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             ref={(element) => {
               rowRefs.current[index] = element;
             }}
-            className={index === activeIndex ? 'sheet__row sheet__row--active' : 'sheet__row'}
+            className={
+              // While counting, the marker belongs to the count-in strip: nothing is being sung
+              // yet, and it moves to the first line on the downbeat.
+              index === activeIndex && !countingIn ? 'sheet__row sheet__row--active' : 'sheet__row'
+            }
             onClick={() => handleRowTap(index, row.id)}
           >
             <SongRowView

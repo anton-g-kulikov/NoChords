@@ -471,8 +471,13 @@ kbd {
 
 /* Open is a state the label used to carry; without the label it has to be visible. */
 .settings-bar__toggle--open {
-  color: var(--accent);
   border-color: var(--accent);
+}
+
+/* Two channels on one button (ADR-042): the border says whether its panel is open, the colour
+   says whether the metronome is running. They are different questions and both get asked. */
+.settings-bar__toggle--live {
+  color: var(--accent);
 }
 
 /*
@@ -507,6 +512,13 @@ kbd {
 /* On a phone the four items come to within a few pixels of the width, and the time ellipsises to
    "2:..." — which reads as broken. Tighter spacing buys back the room it needs. */
 @media (max-width: 430px) {
+  /* Two icons rather than one puts the strip 10px over 335 (ADR-042). The segments give the room
+     back — the third thing to be tightened for a phone, and the last that can be. */
+  .settings-bar .segment {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   .controls {
     padding-left: 12px;
     padding-right: 12px;

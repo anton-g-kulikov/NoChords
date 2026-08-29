@@ -59,6 +59,9 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * and can be reopened at any time.
    */
   const [setupOpen, setSetupOpen] = useState(true);
+  /** The metronome opens on its own: it is reached for at different moments to the song's
+   *  settings, and often while they are shut (ADR-042). */
+  const [metronomeOpen, setMetronomeOpen] = useState(false);
   /** Lines whose concealed chords are showing, and when each stops (ADR-018). */
   const [reveals, setReveals] = useState<Reveals>({});
   const lastTap = useRef<LastTap | null>(null);
@@ -125,7 +128,10 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   // Collapse on play, but deliberately do not reopen on pause: a pause is usually momentary, and
   // having the controls spring back would shift the chart out from under you every time.
   useEffect(() => {
-    if (isPlaying) setSetupOpen(false);
+    if (isPlaying) {
+      setSetupOpen(false);
+      setMetronomeOpen(false);
+    }
   }, [isPlaying]);
 
   /**
@@ -218,32 +224,64 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             ))}
           </div>
 
-        <button
-          type="button"
-          className={
-            setupOpen
-              ? 'button button--icon settings-bar__toggle settings-bar__toggle--open'
-              : 'button button--icon settings-bar__toggle'
-          }
-          aria-expanded={setupOpen}
-          aria-label={setupOpen ? 'Hide settings' : 'Settings'}
-          title={setupOpen ? 'Hide settings' : 'Settings'}
-          onClick={() => setSetupOpen((open) => !open)}
-        >
-          {/* Faders rather than a cog: these are values to be set, not a system to configure. */}
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-            <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            </g>
-            <g fill="currentColor">
-              <circle cx="16" cy="7" r="2.6" />
-              <circle cx="9" cy="12" r="2.6" />
-              <circle cx="14" cy="17" r="2.6" />
-            </g>
-          </svg>
-        </button>
+        {/* The two disclosures travel together, at the end of the strip. */}
+        <div className="settings-bar__actions">
+          <button
+            type="button"
+            className={[
+              'button button--icon settings-bar__toggle',
+              metronomeOpen ? 'settings-bar__toggle--open' : '',
+              settings.metronomeEnabled ? 'settings-bar__toggle--live' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            aria-expanded={metronomeOpen}
+            aria-label={metronomeOpen ? 'Hide metronome' : 'Metronome'}
+            title={settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
+            onClick={() => setMetronomeOpen((open) => !open)}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                <path d="M12 3 18 20H6z" />
+                <path d="M9.5 14h5" />
+                <path d="M12 20 16 7" strokeLinecap="round" />
+              </g>
+            </svg>
+          </button>
 
-        <div className={setupOpen ? 'controls__setup' : 'controls__setup controls__setup--closed'}>
+          <button
+            type="button"
+            className={
+              setupOpen
+                ? 'button button--icon settings-bar__toggle settings-bar__toggle--open'
+                : 'button button--icon settings-bar__toggle'
+            }
+            aria-expanded={setupOpen}
+            aria-label={setupOpen ? 'Hide settings' : 'Settings'}
+            title={setupOpen ? 'Hide settings' : 'Settings'}
+            onClick={() => setSetupOpen((open) => !open)}
+          >
+            {/* Faders rather than a cog: these are values to be set, not a system to configure. */}
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </g>
+              <g fill="currentColor">
+                <circle cx="16" cy="7" r="2.6" />
+                <circle cx="9" cy="12" r="2.6" />
+                <circle cx="14" cy="17" r="2.6" />
+              </g>
+            </svg>
+          </button>
+        </div>
+
+        <div
+          className={
+            setupOpen || metronomeOpen
+              ? 'controls__setup'
+              : 'controls__setup controls__setup--closed'
+          }
+        >
           {/*
            * Three groups, because there are three questions: how the chart reads, how fast it
            * moves, and whether it clicks. Before this they were one row of eight controls in the
@@ -254,6 +292,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
            * used to sit in one row: a display mode forgotten on the way out, a key saved to this
            * song, and a count-in that quietly changed every song on the device.
            */}
+          {setupOpen && (
           <section className="setup__group" aria-label="This song">
             <h2 className="setup__legend">This song</h2>
             <div className="setup__row">
@@ -280,33 +319,25 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               </div>
             </div>
           </section>
+          )}
 
-          <section className="setup__group" aria-label="This device">
+          {metronomeOpen && (
+          <section className="setup__group" aria-label="Metronome">
             <h2 className="setup__legend">
-              This device <span className="setup__aside">— every song</span>
+              Metronome <span className="setup__aside">— every song</span>
             </h2>
             <div className="setup__row">
-              {/* Icons, because at 375px this row has no room for three labels (ADR-041). The
-                  metronome's state is its colour, and the slider beside a speaker is a volume. */}
+              {/* The heading says "Metronome", so the button only has to say on or off. */}
               <button
                 type="button"
                 className={
-                  settings.metronomeEnabled
-                    ? 'button button--icon metronome__toggle metronome__toggle--on'
-                    : 'button button--icon metronome__toggle'
+                  settings.metronomeEnabled ? 'button button--primary' : 'button'
                 }
                 aria-pressed={settings.metronomeEnabled}
-                aria-label={settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
                 title="Click on every beat while playing"
                 onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
               >
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                  <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
-                    <path d="M12 3 18 20H6z" />
-                    <path d="M9.5 14h5" />
-                    <path d="M12 20 16 7" strokeLinecap="round" />
-                  </g>
-                </svg>
+                {settings.metronomeEnabled ? 'On' : 'Off'}
               </button>
 
               <label className="metronome__volume" title={`Metronome volume ${Math.round(settings.metronomeVolume * 100)}%`}>
@@ -342,6 +373,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               />
             </div>
           </section>
+          )}
         </div>
       </div>
 

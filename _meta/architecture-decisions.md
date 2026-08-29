@@ -1086,3 +1086,27 @@ freed more room than it did.
 metronome triangle — is a shape people know from the object rather than from software. It has a
 `title` and an `aria-label`, which is not the same as being obvious.
 
+---
+
+## ADR-042 — The metronome opens on its own, from its own button
+
+**Decision.** The pinned strip carries two disclosures side by side: a metronome and a set of
+faders. Each opens its own section, independently — the metronome's settings can be open while the
+song's are shut, and either can be open alone.
+
+**Why separate.** They are reached for at different moments. The song's key and tempo are set once
+when you sit down; the metronome is switched on and off, and its count-in adjusted, between
+attempts at a passage. Making one panel serve both meant opening four controls to reach one.
+
+**Why the metronome button carries two signals.** Its border says whether its panel is open; its
+colour says whether the metronome is running. Those are different questions and both get asked —
+"is the click on?" is answerable at a glance from the strip, without opening anything.
+
+**Why the toggle inside says only On or Off.** The section heading says "Metronome"; repeating it on
+the button was the compromise that a shared row forced (ADR-038), and the section removes the need.
+
+**Cost, and a limit reached.** Two icons put the strip 10px over the 335 a phone gives it, so the
+mode segments give their padding back — the third control tightened for a phone in three ADRs, and
+the last that can be. The strip is now full: modes, two icons, no slack. Anything further needs
+something to leave, not another few pixels.
+

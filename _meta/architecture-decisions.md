@@ -1026,3 +1026,31 @@ it is decided rather than papered over.
 the previous change given back — for a heading that says whether a setting follows the song or the
 device, which is worth more than the line it costs.
 
+---
+
+## ADR-040 — The chord mode sits in the pinned strip, not the transport
+
+**Decision.** Full / Nashville / Learning moved out of the settings panel and into the pinned strip
+beside the Settings button. The heading it used to sit under is gone with it; the panel is now
+*This song* and *This device*.
+
+**Why it left the panel.** It is the one control reached for mid-song — switching to Learning at the
+top of a verse, or back to Full when lost — and the panel closes when playback starts (ADR-017).
+Changing what the chart shows meant reopening a panel that covers the chart.
+
+**Why not the transport, which was the other candidate.** Two reasons. The bottom bar was already
+within a few pixels of overflowing at 375px — the elapsed time had to be tightened to stop it
+ellipsising — and a three-way control is another 220. And Learning has consequences: it conceals
+chords and counts playthroughs. A thumb reaching for Play should not be able to land on it.
+
+**Why the strip was the right home.** It was one button in 57px of otherwise empty space, it is
+pinned so it survives scrolling, and it stays visible while playing — which is exactly when the
+control is wanted. Verified with a song running: panel collapsed, modes still there.
+
+**It also renames itself.** "View" named the surface rather than the subject; every option answers
+one question, which is what the chords look like.
+
+**Cost.** At 375px the strip needs 347 of 335 pixels, so the segments give up a little horizontal
+padding below 430px rather than the row wrapping to two lines. That is the second control this
+release to be tightened for a phone, which suggests the next one added will not fit.
+

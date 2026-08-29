@@ -201,6 +201,24 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
        * can be opened from anywhere in a long song, not only from the top of it.
        */}
       <div className="settings-bar">
+        {/* In the strip rather than the panel (ADR-040): it is the one control reached for
+            mid-song, and the panel is shut while playing. Not in the transport, which is a
+            thumb-slip from Play and already at the width of a phone. */}
+          <div className="controls__group" role="group" aria-label="Chord display">
+            {MODES.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                title={option.hint}
+                aria-pressed={mode === option.value}
+                className={mode === option.value ? 'segment segment--active' : 'segment'}
+                onClick={() => setMode(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
         <button
           type="button"
           className="button settings-bar__toggle"
@@ -221,26 +239,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
            * used to sit in one row: a display mode forgotten on the way out, a key saved to this
            * song, and a count-in that quietly changed every song on the device.
            */}
-          <section className="setup__group" aria-label="Chords">
-            <h2 className="setup__legend">Chords</h2>
-            <div className="setup__row">
-              <div className="controls__group" role="group" aria-label="Chord display">
-                {MODES.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    title={option.hint}
-                    aria-pressed={mode === option.value}
-                    className={mode === option.value ? 'segment segment--active' : 'segment'}
-                    onClick={() => setMode(option.value)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-
           <section className="setup__group" aria-label="This song">
             <h2 className="setup__legend">This song</h2>
             <div className="setup__row">

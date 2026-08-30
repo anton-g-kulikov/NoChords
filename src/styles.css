@@ -521,12 +521,6 @@ kbd {
   border-color: var(--accent);
 }
 
-/* Two channels on one button (ADR-042): the border says whether its panel is open, the colour
-   says whether the metronome is running. They are different questions and both get asked. */
-.settings-bar__toggle--live {
-  color: var(--accent);
-}
-
 /*
  * The transport lives at the bottom of the screen, where a native player puts it and where a
  * thumb already is (ADR-035). It is fixed rather than sticky so it is reachable from any scroll
@@ -848,8 +842,8 @@ kbd {
 /*
  * The pulse, pinned under the strip of buttons (ADR-059).
  *
- * One bar of dots that fills as the beats go by — the count-in first, then the song — resetting at
- * every barline. It is a picture of the beat and not a report on the metronome, so it stays put and
+ * One bar of dots with the sounding beat lit — the count-in first, then the song — starting again
+ * at every barline. It is a picture of the beat and not a report on the metronome, so it stays put and
  * keeps moving whether or not anything is clicking.
  */
 /*

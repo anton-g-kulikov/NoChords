@@ -12,6 +12,7 @@ import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
 import { commitValue } from '../lib/numberField';
 import { TempoField } from './TempoField';
+import { BeatStrip } from './BeatStrip';
 import { SongRowView } from './SongRowView';
 import { useFitScale } from '../hooks/useFitScale';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
@@ -33,7 +34,7 @@ import {
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { useWakeLock } from '../hooks/useWakeLock';
-import { accentAt, countInDurationMs, countInProgress } from '../lib/metronome';
+import { accentAt, countInDurationMs, pulseAt } from '../lib/metronome';
 import { MAX_COUNT_IN_BARS, countInBarsFor, type Settings } from '../lib/settings';
 import {
   isDoubleTap,
@@ -103,23 +104,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     setConcealSeed(randomSeed());
   }, [mode, onChange, song]);
 
+  const beatsPerBar = beatsPerBarOf(song.meter);
   // One beat of the song's own meter — an eighth in 6/8 — at whatever note value its tempo counts.
   const beatMs = msPerMeterBeat(song.meter, song.tempo, song.tempoUnit);
   // A count-in is counted in the song's own time: one bar of 6/8 is six beats, of 3/4 three.
   const countInBars = countInBarsFor(settings.countInBars, song.barsPerLine);
-  const countInMs = countInDurationMs(beatMs, countInBars * beatsPerBarOf(song.meter));
+  const countInMs = countInDurationMs(beatMs, countInBars * beatsPerBar);
 
   const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
 
-  /**
-   * Beats the count-in will run for, and whether to show it at all (ADR-047).
-   *
-   * Shown as soon as the metronome is on rather than only once counting has started: as a box in
-   * the flow it used to appear at the downbeat and vanish at the first line, moving the chart
-   * twice in the two seconds you are least able to follow it.
-   */
-  const beatsPerBar = beatsPerBarOf(song.meter);
-  const countInBeats = countInBars * beatsPerBar;
   const {
     activeIndex,
     isPlaying,
@@ -134,25 +127,10 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   } = playback;
 
   /*
-   * Counted and done with.
-   *
-   * It used to snap back to the full count the moment playing began — a four that had just finished
-   * counting down to one, reading as though the count were about to start again. It keeps its space
-   * (that is the whole point of ADR-047) and fades out instead.
+   * Where the beat is, read from the schedule rather than from a clock of its own, so the dots and
+   * the clicks cannot disagree (ADR-059).
    */
-  const countInSpent = !countingIn && elapsedMs > 0;
-
-  /*
-   * One bar of dots, cycled, rather than every beat of the count laid out at once (ADR-053).
-   *
-   * A count-in can run to 24 bars (ADR-046); at 12/8 that is 288 dots, and even four bars of four
-   * is a row nobody counts at a glance.
-   */
-  const { inBar: soundedInBar, barsLeft: countInBarsLeft } = countInProgress(
-    countInBars,
-    beatsPerBar,
-    countInRemaining
-  );
+  const pulse = pulseAt(schedule, elapsedMs);
 
   /*
    * The chart shrinks to fit its longest line rather than letting it wrap (ADR-054). It depends on
@@ -282,6 +260,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
        * and on a phone only one of them belongs under a thumb. The strip is pinned so the panel
        * can be opened from anywhere in a long song, not only from the top of it.
        */}
+      <div className="player__header">
       <div className="settings-bar">
         {/* In the strip rather than the panel (ADR-040): it is the one control reached for
             mid-song, and the panel is shut while playing. Not in the transport, which is a
@@ -315,7 +294,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
               .join(' ')}
             aria-expanded={metronomeOpen}
             aria-label={metronomeOpen ? 'Hide metronome' : 'Metronome'}
-            title={settings.metronomeEnabled ? 'Metronome on' : 'Metronome off'}
+            /* What it does, not what the sound is doing: the strip already says that. */
+            title={metronomeOpen ? 'Hide metronome settings' : 'Metronome settings'}
             onClick={() => setMetronomeOpen((open) => !open)}
           >
             <Metronome size={20} aria-hidden />
@@ -337,6 +317,23 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             <SlidersVertical size={20} aria-hidden />
           </button>
         </div>
+      </div>
+
+        {/* Pinned with the buttons rather than left in the flow: the beat is worth watching from
+            anywhere in a long song, and it scrolled away at the first line (ADR-059). */}
+        {/* At rest the strip shows the bar it is about to count, not the first beat of a song
+            nobody has started. */}
+        <BeatStrip
+          pulse={isPlaying ? pulse : null}
+          counting={countingIn}
+          countInBars={countInBars}
+          countInRemaining={countInRemaining}
+          beatsPerBar={beatsPerBar}
+          isAccent={(beatInBar) => accentAt(beatInBar - 1, schedule)}
+          meter={song.meter}
+          sound={settings.metronomeEnabled}
+          onSoundChange={(metronomeEnabled) => onSettingsChange({ metronomeEnabled })}
+        />
       </div>
 
       {/* In the flow rather than over the chart (ADR-046): opening settings moves the song down
@@ -368,16 +365,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 onChange={(key) => onChange(setCurrentKey(song, key))}
               />
 
-              <TempoField
-                className="field field--tempo-compact"
-                value={song.tempo}
-                unit={song.tempoUnit}
-                min={MIN_TEMPO}
-                max={MAX_TEMPO}
-                onCommit={(tempo) => onChange({ ...song, tempo })}
-                onUnitChange={(tempoUnit) => onChange({ ...song, tempoUnit })}
-              />
-
               {/* Shown, not offered: the meter decides what a bar is, and changing it here would
                   silently re-time every line of the song (ADR-034). */}
               <div className="field field--tiny">
@@ -391,21 +378,21 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           {metronomeOpen && (
           <section className="setup__group" aria-label="Metronome">
             <h2 className="setup__legend">
-              Metronome <span className="setup__aside">— every song</span>
+              Metronome
             </h2>
             <div className="setup__row">
-              {/* The heading says "Metronome", so the button only has to say on or off. */}
-              <button
-                type="button"
-                className={
-                  settings.metronomeEnabled ? 'button button--primary' : 'button'
-                }
-                aria-pressed={settings.metronomeEnabled}
-                title="Click on every beat while playing"
-                onClick={() => onSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
-              >
-                {settings.metronomeEnabled ? 'On' : 'Off'}
-              </button>
+              {/* Tempo leads: it is the first thing a metronome is asked for, and the click
+                  and the chart run on the same number (ADR-059). Switching the sound itself is on
+                  the beat strip, on the thing it governs. */}
+              <TempoField
+                className="field field--tempo-compact"
+                value={song.tempo}
+                unit={song.tempoUnit}
+                min={MIN_TEMPO}
+                max={MAX_TEMPO}
+                onCommit={(tempo) => onChange({ ...song, tempo })}
+                onUnitChange={(tempoUnit) => onChange({ ...song, tempoUnit })}
+              />
 
               <label className="metronome__volume" title={`Metronome volume ${Math.round(settings.metronomeVolume * 100)}%`}>
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
@@ -467,47 +454,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           )}
       </div>
 
-
-      {(countingIn || (settings.metronomeEnabled && countInBeats > 0)) && (
-        <div
-          className={
-            countingIn
-              ? 'count-in count-in--counting'
-              : countInSpent
-                ? 'count-in count-in--spent'
-                : 'count-in'
-          }
-          role="status"
-          aria-live="polite"
-          /* Once it has been counted the block is only holding its space; nothing left to say. */
-          aria-hidden={countInSpent || undefined}
-        >
-          <span className="count-in__beats" aria-hidden="true">
-            {Array.from({ length: beatsPerBar }, (_, position) => {
-              // The metronome's own indices: the last bar of the count runs -beatsPerBar..-1 into
-              // the downbeat at zero, so the dots are accented by exactly what will be heard.
-              const beat = position - beatsPerBar;
-              return (
-                <span
-                  key={position}
-                  className={[
-                    'count-in__beat',
-                    accentAt(beat, schedule) ? 'count-in__beat--accent' : '',
-                    position < soundedInBar ? 'count-in__beat--sounded' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                />
-              );
-            })}
-          </span>
-          <span className="count-in__label">
-            {countingIn && countInBars > 1
-              ? `${countInBarsLeft}/${countInBars} bars of ${song.meter}`
-              : `${countInBars} bar${countInBars === 1 ? '' : 's'} of ${song.meter}`}
-          </span>
-        </div>
-      )}
 
       {mode === 'learning' && setupOpen && (
         <div className="learning-bar">

@@ -482,9 +482,6 @@ kbd {
  * ADR-037).
  */
 .settings-bar {
-  position: sticky;
-  top: 0;
-  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -848,52 +845,53 @@ kbd {
  * again — rather than appearing at the downbeat and vanishing at the first line, which moved the
  * chart twice at the worst possible moment.
  */
-.count-in {
+/*
+ * The pulse, pinned under the strip of buttons (ADR-059).
+ *
+ * One bar of dots that fills as the beats go by — the count-in first, then the song — resetting at
+ * every barline. It is a picture of the beat and not a report on the metronome, so it stays put and
+ * keeps moving whether or not anything is clicking.
+ */
+.beat-strip {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 7px 12px;
-  margin-bottom: 8px;
+  padding: 6px 12px;
   border: 1px solid var(--border);
   /* The same marker the playing line carries, in its slot from the start so nothing shifts. */
   border-bottom: 4px solid transparent;
   border-radius: var(--radius);
   color: var(--muted);
-  /* Fading out when the count is spent, rather than snapping back to a full count. */
-  transition: opacity 500ms ease 150ms, border-color 150ms ease;
+  transition: border-color 150ms ease;
 }
 
 /*
  * While it counts, it *is* the current line — nothing is being sung yet — so it takes the marker
  * and hands it to the first lyric line on the downbeat.
  */
-.count-in--counting {
+.beat-strip--counting {
   border-bottom-color: var(--accent);
   color: var(--text);
 }
 
-/*
- * Counted. It stays legible at half strength rather than disappearing: the bars and the meter are
- * worth a glance mid-song, and it holds its space either way so the chart never jumps (ADR-047).
- */
-.count-in--spent {
-  opacity: 0.5;
+/* The pulse takes the middle; the switch sits at the edge, where a control belongs. */
+.beat-strip__pulse {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
 }
 
-/*
- * One dot a beat, accented where the click is (ADR-053).
- *
- * A number counting 4-3-2-1 says how many are left; the dots say where in the bar you are, which
- * is the thing you are actually waiting for. They fill left to right as the clicks sound.
- */
-.count-in__beats {
+.beat-strip__beats {
   display: flex;
   align-items: center;
   gap: 7px;
 }
 
-.count-in__beat {
+.beat-strip__beat {
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -902,20 +900,59 @@ kbd {
 }
 
 /* The pulse of the bar: bigger, not merely brighter, so it reads before it lights. */
-.count-in__beat--accent {
+.beat-strip__beat--accent {
   width: 11px;
   height: 11px;
 }
 
-.count-in__beat--sounded {
+.beat-strip__beat--sounded {
   background: var(--accent);
 }
 
-.count-in__label {
+/* The sound switch, on the thing it governs (ADR-059). */
+.beat-strip__sound {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.beat-strip__sound--on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.beat-strip__label {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.72rem;
+}
+
+/* Auto, then the number it resolves to. */
+.count-in-field {
+  display: flex;
+  gap: 4px;
+}
+
+.count-in-field .segment {
+  padding-inline: 10px;
+  border-radius: var(--radius);
+}
+
+.count-in-field__value {
+  flex: 1 1 56px;
+  min-width: 0;
+  padding-inline: 8px;
 }
 
 @media (max-width: 720px) {
@@ -1118,6 +1155,22 @@ kbd {
   gap: 0.75rem;
 }
 
+/* Buttons and pulse travel together, pinned above the chart (ADR-059). */
+.player__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.player__header .settings-bar {
+  margin-bottom: 8px;
+  border-bottom: none;
+}
+
 /* Fields sized to what they hold, so a row of three fits 335px (ADR-041). */
 .field--compact {
   flex: 0 0 96px;
@@ -1125,23 +1178,6 @@ kbd {
 
 .field--tiny {
   flex: 0 0 72px;
-}
-
-/* Auto, then the number it resolves to. */
-.count-in-field {
-  display: flex;
-  gap: 4px;
-}
-
-.count-in-field .segment {
-  padding-inline: 10px;
-  border-radius: var(--radius);
-}
-
-.count-in-field__value {
-  flex: 1 1 56px;
-  min-width: 0;
-  padding-inline: 8px;
 }
 
 /* Tempo reads as one fact — the note value, then the number (ADR-052). */

@@ -67,12 +67,18 @@ export function countInProgress(
   };
 }
 
-/** Where the pulse is: which beat of the bar is sounding, out of how many. */
+/** Where the pulse is: which beat of which bar is sounding, and how many of each there are. */
 export interface BarPulse {
   /** Beats sounded in this bar, from 1. */
   inBar: number;
   /** Beats in the bar, from the meter running here. */
   beatsPerBar: number;
+  /** Which bar of the line is playing, from 1. */
+  bar: number;
+  /** Bars the line lasts. */
+  bars: number;
+  /** The meter running here, which a `{n/d}` may have changed since the song's own (ADR-026). */
+  meter: string;
 }
 
 /**
@@ -90,13 +96,21 @@ export function pulseAt(schedule: ScheduleEntry[], elapsedMs: number): BarPulse 
     if (elapsedMs < entry.startMs) return null;
 
     const beatMs = entryBeatMs(entry);
-    const intoRow = Math.floor((elapsedMs - entry.startMs) / beatMs);
-    const beat = entry.startBeat + Math.min(Math.max(intoRow, 0), entry.beats - 1);
     const perBar = Math.max(entry.beatsPerBar, 1);
+    const raw = Math.floor((elapsedMs - entry.startMs) / beatMs);
+    const intoRow = Math.min(Math.max(raw, 0), entry.beats - 1);
+    const beat = entry.startBeat + intoRow;
     // Counted from where the meter changed, so a signature change restarts the bar (ADR-026).
     const offset = (((beat - entry.sectionStartBeat) % perBar) + perBar) % perBar;
 
-    return { inBar: offset + 1, beatsPerBar: perBar };
+    return {
+      inBar: offset + 1,
+      beatsPerBar: perBar,
+      // A line is a whole number of bars of its own meter, so this divides exactly.
+      bar: Math.floor(intoRow / perBar) + 1,
+      bars: Math.max(Math.round(entry.beats / perBar), 1),
+      meter: entry.meter,
+    };
   }
 
   return null;

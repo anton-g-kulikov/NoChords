@@ -72,14 +72,26 @@ describe('countInSounded', () => {
 
 describe('pulseAt', () => {
   it('MT-23 walks the bar as the song plays', () => {
-    // Three bars of 4/4 at 120: beats every 500ms, four to a bar.
+    // Three rows of one bar of 4/4 at 120: beats every 500ms, four to a bar.
     const at = (ms: number) => pulseAt(inFour, ms);
-    expect(at(0)).toEqual({ inBar: 1, beatsPerBar: 4 });
-    expect(at(499)).toEqual({ inBar: 1, beatsPerBar: 4 });
-    expect(at(500)).toEqual({ inBar: 2, beatsPerBar: 4 });
-    expect(at(1500)).toEqual({ inBar: 4, beatsPerBar: 4 });
-    // The next bar starts the count again.
-    expect(at(2000)).toEqual({ inBar: 1, beatsPerBar: 4 });
+    expect(at(0)).toEqual({ inBar: 1, beatsPerBar: 4, bar: 1, bars: 1, meter: '4/4' });
+    expect(at(499)).toEqual({ inBar: 1, beatsPerBar: 4, bar: 1, bars: 1, meter: '4/4' });
+    expect(at(500)).toEqual({ inBar: 2, beatsPerBar: 4, bar: 1, bars: 1, meter: '4/4' });
+    expect(at(1500)).toEqual({ inBar: 4, beatsPerBar: 4, bar: 1, bars: 1, meter: '4/4' });
+    // The next row starts the count again.
+    expect(at(2000)).toEqual({ inBar: 1, beatsPerBar: 4, bar: 1, bars: 1, meter: '4/4' });
+  });
+
+  it('MT-26 counts the bars of the line as well as the beats of the bar', () => {
+    // One line of three bars of 4/4: twelve beats of 500ms.
+    const line = buildSchedule([{ ...row('long'), bars: 3 }], 120, 1, '4/4', 'quarter');
+
+    expect(pulseAt(line, 0)).toEqual({ inBar: 1, beatsPerBar: 4, bar: 1, bars: 3, meter: '4/4' });
+    expect(pulseAt(line, 1500)).toEqual({ inBar: 4, beatsPerBar: 4, bar: 1, bars: 3, meter: '4/4' });
+    // Second bar of the same line: the beat count restarts, the bar count moves on.
+    expect(pulseAt(line, 2000)).toEqual({ inBar: 1, beatsPerBar: 4, bar: 2, bars: 3, meter: '4/4' });
+    expect(pulseAt(line, 4000)).toEqual({ inBar: 1, beatsPerBar: 4, bar: 3, bars: 3, meter: '4/4' });
+    expect(pulseAt(line, 5999)).toEqual({ inBar: 4, beatsPerBar: 4, bar: 3, bars: 3, meter: '4/4' });
   });
 
   it('MT-24 counts the bar of the meter running there (ADR-026)', () => {
@@ -87,11 +99,12 @@ describe('pulseAt', () => {
     const schedule = buildSchedule(rows, 120, 1, '6/8', 'eighth');
 
     // 6/8: six eighths of 500ms.
-    expect(pulseAt(schedule, 0)).toEqual({ inBar: 1, beatsPerBar: 6 });
-    expect(pulseAt(schedule, 2500)).toEqual({ inBar: 6, beatsPerBar: 6 });
-    // The {3/4} row counts three quarters of 1000ms, restarting where the signature changed.
-    expect(pulseAt(schedule, 3000)).toEqual({ inBar: 1, beatsPerBar: 3 });
-    expect(pulseAt(schedule, 4000)).toEqual({ inBar: 2, beatsPerBar: 3 });
+    expect(pulseAt(schedule, 0)).toEqual({ inBar: 1, beatsPerBar: 6, bar: 1, bars: 1, meter: '6/8' });
+    expect(pulseAt(schedule, 2500)).toEqual({ inBar: 6, beatsPerBar: 6, bar: 1, bars: 1, meter: '6/8' });
+    // The {3/4} row counts three quarters of 1000ms, restarting where the signature changed, and
+    // reports the meter it is actually in.
+    expect(pulseAt(schedule, 3000)).toEqual({ inBar: 1, beatsPerBar: 3, bar: 1, bars: 1, meter: '3/4' });
+    expect(pulseAt(schedule, 4000)).toEqual({ inBar: 2, beatsPerBar: 3, bar: 1, bars: 1, meter: '3/4' });
   });
 
   it('MT-25 has no pulse before the song or after it', () => {

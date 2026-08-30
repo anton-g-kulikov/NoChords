@@ -95,11 +95,17 @@ transposing is lossless and repeatable, and Nashville numbers never move.
 
 ## Metronome
 
-Turn the metronome on and it clicks every beat while the song plays, accented on the first beat of
-each line. **Volume** is a slider; **count-in** is how many *bars* to count before the song starts,
-or 0 for none — a bar is as long as the song's meter says, so one bar counts six in 6/8 and three
-in 3/4, and the count lands on the song's own downbeat. A big countdown fills the screen
-while it counts, with the first line already visible so you can see what is coming.
+A row of dots sits pinned under the buttons, one per beat of the bar, filling as the beats go by —
+the count-in first, then the song, starting again at every barline. It is a picture of the beat, so
+it runs whether or not anything is clicking, and the switch beside it is what decides that. Turn the
+sound on and every beat clicks, accented on the first of the bar; turn it off and you are still
+counted in and still shown the beat, in silence.
+
+**Tempo**, **volume** and **count-in** live together in the metronome settings. The count-in is how
+many *bars* to count before the song starts, or 0 for none — a bar is as long as the song's meter
+says, so one bar counts six in 6/8 and three in 3/4, and the count lands on the song's own downbeat.
+It is set to **Auto** by default, which means one line's worth of bars: the length you are about to
+play is the length worth counting.
 
 Clicks are synthesised, so there is nothing to download, and they are scheduled onto the audio
 clock ahead of time rather than fired from the animation loop — measured beat-to-beat error is
@@ -107,8 +113,9 @@ clock ahead of time rather than fired from the animation loop — measured beat-
 device's output latency so that it is *heard* on the beat rather than a tenth of a second after it
 (ADR-030), which is also why playback begins a quarter of a second after you press it.
 
-These three preferences are per-device rather than per-song, since how loud a click should be
-depends on where you are playing, not on what.
+Sound, volume and count-in are per-device rather than per-song, since how loud a click should be
+depends on where you are playing, not on what. Tempo sits with them because it is the first thing a
+metronome is asked for, but it belongs to the song.
 
 ## Learning mode
 

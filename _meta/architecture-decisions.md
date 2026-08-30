@@ -1607,3 +1607,52 @@ on rather than fight.
 
 **Cost.** Levels 2 and 3 are blunter than the old ladder: the jump from 50% to 80% used to be two
 steps with 60% and 70% in between. Three levels that mean something beat six that only counted.
+
+---
+
+## ADR-059 — The beat is shown whether or not it is heard
+
+**Decision.** The count-in strip becomes a beat strip: pinned under the buttons, running for the
+whole song rather than only the count, and carrying the switch for its own sound. Seeing the beat
+and hearing it are separated:
+
+| | Sound on | Sound off |
+|---|---|---|
+| Count-in | counted, and clicked | counted, in silence |
+| Song | dots move, and it clicks | dots move |
+
+The metronome's own settings — tempo, volume, count-in length — sit together in the panel its button
+in the top row opens (ADR-042 stands), and the count-in defaults to the song's bars per line.
+
+**Why the dots are not a metronome readout.** Reported while playing along: you want to see where
+the beat is without a click going the whole time, and you want counting in either way. Those are two
+wants, and one switch was answering both. The dots are now a picture of the beat — the same reading
+the clicks come from, via `pulseAt` over the schedule, so the screen and the room cannot disagree —
+and the switch decides only whether it is also audible.
+
+**Why it is pinned.** It scrolled away at the first line, which is exactly when you start needing
+it. It sits with the buttons in one sticky header so the pulse is visible from anywhere in a long
+song.
+
+**Why the switch is on the strip, and speaks of volume.** It governs the strip, so it lives on it,
+and it is drawn as a speaker rather than a metronome: the question it answers is whether the beat is
+*heard*, since it is on screen either way. The metronome button in the top row still opens the
+metronome's settings, which is a different job — one control for the sound, one for the numbers
+behind it.
+
+**Why the count-in follows the song.** A count-in is a rehearsal of the thing about to start, so a
+line's worth of bars is the length that tells you most — two bars of 3/4 for a song written two bars
+to a line. It stays adjustable, and **Auto** is a real value rather than an empty field, because it
+changes with the song. A stored count of one bar is read as Auto: there is no telling a deliberate 1
+from the 1 everyone was given, and Auto is what that default was reaching for.
+
+**What this supersedes, plainly.**
+- ADR-047 — the strip no longer appears only when the metronome is on; it is always there, because
+  it is no longer only a count-in.
+- ADR-053's spent state — there is nothing to fade to, since the strip keeps working once the count
+  is over. The half-strength "counted, and done with" state is gone.
+
+**Cost.** Tempo now sits in a section beside two per-device settings, which blurs the grouping
+ADR-039 drew between what belongs to the song and what belongs to the device — the price of putting
+a metronome's controls where a musician looks for them. And the pinned header is taller: on a phone
+the buttons and the strip together take about 110px before the chart begins.

@@ -248,6 +248,9 @@ described at the end of this document.
 | MT-16 | Count-in beats are accented so the count lands on the downbeat | ✅ |
 | MT-17 | With nothing to play the accent falls back to a plain four | ✅ |
 | MT-18 | With no song to read a pulse from, the count-in uses the beat it is given | ✅ |
+| MT-23 | **The pulse walks the bar as the song plays, starting again at each barline** | ✅ |
+| MT-24 | The pulse counts the bar of the meter running there (ADR-026) | ✅ |
+| MT-25 | No pulse before the song starts or after it ends | ✅ |
 | MT-19 | **One count-in beat has sounded on the first click, all of them on the last** | ✅ |
 | MT-20 | Nothing is lit when nothing is counting, and never a beat that is not there | ✅ |
 | MT-21 | **The count cycles one bar of dots and counts the bars down beside it** | ✅ |
@@ -432,6 +435,9 @@ above the wrong word (ADR-054). The measurements are the caller's; this is the a
 | SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
 | SET-08 | **A count-in stored in beats converts to the nearest whole bar, rounding** | ✅ |
 | SET-09 | **A count-in that was asked for never converts to none at all** | ✅ |
+| SET-10 | **With nothing set, the count-in follows the song's bars per line** | ✅ |
+| SET-11 | A count-in set outright wins, including none at all | ✅ |
+| SET-12 | A followed count-in stays inside the offered range | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

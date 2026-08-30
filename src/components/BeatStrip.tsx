@@ -7,6 +7,8 @@ interface BeatStripProps {
   pulse: BarPulse | null;
   /** True while the count-in is running, which is what the strip counts down. */
   counting: boolean;
+  /** True while the strip holds the playing marker: nothing is being sung yet. */
+  marked: boolean;
   /** Bars of count-in, and how many are left — only meaningful while counting. */
   countInBars: number;
   countInRemaining: number;
@@ -36,6 +38,7 @@ interface BeatStripProps {
 export function BeatStrip({
   pulse,
   counting,
+  marked,
   countInBars,
   countInRemaining,
   beatsPerBar,
@@ -50,7 +53,13 @@ export function BeatStrip({
 
   return (
     <div
-      className={counting ? 'beat-strip beat-strip--counting' : 'beat-strip'}
+      className={[
+        'beat-strip',
+        marked ? 'beat-strip--marked' : '',
+        counting ? 'beat-strip--counting' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       role="status"
       aria-live="off"
     >

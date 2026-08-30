@@ -10,7 +10,7 @@ import {
 import { Brain, ListMinus, ListRestart, Metronome, SlidersVertical } from 'lucide-react';
 import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
-import { commitValue } from '../lib/numberField';
+import { NumberInput } from './NumberInput';
 import { TempoField } from './TempoField';
 import { BeatStrip } from './BeatStrip';
 import { SongRowView } from './SongRowView';
@@ -131,6 +131,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * the clicks cannot disagree (ADR-059).
    */
   const pulse = pulseAt(schedule, elapsedMs);
+
+  /*
+   * Whether the strip holds the playing marker rather than a lyric line.
+   *
+   * It does whenever nothing has been sung yet — counting, or sitting at the top waiting to. A
+   * marker on the first line of a song nobody has started says "here", when what happens next is
+   * the count (ADR-059).
+   */
+  const stripLeads = countingIn || (!isPlaying && elapsedMs <= 0);
 
   /*
    * The chart shrinks to fit its longest line rather than letting it wrap (ADR-054). It depends on
@@ -419,18 +428,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                   >
                     Auto
                   </button>
-                  <input
+                  <NumberInput
                     className="field__input count-in-field__value"
-                    type="number"
-                    inputMode="numeric"
+                    value={countInBars}
                     min={0}
                     max={MAX_COUNT_IN_BARS}
-                    value={countInBars}
                     aria-label="Count-in bars"
-                    onChange={(event) => {
-                      const committed = commitValue(event.target.value, 0, MAX_COUNT_IN_BARS);
-                      if (committed !== null) onSettingsChange({ countInBars: committed });
-                    }}
+                    onCommit={(bars) => onSettingsChange({ countInBars: bars })}
                   />
                 </div>
               </div>
@@ -503,6 +507,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
       <BeatStrip
         pulse={isPlaying || elapsedMs > 0 ? pulse : null}
         counting={countingIn}
+        marked={stripLeads}
         countInBars={countInBars}
         countInRemaining={countInRemaining}
         beatsPerBar={beatsPerBar}
@@ -523,9 +528,9 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             }}
             className={[
               'sheet__row',
-              // While counting, the marker belongs to the count-in strip: nothing is being sung
-              // yet, and it moves to the first line on the downbeat.
-              index === activeIndex && !countingIn ? 'sheet__row--active' : '',
+              // The marker belongs to the strip until a line is actually being sung; it arrives
+              // here on the downbeat.
+              index === activeIndex && !stripLeads ? 'sheet__row--active' : '',
               activeIndex >= 0 && index < activeIndex ? 'sheet__row--played' : '',
             ]
               .filter(Boolean)

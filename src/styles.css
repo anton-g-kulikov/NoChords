@@ -875,11 +875,15 @@ kbd {
 }
 
 /*
- * While it counts, it *is* the current line — nothing is being sung yet — so it takes the marker
- * and hands it to the first lyric line on the downbeat.
+ * Until a line is being sung it *is* the current line — waiting at the top of a song, then counting
+ * it in — so it wears the marker and hands it over on the downbeat.
  */
-.beat-strip--counting {
+.beat-strip--marked {
   border-bottom-color: var(--accent);
+}
+
+/* Brighter for the two seconds it is actually counting. */
+.beat-strip--counting {
   color: var(--text);
 }
 

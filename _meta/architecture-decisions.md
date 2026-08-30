@@ -1421,10 +1421,11 @@ same function the metronome clicks on, so what is drawn cannot drift from what i
 you can read; how many bars are left is a number, and the label is where numbers belong. Between
 them they say more than any length of dotted line.
 
-**Why it takes the marker while it counts.** Nothing is being sung yet, so marking the first lyric
-line as current is a small lie — it says "here" for two seconds before "here" is true. The strip is
-the current line until the downbeat, and it hands the marker over at exactly the moment the words
-start.
+**Why it takes the marker until a line is sung.** Nothing is being sung yet, so marking the first
+lyric line as current is a small lie — it says "here" before "here" is true. That holds from the
+moment a song is opened, not only once counting starts: a song sitting at the top has a count-in
+ahead of it, and the strip is what goes first. It hands the marker over at exactly the moment the
+words start.
 
 **Why fade rather than reset.** It used to show the full count again the moment playing began — a
 four that had just finished counting down to one, reading as though it were about to start over. It

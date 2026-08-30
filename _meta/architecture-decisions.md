@@ -1612,8 +1612,9 @@ steps with 60% and 70% in between. Three levels that mean something beat six tha
 
 ## ADR-059 — The beat is shown whether or not it is heard
 
-**Decision.** The count-in strip becomes a beat strip: pinned under the buttons, running for the
-whole song rather than only the count, and carrying the switch for its own sound. Seeing the beat
+**Decision.** The count-in strip becomes a beat strip: below both settings sections and pinned under
+the buttons once they scroll away, running for the whole song rather than only the count, and
+carrying the switch for its own sound. Seeing the beat
 and hearing it are separated:
 
 | | Sound on | Sound off |
@@ -1630,9 +1631,11 @@ wants, and one switch was answering both. The dots are now a picture of the beat
 the clicks come from, via `pulseAt` over the schedule, so the screen and the room cannot disagree —
 and the switch decides only whether it is also audible.
 
-**Why it is pinned.** It scrolled away at the first line, which is exactly when you start needing
-it. It sits with the buttons in one sticky header so the pulse is visible from anywhere in a long
-song.
+**Why it is pinned, and where.** It scrolled away at the first line, which is exactly when you start
+needing it, so it sticks directly beneath the buttons — at an offset measured from them rather than
+assumed, since they wrap to a second row on a narrow screen. In the flow it sits *after* both
+settings sections, because that is where a readout of the controls belongs; the two orders are the
+same one while playing, when the panels shut themselves anyway.
 
 **Why the switch is on the strip, and speaks of volume.** It governs the strip, so it lives on it,
 and it is drawn as a speaker rather than a metronome: the question it answers is whether the beat is

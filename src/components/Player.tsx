@@ -463,10 +463,11 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
       </div>
 
 
-      {/* At rest the strip shows the bar it is about to count, not the first beat of a song
-          nobody has started. */}
+      {/* Before a note is played the strip shows the bar it is about to count, not the first beat
+          of a song nobody has started. Once the song has moved — playing, paused, or parked on a
+          line you tapped — it shows where that is. */}
       <BeatStrip
-        pulse={isPlaying ? pulse : null}
+        pulse={isPlaying || elapsedMs > 0 ? pulse : null}
         counting={countingIn}
         countInBars={countInBars}
         countInRemaining={countInRemaining}

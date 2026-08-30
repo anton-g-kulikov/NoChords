@@ -887,17 +887,10 @@ kbd {
   color: var(--text);
 }
 
-/* The pulse takes the middle; the switch sits at the edge, where a control belongs. */
-.beat-strip__pulse {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-width: 0;
-}
-
+/* Meter, then the beats, then the bars: what the bar is, where you are in it, where it sits. */
 .beat-strip__beats {
+  flex: 1;
+  justify-content: center;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -943,11 +936,18 @@ kbd {
   color: var(--accent);
 }
 
-.beat-strip__label {
+.beat-strip__meter,
+.beat-strip__bars {
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  /* Both ends hold their width so the dots stay put as the numbers change under them. */
+  flex: 0 0 auto;
+  min-width: 42px;
+}
+
+.beat-strip__bars {
+  text-align: right;
 }
 
 /* Auto, then the number it resolves to. */

@@ -54,38 +54,44 @@ export function BeatStrip({
       role="status"
       aria-live="off"
     >
-      <span className="beat-strip__pulse">
-        <span className="beat-strip__beats" aria-hidden="true">
-          {Array.from({ length: showing }, (_, position) => (
-            <span
-              key={position}
-              className={[
-                'beat-strip__beat',
-                isAccent(position + 1) ? 'beat-strip__beat--accent' : '',
-                // Filling rather than a single travelling dot, so the count and the song read the
-                // same way: how far into this bar you are.
-                position < sounded ? 'beat-strip__beat--sounded' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            />
-          ))}
-        </span>
+      {/* The meter as the editor writes it, and the one actually running: a `{3/4}` line says
+          3/4 here, which is the only reading that agrees with the dots beside it. */}
+      <span className="beat-strip__meter">{pulse?.meter ?? meter}</span>
 
-        <span className="beat-strip__label">
-          {counting && countInBars > 1
-            ? `${count.barsLeft}/${countInBars} bars of ${meter}`
-            : counting || pulse === null
-              ? `${countInBars} bar${countInBars === 1 ? '' : 's'} of ${meter}`
-              : meter}
-        </span>
+      <span className="beat-strip__beats" aria-hidden="true">
+        {Array.from({ length: showing }, (_, position) => (
+          <span
+            key={position}
+            className={[
+              'beat-strip__beat',
+              isAccent(position + 1) ? 'beat-strip__beat--accent' : '',
+              // Filling rather than a single travelling dot, so the count and the song read the
+              // same way: how far into this bar you are.
+              position < sounded ? 'beat-strip__beat--sounded' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          />
+        ))}
+      </span>
+
+      {/*
+       * Bars: counting down through the count-in, then counting up through the line.
+       *
+       * Each direction is the one its moment asks for — a count-in is a wait, and how much is
+       * left is the question; a line is being played, and how far in you are is the question.
+       */}
+      <span className="beat-strip__bars">
+        {counting
+          ? `${count.barsLeft}/${countInBars}`
+          : pulse
+            ? `${pulse.bar}/${pulse.bars}`
+            : `${countInBars} bar${countInBars === 1 ? '' : 's'}`}
       </span>
 
       <button
         type="button"
-        className={
-          sound ? 'beat-strip__sound beat-strip__sound--on' : 'beat-strip__sound'
-        }
+        className={sound ? 'beat-strip__sound beat-strip__sound--on' : 'beat-strip__sound'}
         aria-pressed={sound}
         aria-label={sound ? 'Mute the beat' : 'Hear the beat'}
         title={sound ? 'The beat is heard' : 'The beat is seen, not heard'}
@@ -93,7 +99,6 @@ export function BeatStrip({
       >
         {sound ? <Volume size={18} aria-hidden /> : <VolumeX size={18} aria-hidden />}
       </button>
-
     </div>
   );
 }

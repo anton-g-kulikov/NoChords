@@ -9,6 +9,7 @@ import { toNashville } from "../src/lib/nashville";
 import {
   collectChordOccurrences,
   createConcealment,
+  sectionsOf,
 } from "../src/lib/learning";
 import {
   buildSchedule,
@@ -166,33 +167,48 @@ describe("example songs", () => {
     expect(inA.rows).toEqual(blackbird.rows);
   });
 
-  it("EX-06 has enough chord occurrences for every concealment step to be visible", () => {
+  it("EX-06 has enough chords for the levels to be visibly different", () => {
     for (const song of examples) {
       const occurrences = collectChordOccurrences(song.rows);
       expect(occurrences.length).toBeGreaterThanOrEqual(20);
 
-      const sizes = [0, 1, 2, 3, 4, 5].map(
+      const sizes = [0, 1, 2].map(
         (playthrough) => createConcealment(song.rows, playthrough, 11).size,
       );
-      // Strictly increasing, starting at nothing and ending at everything.
-      expect(sizes[0]).toBe(0);
-      expect(sizes[5]).toBe(occurrences.length);
-      for (let i = 1; i < sizes.length; i += 1) {
-        expect(sizes[i]).toBeGreaterThan(sizes[i - 1]);
-      }
-      // Each step lands on the documented percentage, capped by the opening chords that stay
-      // visible until the final stage (ADR-013).
-      const eligible =
-        occurrences.length -
-        song.rows.filter((row) => row.chords.length > 0).length;
-      expect(sizes).toEqual(
-        [0, 0.2, 0.4, 0.6, 0.8, 1].map((fraction, stage) => {
-          const target = Math.round(occurrences.length * fraction);
-          return stage === 5 ? occurrences.length : Math.min(target, eligible);
-        }),
-      );
+
+      // Each level hides strictly more than the one before it.
+      expect(sizes[1]).toBeGreaterThan(sizes[0]);
+      expect(sizes[2]).toBeGreaterThan(sizes[1]);
+
+      // Half at the second level, four fifths at the third — near enough, since each section is
+      // rounded on its own and opening chords are held back below the last level (ADR-013).
+      expect(sizes[1] / occurrences.length).toBeGreaterThan(0.45);
+      expect(sizes[1] / occurrences.length).toBeLessThan(0.56);
+      expect(sizes[2] / occurrences.length).toBeGreaterThan(0.75);
+      expect(sizes[2] / occurrences.length).toBeLessThan(0.85);
+
+      // Even the last level leaves something to read.
+      expect(sizes[2]).toBeLessThan(occurrences.length);
     }
   });
+
+  it("EX-10 thins the repeats of a song that marks its sections", () => {
+    // Rising Sun separates its verses with blank lines, so the first level has repeats to work
+    // on. The other two fixtures are written as one block and get nothing until level 2 — which
+    // is what section detection costs when a song does not say where its sections are (ADR-058).
+    const risingSun = examples.find((song) => song.title === "House of the Rising Sun");
+    expect(risingSun).toBeDefined();
+    expect(sectionsOf(risingSun!.rows).length).toBeGreaterThan(1);
+
+    const concealed = createConcealment(risingSun!.rows, 0, 11);
+    expect(concealed.size).toBeGreaterThan(0);
+    // Nothing in the opening section: that is the verse you are reading for the first time.
+    const opening = sectionsOf(risingSun!.rows)[0];
+    for (const key of collectChordOccurrences(opening)) {
+      expect(concealed.has(key)).toBe(false);
+    }
+  });
+
 
   it("EX-07 builds a playable schedule that runs its lines back to back", () => {
     // The meter matters here: `//3` is three bars, and a bar of 6/8 is not a bar of 4/4.

@@ -5,7 +5,7 @@
  * means the whole editing model is unit-testable, and it is the seam a future backend would sit
  * behind (ADR-005).
  */
-import { CONCEALMENT_STAGES } from './learning';
+import { LEARNING_LEVELS } from './learning';
 import { formatInlineRow, parseInlineRow } from './inline';
 import { DEFAULT_BARS_PER_LINE } from './playback';
 import { DEFAULT_METER } from './meter';
@@ -15,7 +15,7 @@ import type { Song, SongRow } from '../types/song';
 export { DEFAULT_BARS_PER_LINE };
 
 /** Playthrough count at which concealment reaches 100%. Counting beyond it has no effect. */
-export const MAX_LEARNING_PLAYTHROUGH = CONCEALMENT_STAGES.length - 1;
+export const MAX_LEARNING_PLAYTHROUGH = LEARNING_LEVELS.length - 1;
 
 export const DEFAULT_TEMPO = 90;
 export const DEFAULT_KEY = 'C';
@@ -116,7 +116,19 @@ export function completeLearningPlaythrough(song: Song): Song {
   };
 }
 
-/** Returns learning concealment to 0%, leaving the rest of the song untouched. */
+/**
+ * Sets the learning level outright, from one.
+ *
+ * Levels are stored as the same completed-playthrough count that advances on its own, so choosing
+ * one is choosing where the automatic progression carries on from rather than a mode beside it
+ * (ADR-058).
+ */
+export function setLearningLevel(song: Song, level: number): Song {
+  const playthrough = Math.min(Math.max(Math.floor(level) - 1, 0), MAX_LEARNING_PLAYTHROUGH);
+  return { ...song, learningPlaythrough: playthrough };
+}
+
+/** Returns learning to the first level, leaving the rest of the song untouched. */
 export function resetLearningProgress(song: Song): Song {
   return { ...song, learningPlaythrough: 0 };
 }

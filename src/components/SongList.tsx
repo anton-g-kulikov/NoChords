@@ -1,5 +1,5 @@
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
-import { concealmentFor } from '../lib/learning';
+import { MAX_LEVEL, levelFor } from '../lib/learning';
 import type { Song } from '../types/song';
 import { tempoUnitSymbol } from '../lib/tempo';
 
@@ -57,7 +57,7 @@ export function SongList({
                   {/* `♩ = 90`, not `90 bpm`: the number means nothing without the note (ADR-052). */}
                   {tempoUnitSymbol(song.tempoUnit)} = {song.tempo} · {song.rows.length} line
                   {song.rows.length === 1 ? '' : 's'} ·{' '}
-                  {Math.round(concealmentFor(song.learningPlaythrough) * 100)}% learned
+                  level {levelFor(song.learningPlaythrough)} of {MAX_LEVEL}
                 </span>
               </button>
               <button

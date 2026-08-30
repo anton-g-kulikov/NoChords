@@ -17,7 +17,7 @@ import { useFitScale } from '../hooks/useFitScale';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
 import { msPerMeterBeat } from '../lib/tempo';
 import { beatsPerBarOf } from '../lib/meter';
-import { collectChordOccurrences, concealmentFor, createConcealment } from '../lib/learning';
+import { collectChordOccurrences, createConcealment, levelFor, ruleFor } from '../lib/learning';
 import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
@@ -259,7 +259,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
   const concealmentPercent =
     totalChords === 0 ? 0 : Math.round((concealed.size / totalChords) * 100);
-  const stagePercent = Math.round(concealmentFor(song.learningPlaythrough) * 100);
+  const level = levelFor(song.learningPlaythrough);
+  const rule = ruleFor(level);
 
   return (
     <div className="player">
@@ -477,14 +478,16 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           <div className="learning-bar__text">
             <strong>{concealmentPercent}% concealed</strong>
             <span>
-              Tap a line to reveal its chords · {song.learningPlaythrough} of 5 playthroughs
-              {concealmentPercent === 100
-                ? ' — all chord cues hidden'
-                : concealmentPercent < stagePercent
-                  ? ` — ${stagePercent}% stage, first chord of each line kept`
-                  : ''}
+              {level === 1
+                ? 'First verse and chorus in full; their repeats start to go'
+                : `${Math.round(rule.fresh * 100)}% of every section`}
+              {rule.concealFirst
+                ? ' — opening chords included'
+                : ' — the first chord of each line stays'}
+              . Tap a line to see it again.
             </span>
           </div>
+
           <div
             className="learning-bar__meter"
             role="progressbar"
@@ -494,6 +497,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           >
             <div className="learning-bar__fill" style={{ width: `${concealmentPercent}%` }} />
           </div>
+
           <button
             type="button"
             className="button"

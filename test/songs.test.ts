@@ -9,6 +9,7 @@ import {
   resetLearningProgress,
   rowsFromPastedText,
   setCurrentKey,
+  setLearningLevel,
   songToText,
   textToRows,
   updateRow,
@@ -170,13 +171,24 @@ describe('learning progress', () => {
     expect(song.learningPlaythrough).toBe(2);
   });
 
-  it('SG-09 saturates at the last concealment stage', () => {
+  it('SG-09 saturates at the last level', () => {
     let song = createSong();
     for (let i = 0; i < 20; i += 1) {
       song = completeLearningPlaythrough(song);
     }
     expect(song.learningPlaythrough).toBe(MAX_LEARNING_PLAYTHROUGH);
-    expect(MAX_LEARNING_PLAYTHROUGH).toBe(5);
+    // Three levels, counted from a standing start of zero (ADR-058).
+    expect(MAX_LEARNING_PLAYTHROUGH).toBe(2);
+  });
+
+  it('SG-14 sets a level outright, and refuses one that does not exist', () => {
+    const song = createSong();
+    expect(setLearningLevel(song, 1).learningPlaythrough).toBe(0);
+    expect(setLearningLevel(song, 3).learningPlaythrough).toBe(2);
+    expect(setLearningLevel(song, 9).learningPlaythrough).toBe(2);
+    expect(setLearningLevel(song, 0).learningPlaythrough).toBe(0);
+    // Choosing a level is choosing where the automatic progression carries on from.
+    expect(completeLearningPlaythrough(setLearningLevel(song, 1)).learningPlaythrough).toBe(1);
   });
 
   it('SG-10 resets the counter to zero', () => {

@@ -1220,6 +1220,10 @@ scrolling now slides the panel up under a toggle that stays put. The stickiness 
 modes stay reachable while the chart scrolls during playback (ADR-040), which is a real need; but
 the two behaviours no longer agree, and that is worth resolving rather than leaving.
 
+*Resolved by ADR-060: the panel joined the strip in the pinned header, so a button and the panel it
+opens now behave the same way. The push-the-song-down behaviour survives where it was the point —
+at the top of a song, opening a panel still moves the chart rather than hiding a line.*
+
 ---
 
 ## ADR-047 — The count-in is on screen before it counts
@@ -1683,3 +1687,31 @@ from the 1 everyone was given, and Auto is what that default was reaching for.
 ADR-039 drew between what belongs to the song and what belongs to the device — the price of putting
 a metronome's controls where a musician looks for them. And the pinned header is taller: on a phone
 the buttons and the strip together take about 110px before the chart begins.
+
+---
+
+## ADR-060 — What you set travels with the buttons
+
+**Decision.** The settings and metronome panels move inside the pinned header, along with the beat
+strip. The header is now the whole apparatus — buttons, whichever panel is open, and the pulse — and
+the chart is the only thing that scrolls.
+
+**Why.** Reported from practice: three verses into a song you want the key a semitone down, or the
+tempo back a notch. The button was pinned and reachable, but the panel it opened was at the top of
+the page, so reaching a control meant scrolling away from the line you were on and then finding it
+again. A button that follows you and a panel that does not is half a solution.
+
+**This closes the loose end ADR-046 left open,** in so many words: a toggle that stays put over a
+panel that slides away was named there as something that ought to be resolved rather than left. It
+is resolved by moving the panel rather than by unpinning the button, because the button's stickiness
+is load-bearing (ADR-040).
+
+**What survives of ADR-046.** At the top of a song, opening a panel still pushes the chart down
+rather than floating over it — a sticky element occupies its space in the flow like any other. Only
+once you have scrolled past it does the header start covering the chart, which is exactly the case
+where covering is the point: you are looking at the control, not at the line beneath it.
+
+**Cost, measured.** With both panels open on a 375×812 phone the header is 429px and leaves 165px of
+chart — two lines. That is the extreme case (each panel is a tap from closed, and both close
+themselves when you press Play), but it is real: open everything at once and the song is mostly
+gone. The alternative was reaching controls by scrolling, which is what this replaces.

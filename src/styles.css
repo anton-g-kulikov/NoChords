@@ -858,18 +858,9 @@ kbd {
  * keeps moving whether or not anything is clicking.
  */
 /*
- * Below both settings sections, and pinned under the buttons once they scroll away.
- *
- * The two orders are the same one while playing, since the panels shut themselves then — this only
- * decides where it sits while you are setting the song up, and there it belongs after the controls
- * it reports on.
+ * Last in the pinned header, below every section it reports on.
  */
 .beat-strip {
-  position: sticky;
-  top: var(--bar-height, 60px);
-  z-index: 1;
-  background: var(--bg);
-  margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1185,6 +1176,11 @@ kbd {
 
 .player__header .settings-bar {
   margin-bottom: 0;
+  border-bottom: none;
+}
+
+/* The panels are part of the header now, so their rule against the chart is the header's own. */
+.player__header .controls__setup {
   border-bottom: none;
 }
 

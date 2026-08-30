@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -139,26 +138,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * chord names, and a transposed key can be wider than the one it came from. Not on concealment:
    * a concealed chord keeps its box and only blurs, which is exactly what ADR-007 buys.
    */
-  /*
-   * How tall the row of buttons is, so the beat strip can pin directly under it (ADR-059).
-   *
-   * Measured rather than assumed: the buttons wrap to a second row on a narrow screen, and a
-   * hard-coded offset would leave the strip floating over them or hidden behind them.
-   */
-  const headerRef = useRef<HTMLDivElement>(null);
-  const [barHeight, setBarHeight] = useState(0);
-  useLayoutEffect(() => {
-    const header = headerRef.current;
-    if (!header) return undefined;
-
-    const measure = () => setBarHeight(header.getBoundingClientRect().height);
-    measure();
-    if (typeof ResizeObserver === 'undefined') return undefined;
-    const observer = new ResizeObserver(measure);
-    observer.observe(header);
-    return () => observer.disconnect();
-  }, []);
-
   const sheetRef = useRef<HTMLOListElement>(null);
   const sheetScale = useFitScale(sheetRef, [song.rows, song.currentKey, mode]);
 
@@ -274,14 +253,14 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const rule = ruleFor(level);
 
   return (
-    <div className="player" style={{ '--bar-height': `${barHeight}px` } as CSSProperties}>
+    <div className="player">
       <div className="screen__scroll player__chart">
       {/*
        * Settings live at the top and the transport at the bottom (ADR-036): two different jobs,
        * and on a phone only one of them belongs under a thumb. The strip is pinned so the panel
        * can be opened from anywhere in a long song, not only from the top of it.
        */}
-      <div className="player__header" ref={headerRef}>
+      <div className="player__header">
       <div className="settings-bar">
         {/* In the strip rather than the panel (ADR-040): it is the one control reached for
             mid-song, and the panel is shut while playing. Not in the transport, which is a
@@ -342,12 +321,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         </div>
       </div>
 
-        {/* Pinned with the buttons rather than left in the flow: the beat is worth watching from
-            anywhere in a long song, and it scrolled away at the first line (ADR-059). */}
-      </div>
-
-      {/* In the flow rather than over the chart (ADR-046): opening settings moves the song down
-          instead of covering the line you were reading. */}
+      {/* Inside the pinned header (ADR-060): a panel you open while deep in a song opens where
+          you are, rather than at the top of a page you would have to scroll back to. */}
       <div
         className={
           setupOpen || metronomeOpen
@@ -465,21 +440,6 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
       </div>
 
 
-      {/* Before a note is played the strip shows the bar it is about to count, not the first beat
-          of a song nobody has started. Once the song has moved — playing, paused, or parked on a
-          line you tapped — it shows where that is. */}
-      <BeatStrip
-        pulse={isPlaying || elapsedMs > 0 ? pulse : null}
-        counting={countingIn}
-        countInBars={countInBars}
-        countInRemaining={countInRemaining}
-        beatsPerBar={beatsPerBar}
-        isAccent={(beatInBar) => accentAt(beatInBar - 1, schedule)}
-        meter={song.meter}
-        sound={settings.metronomeEnabled}
-        onSoundChange={(metronomeEnabled) => onSettingsChange({ metronomeEnabled })}
-        />
-
       {mode === 'learning' && setupOpen && (
         <div className="learning-bar">
           {/* The level gets a row to itself: it is the one thing here you set, rather than read. */}
@@ -536,6 +496,22 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           </button>
         </div>
       )}
+
+      {/* Before a note is played the strip shows the bar it is about to count, not the first beat
+          of a song nobody has started. Once the song has moved — playing, paused, or parked on a
+          line you tapped — it shows where that is. */}
+      <BeatStrip
+        pulse={isPlaying || elapsedMs > 0 ? pulse : null}
+        counting={countingIn}
+        countInBars={countInBars}
+        countInRemaining={countInRemaining}
+        beatsPerBar={beatsPerBar}
+        isAccent={(beatInBar) => accentAt(beatInBar - 1, schedule)}
+        meter={song.meter}
+        sound={settings.metronomeEnabled}
+        onSoundChange={(metronomeEnabled) => onSettingsChange({ metronomeEnabled })}
+        />
+      </div>
 
       {/* One type scale for the whole song, set by its longest line (ADR-054). */}
       <ol className="sheet" ref={sheetRef} style={{ '--sheet-scale': sheetScale } as CSSProperties}>

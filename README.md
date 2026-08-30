@@ -74,8 +74,9 @@ Click any row to jump to it.
 The app is a fixed shell — a header, a middle that scrolls, and the transport as the bottom row —
 so the controls sit where a native player puts them and where your thumb already is, without
 depending on fixed positioning (ADR-037). Settings — mode, key, timing, metronome — open from a strip pinned at
-the top, so they are reachable from anywhere in a long song without sharing space with the controls
-you touch mid-verse (ADR-036). While a song plays the app holds a screen wake lock, so the phone
+the top, and the panel opens inside that pinned header, so a key change three verses in happens
+where you are rather than at the top of a page you would have to scroll back to (ADR-060). They
+never share space with the controls you touch mid-verse (ADR-036). While a song plays the app holds a screen wake lock, so the phone
 does not dim halfway through (ADR-035).
 
 When playback starts the setup controls fold away, leaving just Play/Pause, Restart and the time —

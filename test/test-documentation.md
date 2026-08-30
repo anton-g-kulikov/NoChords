@@ -249,8 +249,9 @@ described at the end of this document.
 | MT-17 | With nothing to play the accent falls back to a plain four | ✅ |
 | MT-18 | With no song to read a pulse from, the count-in uses the beat it is given | ✅ |
 | MT-23 | **The pulse walks the bar as the song plays, starting again at each barline** | ✅ |
-| MT-24 | The pulse counts the bar of the meter running there (ADR-026) | ✅ |
+| MT-24 | The pulse counts the bar of the meter running there, and names it (ADR-026) | ✅ |
 | MT-25 | No pulse before the song starts or after it ends | ✅ |
+| MT-26 | **The bars of the line are counted alongside the beats of the bar** | ✅ |
 | MT-19 | **One count-in beat has sounded on the first click, all of them on the last** | ✅ |
 | MT-20 | Nothing is lit when nothing is counting, and never a beat that is not there | ✅ |
 | MT-21 | **The count cycles one bar of dots and counts the bars down beside it** | ✅ |

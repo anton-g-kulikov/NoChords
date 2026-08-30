@@ -95,8 +95,11 @@ transposing is lossless and repeatable, and Nashville numbers never move.
 
 ## Metronome
 
-A row of dots sits pinned under the buttons, one per beat of the bar, filling as the beats go by —
-the count-in first, then the song, starting again at every barline. It is a picture of the beat, so
+A strip sits pinned under the buttons: the meter, then a row of dots — one per beat of the bar,
+filling as the beats go by — then which bar of the line you are in. The count-in comes first,
+counting its bars down, then the song, counting the line's bars up and starting the dots again at
+every barline. A `{3/4}` line says 3/4 and draws three dots, since it reports the meter actually
+running. It is a picture of the beat, so
 it runs whether or not anything is clicking, and the switch beside it is what decides that. Turn the
 sound on and every beat clicks, accented on the first of the bar; turn it off and you are still
 counted in and still shown the beat, in silence.

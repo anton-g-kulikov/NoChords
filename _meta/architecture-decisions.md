@@ -1614,7 +1614,8 @@ steps with 60% and 70% in between. Three levels that mean something beat six tha
 
 **Decision.** The count-in strip becomes a beat strip: below both settings sections and pinned under
 the buttons once they scroll away, running for the whole song rather than only the count, and
-carrying the switch for its own sound. Seeing the beat
+carrying the switch for its own sound. It reads left to right as meter, beats, bars — what the bar
+is, where you are in it, and where that bar sits in the line — with the sound switch at the end. Seeing the beat
 and hearing it are separated:
 
 | | Sound on | Sound off |
@@ -1624,6 +1625,16 @@ and hearing it are separated:
 
 The metronome's own settings — tempo, volume, count-in length — sit together in the panel its button
 in the top row opens (ADR-042 stands), and the count-in defaults to the song's bars per line.
+
+**Everything on it reports the meter actually running.** A `{3/4}` line inside a 6/8 song says
+`3/4`, draws three dots and accents one of them, because a strip that said `6/8` beside three dots
+would be contradicting itself in the one place a reader looks to resolve exactly that (ADR-026).
+
+**The bar counter runs through the song, not only the count.** Counting down through the count-in
+(`3/3`, `2/3`) and up through the line (`1/3`, `2/3`), because each direction is the one its moment
+asks for: a count-in is a wait, and what is left is the question; a line is being played, and how
+far in you are is the question. Before a note is played the slot shows the count-in's length
+instead, since there is no line to be in yet.
 
 **Why the dots are not a metronome readout.** Reported while playing along: you want to see where
 the beat is without a click going the whole time, and you want counting in either way. Those are two

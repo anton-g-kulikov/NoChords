@@ -24,8 +24,8 @@ interface BeatStripProps {
 /**
  * The pulse, pinned under the strip of buttons (ADR-059).
  *
- * One bar of dots that fills as the beats go by: the count-in first, then the song, resetting at
- * every barline so it reads as "where in the bar am I" all the way through. The dots run whether or
+ * One bar of dots with the sounding beat lit, travelling: the count-in first, then the song,
+ * starting again at every barline so it reads as "where is the beat" all the way through. The dots run whether or
  * not anything is clicking — seeing the beat and hearing it are different things, and the count-in
  * counts you in silently when the sound is off.
  *
@@ -65,9 +65,10 @@ export function BeatStrip({
             className={[
               'beat-strip__beat',
               isAccent(position + 1) ? 'beat-strip__beat--accent' : '',
-              // Filling rather than a single travelling dot, so the count and the song read the
-              // same way: how far into this bar you are.
-              position < sounded ? 'beat-strip__beat--sounded' : '',
+              // One dot at a time, travelling: a filled row says how far into the bar you are,
+              // but the thing being asked of it is where the beat is *now*, and a single lit dot
+              // answers that at a glance instead of being counted.
+              position === sounded - 1 ? 'beat-strip__beat--sounded' : '',
             ]
               .filter(Boolean)
               .join(' ')}

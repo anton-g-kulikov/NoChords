@@ -1106,6 +1106,10 @@ attempts at a passage. Making one panel serve both meant opening four controls t
 colour says whether the metronome is running. Those are different questions and both get asked —
 "is the click on?" is answerable at a glance from the strip, without opening anything.
 
+*Superseded in part by ADR-059: the button now signals only whether its panel is open. "Is the click
+on?" is answered by the beat strip, which carries the switch itself, so the second signal was two
+controls lighting up for one fact.*
+
 **Why the toggle inside says only On or Off.** The section heading says "Metronome"; repeating it on
 the button was the compromise that a shared row forced (ADR-038), and the section removes the need.
 
@@ -1615,7 +1619,7 @@ steps with 60% and 70% in between. Three levels that mean something beat six tha
 **Decision.** The count-in strip becomes a beat strip: below both settings sections and pinned under
 the buttons once they scroll away, running for the whole song rather than only the count, and
 carrying the switch for its own sound. It reads left to right as meter, beats, bars — what the bar
-is, where you are in it, and where that bar sits in the line — with the sound switch at the end. Seeing the beat
+is, where the beat is in it, and where that bar sits in the line — with the sound switch at the end. Seeing the beat
 and hearing it are separated:
 
 | | Sound on | Sound off |
@@ -1635,6 +1639,12 @@ would be contradicting itself in the one place a reader looks to resolve exactly
 asks for: a count-in is a wait, and what is left is the question; a line is being played, and how
 far in you are is the question. Before a note is played the slot shows the count-in's length
 instead, since there is no line to be in yet.
+
+**One dot at a time.** The lit dot travels rather than the row filling up behind it. A filled row
+answers "how far into the bar am I", which is a thing you read; a single lit dot answers "where is
+the beat now", which is a thing you see. The second is what a musician glancing up mid-line is
+asking, and the bar counter beside it already answers the first. (Supersedes the filling described
+in ADR-053, for the count-in as well as the song — one language for both.)
 
 **Why the dots are not a metronome readout.** Reported while playing along: you want to see where
 the beat is without a click going the whole time, and you want counting in either way. Those are two

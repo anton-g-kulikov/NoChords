@@ -17,8 +17,19 @@ import { useFitScale } from '../hooks/useFitScale';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
 import { msPerMeterBeat } from '../lib/tempo';
 import { beatsPerBarOf } from '../lib/meter';
-import { collectChordOccurrences, createConcealment, levelFor, ruleFor } from '../lib/learning';
-import { completeLearningPlaythrough, resetLearningProgress, setCurrentKey } from '../lib/songs';
+import {
+  MAX_LEVEL,
+  collectChordOccurrences,
+  createConcealment,
+  levelFor,
+  ruleFor,
+} from '../lib/learning';
+import {
+  completeLearningPlaythrough,
+  resetLearningProgress,
+  setCurrentKey,
+  setLearningLevel,
+} from '../lib/songs';
 import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { useWakeLock } from '../hooks/useWakeLock';
@@ -475,6 +486,25 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
       {mode === 'learning' && setupOpen && (
         <div className="learning-bar">
+          {/* The level gets a row to itself: it is the one thing here you set, rather than read. */}
+          <div className="learning-bar__levels">
+            <span className="learning-bar__label">Level</span>
+            <div className="learning-bar__steps">
+              {Array.from({ length: MAX_LEVEL }, (_, index) => index + 1).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={option === level ? 'segment segment--active' : 'segment'}
+                  aria-label={`Level ${option}`}
+                  aria-pressed={option === level}
+                  onClick={() => onChange(setLearningLevel(song, option))}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="learning-bar__text">
             <strong>{concealmentPercent}% concealed</strong>
             <span>

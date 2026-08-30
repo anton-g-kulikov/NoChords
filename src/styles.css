@@ -663,6 +663,30 @@ kbd {
   background: var(--surface);
 }
 
+/* The level control takes the full width, so it reads as the one thing here you set (ADR-058). */
+.learning-bar__levels {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 100%;
+}
+
+.learning-bar__label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.learning-bar__steps {
+  display: flex;
+}
+
+.learning-bar__steps .segment {
+  min-width: 52px;
+  text-align: center;
+}
+
 .learning-bar__text {
   display: flex;
   flex-direction: column;

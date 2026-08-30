@@ -31,6 +31,8 @@ export interface ScheduleEntry {
   startBeat: number;
   /** How often the accent falls here, from the meter in effect (ADR-026). */
   accentEvery: number;
+  /** Beats in one bar of the meter in effect — the shape of the pulse display (ADR-059). */
+  beatsPerBar: number;
   /** Where the current meter began, so a signature change restarts the pulse rather than
    * inheriting the phase of the meter before it. */
   sectionStartBeat: number;
@@ -122,6 +124,7 @@ export function buildSchedule(
       beats,
       startBeat: beatCursor,
       accentEvery: accentEveryOf(meter),
+      beatsPerBar: beatsPerBarOf(meter),
       sectionStartBeat,
     });
     cursor += durationMs;

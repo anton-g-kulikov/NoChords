@@ -6,6 +6,7 @@ import {
   countInDurationMs,
   countInProgress,
   countInSounded,
+  pulseAt,
   isAccent,
 } from '../src/lib/metronome';
 import { buildSchedule } from '../src/lib/playback';
@@ -66,6 +67,37 @@ describe('countInSounded', () => {
     // The lead-in can report more left than there are beats; it never lights a beat that is not there.
     expect(countInSounded(4, 9)).toBe(0);
     expect(countInSounded(4, 5)).toBe(0);
+  });
+});
+
+describe('pulseAt', () => {
+  it('MT-23 walks the bar as the song plays', () => {
+    // Three bars of 4/4 at 120: beats every 500ms, four to a bar.
+    const at = (ms: number) => pulseAt(inFour, ms);
+    expect(at(0)).toEqual({ inBar: 1, beatsPerBar: 4 });
+    expect(at(499)).toEqual({ inBar: 1, beatsPerBar: 4 });
+    expect(at(500)).toEqual({ inBar: 2, beatsPerBar: 4 });
+    expect(at(1500)).toEqual({ inBar: 4, beatsPerBar: 4 });
+    // The next bar starts the count again.
+    expect(at(2000)).toEqual({ inBar: 1, beatsPerBar: 4 });
+  });
+
+  it('MT-24 counts the bar of the meter running there (ADR-026)', () => {
+    const rows = [row('a'), { ...row('b'), meter: '3/4' }];
+    const schedule = buildSchedule(rows, 120, 1, '6/8', 'eighth');
+
+    // 6/8: six eighths of 500ms.
+    expect(pulseAt(schedule, 0)).toEqual({ inBar: 1, beatsPerBar: 6 });
+    expect(pulseAt(schedule, 2500)).toEqual({ inBar: 6, beatsPerBar: 6 });
+    // The {3/4} row counts three quarters of 1000ms, restarting where the signature changed.
+    expect(pulseAt(schedule, 3000)).toEqual({ inBar: 1, beatsPerBar: 3 });
+    expect(pulseAt(schedule, 4000)).toEqual({ inBar: 2, beatsPerBar: 3 });
+  });
+
+  it('MT-25 has no pulse before the song or after it', () => {
+    expect(pulseAt(inFour, -1)).toBeNull();
+    expect(pulseAt(inFour, 6000)).toBeNull();
+    expect(pulseAt([], 0)).toBeNull();
   });
 });
 

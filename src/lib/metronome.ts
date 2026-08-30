@@ -67,6 +67,41 @@ export function countInProgress(
   };
 }
 
+/** Where the pulse is: which beat of the bar is sounding, out of how many. */
+export interface BarPulse {
+  /** Beats sounded in this bar, from 1. */
+  inBar: number;
+  /** Beats in the bar, from the meter running here. */
+  beatsPerBar: number;
+}
+
+/**
+ * The beat sounding at a moment in the song, as a position in its bar (ADR-059).
+ *
+ * The same reading the metronome clicks on, so the dots on screen and the sound in the room cannot
+ * disagree — and it works whether or not anything is being played out loud. `null` before the song
+ * starts or after it ends, where there is no beat to be on.
+ */
+export function pulseAt(schedule: ScheduleEntry[], elapsedMs: number): BarPulse | null {
+  if (elapsedMs < 0) return null;
+
+  for (const entry of schedule) {
+    if (elapsedMs >= entry.endMs) continue;
+    if (elapsedMs < entry.startMs) return null;
+
+    const beatMs = entryBeatMs(entry);
+    const intoRow = Math.floor((elapsedMs - entry.startMs) / beatMs);
+    const beat = entry.startBeat + Math.min(Math.max(intoRow, 0), entry.beats - 1);
+    const perBar = Math.max(entry.beatsPerBar, 1);
+    // Counted from where the meter changed, so a signature change restarts the bar (ADR-026).
+    const offset = (((beat - entry.sectionStartBeat) % perBar) + perBar) % perBar;
+
+    return { inBar: offset + 1, beatsPerBar: perBar };
+  }
+
+  return null;
+}
+
 /**
  * When to fire a click so that it is *heard* on the beat.
  *

@@ -1527,3 +1527,38 @@ over on a cold start rather than swapping under someone mid-song (ADR-028). That
 it is now nearly invisible: with fresh HTML a cold start loads the new bundle immediately whichever
 worker is in control. The stale caches that pile up until a worker finally activates are the
 remaining visible trace.
+
+---
+
+## ADR-057 — A song is written in chords; numerals are for playing
+
+**Decision.** The editor writes chord names in the song's original key, and only chord names. Roman
+numerals stay what they have always been: a display mode in the player (ADR-012), derived from the
+stored chords and never a way of entering them. There is no notation toggle in the editor.
+
+**Why this is recorded rather than simply not built.** It *was* built — a toggle beside the key that
+switched the whole song text between `[Am]` and `[i]`, an inverse conversion, and machinery to stop
+the round trip from respelling chords. It worked. It was tested and rejected, and a thing that was
+tried and turned down is worth more written down than a thing that was never tried: the next person
+to think "the editor should take numerals too" should know it has been to the keyboard already.
+
+**What one notation buys.** The editor's text is the song (ADR-010) — what you typed is what is
+stored, with no layer in between. A second notation makes that only conditionally true: the text
+means one thing in one mode and something else in the other, and the same characters read against a
+different key are a different song. Every question about the editor gains a "which mode were you
+in?" clause.
+
+**The specific sharp edges, since they are the reason to stay away.** A numeral cannot remember its
+enharmonic: `F#` and `Gb` are one numeral, so converting back has to be told what the song already
+says or it respells chords the writer never touched. And because numerals are read against the key,
+changing the key while they are showing has to re-read the whole buffer — miss that and the next
+keystroke reinterprets every numeral against the new key and rewrites the entire chart. Both were
+solved. Both were solvable only by adding memory to a conversion that ought to be pure, which is the
+shape of a feature pushing against the grain of the design.
+
+**What this does not close off.** Numerals in the player are untouched and are the point of the
+Nashville mode: read a chart in degrees while you play it. The prohibition is on *writing* them.
+
+**Cost.** Someone who thinks in degrees has to write a key's worth of chord names to get a chart in,
+and transposing a written song still means the player's stepper rather than a rewrite. That is the
+price of the chart being one unambiguous thing.

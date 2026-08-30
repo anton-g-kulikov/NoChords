@@ -1127,6 +1127,23 @@ kbd {
   flex: 0 0 72px;
 }
 
+/* Auto, then the number it resolves to. */
+.count-in-field {
+  display: flex;
+  gap: 4px;
+}
+
+.count-in-field .segment {
+  padding-inline: 10px;
+  border-radius: var(--radius);
+}
+
+.count-in-field__value {
+  flex: 1 1 56px;
+  min-width: 0;
+  padding-inline: 8px;
+}
+
 /* Tempo reads as one fact — the note value, then the number (ADR-052). */
 .tempo {
   display: flex;

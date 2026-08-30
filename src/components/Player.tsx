@@ -10,7 +10,7 @@ import {
 import { Brain, ListMinus, ListRestart, Metronome, SlidersVertical } from 'lucide-react';
 import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
-import { NumberField } from './NumberField';
+import { commitValue } from '../lib/numberField';
 import { TempoField } from './TempoField';
 import { SongRowView } from './SongRowView';
 import { useFitScale } from '../hooks/useFitScale';
@@ -34,7 +34,7 @@ import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { accentAt, countInDurationMs, countInProgress } from '../lib/metronome';
-import { MAX_COUNT_IN_BARS, type Settings } from '../lib/settings';
+import { MAX_COUNT_IN_BARS, countInBarsFor, type Settings } from '../lib/settings';
 import {
   isDoubleTap,
   isRevealed,
@@ -106,7 +106,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   // One beat of the song's own meter — an eighth in 6/8 — at whatever note value its tempo counts.
   const beatMs = msPerMeterBeat(song.meter, song.tempo, song.tempoUnit);
   // A count-in is counted in the song's own time: one bar of 6/8 is six beats, of 3/4 three.
-  const countInMs = countInDurationMs(beatMs, settings.countInBars * beatsPerBarOf(song.meter));
+  const countInBars = countInBarsFor(settings.countInBars, song.barsPerLine);
+  const countInMs = countInDurationMs(beatMs, countInBars * beatsPerBarOf(song.meter));
 
   const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
 
@@ -118,7 +119,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * twice in the two seconds you are least able to follow it.
    */
   const beatsPerBar = beatsPerBarOf(song.meter);
-  const countInBeats = settings.countInBars * beatsPerBar;
+  const countInBeats = countInBars * beatsPerBar;
   const {
     activeIndex,
     isPlaying,
@@ -148,7 +149,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * is a row nobody counts at a glance.
    */
   const { inBar: soundedInBar, barsLeft: countInBarsLeft } = countInProgress(
-    settings.countInBars,
+    countInBars,
     beatsPerBar,
     countInRemaining
   );
@@ -430,13 +431,37 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 />
               </label>
 
-              <NumberField
-                label="Count-in (bars)"
-                value={settings.countInBars}
-                min={0}
-                max={MAX_COUNT_IN_BARS}
-                onCommit={(countInBars) => onSettingsChange({ countInBars })}
-              />
+              {/* Auto is a real value here, not an empty field: it means one line's worth of
+                  bars, which changes with the song (ADR-059). */}
+              <div className="field field--narrow">
+                <span className="field__label">Count-in (bars)</span>
+                <div className="count-in-field">
+                  <button
+                    type="button"
+                    className={
+                      settings.countInBars === null ? 'segment segment--active' : 'segment'
+                    }
+                    aria-pressed={settings.countInBars === null}
+                    title="Match the song's bars per line"
+                    onClick={() => onSettingsChange({ countInBars: null })}
+                  >
+                    Auto
+                  </button>
+                  <input
+                    className="field__input count-in-field__value"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={MAX_COUNT_IN_BARS}
+                    value={countInBars}
+                    aria-label="Count-in bars"
+                    onChange={(event) => {
+                      const committed = commitValue(event.target.value, 0, MAX_COUNT_IN_BARS);
+                      if (committed !== null) onSettingsChange({ countInBars: committed });
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </section>
           )}
@@ -477,9 +502,9 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
             })}
           </span>
           <span className="count-in__label">
-            {countingIn && settings.countInBars > 1
-              ? `${countInBarsLeft}/${settings.countInBars} bars of ${song.meter}`
-              : `${settings.countInBars} bar${settings.countInBars === 1 ? '' : 's'} of ${song.meter}`}
+            {countingIn && countInBars > 1
+              ? `${countInBarsLeft}/${countInBars} bars of ${song.meter}`
+              : `${countInBars} bar${countInBars === 1 ? '' : 's'} of ${song.meter}`}
           </span>
         </div>
       )}

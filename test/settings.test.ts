@@ -3,6 +3,7 @@ import {
   DEFAULT_SETTINGS,
   MAX_COUNT_IN_BARS,
   SETTINGS_KEY,
+  countInBarsFor,
   createSettingsStore,
 } from '../src/lib/settings';
 import type { StorageLike } from '../src/lib/storage';
@@ -15,6 +16,26 @@ function memoryStorage(seed: Record<string, string> = {}): StorageLike {
     removeItem: (key) => void data.delete(key),
   };
 }
+
+describe('countInBarsFor', () => {
+  it('SET-10 follows the song when nothing has been set (ADR-059)', () => {
+    expect(DEFAULT_SETTINGS.countInBars).toBeNull();
+    // A line's worth of bars is what you are about to play, so it is what the count says.
+    expect(countInBarsFor(null, 1)).toBe(1);
+    expect(countInBarsFor(null, 2)).toBe(2);
+    expect(countInBarsFor(null, 4)).toBe(4);
+  });
+
+  it('SET-11 a number that was set outright wins, including none at all', () => {
+    expect(countInBarsFor(3, 2)).toBe(3);
+    expect(countInBarsFor(0, 4)).toBe(0);
+  });
+
+  it('SET-12 keeps a followed count-in inside the offered range', () => {
+    expect(countInBarsFor(null, 0)).toBe(1);
+    expect(countInBarsFor(null, 999)).toBe(MAX_COUNT_IN_BARS);
+  });
+});
 
 describe('createSettingsStore', () => {
   it('SET-01 returns the defaults when nothing is stored', () => {
@@ -82,14 +103,16 @@ describe('createSettingsStore', () => {
       createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
         .countInBars;
 
-    expect(load({ countInBeats: 4 })).toBe(1);
     expect(load({ countInBeats: 8 })).toBe(2);
     // Not a whole number of bars: it rounds, so the count-in changes length slightly. Preserving
     // the intent — that there is one, and roughly how long — matters more than the exact beats,
     // which no longer describe a fixed duration now that a bar is as long as the meter says.
     expect(load({ countInBeats: 6 })).toBe(2);
-    expect(load({ countInBeats: 5 })).toBe(1);
     expect(load({ countInBeats: 0 })).toBe(0);
+    // Four beats is one bar, which is the count-in everybody was given: it now follows the song
+    // rather than staying pinned at the old default (ADR-059).
+    expect(load({ countInBeats: 4 })).toBeNull();
+    expect(load({ countInBeats: 5 })).toBeNull();
   });
 
   it('SET-09 never converts an asked-for count-in into none at all', () => {
@@ -97,10 +120,12 @@ describe('createSettingsStore', () => {
       createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
         .countInBars;
 
-    // Under half a bar rounds to zero, which would answer "I want a count-in" with silence.
-    expect(load({ countInBeats: 1 })).toBe(1);
-    expect(load({ countInBeats: 2 })).toBe(1);
-    expect(load({ countInBeats: 3 })).toBe(1);
+    // Under half a bar rounds to zero, which would answer "I want a count-in" with silence. It
+    // lands on one bar, and one bar is now read as following the song — still a count, never none.
+    expect(load({ countInBeats: 1 })).toBeNull();
+    expect(load({ countInBeats: 2 })).toBeNull();
+    expect(load({ countInBeats: 3 })).toBeNull();
+    expect(countInBarsFor(load({ countInBeats: 1 }), 2)).toBe(2);
     // Nothing asked for stays nothing, and nonsense falls back to the default.
     expect(load({ countInBeats: 0 })).toBe(0);
     expect(load({ countInBeats: -4 })).toBe(0);

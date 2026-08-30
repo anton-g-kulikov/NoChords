@@ -1106,9 +1106,12 @@ attempts at a passage. Making one panel serve both meant opening four controls t
 colour says whether the metronome is running. Those are different questions and both get asked —
 "is the click on?" is answerable at a glance from the strip, without opening anything.
 
-*Superseded in part by ADR-059: the button now signals only whether its panel is open. "Is the click
-on?" is answered by the beat strip, which carries the switch itself, so the second signal was two
-controls lighting up for one fact.*
+*Both signals stand, and are now drawn far enough apart to be read at a glance: a blue icon means
+the beat is being heard, a filled blue button with the icon reversed out of it means the panel is
+open. They were briefly reduced to one on the grounds that the beat strip carries the sound switch
+already — but a signal you have to hunt for and a signal you cannot miss are not the same thing, and
+"is the click on?" is worth answering from the strip of buttons. The settings button takes the same
+filled treatment for its own panel.*
 
 **Why the toggle inside says only On or Off.** The section heading says "Metronome"; repeating it on
 the button was the compromise that a shared row forced (ADR-038), and the section removes the need.

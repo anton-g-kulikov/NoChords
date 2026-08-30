@@ -517,8 +517,19 @@ kbd {
 }
 
 /* Open is a state the label used to carry; without the label it has to be visible. */
+/*
+ * Two signals on one button (ADR-042), each with its own channel so both can be read at once: the
+ * icon carries whether the beat is heard, the fill carries whether the panel is open.
+ */
+.settings-bar__toggle--live {
+  color: var(--accent);
+}
+
+/* Filled and reversed, so an open panel is unmistakable next to a merely live one. */
 .settings-bar__toggle--open {
+  background: var(--accent);
   border-color: var(--accent);
+  color: var(--accent-contrast);
 }
 
 /*

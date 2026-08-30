@@ -306,13 +306,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         <div className="settings-bar__actions">
           <button
             type="button"
-            /* Highlighted for its panel being open, and nothing else: whether the beat is
-               audible is the strip's business, and it says so there (ADR-059). */
-            className={
-              metronomeOpen
-                ? 'button button--icon settings-bar__toggle settings-bar__toggle--open'
-                : 'button button--icon settings-bar__toggle'
-            }
+            /* Two things at once: a blue icon means the beat is being heard, a blue button means
+               this panel is open (ADR-042). */
+            className={[
+              'button button--icon settings-bar__toggle',
+              metronomeOpen ? 'settings-bar__toggle--open' : '',
+              settings.metronomeEnabled ? 'settings-bar__toggle--live' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             aria-expanded={metronomeOpen}
             aria-label={metronomeOpen ? 'Hide metronome' : 'Metronome'}
             /* What it does, not what the sound is doing: the strip already says that. */

@@ -112,15 +112,24 @@ depends on where you are playing, not on what.
 
 ## Learning mode
 
-The counter tracks completed playthroughs and maps to how much is hidden:
+Learning runs in three levels, and a **Level** control sets one directly. They also advance on their
+own with each completed playthrough, so picking one is choosing where that carries on from:
 
-| Completed playthroughs | 0 | 1 | 2 | 3 | 4 | 5+ |
-|---|---|---|---|---|---|---|
-| Chords concealed | 0% | 20% | 40% | 60% | 80% | 100% |
+| Level | Music you have not played yet | Music that repeats | First chord of a line |
+|---|---|---|---|
+| 1 | shown whole | 15% hidden | kept |
+| 2 | 50% hidden | 50% hidden | kept |
+| 3 | 80% hidden | 80% hidden | hidden like any other |
+
+Level 1 is the one that teaches: the first verse and chorus stay whole, and only when the music comes
+round again do chords start to go. A section is what sits between blank lines, and it counts as a
+repeat when its chords match a section already played — so verse 2 repeats verse 1 even though the
+words differ. **A song written as one block, with no blank lines between verses, has no repeats to
+find, so level 1 leaves it fully visible** (ADR-058).
 
 Which chords get hidden is chosen at random when a playthrough starts and stays fixed for its whole
 duration — nothing flickers as you scroll. Hidden chords keep their space on the page, so the chart
-never reflows as you progress. **Reset learning progress** puts you back to 0%.
+never reflows as you progress. **Reset learning progress** puts you back to level 1.
 
 **Lost a chord? Tap the line** and its concealed chords come back for a few seconds, then fade out
 again. Revealing is a glance at the answer, not a change of state — your progress is untouched, and
@@ -128,9 +137,9 @@ nothing stays revealed. A whole line rather than the one chord you tapped, becau
 too small a target on a phone. Double-tap to jump playback to a line while in learning mode; in the
 other modes a single tap still does it.
 
-The **first chord of every line stays visible** until the final stage, so you keep your place in the
-line while the detail goes. That means the share actually hidden can fall short of the nominal
-stage — the bar reports what is really concealed, not the stage number.
+The **first chord of every line stays visible** at levels 1 and 2, so you keep your place in the line
+while the detail goes. That means the share actually hidden can fall short of the nominal
+level — the bar reports what is really concealed, not the stage number.
 
 ## Installing it
 

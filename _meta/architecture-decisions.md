@@ -1562,3 +1562,48 @@ Nashville mode: read a chart in degrees while you play it. The prohibition is on
 **Cost.** Someone who thinks in degrees has to write a key's worth of chord names to get a chart in,
 and transposing a written song still means the player's stepper rather than a rewrite. That is the
 price of the chart being one unambiguous thing.
+
+---
+
+## ADR-058 — Learning runs in three levels, and the first one teaches
+
+**Decision.** Learning has three levels instead of six evenly-spaced percentages:
+
+| Level | Music you have not played yet | Music that repeats | Opening chord of a line |
+|---|---|---|---|
+| 1 | nothing concealed | 15% | kept |
+| 2 | 50% | 50% | kept |
+| 3 | 80% | 80% | concealed like any other |
+
+They still advance on their own with each completed playthrough, and now a control sets one
+outright. Choosing a level writes the same playthrough count the progression uses, so picking one is
+choosing where the automatic advance carries on from rather than a mode running beside it.
+
+**Why the first level is not "0%".** The old first stage concealed nothing anywhere, which taught
+nothing: the chart was simply a chart. Reading the changes once and then playing them from memory
+with the page still in front of you is what actually commits a song, so the first verse and chorus
+stay whole and only their repeats start to thin. The level teaches by the song's own structure
+rather than by a stopwatch.
+
+**A section is what sits between blank lines.** Blank rows are structure rather than music
+(ADR-025), which makes them the only thing in a song that says where a verse ends. A section repeats
+when its chords, in order, match a section already played — so verse 2 is a repeat of verse 1 even
+though the words differ, which is exactly the sense in which you have played it before.
+
+**The cost of that, stated plainly: a song written as one block gets nothing at level 1.** Two of
+the three fixtures are written without blank lines, so they have one section, nothing repeats, and
+the first level leaves them entirely visible until level 2 picks them up. That is the honest
+behaviour — the app cannot see a verse boundary that was never written — but it means the first
+level does nothing for a song that does not mark its sections.
+
+**Each section is drawn from separately.** A share then means the same thing everywhere in the song
+instead of landing wherever the shuffle happened to put it, and the seed moves with the section so
+two identical verses do not blur in the same places.
+
+**What did not change.** Concealment is still a pure function of `(rows, playthrough, seed)`, fixed
+for a whole playthrough so nothing flickers while the song scrolls (ADR-002). Tapping a line still
+reveals it without touching progress (ADR-018) — that is what makes a level something you can lean
+on rather than fight.
+
+**Cost.** Levels 2 and 3 are blunter than the old ladder: the jump from 50% to 80% used to be two
+steps with 60% and 70% in between. Three levels that mean something beat six that only counted.

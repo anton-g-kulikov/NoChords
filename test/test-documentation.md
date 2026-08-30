@@ -138,20 +138,26 @@ described at the end of this document.
 
 | # | Case | Status |
 |---|------|--------|
-| LN-01 | Concealment table maps playthroughs 0–5 to 0/20/40/60/80/100% | ✅ |
-| LN-02 | Playthrough counts above 5 stay at 100% | ✅ |
-| LN-03 | Occurrences are collected as `rowId:chordIndex` across all rows | ✅ |
-| LN-04 | Rows with no chords contribute no occurrences | ✅ |
-| LN-05 | Selection size matches the stage, capped by the rule below (10 chords → 0/2/4/6/7/10) | ✅ |
-| LN-06 | 100% conceals every occurrence | ✅ |
-| LN-07 | 0% conceals nothing | ✅ |
-| LN-08 | **Selection is stable across repeated reads within one playthrough** | ✅ |
-| LN-09 | Different playthrough seeds produce different selections | ✅ |
-| LN-10 | Selection only ever contains real occurrence keys | ✅ |
-| LN-11 | Rounding is exact at each stage for a non-multiple-of-5 chord count | ✅ |
-| LN-12 | **The first chord of every line survives stages 1–4** | ✅ |
-| LN-13 | The final stage conceals the opening chords too | ✅ |
+| LN-01 | A level per completed playthrough, counting from one | ✅ |
+| LN-02 | Counts beyond the last level saturate, including old six-stage counts | ✅ |
+| LN-15 | **Opening chords are held back until the last level (ADR-013)**; out-of-range levels clamp | ✅ |
+| LN-16 | The song splits into sections at its blank lines | ✅ |
+| LN-17 | A song with no blank lines is one section | ✅ |
+| LN-18 | Passages with no chords are not sections | ✅ |
+| LN-03 | One key per chord, addressed by row and position in the row | ✅ |
+| LN-04 | Rows with no chords contribute nothing | ✅ |
+| LN-10 | Only ever produces keys for real occurrences | ✅ |
+| LN-05 | **Level 1 shows the first verse and chorus whole and thins their repeats** | ✅ |
+| LN-06 | Levels 2 and 3 blur every section evenly (50%, 80%) | ✅ |
+| LN-07 | Level 1 conceals nothing when nothing repeats | ✅ |
+| LN-19 | A share is counted against a song written as one section | ✅ |
+| LN-12 | The first chord of a line survives levels 1 and 2 | ✅ |
+| LN-13 | Opening chords join the pool at level 3 | ✅ |
 | LN-14 | The selection is capped at the eligible chords rather than overshooting | ✅ |
+| LN-08 | **Stable: the same seed always yields the same selection** | ✅ |
+| LN-09 | The selection genuinely depends on the seed | ✅ |
+| LN-20 | Two identical verses do not blur in the same places | ✅ |
+| LN-11 | Rounds to a whole number of chords for awkward counts | ✅ |
 
 ### Playback timing — `playback.test.ts`
 
@@ -193,8 +199,9 @@ described at the end of this document.
 | SG-06 | `deleteRow` removes the row, and keeps at least one row present | ✅ |
 | SG-07 | `updateRow` patches a single field without touching siblings | ✅ |
 | SG-08 | **`completeLearningPlaythrough` increments the counter** | ✅ |
-| SG-09 | The counter saturates at 5 (100% concealment) | ✅ |
+| SG-09 | The counter saturates at the last level | ✅ |
 | SG-10 | **`resetLearningProgress` returns the counter to 0** | ✅ |
+| SG-14 | A level can be set outright, and one that does not exist is refused | ✅ |
 | SG-11 | Changing the current key leaves `originalKey` and stored chords untouched | ✅ |
 | SG-12 | Pasted lines are parsed for inline chord markup | ✅ |
 | SG-13 | A line length written as `/n/` is read from pasted text | ✅ |
@@ -484,7 +491,8 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-03 | Lyric text is intact and each chord is anchored inside it | ✅ |
 | EX-04 | Relative representation matches the document (`Dm`→`1m`, `C`→`7`, etc.) | ✅ |
 | EX-05 | Blackbird G→A gives A/D/E with degrees unchanged, stored rows untouched | ✅ |
-| EX-06 | Each fixture has enough occurrences for every concealment step to be visible | ✅ |
+| EX-06 | Each fixture has enough chords for the three levels to differ visibly | ✅ |
+| EX-10 | **Rising Sun marks its sections, so level 1 thins its repeats and leaves its opening verse whole** | ✅ |
 | EX-07 | Schedule runs the Rising Sun lines back to back, starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |

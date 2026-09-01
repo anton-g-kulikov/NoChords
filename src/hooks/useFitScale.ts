@@ -35,10 +35,18 @@ export function useFitScale(
 
     const ratios: number[] = [];
     for (const line of root.querySelectorAll<HTMLElement>('.line')) {
-      const available = line.clientWidth;
+      const available = line.getBoundingClientRect().width;
       let natural = 0;
       for (const segment of line.children) {
-        natural += (segment as HTMLElement).offsetWidth;
+        /*
+         * Fractional widths, not `offsetWidth`.
+         *
+         * `offsetWidth` is rounded to whole pixels, and a line is the sum of a dozen of them: the
+         * rounding accumulates into an underestimate of a few pixels, the scale is computed as
+         * fitting, and the line wraps anyway. Rounding the scale down (`fitScale`) does not save
+         * it, because the error is in what was measured rather than in the arithmetic.
+         */
+        natural += (segment as HTMLElement).getBoundingClientRect().width;
       }
       if (natural > 0 && available > 0) ratios.push(available / natural);
     }

@@ -41,6 +41,20 @@ export function SongRowView({ row, song, mode, concealed, revealed = false }: So
           </span>
         );
       })}
+
+      {/*
+       * A line that runs longer or shorter than the song's default says so, as a small numeral
+       * after the last word (ADR-061).
+       *
+       * Inside the line rather than in the margin, so it is part of what the type scale is fitted
+       * to (ADR-054): a note that floats over the text can be overlapped by it, and this one
+       * cannot be.
+       */}
+      {row.bars !== null && row.bars > 0 && row.bars !== song.barsPerLine && (
+        <span className="line__bars" title={`${row.bars} bars`}>
+          {row.bars}
+        </span>
+      )}
     </div>
   );
 }

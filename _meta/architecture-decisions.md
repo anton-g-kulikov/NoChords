@@ -1724,9 +1724,10 @@ gone. The alternative was reaching controls by scrolling, which is what this rep
 
 ## ADR-061 — The chart claims the gutter
 
-**Decision.** The bar-count note in the chart's right margin is gone, and the chart's own padding
-drops from 16px to 8px with the sheet pulled 8px into the screen's gutter on each side. On a 375px
-phone a line has 335px to work with instead of 303px.
+**Decision.** The bar-count note leaves the chart's right margin and becomes a small raised numeral
+after the line's last word, and the chart's own padding drops from 16px to 8px with the sheet pulled
+8px into the screen's gutter on each side. On a 375px phone a line has 335px to work with instead of
+303px.
 
 **Why, and what it was not.** Reported as "the bars column takes screen space and forces the text
 smaller". The first half is the part worth acting on; the second is not what was happening. The note
@@ -1744,9 +1745,15 @@ on the same phone with the same song.
 takes a negative margin rather than the app losing its margins, because this argument only holds
 where width is being converted into type size.
 
-**What is lost.** You can no longer see, while playing, that the line *after* next runs to four bars
-— the strip names the bar of the line you are on, not the one coming. Anyone reading ahead for that
-has the editor. It is a real loss and the width is worth it.
+**Why the note moved inside the line rather than going away.** Its cost was never width; it was that
+it floated, so the words could run under it. Written as part of the line, it is part of what the type
+scale is fitted to (ADR-054) — a thing that cannot be overlapped because the fit has already made
+room for it. It costs a few pixels on the rows that have one, and the longest line in a song is
+rarely one of them: on Rising Sun the scale is 0.83 with the numeral and 0.83 without.
+
+A bare numeral rather than "4 bars", because the word was three quarters of the width and said what
+a number after a line of music already says. The full text is on its `title` for anyone who wants
+it.
 
 **A measurement bug this exposed.** With 32 more pixels the fit landed exactly on the boundary and
 two lines wrapped anyway. The cause was `offsetWidth`, which rounds to whole pixels: summed over a

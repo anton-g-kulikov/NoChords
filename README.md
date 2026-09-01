@@ -53,8 +53,8 @@ follows the meter it is in.
 
 Songs that change meter say so inline. Open a line with `{4/4}` and the signature runs from there
 until the next one, so a bridge in four inside a song in six clicks in four while it lasts. A line
-whose length differs from the song's default shows that length in the editor; while you play, the
-beat strip names which bar of the line you are on (ADR-061).
+whose length differs from the song's default says so with a small raised number after its last word
+— written into the line rather than floating beside it, so the words never run under it (ADR-061).
 
 Tempo is a note and a number — `♩ = 90`, or `♪ = 180` — because a bare BPM does not say what it is
 counting. In 6/8 that is the difference between the eighth and the dotted-quarter pulse, a factor of

@@ -792,6 +792,20 @@ kbd {
   user-select: none;
 }
 
+/*
+ * The bar count, raised after the last word (ADR-061). Scaled with the chart like everything else
+ * in it, so it stays in proportion as the type resizes.
+ */
+.line__bars {
+  align-self: flex-end;
+  margin-left: 0.4em;
+  padding-bottom: 0.55em;
+  font-size: calc(0.85rem * var(--sheet-scale, 1));
+  font-variant-numeric: tabular-nums;
+  /* A fifth of the lyric's presence: there to be found, not to be read. */
+  opacity: 0.35;
+}
+
 .seg__lyric {
   font-size: calc(1.6rem * var(--sheet-scale, 1));
   line-height: 1.35;
@@ -815,7 +829,21 @@ kbd {
     grid-column: 1 / -1;
   }
 
-  .seg__lyric {
+  /*
+ * The bar count, raised after the last word (ADR-061). Scaled with the chart like everything else
+ * in it, so it stays in proportion as the type resizes.
+ */
+.line__bars {
+  align-self: flex-end;
+  margin-left: 0.4em;
+  padding-bottom: 0.55em;
+  font-size: calc(0.85rem * var(--sheet-scale, 1));
+  font-variant-numeric: tabular-nums;
+  /* A fifth of the lyric's presence: there to be found, not to be read. */
+  opacity: 0.35;
+}
+
+.seg__lyric {
     font-size: calc(1.25rem * var(--sheet-scale, 1));
   }
 

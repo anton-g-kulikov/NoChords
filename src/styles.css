@@ -714,9 +714,16 @@ kbd {
   transition: width 200ms ease;
 }
 
+/*
+ * The chart claims the gutter back (ADR-061).
+ *
+ * Every pixel of width here is type size: the longest line sets one scale for the song (ADR-054),
+ * so 16px of padding either side is read as smaller words on every line. The screen's own gutter
+ * stays for every other page; the chart reaches further out than the rest.
+ */
 .sheet {
   list-style: none;
-  margin: 0;
+  margin: 0 -8px;
   padding: 0 0 60vh;
   display: flex;
   flex-direction: column;
@@ -725,7 +732,7 @@ kbd {
 
 .sheet__row {
   position: relative;
-  padding: 10px 16px;
+  padding: 10px 8px;
   /* Carried by every row, transparent until active, so nothing shifts as the song moves. */
   border-bottom: 4px solid transparent;
   border-radius: 6px;
@@ -746,15 +753,6 @@ kbd {
   transition: opacity 300ms ease;
 }
 
-.sheet__bars {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 0.8rem;
-  font-variant-numeric: tabular-nums;
-  /* A fifth of the lyric's presence: visible when looked for, invisible when reading. */
-  opacity: 0.2;
-}
 
 /*
  * Chord-over-lyric segments.

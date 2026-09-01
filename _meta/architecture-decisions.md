@@ -795,6 +795,9 @@ rounded, floor one, so a song keeps the length it had rather than the number it 
 at a fifth of the lyric's opacity. Playing is reading lyrics; the number is for the one moment you
 wonder why a line is hanging, and should cost nothing the rest of the time.
 
+*Removed by ADR-061: "cost nothing" was not quite true — long lines ran underneath it, and the beat
+strip now names the bar of the line you are on, live.*
+
 **`/n/` is gone.** Any whole number of bars is expressible as bars, and a length that is *not*
 whole bars displaces every downbeat after it — the accent phase counts from the start of the
 section, so a seven-beat line in 4/4 silently moves every bar line that follows. The honest way to
@@ -1716,3 +1719,38 @@ where covering is the point: you are looking at the control, not at the line ben
 chart — two lines. That is the extreme case (each panel is a tap from closed, and both close
 themselves when you press Play), but it is real: open everything at once and the song is mostly
 gone. The alternative was reaching controls by scrolling, which is what this replaces.
+
+---
+
+## ADR-061 — The chart claims the gutter
+
+**Decision.** The bar-count note in the chart's right margin is gone, and the chart's own padding
+drops from 16px to 8px with the sheet pulled 8px into the screen's gutter on each side. On a 375px
+phone a line has 335px to work with instead of 303px.
+
+**Why, and what it was not.** Reported as "the bars column takes screen space and forces the text
+smaller". The first half is the part worth acting on; the second is not what was happening. The note
+was absolutely positioned, so it took no width at all — measured, a line was 303px whether or not
+its row had one. What it did do was collide: at that width the longest line already ran to 338px,
+underneath the note.
+
+**So the note went, and the width came from where it actually was.** The type scale is set by the
+longest line (ADR-054), which makes every pixel of horizontal padding a smaller word on every line.
+Two gutters of 16px and a screen gutter of 20px were spending 72px of a 375px screen on whitespace.
+Trimming to 8px and 12px measured out at 0.74 → 0.83 scale: 14.8px type to 16.6px, twelve per cent,
+on the same phone with the same song.
+
+**Only the chart reaches out.** The screen's gutter is unchanged for every other page; the sheet
+takes a negative margin rather than the app losing its margins, because this argument only holds
+where width is being converted into type size.
+
+**What is lost.** You can no longer see, while playing, that the line *after* next runs to four bars
+— the strip names the bar of the line you are on, not the one coming. Anyone reading ahead for that
+has the editor. It is a real loss and the width is worth it.
+
+**A measurement bug this exposed.** With 32 more pixels the fit landed exactly on the boundary and
+two lines wrapped anyway. The cause was `offsetWidth`, which rounds to whole pixels: summed over a
+dozen segments the rounding underestimates a line by a few pixels, so the scale computes as fitting
+and the line wraps regardless. Rounding the scale down (ADR-054) cannot save that, because the error
+is in the measurement rather than the arithmetic. Segments are now measured with
+`getBoundingClientRect()`, which is fractional; the tightest line clears by 3px instead of 0.

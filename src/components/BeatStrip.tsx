@@ -90,25 +90,30 @@ export function BeatStrip({
        *
        * Each direction is the one its moment asks for — a count-in is a wait, and how much is
        * left is the question; a line is being played, and how far in you are is the question.
+       *
+       * Neither is written as a bare fraction. `4/4` sitting beside `6/8` on the same strip reads
+       * as a second time signature, which is exactly the thing the other end of the strip is for.
        */}
-      <span className="beat-strip__bars">
+      <span className="beat-strip__end">
+        <span className="beat-strip__bars">
         {counting
-          ? `${count.barsLeft}/${countInBars}`
+          ? `${count.barsLeft} bar${count.barsLeft === 1 ? '' : 's'} left`
           : pulse
-            ? `${pulse.bar}/${pulse.bars}`
+            ? `bar ${pulse.bar}/${pulse.bars}`
             : `${countInBars} bar${countInBars === 1 ? '' : 's'}`}
-      </span>
+        </span>
 
-      <button
-        type="button"
-        className={sound ? 'beat-strip__sound beat-strip__sound--on' : 'beat-strip__sound'}
-        aria-pressed={sound}
-        aria-label={sound ? 'Mute the beat' : 'Hear the beat'}
-        title={sound ? 'The beat is heard' : 'The beat is seen, not heard'}
-        onClick={() => onSoundChange(!sound)}
-      >
-        {sound ? <Volume size={18} aria-hidden /> : <VolumeX size={18} aria-hidden />}
-      </button>
+        <button
+          type="button"
+          className={sound ? 'beat-strip__sound beat-strip__sound--on' : 'beat-strip__sound'}
+          aria-pressed={sound}
+          aria-label={sound ? 'Mute the beat' : 'Hear the beat'}
+          title={sound ? 'The beat is heard' : 'The beat is seen, not heard'}
+          onClick={() => onSoundChange(!sound)}
+        >
+          {sound ? <Volume size={18} aria-hidden /> : <VolumeX size={18} aria-hidden />}
+        </button>
+      </span>
     </div>
   );
 }

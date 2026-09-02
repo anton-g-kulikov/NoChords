@@ -423,6 +423,18 @@ above the wrong word (ADR-054). The measurements are the caller's; this is the a
 | FT-05 | Rounded down, so the widest line never lands back over the edge | ✅ |
 | FT-06 | Measurements taken before there is anything to measure are ignored | ✅ |
 
+### Account state — `account.test.ts`
+
+Intent: one reading of the auth controller, so the header's button and the footer's line cannot
+disagree about it (ADR-064).
+
+| # | Case | Status |
+|---|------|--------|
+| AC-01 | The controller reads as one of four states | ✅ |
+| AC-02 | "Unavailable" answers before anything else | ✅ |
+| AC-03 | **The header offers the way out as well as the way in** | ✅ |
+| AC-04 | Nothing is offered while there is nothing to offer | ✅ |
+
 ### Library readiness — `library.test.ts`
 
 Intent: the library must not show the device's songs while it is still finding out whether they are

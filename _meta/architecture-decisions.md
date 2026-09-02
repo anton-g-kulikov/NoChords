@@ -1646,10 +1646,14 @@ in the top row opens (ADR-042 stands), and the count-in defaults to the song's b
 would be contradicting itself in the one place a reader looks to resolve exactly that (ADR-026).
 
 **The bar counter runs through the song, not only the count.** Counting down through the count-in
-(`3/3`, `2/3`) and up through the line (`1/3`, `2/3`), because each direction is the one its moment
-asks for: a count-in is a wait, and what is left is the question; a line is being played, and how
-far in you are is the question. Before a note is played the slot shows the count-in's length
-instead, since there is no line to be in yet.
+(`4 bars left`, `3 bars left`) and up through the line (`bar 1/3`, `bar 2/3`), because each
+direction is the one its moment asks for: a count-in is a wait, and what is left is the question; a
+line is being played, and how far in you are is the question. Before a note is played the slot shows
+the count-in's length instead, since there is no line to be in yet.
+
+**Neither is a bare fraction, and that is the point.** `4/4` written beside `6/8` on the same strip
+reads as a second time signature — in the one place on screen whose job is to say what the meter is.
+A word carries the number out of that reading: `4 bars left`, `bar 2/3`.
 
 **One dot at a time.** The lit dot travels rather than the row filling up behind it. A filled row
 answers "how far into the bar am I", which is a thing you read; a single lit dot answers "where is
@@ -1863,7 +1867,9 @@ limitation, because there is then no offer to make (ADR-022).
 **What went with it.** `storedIn` was the library's way of telling that band which sentence to
 print. Nothing reads it now, so it is gone rather than left as an unused field on the hook.
 
-**Cost.** Signing in can now be reached two ways — the header button and the footer line — which is
-one more than a screen this small strictly needs. They are deliberately different in kind: a button
-where you look for controls, and a sentence where you would think to ask the question. If that reads
-as repetition rather than as an explanation, the footer line is the half to lose.
+**The header carries the action both ways; the footer only ever states a fact.** Signed in, the
+header button reads *Sign out* — it does not disappear, leaving the only way out buried in a footer
+link, which is what shipped in v0.17.0. The footer is helper text with no action in it at all.
+
+Both read from one `accountState`, because this is the second time the two surfaces disagreed about
+the same four-way question and inline conditions in two files is how that happens.

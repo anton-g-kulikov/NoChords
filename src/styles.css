@@ -236,15 +236,30 @@ kbd {
 /* ---------- Library ---------- */
 
 /*
- * One row: the name, and the thing you came to do (ADR-064). It does not wrap — a header that
- * becomes two rows on a narrow phone is the band this replaced.
+ * One row: the name, and signing in (ADR-064). It does not wrap — a header that becomes two rows
+ * on a narrow phone is the band this replaced.
  */
 .library__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.library__signin {
+  flex: none;
+}
+
+/* Full width, because it is the one thing this screen is for. */
+.library__create {
+  flex: none;
+  padding: 0 20px 16px;
+}
+
+.library__new {
+  display: block;
+  width: 100%;
 }
 
 .library__brand {
@@ -253,9 +268,16 @@ kbd {
   letter-spacing: -0.01em;
 }
 
+/* Holds the bottom of the screen, however short the list (ADR-064). */
+.library__foot {
+  flex: none;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+}
+
 /* The account line, after the songs (ADR-064). Quiet: an offer, not an announcement. */
 .account {
-  margin: 20px 0 0;
+  margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
   text-align: center;
@@ -271,9 +293,6 @@ kbd {
   cursor: pointer;
 }
 
-.library__new {
-  flex: none;
-}
 
 .library__error {
   margin: 0 20px 12px;
@@ -1112,8 +1131,9 @@ kbd {
   flex-wrap: wrap;
 }
 
+/* In the footer now, so it needs no space of its own above (ADR-064). */
 .library__version {
-  margin: 2rem 0 0;
+  margin: 6px 0 0;
   color: var(--muted);
   font-size: 0.75rem;
   text-align: center;

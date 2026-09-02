@@ -1823,9 +1823,10 @@ destructive case gets the extra steps.
 
 ## ADR-064 — One header row, and the account at the foot
 
-**Decision.** The library header is a single row: the app's name and **New song**. The account —
-sign in, who you are signed in as, sign out — moves to the foot of the song list, and says what
-signing in gets you rather than what not signing in costs.
+**Decision.** The library is four parts down the screen: a header row of the app's name and **Sign
+in**; **New song** at full width below it; the list; and a footer pinned to the bottom carrying the
+sync line and the build number. The sync line says what signing in gets you rather than what not
+signing in costs.
 
 **Why.** The screen opened with three stacked bands: a status strip ("Songs are saved on this device
 only"), the app's name at heading size, and a row of two buttons. That is 415px of an 812px phone
@@ -1833,9 +1834,19 @@ spent before the first song, on a screen whose entire job is a list of songs. Th
 the loudest thing on it, and a rarely-used sign-in sat at the same weight as the one action people
 came for.
 
-**Why the account belongs after the songs.** The moment you wonder whether these songs exist
+**Why New song gets its own width.** It is the one thing this screen is for. Sharing a row with
+sign-in made the two look like a pair of equal options, which they are not: one is done constantly
+and one is done once per device.
+
+**Why the sync line belongs after the songs.** The moment you wonder whether these songs exist
 anywhere else is the moment you have finished reading them — not before you have seen one. Put at
 the top it was an announcement; put at the foot it is an answer to a question you might now have.
+Signing in itself stays in the header, where you look when you arrive on a new device.
+
+**Why the footer is pinned.** It holds the bottom of the screen rather than trailing the last song,
+so a three-song library does not leave it stranded halfway up. No fixed positioning: the shell is
+already a flex column with one scrolling middle (ADR-037), so a footer outside the scroller is
+pinned by construction.
 
 **Why the wording flipped.** "Songs are saved on this device only" states a limitation and offers
 nothing; "Sign in to sync across devices" states the same fact as the thing you can do about it.
@@ -1845,6 +1856,7 @@ limitation, because there is then no offer to make (ADR-022).
 **What went with it.** `storedIn` was the library's way of telling that band which sentence to
 print. Nothing reads it now, so it is gone rather than left as an unused field on the hook.
 
-**Cost.** Signing in is further away — at the bottom of a list that may need scrolling, rather than
-a button in the header. That is the right distance for something done once per device, but it is
-genuinely further, and someone who opens the app expecting to sign in has to look for it.
+**Cost.** Signing in can now be reached two ways — the header button and the footer line — which is
+one more than a screen this small strictly needs. They are deliberately different in kind: a button
+where you look for controls, and a sentence where you would think to ask the question. If that reads
+as repetition rather than as an explanation, the footer line is the half to lose.

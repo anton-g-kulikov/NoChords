@@ -63,6 +63,9 @@ export function App() {
           setOpenSongId(addSong().id);
           setPane('edit');
         }}
+        onSignIn={
+          auth.available && !auth.loading && !auth.user ? () => void auth.signIn() : null
+        }
         onOpenGuide={() => setShowGuide(true)}
         />
       </>

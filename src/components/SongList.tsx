@@ -5,9 +5,11 @@ import { tempoUnitSymbol } from '../lib/tempo';
 
 interface SongListProps {
   songs: Song[];
+  onDelete: (songId: string) => void;
+  /** True until it is known whose songs these are (ADR-062). */
+  loading: boolean;
   onOpen: (songId: string) => void;
   onCreate: () => void;
-  onDelete: (songId: string) => void;
   /** Null when signing in is unavailable or already done. */
   onSignIn: (() => void) | null;
   onOpenGuide: () => void;
@@ -15,6 +17,7 @@ interface SongListProps {
 
 export function SongList({
   songs,
+  loading,
   onOpen,
   onCreate,
   onDelete,
@@ -40,7 +43,11 @@ export function SongList({
       </div>
 
       <div className="screen__scroll">
-      {songs.length === 0 ? (
+      {/* One body at a time: a list rendered while the account is still answering is a list that
+          gets replaced on screen a moment later (ADR-062). */}
+      {loading ? (
+        <p className="library__empty">Loading your songs…</p>
+      ) : songs.length === 0 ? (
         <p className="library__empty">
           No songs yet. Create one and type your lines with chords in brackets, like{' '}
           <code>There [Am]is a [C]house in New [D]Orleans</code>.

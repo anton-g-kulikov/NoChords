@@ -17,6 +17,7 @@ import {
 import { hasSeededExamples, markExamplesSeeded, shouldSeedExamples } from '../lib/firstRun';
 import { createExampleSongs } from '../lib/examples';
 import { createSong } from '../lib/songs';
+import { isAwaitingAccount } from '../lib/library';
 import type { Song } from '../types/song';
 
 /**
@@ -44,28 +45,37 @@ export interface SongLibrary {
   dismissImport(): void;
 }
 
-export function useSongLibrary(uid: string | null): SongLibrary {
+export function useSongLibrary(uid: string | null, authPending = false): SongLibrary {
   const storage = useMemo(() => defaultStorage(), []);
   const localStore = useMemo(() => createSongStore(storage), [storage]);
 
   /**
-   * The cloud store, or null when signed out or Firebase is unavailable.
-   * Resolved asynchronously because the SDK is fetched on demand (ADR-023).
+   * The cloud store once the SDK has answered.
+   *
+   * `null` means the answer is still outstanding; `{ store: null }` means it came back and there
+   * is no cloud — Firebase unconfigured, or signed out. The difference is the whole point: a
+   * signed-in device that cannot tell the two apart falls back to the device library and shows it,
+   * then replaces it when the account's songs arrive (ADR-062).
    */
-  const [cloudStore, setCloudStore] = useState<SongStore | null>(null);
+  const [cloud, setCloud] = useState<{ store: SongStore | null } | null>(null);
   useEffect(() => {
     if (!uid) {
-      setCloudStore(null);
+      setCloud({ store: null });
       return undefined;
     }
     let cancelled = false;
+    setCloud(null);
     void loadCloudStore(uid).then((created) => {
-      if (!cancelled) setCloudStore(created);
+      if (!cancelled) setCloud({ store: created });
     });
     return () => {
       cancelled = true;
     };
   }, [uid]);
+
+  const cloudStore = cloud?.store ?? null;
+  /** True while the library cannot yet know whose songs it is showing. */
+  const awaiting = isAwaitingAccount(authPending, uid, cloud !== null);
 
   const store = cloudStore ?? localStore;
   const storedIn = cloudStore ? 'cloud' : 'local';
@@ -84,6 +94,15 @@ export function useSongLibrary(uid: string | null): SongLibrary {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+
+    /*
+     * Nothing is loaded until it is known whose library this is (ADR-062).
+     *
+     * The device's songs are not a reasonable stand-in for an account's: reading them here is what
+     * put them on screen for a second, and it also seeded the example songs onto the device of
+     * someone who was signed in the whole time.
+     */
+    if (awaiting) return undefined;
 
     store
       .load()
@@ -137,7 +156,7 @@ export function useSongLibrary(uid: string | null): SongLibrary {
     return () => {
       cancelled = true;
     };
-  }, [store, cloudStore, localStore, storage]);
+  }, [store, cloudStore, localStore, storage, awaiting]);
 
   /** Songs edited but not yet written, so a remote snapshot cannot overwrite them mid-edit. */
   const pendingWrites = useRef(new Map<string, Song>());

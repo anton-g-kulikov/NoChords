@@ -25,7 +25,7 @@ export function App() {
     deleteSong,
     acceptImport,
     dismissImport,
-  } = useSongLibrary(auth.user?.uid ?? null);
+  } = useSongLibrary(auth.user?.uid ?? null, auth.loading);
   const { settings, update: updateSettings } = useSettings();
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [showGuide, setShowGuide] = useState(false);
@@ -48,9 +48,9 @@ export function App() {
             onDismiss={dismissImport}
           />
         )}
-        {loading && <p className="library__empty">Loading your songs…</p>}
         <SongList
         songs={songs}
+        loading={loading}
         onOpen={(songId) => {
           setOpenSongId(songId);
           setPane('play');

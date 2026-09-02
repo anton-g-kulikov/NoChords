@@ -423,6 +423,17 @@ above the wrong word (ADR-054). The measurements are the caller's; this is the a
 | FT-05 | Rounded down, so the widest line never lands back over the edge | ✅ |
 | FT-06 | Measurements taken before there is anything to measure are ignored | ✅ |
 
+### Library readiness — `library.test.ts`
+
+Intent: the library must not show the device's songs while it is still finding out whether they are
+the ones being asked for (ADR-062).
+
+| # | Case | Status |
+|---|------|--------|
+| LB-01 | **Waits while the sign-in check is running — nobody signed in *yet* is not nobody signed in** | ✅ |
+| LB-02 | Waits for a signed-in account's store to answer | ✅ |
+| LB-03 | Shows the device library as soon as it is known there is no account | ✅ |
+
 ### Device preferences — `settings.test.ts`
 
 | # | Case | Status |

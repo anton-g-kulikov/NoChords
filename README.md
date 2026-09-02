@@ -26,8 +26,8 @@ npm run dev      # http://localhost:5173
 | `npm run deploy:rules` | Deploy the Firestore security rules |
 
 A new library starts with three traditional songs already in it, so there is something to play with
-on the first run (ADR-024). They are ordinary songs — edit or delete them like any other; deleting
-them is remembered, and they do not come back. To change what everyone's first run contains, edit
+on the first run (ADR-024). They are ordinary songs — edit or delete them like any other (deleting is at
+the foot of the editor); deleting them is remembered, and they do not come back. To change what everyone's first run contains, edit
 the fixtures in [`src/lib/examples.ts`](src/lib/examples.ts) and deploy; existing libraries keep the
 copies they already have.
 

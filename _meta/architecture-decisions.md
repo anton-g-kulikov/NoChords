@@ -1769,3 +1769,52 @@ dozen segments the rounding underestimates a line by a few pixels, so the scale 
 and the line wraps regardless. Rounding the scale down (ADR-054) cannot save that, because the error
 is in the measurement rather than the arithmetic. Segments are now measured with
 `getBoundingClientRect()`, which is fractional; the tightest line clears by 3px instead of 0.
+
+---
+
+## ADR-062 — The library waits until it knows whose songs it is showing
+
+**Decision.** Nothing is loaded until the account is known. `isAwaitingAccount` says when that is:
+while the sign-in check is running, and — once signed in — until the account's store has answered.
+The screen shows one body at a time, so a list is never rendered over a question that has not been
+settled.
+
+**Why.** Reported symptom: opening the app flashed the device's songs before the account's arrived.
+The cause was two silent fallbacks in a row. The library takes a `uid`, and while the sign-in check
+was still running that `uid` was `null` — indistinguishable from signed out — so the device library
+loaded and rendered. Then the account resolved, and the store itself is fetched on demand (ADR-023),
+so there was a second window in which `cloudStore` was still null and the device library was again
+the fallback. Two guesses, each reasonable alone, and the list was replaced twice on screen.
+
+**A side effect worth naming.** That path also seeded the three example songs into the device's
+storage for someone who had been signed in the whole time (ADR-024 seeds when a local library loads
+empty). They then sat there as local songs, with an import offer eventually asking whether to upload
+them. Waiting removes that too.
+
+**Why a pure function for three booleans.** Because the rule is the fix. Written inline it is three
+terms in an effect nobody re-reads; named and tested, it says what the screen is waiting for, and
+the tests distinguish "no account" from "no answer yet" — the exact confusion that caused this.
+
+**Cost.** A device with no account waits for the sign-in check before showing anything it already
+has on disk. Measured on a configured build that is 34ms of "Loading your songs…" before the list,
+which is the honest price of not showing the wrong list first.
+
+---
+
+## ADR-063 — The row is the card, and deleting is an editing action
+
+**Decision.** A song in the library is one card with nothing beside it, and deleting moved out of
+the list into the editor, under the song it deletes.
+
+**Why.** The delete button sat in its own column on every row, permanently, for an action taken
+once in a song's life — and it took width from the thing you actually read, the title. Deleting is
+something you do to a song you are working on, which is what the editor is for.
+
+**Why at the end of the editor.** Past the song text rather than up with the fields: the last thing
+on the screen, behind a confirm, is the right amount of friction for the one action here that cannot
+be undone. Deleting the song you are editing hands back the library rather than leaving an editor
+with no song in it.
+
+**Cost.** Clearing out several songs is now several trips through the editor instead of a column of
+crosses. That is the trade: the common case (reading a list of songs) gets the width, and the rare
+destructive case gets the extra steps.

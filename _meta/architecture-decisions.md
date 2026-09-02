@@ -1818,3 +1818,33 @@ with no song in it.
 **Cost.** Clearing out several songs is now several trips through the editor instead of a column of
 crosses. That is the trade: the common case (reading a list of songs) gets the width, and the rare
 destructive case gets the extra steps.
+
+---
+
+## ADR-064 — One header row, and the account at the foot
+
+**Decision.** The library header is a single row: the app's name and **New song**. The account —
+sign in, who you are signed in as, sign out — moves to the foot of the song list, and says what
+signing in gets you rather than what not signing in costs.
+
+**Why.** The screen opened with three stacked bands: a status strip ("Songs are saved on this device
+only"), the app's name at heading size, and a row of two buttons. That is 415px of an 812px phone
+spent before the first song, on a screen whose entire job is a list of songs. The app's own name was
+the loudest thing on it, and a rarely-used sign-in sat at the same weight as the one action people
+came for.
+
+**Why the account belongs after the songs.** The moment you wonder whether these songs exist
+anywhere else is the moment you have finished reading them — not before you have seen one. Put at
+the top it was an announcement; put at the foot it is an answer to a question you might now have.
+
+**Why the wording flipped.** "Songs are saved on this device only" states a limitation and offers
+nothing; "Sign in to sync across devices" states the same fact as the thing you can do about it.
+When Firebase is not configured the line disappears entirely rather than reverting to the
+limitation, because there is then no offer to make (ADR-022).
+
+**What went with it.** `storedIn` was the library's way of telling that band which sentence to
+print. Nothing reads it now, so it is gone rather than left as an unused field on the hook.
+
+**Cost.** Signing in is further away — at the bottom of a list that may need scrolling, rather than
+a button in the header. That is the right distance for something done once per device, but it is
+genuinely further, and someone who opens the app expecting to sign in has to look for it.

@@ -32,8 +32,6 @@ export interface SongLibrary {
   songs: Song[];
   /** True until the first load finishes, so the library does not flash empty. */
   loading: boolean;
-  /** Where songs are being kept right now. */
-  storedIn: 'local' | 'cloud';
   /** Set when signing in found local songs and an empty account (ADR-022). */
   importOffer: { localCount: number } | null;
   /** Set when an import did not carry everything up, naming how much is still behind (ADR-031). */
@@ -78,7 +76,6 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
   const awaiting = isAwaitingAccount(authPending, uid, cloud !== null);
 
   const store = cloudStore ?? localStore;
-  const storedIn = cloudStore ? 'cloud' : 'local';
 
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
@@ -271,7 +268,6 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
   return {
     songs,
     loading,
-    storedIn,
     importOffer,
     importError,
     addSong,

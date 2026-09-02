@@ -235,13 +235,50 @@ kbd {
 
 /* ---------- Library ---------- */
 
+/*
+ * One row: the name, and the thing you came to do (ADR-064). It does not wrap — a header that
+ * becomes two rows on a narrow phone is the band this replaced.
+ */
 .library__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.library__brand {
+  flex: none;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+/* The account line, after the songs (ADR-064). Quiet: an offer, not an announcement. */
+.account {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.account__action {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.library__new {
+  flex: none;
+}
+
+.library__error {
+  margin: 0 20px 12px;
+  color: var(--danger);
+  font-size: 0.9rem;
 }
 
 .library__actions {
@@ -1049,34 +1086,6 @@ kbd {
 /* ---------- Account ---------- */
 
 /* Above every screen, so it carries the shell's own gutters rather than touching the edge. */
-.authbar {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 12px;
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto 8px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.authbar__status {
-  flex: 1;
-  min-width: 160px;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.authbar__error {
-  flex-basis: 100%;
-  margin: 0;
-  color: var(--danger);
-  font-size: 0.9rem;
-}
-
 .import-prompt {
   display: flex;
   flex-wrap: wrap;

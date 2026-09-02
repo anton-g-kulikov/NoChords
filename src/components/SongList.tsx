@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { MAX_LEVEL, levelFor } from '../lib/learning';
 import type { Song } from '../types/song';
@@ -5,40 +6,49 @@ import { tempoUnitSymbol } from '../lib/tempo';
 
 interface SongListProps {
   songs: Song[];
+  /** The account line, composed by the app and shown at the foot of the list (ADR-064). */
+  account: ReactNode;
+  /** Anything the library has to say right now — an import offer, a sign-in error. */
+  notice?: ReactNode;
   /** True until it is known whose songs these are (ADR-062). */
   loading: boolean;
   onOpen: (songId: string) => void;
   onCreate: () => void;
-  /** Null when signing in is unavailable or already done. */
-  onSignIn: (() => void) | null;
   onOpenGuide: () => void;
 }
 
 export function SongList({
   songs,
+  account,
+  notice,
   loading,
   onOpen,
   onCreate,
-  onSignIn,
   onOpenGuide,
 }: SongListProps) {
   const install = useInstallPrompt();
 
   return (
     <div className="screen library">
+      {/*
+       * One row rather than three bands (ADR-064): the app's name, where its songs are kept, and
+       * the one thing you came here to do. The library used to spend a third of a phone screen
+       * introducing itself before the first song.
+       */}
       <div className="screen__head library__head">
-        <h1>NoChords</h1>
-        <div className="library__actions">
-          {onSignIn && (
-            <button type="button" className="button" onClick={onSignIn}>
-              Log in to Sync
-            </button>
-          )}
-          <button type="button" className="button button--primary" onClick={onCreate}>
-            New song
-          </button>
-        </div>
+        <span className="library__brand">NoChords</span>
+        <button
+          type="button"
+          className="button button--primary library__new"
+          onClick={onCreate}
+        >
+          New song
+        </button>
       </div>
+
+      {/* Under the header rather than above the screen: a notice is about this library, and a
+          band stacked over the whole app was how the header got to be three rows deep. */}
+      {notice}
 
       <div className="screen__scroll">
       {/* One body at a time: a list rendered while the account is still answering is a list that
@@ -69,6 +79,9 @@ export function SongList({
           ))}
         </ul>
       )}
+
+      {/* After the songs, where wondering whether they are anywhere else belongs (ADR-064). */}
+      {account}
 
       {/* Which build this is. The service worker keys its cache on the same number, so this is
           also how you tell whether an installed app has picked up a release yet (ADR-028). */}

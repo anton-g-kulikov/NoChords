@@ -4,7 +4,7 @@ import { SongEditor } from './components/SongEditor';
 import { Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
 import { SongList } from './components/SongList';
-import { AuthBar } from './components/AuthBar';
+import { AccountChip } from './components/AccountChip';
 import { ImportPrompt } from './components/ImportPrompt';
 import { useSongLibrary } from './hooks/useSongLibrary';
 import { useSettings } from './hooks/useSettings';
@@ -17,7 +17,6 @@ export function App() {
   const {
     songs,
     loading,
-    storedIn,
     importOffer,
     importError,
     addSong,
@@ -39,17 +38,22 @@ export function App() {
   if (!song) {
     return (
       <>
-        <AuthBar auth={auth} storedIn={storedIn} />
-        {importOffer && (
-          <ImportPrompt
-            localCount={importOffer.localCount}
-            error={importError}
-            onAccept={() => void acceptImport()}
-            onDismiss={dismissImport}
-          />
-        )}
         <SongList
         songs={songs}
+        account={<AccountChip auth={auth} />}
+        notice={
+          <>
+            {importOffer && (
+              <ImportPrompt
+                localCount={importOffer.localCount}
+                error={importError}
+                onAccept={() => void acceptImport()}
+                onDismiss={dismissImport}
+              />
+            )}
+            {auth.error && <p className="library__error">{auth.error}</p>}
+          </>
+        }
         loading={loading}
         onOpen={(songId) => {
           setOpenSongId(songId);
@@ -60,9 +64,6 @@ export function App() {
           setPane('edit');
         }}
         onOpenGuide={() => setShowGuide(true)}
-        onSignIn={
-          auth.available && !auth.loading && !auth.user ? () => void auth.signIn() : null
-        }
         />
       </>
     );

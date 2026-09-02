@@ -5,7 +5,7 @@ import { Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
 import { SongList } from './components/SongList';
 import { AccountLine } from './components/AccountLine';
-import { accountActionLabel, accountState } from './lib/account';
+import { accountAction, accountState } from './lib/account';
 import { ImportPrompt } from './components/ImportPrompt';
 import { useSongLibrary } from './hooks/useSongLibrary';
 import { useSettings } from './hooks/useSettings';
@@ -36,7 +36,7 @@ export function App() {
 
   /* One reading of the account, shared by the header's button and the footer's line (ADR-064). */
   const account = accountState(auth.available, auth.loading, auth.user !== null);
-  const accountLabel = accountActionLabel(account);
+  const action = accountAction(account);
 
   if (showGuide) return <NotationGuide onClose={() => setShowGuide(false)} />;
 
@@ -69,11 +69,12 @@ export function App() {
           setPane('edit');
         }}
         authAction={
-          accountLabel === null
+          action === null
             ? null
             : {
-                label: accountLabel,
-                run: () => void (account === 'signed-in' ? auth.signOutNow() : auth.signIn()),
+                ...action,
+                run: () =>
+                  void (action.kind === 'sign-out' ? auth.signOutNow() : auth.signIn()),
               }
         }
         onOpenGuide={() => setShowGuide(true)}

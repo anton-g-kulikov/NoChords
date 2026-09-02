@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { LogOut } from 'lucide-react';
+import type { AccountAction } from '../lib/account';
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { MAX_LEVEL, levelFor } from '../lib/learning';
 import type { Song } from '../types/song';
@@ -8,8 +10,8 @@ interface SongListProps {
   songs: Song[];
   /** The account line, composed by the app and shown at the foot of the list (ADR-064). */
   account: ReactNode;
-  /** Signing in or out — the same button, whichever way round. Null when unavailable. */
-  authAction: { label: string; run: () => void } | null;
+  /** Signing in or out, and the run for it. Null when there is no account to act on. */
+  authAction: (AccountAction & { run: () => void }) | null;
   /** Anything the library has to say right now — an import offer, a sign-in error. */
   notice?: ReactNode;
   /** True until it is known whose songs these are (ADR-062). */
@@ -50,11 +52,22 @@ export function SongList({
           <img className="library__mark" src="/icons/icon.svg" alt="" width="40" height="40" />
           NoChords
         </span>
-        {authAction && (
-          <button type="button" className="button library__signin" onClick={authAction.run}>
-            {authAction.label}
-          </button>
-        )}
+        {authAction &&
+          (authAction.kind === 'sign-out' ? (
+            <button
+              type="button"
+              className="button button--icon library__signin"
+              aria-label={authAction.label}
+              title={authAction.label}
+              onClick={authAction.run}
+            >
+              <LogOut size={20} aria-hidden />
+            </button>
+          ) : (
+            <button type="button" className="button library__signin" onClick={authAction.run}>
+              {authAction.label}
+            </button>
+          ))}
       </div>
 
       <div className="library__create">

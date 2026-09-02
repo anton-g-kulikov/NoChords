@@ -24,9 +24,19 @@ export function accountState(
   return signedIn ? 'signed-in' : 'signed-out';
 }
 
-/** The label for the header's account button, or `null` when there is no action to offer. */
-export function accountActionLabel(state: AccountState): string | null {
-  if (state === 'signed-in') return 'Sign out';
-  if (state === 'signed-out') return 'Sign in';
+/** The header's account button: what it says, and which kind of button it is. */
+export interface AccountAction {
+  label: string;
+  /**
+   * Signing in is an invitation and needs its words; signing out is a utility you already know the
+   * shape of, and a word for it would weigh as much as the app's own name beside it (ADR-064).
+   */
+  kind: 'sign-in' | 'sign-out';
+}
+
+/** The action the header offers, or `null` when there is none to offer. */
+export function accountAction(state: AccountState): AccountAction | null {
+  if (state === 'signed-in') return { label: 'Sign out', kind: 'sign-out' };
+  if (state === 'signed-out') return { label: 'Sign in', kind: 'sign-in' };
   return null;
 }

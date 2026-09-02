@@ -434,6 +434,7 @@ disagree about it (ADR-064).
 | AC-02 | "Unavailable" answers before anything else | ✅ |
 | AC-03 | **The header offers the way out as well as the way in** | ✅ |
 | AC-04 | Nothing is offered while there is nothing to offer | ✅ |
+| AC-05 | **Signing in is worded; signing out is an icon** | ✅ |
 
 ### Library readiness — `library.test.ts`
 

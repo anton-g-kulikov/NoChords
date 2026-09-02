@@ -1868,8 +1868,12 @@ limitation, because there is then no offer to make (ADR-022).
 print. Nothing reads it now, so it is gone rather than left as an unused field on the hook.
 
 **The header carries the action both ways; the footer only ever states a fact.** Signed in, the
-header button reads *Sign out* — it does not disappear, leaving the only way out buried in a footer
+header button signs you out — it does not disappear, leaving the only way out buried in a footer
 link, which is what shipped in v0.17.0. The footer is helper text with no action in it at all.
+
+The two are not the same kind of button. Signing in is an invitation and needs its words; signing
+out is a utility whose shape is already known, so it is an icon, and a word for it would weigh as
+much as the app's own name beside it.
 
 Both read from one `accountState`, because this is the second time the two surfaces disagreed about
 the same four-way question and inline conditions in two files is how that happens.

@@ -301,15 +301,6 @@ kbd {
   text-align: center;
 }
 
-.account__action {
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--accent);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
 
 
 .library__error {
@@ -984,10 +975,15 @@ kbd {
 /*
  * Last in the pinned header, below every section it reports on.
  */
+/*
+ * Three columns with equal sides, so the dots sit in the middle of the strip rather than in the
+ * middle of what is left over: the two ends carry different things (a meter, and a bar count with
+ * a switch beside it) and a flex row would push the beats off-centre by the difference.
+ */
 .beat-strip {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding: 6px 12px;
   border: 1px solid var(--border);
@@ -1013,7 +1009,6 @@ kbd {
 
 /* Meter, then the beats, then the bars: what the bar is, where you are in it, where it sits. */
 .beat-strip__beats {
-  flex: 1;
   justify-content: center;
   display: flex;
   align-items: center;
@@ -1065,9 +1060,20 @@ kbd {
   color: var(--muted);
   font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
-  /* Both ends hold their width so the dots stay put as the numbers change under them. */
+  white-space: nowrap;
   flex: 0 0 auto;
-  min-width: 42px;
+}
+
+/* Wide enough for "12 bars left", so the count does not shuffle the switch as it runs down. */
+.beat-strip__bars {
+  min-width: 74px;
+}
+
+.beat-strip__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .beat-strip__bars {

@@ -4,7 +4,8 @@ import { SongEditor } from './components/SongEditor';
 import { Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
 import { SongList } from './components/SongList';
-import { AccountChip } from './components/AccountChip';
+import { AccountLine } from './components/AccountLine';
+import { accountActionLabel, accountState } from './lib/account';
 import { ImportPrompt } from './components/ImportPrompt';
 import { useSongLibrary } from './hooks/useSongLibrary';
 import { useSettings } from './hooks/useSettings';
@@ -33,6 +34,10 @@ export function App() {
 
   const song = songs.find((item) => item.id === openSongId) ?? null;
 
+  /* One reading of the account, shared by the header's button and the footer's line (ADR-064). */
+  const account = accountState(auth.available, auth.loading, auth.user !== null);
+  const accountLabel = accountActionLabel(account);
+
   if (showGuide) return <NotationGuide onClose={() => setShowGuide(false)} />;
 
   if (!song) {
@@ -40,7 +45,7 @@ export function App() {
       <>
         <SongList
         songs={songs}
-        account={<AccountChip auth={auth} />}
+        account={<AccountLine auth={auth} />}
         notice={
           <>
             {importOffer && (
@@ -63,8 +68,13 @@ export function App() {
           setOpenSongId(addSong().id);
           setPane('edit');
         }}
-        onSignIn={
-          auth.available && !auth.loading && !auth.user ? () => void auth.signIn() : null
+        authAction={
+          accountLabel === null
+            ? null
+            : {
+                label: accountLabel,
+                run: () => void (account === 'signed-in' ? auth.signOutNow() : auth.signIn()),
+              }
         }
         onOpenGuide={() => setShowGuide(true)}
         />

@@ -8,8 +8,8 @@ interface SongListProps {
   songs: Song[];
   /** The account line, composed by the app and shown at the foot of the list (ADR-064). */
   account: ReactNode;
-  /** Null when signing in is unavailable or already done. */
-  onSignIn: (() => void) | null;
+  /** Signing in or out — the same button, whichever way round. Null when unavailable. */
+  authAction: { label: string; run: () => void } | null;
   /** Anything the library has to say right now — an import offer, a sign-in error. */
   notice?: ReactNode;
   /** True until it is known whose songs these are (ADR-062). */
@@ -26,7 +26,7 @@ export function SongList({
   loading,
   onOpen,
   onCreate,
-  onSignIn,
+  authAction,
   onOpenGuide,
 }: SongListProps) {
   const install = useInstallPrompt();
@@ -50,9 +50,9 @@ export function SongList({
           <img className="library__mark" src="/icons/icon.svg" alt="" width="40" height="40" />
           NoChords
         </span>
-        {onSignIn && (
-          <button type="button" className="button library__signin" onClick={onSignIn}>
-            Sign in
+        {authAction && (
+          <button type="button" className="button library__signin" onClick={authAction.run}>
+            {authAction.label}
           </button>
         )}
       </div>

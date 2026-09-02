@@ -1755,6 +1755,14 @@ A bare numeral rather than "4 bars", because the word was three quarters of the 
 a number after a line of music already says. The full text is on its `title` for anyone who wants
 it.
 
+**A meter change is marked the same way, at the other end of the line.** A `{3/4}` line drew nothing
+at all: the change arrived under you mid-song, with the beat strip switching to three dots at the
+moment it happened and no warning before it. It is now a small `3/4` before the line's first chord —
+before, because that is where a score puts a signature and because a mark read after the bar it
+governs is read too late — and on the chord line rather than the lyric one, since a meter governs
+the harmony. Same weight, same scaling, same reason for living inside the line: the fit has made
+room for it.
+
 **A measurement bug this exposed.** With 32 more pixels the fit landed exactly on the boundary and
 two lines wrapped anyway. The cause was `offsetWidth`, which rounds to whole pixels: summed over a
 dozen segments the rounding underestimates a line by a few pixels, so the scale computes as fitting

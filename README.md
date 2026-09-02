@@ -52,7 +52,8 @@ song's **meter** says, so one bar is six beats in 6/8 and three in 3/4 — and a
 follows the meter it is in.
 
 Songs that change meter say so inline. Open a line with `{4/4}` and the signature runs from there
-until the next one, so a bridge in four inside a song in six clicks in four while it lasts. A line
+until the next one, so a bridge in four inside a song in six clicks in four while it lasts — and the
+line shows it while you play, a small `4/4` before its first chord. A line
 whose length differs from the song's default says so with a small raised number after its last word
 — written into the line rather than floating beside it, so the words never run under it (ADR-061).
 

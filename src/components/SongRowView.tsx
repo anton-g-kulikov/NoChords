@@ -1,4 +1,5 @@
 import { chordSymbolFor, rowSegments } from '../lib/display';
+import { parseMeter } from '../lib/meter';
 import { occurrenceKey } from '../lib/learning';
 import type { DisplayMode, Song, SongRow } from '../types/song';
 
@@ -23,6 +24,17 @@ interface SongRowViewProps {
 export function SongRowView({ row, song, mode, concealed, revealed = false }: SongRowViewProps) {
   return (
     <div className="line">
+      {/*
+       * A line that changes the meter says so before its first chord, where a score puts a new
+       * time signature — the change applies from here, and reading it after the bar it governs
+       * would be reading it too late (ADR-061).
+       */}
+      {row.meter !== null && parseMeter(row.meter) !== null && (
+        <span className="line__meter" title={`${row.meter} from here`}>
+          {row.meter}
+        </span>
+      )}
+
       {rowSegments(row).map((segment, index) => {
         const hidden =
           !revealed &&

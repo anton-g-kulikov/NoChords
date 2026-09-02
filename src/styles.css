@@ -793,9 +793,21 @@ kbd {
 }
 
 /*
- * The bar count, raised after the last word (ADR-061). Scaled with the chart like everything else
- * in it, so it stays in proportion as the type resizes.
+ * Marks written into the line (ADR-061): the meter it changes to, before the first chord, and the
+ * bars it lasts, after the last word. Both scale with the chart like everything else in it, and
+ * both are inside the line, so the fit has already made room for them.
  */
+/* On the chord line, not the lyric one: a time signature governs the harmony, and reading it down
+   beside the words puts it after the thing it applies to. */
+.line__meter {
+  align-self: flex-start;
+  margin-right: 0.5em;
+  padding-top: 0.35em;
+  font-size: calc(0.85rem * var(--sheet-scale, 1));
+  font-variant-numeric: tabular-nums;
+  opacity: 0.35;
+}
+
 .line__bars {
   align-self: flex-end;
   margin-left: 0.4em;
@@ -830,9 +842,21 @@ kbd {
   }
 
   /*
- * The bar count, raised after the last word (ADR-061). Scaled with the chart like everything else
- * in it, so it stays in proportion as the type resizes.
+ * Marks written into the line (ADR-061): the meter it changes to, before the first chord, and the
+ * bars it lasts, after the last word. Both scale with the chart like everything else in it, and
+ * both are inside the line, so the fit has already made room for them.
  */
+/* On the chord line, not the lyric one: a time signature governs the harmony, and reading it down
+   beside the words puts it after the thing it applies to. */
+.line__meter {
+  align-self: flex-start;
+  margin-right: 0.5em;
+  padding-top: 0.35em;
+  font-size: calc(0.85rem * var(--sheet-scale, 1));
+  font-variant-numeric: tabular-nums;
+  opacity: 0.35;
+}
+
 .line__bars {
   align-self: flex-end;
   margin-left: 0.4em;

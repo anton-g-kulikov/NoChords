@@ -1834,6 +1834,12 @@ spent before the first song, on a screen whose entire job is a list of songs. Th
 the loudest thing on it, and a rarely-used sign-in sat at the same weight as the one action people
 came for.
 
+**The mark is the icon file, not a copy of it.** The header shows `public/icons/icon.svg` — the
+same drawing the installed app icons are generated from — rather than an inline copy of its paths.
+A logo that exists twice is a logo that changes once. With the mark beside it the name carries
+1.2rem at 650 weight, which brings the pair to the height of the button opposite: two ends of equal
+standing, rather than a caption next to a control.
+
 **Why New song gets its own width.** It is the one thing this screen is for. Sharing a row with
 sign-in made the two look like a pair of equal options, which they are not: one is done constantly
 and one is done once per device.

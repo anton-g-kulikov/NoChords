@@ -44,7 +44,12 @@ export function SongList({
        * below rather than competing for room in this row.
        */}
       <div className="screen__head library__head">
-        <span className="library__brand">NoChords</span>
+        <span className="library__brand">
+          {/* The app's own mark, from the file the installed icons are built from, so the two
+              cannot drift apart (ADR-064). */}
+          <img className="library__mark" src="/icons/icon.svg" alt="" width="36" height="36" />
+          NoChords
+        </span>
         {onSignIn && (
           <button type="button" className="button library__signin" onClick={onSignIn}>
             Sign in

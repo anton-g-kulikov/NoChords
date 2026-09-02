@@ -47,7 +47,7 @@ export function SongList({
         <span className="library__brand">
           {/* The app's own mark, from the file the installed icons are built from, so the two
               cannot drift apart (ADR-064). */}
-          <img className="library__mark" src="/icons/icon.svg" alt="" width="36" height="36" />
+          <img className="library__mark" src="/icons/icon.svg" alt="" width="40" height="40" />
           NoChords
         </span>
         {onSignIn && (

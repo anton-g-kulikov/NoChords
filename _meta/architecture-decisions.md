@@ -1836,9 +1836,10 @@ came for.
 
 **The mark is the icon file, not a copy of it.** The header shows `public/icons/icon.svg` — the
 same drawing the installed app icons are generated from — rather than an inline copy of its paths.
-A logo that exists twice is a logo that changes once. With the mark beside it the name carries
-1.2rem at 650 weight, which brings the pair to the height of the button opposite: two ends of equal
-standing, rather than a caption next to a control.
+A logo that exists twice is a logo that changes once. Beside it the name carries 1.6rem at 650 and
+the mark 40px, which leads the row rather than matching it — at equal heights the name still read as
+the smaller thing, because a button carries padding and a border and a word does not. It takes a
+larger type size to weigh the same, and a little more than that to lead.
 
 **Why New song gets its own width.** It is the one thing this screen is for. Sharing a row with
 sign-in made the two look like a pair of equal options, which they are not: one is done constantly

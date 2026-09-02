@@ -263,23 +263,23 @@ kbd {
 }
 
 /*
- * Mark and name together, weighted to hold their own against the button opposite (ADR-064): a
- * 36px mark and a 1.2rem name come to the height of a 44px button, so the row reads as two ends
- * of equal standing rather than a caption beside a control.
+ * Mark and name together, weighted to lead the row rather than to match it (ADR-064). At the same
+ * height as the button the name still read as the smaller thing, because a button carries padding
+ * and a border and a word does not: it takes a larger type size to weigh the same.
  */
 .library__brand {
   flex: none;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: 650;
   letter-spacing: -0.01em;
 }
 
 .library__mark {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 9px;
   /* The mark carries its own dark tile; on this background it needs the corner, not a border. */
   display: block;

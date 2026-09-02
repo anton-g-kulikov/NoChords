@@ -5,7 +5,6 @@ import { tempoUnitSymbol } from '../lib/tempo';
 
 interface SongListProps {
   songs: Song[];
-  onDelete: (songId: string) => void;
   /** True until it is known whose songs these are (ADR-062). */
   loading: boolean;
   onOpen: (songId: string) => void;
@@ -20,7 +19,6 @@ export function SongList({
   loading,
   onOpen,
   onCreate,
-  onDelete,
   onSignIn,
   onOpenGuide,
 }: SongListProps) {
@@ -66,18 +64,6 @@ export function SongList({
                   {song.rows.length === 1 ? '' : 's'} ·{' '}
                   level {levelFor(song.learningPlaythrough)} of {MAX_LEVEL}
                 </span>
-              </button>
-              <button
-                type="button"
-                className="icon-button icon-button--danger"
-                aria-label={`Delete ${song.title || 'Untitled song'}`}
-                onClick={() => {
-                  if (window.confirm(`Delete “${song.title || 'Untitled song'}”?`)) {
-                    onDelete(song.id);
-                  }
-                }}
-              >
-                ✕
               </button>
             </li>
           ))}

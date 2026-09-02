@@ -11,6 +11,8 @@ interface SongEditorProps {
   song: Song;
   onOpenGuide: () => void;
   onChange: (song: Song) => void;
+  /** Deleting is an editing action, so it lives here rather than beside every row (ADR-063). */
+  onDelete: () => void;
 }
 
 /**
@@ -21,7 +23,7 @@ interface SongEditorProps {
  * normalising a line (moving a `/6/` to the end, say) would jump the caret mid-word. It is only
  * re-seeded when a different song is opened.
  */
-export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
+export function SongEditor({ song, onChange, onOpenGuide, onDelete }: SongEditorProps) {
   const [text, setText] = useState(() => songToText(song));
 
   /**
@@ -166,6 +168,19 @@ export function SongEditor({ song, onChange, onOpenGuide }: SongEditorProps) {
           onChange={(event) => handleText(event.target.value)}
         />
       </label>
+
+      {/* Last, and past the song itself: the one action here that cannot be undone (ADR-063). */}
+      <div className="editor__danger">
+        <button
+          type="button"
+          className="button button--danger"
+          onClick={() => {
+            if (window.confirm(`Delete “${song.title || 'Untitled song'}”?`)) onDelete();
+          }}
+        >
+          Delete song
+        </button>
+      </div>
     </div>
   );
 }

@@ -263,14 +263,14 @@ kbd {
   gap: 10px;
 }
 
+/* The row is the card (ADR-063): nothing beside it, so a long title has the whole width. */
 .library__item {
   display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .library__open {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1025,6 +1025,25 @@ kbd {
     padding-top: 12px;
     width: 100%;
   }
+}
+
+/* Set apart from the song, and at the end of it. */
+.editor__danger {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.button--danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.button--danger:hover:not(:disabled) {
+  background: var(--danger);
+  color: var(--bg);
 }
 
 /* ---------- Account ---------- */

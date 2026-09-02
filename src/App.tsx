@@ -59,7 +59,6 @@ export function App() {
           setOpenSongId(addSong().id);
           setPane('edit');
         }}
-        onDelete={deleteSong}
         onOpenGuide={() => setShowGuide(true)}
         onSignIn={
           auth.available && !auth.loading && !auth.user ? () => void auth.signIn() : null
@@ -122,7 +121,17 @@ export function App() {
 
       {pane === 'edit' ? (
         <div className="screen__scroll">
-          <SongEditor song={song} onChange={updateSong} onOpenGuide={() => setShowGuide(true)} />
+          <SongEditor
+            song={song}
+            onChange={updateSong}
+            onOpenGuide={() => setShowGuide(true)}
+            /* Deleting the song you are in leaves nothing to edit, so it hands you back the
+               library rather than an editor with no song (ADR-063). */
+            onDelete={() => {
+              deleteSong(song.id);
+              setOpenSongId(null);
+            }}
+          />
         </div>
       ) : (
         <Player

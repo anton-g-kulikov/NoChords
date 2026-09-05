@@ -113,7 +113,9 @@ says, so one bar counts six in 6/8 and three in 3/4, and the count lands on the 
 It is set to **Auto** by default, which means one line's worth of bars: the length you are about to
 play is the length worth counting.
 
-Clicks are synthesised, so there is nothing to download, and they are scheduled onto the audio
+The beat is a shaker — a stroke of filtered noise, with the strong beat brighter and louder as a
+harder shake is. It is synthesised rather than sampled, so there is nothing to download, and the
+strokes are scheduled onto the audio
 clock ahead of time rather than fired from the animation loop — measured beat-to-beat error is
 0.00ms, and a stuttering frame rate cannot make the click flam. Each one is fired early by the
 device's output latency so that it is *heard* on the beat rather than a tenth of a second after it

@@ -24,9 +24,43 @@ const LATE_TOLERANCE_MS = 60;
 /** How far ahead each wake schedules. Comfortably longer than a tick's worst-case delay. */
 const LOOKAHEAD_MS = 150;
 
-const ACCENT_HZ = 1600;
-const BEAT_HZ = 900;
-const CLICK_SECONDS = 0.04;
+/*
+ * The click is a shaker (ADR-065): a stroke of filtered noise rather than a tone.
+ *
+ * A shaker is almost entirely noise, which is why it can be synthesised convincingly where a
+ * woodblock or a bell cannot — there are no inharmonic partials to model, only a band of hiss with
+ * an envelope on it. It also gets the accent right for free: a played shaker's strong stroke is the
+ * same instrument with more energy behind it, brighter and louder, where the tone this replaces
+ * jumped most of an octave and read as a second instrument.
+ */
+
+/**
+ * Centre of the noise band. The strong stroke is brighter, as a harder shake is.
+ *
+ * Warm rather than hissy: measured, the band sits around 6–8kHz where these are set, and a shaker
+ * that has to sit under a slow ballad wants the lower half of that.
+ */
+const ACCENT_HZ = 6000;
+const BEAT_HZ = 4600;
+
+/** Broad, because a shaker is a band of hiss rather than a pitch. */
+const SHAKER_Q = 1;
+
+/**
+ * Long enough to hear beads rather than a tick, short enough to clear the next beat.
+ *
+ * These are the nominal ends of an exponential ramp, not what is heard: the stroke drops under
+ * hearing at roughly half of them, so 0.14 measures as about 65ms of audible shaker. Strokes that
+ * ring a little into the next beat are what a real shaker does anyway.
+ */
+const ACCENT_DECAY_SECONDS = 0.14;
+const BEAT_DECAY_SECONDS = 0.11;
+
+/** Not instant: the beads take a moment to gather and hit. A snap here would be a click again. */
+const ATTACK_SECONDS = 0.005;
+
+/** Noise held for reuse; a quarter of a second is plenty to take varied slices from. */
+const NOISE_SECONDS = 0.25;
 
 export interface MetronomeOptions {
   enabled: boolean;
@@ -75,23 +109,46 @@ export function useMetronome({
   }, [volume, beatMs, schedule, originMs, totalMs]);
 
   /** One click, scheduled at an absolute time on the audio clock. */
-  const scheduleClick = useCallback((context: AudioContext, at: number, accent: boolean) => {
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
+  /** One buffer of white noise, made once and sliced differently for every stroke. */
+  const noiseRef = useRef<AudioBuffer | null>(null);
+  const noiseFor = useCallback((context: AudioContext): AudioBuffer => {
+    if (noiseRef.current) return noiseRef.current;
 
-    oscillator.frequency.value = accent ? ACCENT_HZ : BEAT_HZ;
-    oscillator.type = 'square';
+    const frames = Math.ceil(context.sampleRate * NOISE_SECONDS);
+    const buffer = context.createBuffer(1, frames, context.sampleRate);
+    const samples = buffer.getChannelData(0);
+    for (let i = 0; i < frames; i += 1) samples[i] = Math.random() * 2 - 1;
 
-    // A short exponential decay reads as a click; a bare gate would pop.
-    const peak = Math.max(0.0001, latest.current.volume * (accent ? 0.5 : 0.32));
-    gain.gain.setValueAtTime(0.0001, at);
-    gain.gain.exponentialRampToValueAtTime(peak, at + 0.002);
-    gain.gain.exponentialRampToValueAtTime(0.0001, at + CLICK_SECONDS);
-
-    oscillator.connect(gain).connect(context.destination);
-    oscillator.start(at);
-    oscillator.stop(at + CLICK_SECONDS + 0.01);
+    noiseRef.current = buffer;
+    return buffer;
   }, []);
+
+  const scheduleClick = useCallback(
+    (context: AudioContext, at: number, accent: boolean) => {
+      const decay = accent ? ACCENT_DECAY_SECONDS : BEAT_DECAY_SECONDS;
+
+      const source = context.createBufferSource();
+      source.buffer = noiseFor(context);
+
+      const band = context.createBiquadFilter();
+      band.type = 'bandpass';
+      band.frequency.value = accent ? ACCENT_HZ : BEAT_HZ;
+      band.Q.value = SHAKER_Q;
+
+      const gain = context.createGain();
+      // Noise carries more energy than a tone at the same peak, so it is set lower to match.
+      const peak = Math.max(0.0001, latest.current.volume * (accent ? 0.34 : 0.2));
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(peak, at + ATTACK_SECONDS);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + decay);
+
+      source.connect(band).connect(gain).connect(context.destination);
+      // A different slice each time: two shakes of a real shaker are never the same sample twice.
+      source.start(at, Math.random() * (NOISE_SECONDS - decay - ATTACK_SECONDS));
+      source.stop(at + decay + 0.02);
+    },
+    [noiseFor]
+  );
 
   useEffect(() => {
     if (!enabled || !isPlaying || originMs === null) {

@@ -1877,3 +1877,40 @@ much as the app's own name beside it.
 
 Both read from one `accountState`, because this is the second time the two surfaces disagreed about
 the same four-way question and inline conditions in two files is how that happens.
+
+---
+
+## ADR-065 — The beat is a synthesised shaker
+
+**Decision.** The metronome plays a shaker: a stroke of bandpass-filtered white noise with a fast
+attack and an exponential decay. The strong beat is the same stroke, brighter and about 3dB louder.
+No samples.
+
+**Why not the square wave it replaces.** A square at 900Hz is the cheap-beeper timbre — all odd
+harmonics, none of them decaying — and it announced itself over anything played with it. Worse, the
+accent was 1600Hz against 900Hz, most of an octave, so the strong beat read as a *second
+instrument* rather than as a harder stroke of the first.
+
+**Why a shaker can be synthesised where a woodblock cannot.** A shaker is almost entirely noise.
+There are no inharmonic partials to model, only a band of hiss and an envelope, which is exactly
+what a filter and a gain node are. A bell or a block would need its partials placed by hand and
+would still sound like a synthesiser pretending.
+
+**Why not samples.** They would buy a specific recorded character, and cost the offline story: the
+files would have to be precached, decoded before the first stroke on a path that is carefully
+latency-compensated (ADR-030), and carry a licence to track. "Nothing to download" is worth more
+here than one particular shaker.
+
+**Tuned by measurement, since the author cannot hear it.** Rendered offline and measured: the first
+attempt sounded — on paper — like a tick, because an exponential ramp to 0.0001 drops under hearing
+at about half its nominal length, so a 0.08s decay was 36ms of audible stroke. The decays are set
+from the *measured* audible tail (65ms strong, 49ms weak), the attack from the measured peak (5-6ms,
+a swish rather than a snap), and the band from where a shaker under a slow ballad should sit.
+
+**A different slice of noise each stroke,** because two shakes of a real shaker are never the same
+sample twice, and a metronome repeating one identical burst is how a loop starts to sound like a
+machine.
+
+**Cost.** Every parameter here is a judgement made by measurement rather than by listening, and
+"pleasant" is not a thing a spectrum tells you. The constants are named and separate so that
+"brighter", "longer" or "softer" is a one-number change rather than a redesign.

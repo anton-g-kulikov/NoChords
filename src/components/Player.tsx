@@ -17,6 +17,7 @@ import { SongRowView } from './SongRowView';
 import { useFitScale } from '../hooks/useFitScale';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
 import { msPerMeterBeat } from '../lib/tempo';
+import { VOICES, VOICE_NAMES, type VoiceName } from '../lib/metronomeVoice';
 import { beatsPerBarOf } from '../lib/meter';
 import {
   MAX_LEVEL,
@@ -156,6 +157,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   useMetronome({
     enabled: settings.metronomeEnabled,
     volume: settings.metronomeVolume,
+    voice: settings.metronomeVoice,
     beatMs,
     schedule,
     isPlaying,
@@ -410,6 +412,23 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                     onSettingsChange({ metronomeVolume: Number(event.target.value) / 100 })
                   }
                 />
+              </label>
+
+              <label className="field field--narrow">
+                <span className="field__label">Sound</span>
+                <select
+                  className="field__input"
+                  value={settings.metronomeVoice}
+                  onChange={(event) =>
+                    onSettingsChange({ metronomeVoice: event.target.value as VoiceName })
+                  }
+                >
+                  {VOICE_NAMES.map((name) => (
+                    <option key={name} value={name}>
+                      {VOICES[name].label}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               {/* Auto is a real value here, not an empty field: it means one line's worth of

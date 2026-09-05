@@ -18,6 +18,18 @@ function memoryStorage(seed: Record<string, string> = {}): StorageLike {
 }
 
 describe('countInBarsFor', () => {
+  it('SET-13 keeps the chosen sound, and refuses one it cannot make', () => {
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
+        .metronomeVoice;
+
+    expect(DEFAULT_SETTINGS.metronomeVoice).toBe('shaker');
+    expect(load({ metronomeVoice: 'woodblock' })).toBe('woodblock');
+    // Preferences written before there was a choice, and anything that is not a voice.
+    expect(load({})).toBe('shaker');
+    expect(load({ metronomeVoice: 'cowbell' })).toBe('shaker');
+  });
+
   it('SET-10 follows the song when nothing has been set (ADR-059)', () => {
     expect(DEFAULT_SETTINGS.countInBars).toBeNull();
     // A line's worth of bars is what you are about to play, so it is what the count says.
@@ -48,11 +60,13 @@ describe('createSettingsStore', () => {
     const backend = memoryStorage();
     createSettingsStore(backend).save({
       metronomeEnabled: true,
+      metronomeVoice: 'woodblock',
       metronomeVolume: 0.25,
       countInBars: 2,
     });
     expect(createSettingsStore(backend).load()).toEqual({
       metronomeEnabled: true,
+      metronomeVoice: 'woodblock',
       metronomeVolume: 0.25,
       countInBars: 2,
     });

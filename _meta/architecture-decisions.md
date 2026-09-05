@@ -1882,9 +1882,15 @@ the same four-way question and inline conditions in two files is how that happen
 
 ## ADR-065 — The beat is a synthesised shaker
 
-**Decision.** The metronome plays a shaker: a stroke of bandpass-filtered white noise with a fast
-attack and an exponential decay. The strong beat is the same stroke, brighter and about 3dB louder.
-No samples.
+**Decision.** The metronome plays one of three voices, chosen in its settings: a **shaker** (default)
+of bandpass-filtered noise, a **woodblock** of a falling pitch, and a **beep** for a loud room. Each
+is a pair of strokes described as parameters in `lib/metronomeVoice.ts` — the hook builds the audio
+graph from the table and holds no opinion about how anything sounds. No samples.
+
+**Every voice accents by weight, never by becoming another instrument.** Louder, and no more than a
+fifth up. That rule is a test, and it caught the `beep` voice on the way in: it had been carried
+over verbatim from the sound this replaces, keeping the near-octave that made the strong beat read
+as a second instrument. Offering that as a choice would have been shipping the fault as a feature.
 
 **Why not the square wave it replaces.** A square at 900Hz is the cheap-beeper timbre — all odd
 harmonics, none of them decaying — and it announced itself over anything played with it. Worse, the
@@ -1912,5 +1918,6 @@ sample twice, and a metronome repeating one identical burst is how a loop starts
 machine.
 
 **Cost.** Every parameter here is a judgement made by measurement rather than by listening, and
-"pleasant" is not a thing a spectrum tells you. The constants are named and separate so that
-"brighter", "longer" or "softer" is a one-number change rather than a redesign.
+"pleasant" is not a thing a spectrum tells you. The table is named and separate so that "brighter",
+"longer" or "softer" is a one-number change rather than a redesign — and with three voices there are
+three times as many numbers set by a method that cannot hear their result.

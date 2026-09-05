@@ -7,6 +7,7 @@
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { accentAt, beatsInWindow, clickAt } from '../lib/metronome';
+import { voiceFor, type VoiceName } from '../lib/metronomeVoice';
 import type { ScheduleEntry } from '../lib/playback';
 
 /** How often the scheduler wakes. Short enough to be responsive, long enough to be cheap. */
@@ -24,41 +25,6 @@ const LATE_TOLERANCE_MS = 60;
 /** How far ahead each wake schedules. Comfortably longer than a tick's worst-case delay. */
 const LOOKAHEAD_MS = 150;
 
-/*
- * The click is a shaker (ADR-065): a stroke of filtered noise rather than a tone.
- *
- * A shaker is almost entirely noise, which is why it can be synthesised convincingly where a
- * woodblock or a bell cannot — there are no inharmonic partials to model, only a band of hiss with
- * an envelope on it. It also gets the accent right for free: a played shaker's strong stroke is the
- * same instrument with more energy behind it, brighter and louder, where the tone this replaces
- * jumped most of an octave and read as a second instrument.
- */
-
-/**
- * Centre of the noise band. The strong stroke is brighter, as a harder shake is.
- *
- * Warm rather than hissy: measured, the band sits around 6–8kHz where these are set, and a shaker
- * that has to sit under a slow ballad wants the lower half of that.
- */
-const ACCENT_HZ = 6000;
-const BEAT_HZ = 4600;
-
-/** Broad, because a shaker is a band of hiss rather than a pitch. */
-const SHAKER_Q = 1;
-
-/**
- * Long enough to hear beads rather than a tick, short enough to clear the next beat.
- *
- * These are the nominal ends of an exponential ramp, not what is heard: the stroke drops under
- * hearing at roughly half of them, so 0.14 measures as about 65ms of audible shaker. Strokes that
- * ring a little into the next beat are what a real shaker does anyway.
- */
-const ACCENT_DECAY_SECONDS = 0.14;
-const BEAT_DECAY_SECONDS = 0.11;
-
-/** Not instant: the beads take a moment to gather and hit. A snap here would be a click again. */
-const ATTACK_SECONDS = 0.005;
-
 /** Noise held for reuse; a quarter of a second is plenty to take varied slices from. */
 const NOISE_SECONDS = 0.25;
 
@@ -66,6 +32,8 @@ export interface MetronomeOptions {
   enabled: boolean;
   /** 0..1. */
   volume: number;
+  /** Which sound the beat makes (ADR-065). */
+  voice: VoiceName;
   /** Length of one beat of the song's opening meter, which the count-in runs on (ADR-052). */
   beatMs: number;
   /** The song's schedule, which carries the meter running at each beat (ADR-026). */
@@ -83,6 +51,7 @@ export interface MetronomeOptions {
 export function useMetronome({
   enabled,
   volume,
+  voice,
   beatMs,
   schedule,
   isPlaying,
@@ -103,10 +72,10 @@ export function useMetronome({
    */
   const audioOriginRef = useRef<number | null>(null);
 
-  const latest = useRef({ volume, beatMs, schedule, originMs, totalMs });
+  const latest = useRef({ volume, voice, beatMs, schedule, originMs, totalMs });
   useEffect(() => {
-    latest.current = { volume, beatMs, schedule, originMs, totalMs };
-  }, [volume, beatMs, schedule, originMs, totalMs]);
+    latest.current = { volume, voice, beatMs, schedule, originMs, totalMs };
+  }, [volume, voice, beatMs, schedule, originMs, totalMs]);
 
   /** One click, scheduled at an absolute time on the audio clock. */
   /** One buffer of white noise, made once and sliced differently for every stroke. */
@@ -125,27 +94,45 @@ export function useMetronome({
 
   const scheduleClick = useCallback(
     (context: AudioContext, at: number, accent: boolean) => {
-      const decay = accent ? ACCENT_DECAY_SECONDS : BEAT_DECAY_SECONDS;
-
-      const source = context.createBufferSource();
-      source.buffer = noiseFor(context);
-
-      const band = context.createBiquadFilter();
-      band.type = 'bandpass';
-      band.frequency.value = accent ? ACCENT_HZ : BEAT_HZ;
-      band.Q.value = SHAKER_Q;
+      const { volume: level, voice: name } = latest.current;
+      const stroke = accent ? voiceFor(name).accent : voiceFor(name).beat;
 
       const gain = context.createGain();
-      // Noise carries more energy than a tone at the same peak, so it is set lower to match.
-      const peak = Math.max(0.0001, latest.current.volume * (accent ? 0.34 : 0.2));
+      const peak = Math.max(0.0001, level * stroke.peak);
       gain.gain.setValueAtTime(0.0001, at);
-      gain.gain.exponentialRampToValueAtTime(peak, at + ATTACK_SECONDS);
-      gain.gain.exponentialRampToValueAtTime(0.0001, at + decay);
+      gain.gain.exponentialRampToValueAtTime(peak, at + stroke.attack);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + stroke.decay);
+      gain.connect(context.destination);
 
-      source.connect(band).connect(gain).connect(context.destination);
-      // A different slice each time: two shakes of a real shaker are never the same sample twice.
-      source.start(at, Math.random() * (NOISE_SECONDS - decay - ATTACK_SECONDS));
-      source.stop(at + decay + 0.02);
+      const ends = at + stroke.decay + 0.02;
+
+      if (stroke.kind === 'noise') {
+        const source = context.createBufferSource();
+        source.buffer = noiseFor(context);
+
+        const band = context.createBiquadFilter();
+        band.type = 'bandpass';
+        band.frequency.value = stroke.hz;
+        band.Q.value = stroke.q ?? 1;
+
+        source.connect(band).connect(gain);
+        // A different slice each time: two shakes of a real shaker are never the same twice.
+        source.start(at, Math.random() * (NOISE_SECONDS - stroke.decay - stroke.attack));
+        source.stop(ends);
+        return;
+      }
+
+      const oscillator = context.createOscillator();
+      oscillator.type = stroke.wave ?? 'sine';
+      oscillator.frequency.setValueAtTime(stroke.hz, at);
+      // A pitch that falls away is what a struck thing does; a steady one is what a beeper does.
+      if (stroke.toHz !== undefined) {
+        oscillator.frequency.exponentialRampToValueAtTime(stroke.toHz, at + stroke.decay);
+      }
+
+      oscillator.connect(gain);
+      oscillator.start(at);
+      oscillator.stop(ends);
     },
     [noiseFor]
   );

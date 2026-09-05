@@ -6,6 +6,7 @@
  * when storage is unavailable.
  */
 import { defaultStorage, type StorageLike } from './storage';
+import { DEFAULT_VOICE, isVoiceName, type VoiceName } from './metronomeVoice';
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
@@ -26,6 +27,8 @@ const LEGACY_DEFAULT_BARS = 1;
 
 export interface Settings {
   metronomeEnabled: boolean;
+  /** Which sound the beat makes (ADR-065). */
+  metronomeVoice: VoiceName;
   /** 0..1. */
   metronomeVolume: number;
   /**
@@ -40,6 +43,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   metronomeEnabled: false,
+  metronomeVoice: DEFAULT_VOICE,
   metronomeVolume: 0.5,
   countInBars: null,
 };
@@ -88,6 +92,7 @@ function sanitize(value: unknown): Settings {
   const countIn = stored === LEGACY_DEFAULT_BARS ? null : stored;
 
   return {
+    metronomeVoice: isVoiceName(record.metronomeVoice) ? record.metronomeVoice : DEFAULT_VOICE,
     metronomeEnabled:
       typeof record.metronomeEnabled === 'boolean'
         ? record.metronomeEnabled

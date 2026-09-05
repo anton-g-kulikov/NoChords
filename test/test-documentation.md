@@ -447,6 +447,18 @@ the ones being asked for (ADR-062).
 | LB-02 | Waits for a signed-in account's store to answer | ✅ |
 | LB-03 | Shows the device library as soon as it is known there is no account | ✅ |
 
+### Metronome voices — `metronome-voice.test.ts`
+
+Intent: the sounds the beat can make, as a table that can be read and checked without a sound card
+(ADR-065).
+
+| # | Case | Status |
+|---|------|--------|
+| VC-01 | Three voices: a soft one, a struck one and a sharp one | ✅ |
+| VC-02 | **Every voice accents by weight, never by becoming another instrument** | ✅ |
+| VC-03 | Every stroke clears the fastest beat the tempo field allows | ✅ |
+| VC-04 | A stored name that is not a voice falls back rather than falling silent | ✅ |
+
 ### Device preferences — `settings.test.ts`
 
 | # | Case | Status |
@@ -460,6 +472,7 @@ the ones being asked for (ADR-062).
 | SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
 | SET-08 | **A count-in stored in beats converts to the nearest whole bar, rounding** | ✅ |
 | SET-09 | **A count-in that was asked for never converts to none at all** | ✅ |
+| SET-13 | The chosen sound is kept; one the app cannot make is refused | ✅ |
 | SET-10 | **With nothing set, the count-in follows the song's bars per line** | ✅ |
 | SET-11 | A count-in set outright wins, including none at all | ✅ |
 | SET-12 | A followed count-in stays inside the offered range | ✅ |

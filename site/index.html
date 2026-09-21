@@ -50,10 +50,10 @@
     }
     .cta small { color: var(--muted); }
 
-    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 32px; }
-    .two h3 { margin: 0 0 6px; font-size: 1.05rem; }
-    .two p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-    @media (max-width: 600px) { .two { grid-template-columns: 1fr; gap: 16px; } }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 32px; }
+    .features h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .features p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    @media (max-width: 680px) { .features { grid-template-columns: 1fr; gap: 16px; } }
 
     /* A chart drawn the way the app draws one: a chord over the word it is played on. */
     .chart {
@@ -123,7 +123,7 @@
       </div>
     </div>
 
-    <div class="two">
+    <div class="features">
       <div>
         <h3>It plays itself</h3>
         <p>Set the tempo, get counted in, and the chart moves with the song: the line being sung is marked, the beat is on screen, and the lines you have passed step back. Tap a line to jump.</p>
@@ -131,6 +131,10 @@
       <div>
         <h3>It hides the chords</h3>
         <p>Level one shows the verse and chorus whole and thins their repeats. Level two hides half. Level three hides most of it. Tap a line to peek — it never costs you progress.</p>
+      </div>
+      <div>
+        <h3>It reads in degrees</h3>
+        <p>One tap turns the chart into roman numerals: <code>Am Em G F</code> becomes <code>i v VII VI</code>. Degrees describe the song rather than the key, so they stay put when you transpose.</p>
       </div>
     </div>
 
@@ -178,7 +182,7 @@
         <li><code>|4|</code> at the end of a line — this line lasts four bars instead of the song's usual.</li>
         <li><code>{3/4}</code> at the start of a line — the meter changes from here until the next one.</li>
       </ul>
-      <p>Tempo is a note and a number — <code>♩ = 90</code>, or <code>♪ = 180</code> — because a bare BPM does not say what it is counting. Transpose with a tap; read the chart as Nashville numerals if you think in degrees.</p>
+      <p>Tempo is a note and a number — <code>♩ = 90</code>, or <code>♪ = 180</code> — because a bare BPM does not say what it is counting. Transpose with a tap.</p>
     </section>
 
     <section>

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NoChords — learn songs by hiding the chords</title>
+  <meta name="description" content="Type a song in once, play it back with the chart scrolling at tempo, and let the chords fade out over repeated playthroughs until you can follow the lyrics alone. Works offline, installs on Android and iOS." />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <meta property="og:title" content="NoChords" />
+  <meta property="og:description" content="Learn songs by hiding the chords, a little more each time." />
+  <meta property="og:image" content="https://anton-g-kulikov.github.io/NoChords/icon.svg" />
+  <style>
+    /* The app's own palette, so the page and the thing it describes look like one family. */
+    :root {
+      --bg: #12141a;
+      --surface: #1a1d26;
+      --surface-raised: #232733;
+      --border: #313747;
+      --text: #eef1f7;
+      --muted: #9aa3b8;
+      --accent: #5b9dff;
+      --accent-contrast: #08101f;
+      --chord: #7fd1ff;
+      --radius: 10px;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+    header { display: flex; align-items: center; gap: 12px; padding: 28px 0 8px; }
+    header img { width: 40px; height: 40px; }
+    header .name { font-size: 1.6rem; font-weight: 650; letter-spacing: -0.01em; }
+
+    .hero { padding: 24px 0 8px; }
+    .hero h1 { font-size: 2rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 12px; }
+    .hero p { color: var(--muted); font-size: 1.1rem; margin: 0 0 22px; max-width: 560px; }
+    .cta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .button {
+      display: inline-block; padding: 12px 22px; border-radius: var(--radius);
+      background: var(--accent); color: var(--accent-contrast); font-weight: 650;
+      text-decoration: none; font-size: 1.05rem;
+    }
+    .cta small { color: var(--muted); }
+
+    /* A chart drawn the way the app draws one: a chord over the word it is played on. */
+    .chart {
+      margin: 36px 0 44px; padding: 14px 16px 6px;
+      border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+    }
+    .strip {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      gap: 12px; padding: 6px 12px; margin-bottom: 14px;
+      border: 1px solid var(--border); border-bottom: 4px solid var(--accent);
+      border-radius: var(--radius); color: var(--muted); font-size: 0.78rem;
+    }
+    .strip .dots { display: flex; gap: 7px; align-items: center; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+    .dot.accent { width: 11px; height: 11px; }
+    .dot.on { background: var(--accent); }
+    .strip .end { text-align: right; }
+    .row { padding: 10px 8px; border-radius: 6px; border-bottom: 4px solid transparent; }
+    .row.active { background: var(--surface-raised); border-bottom-color: var(--accent); }
+    .row.played { opacity: 0.5; }
+    .line { display: flex; flex-wrap: wrap; align-items: flex-end; }
+    .seg { display: inline-flex; flex-direction: column; justify-content: flex-end; }
+    .c {
+      font: 700 1.05rem/1.35 ui-monospace, "SF Mono", Menlo, monospace;
+      color: var(--chord); white-space: pre; padding-right: 0.6em; min-height: 1.35em;
+    }
+    .c.hidden { filter: blur(4px); opacity: 0.7; }
+    .l { font-size: 1.2rem; line-height: 1.35; white-space: pre; }
+    .caption { color: var(--muted); font-size: 0.85rem; margin: 10px 8px 6px; }
+
+    /* The app fits its type to the longest line rather than wrapping (ADR-054); on a phone the
+       mock has to do the same by hand, or it shows the one thing the app does not do. */
+    @media (max-width: 480px) {
+      .chart { padding: 12px 8px 4px; }
+      .l { font-size: 0.92rem; }
+      .c { font-size: 0.82rem; }
+      .hero h1 { font-size: 1.75rem; }
+    }
+
+    section { padding: 8px 0 28px; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.25rem; margin: 22px 0 8px; letter-spacing: -0.01em; }
+    section p { color: var(--muted); margin: 0 0 10px; }
+    code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em; color: var(--chord); }
+    ul { padding-left: 1.2em; color: var(--muted); margin: 6px 0 10px; }
+    li { margin: 4px 0; }
+    footer { padding: 20px 0 48px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); }
+    footer a { margin-right: 14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="./icon.svg" alt="" width="40" height="40" />
+      <span class="name">NoChords</span>
+    </header>
+
+    <div class="hero">
+      <h1>Learn songs by hiding the chords, a little more each time.</h1>
+      <p>
+        Type a song in once. Play it back with the chart scrolling itself at tempo. Let the chords
+        fade out over repeated playthroughs — until you can follow the lyrics alone.
+      </p>
+      <div class="cta">
+        <a class="button" href="https://nochords-18219.web.app">Open the app</a>
+        <small>Free · works offline · installs on Android and iOS</small>
+      </div>
+    </div>
+
+    <div class="chart" aria-label="What a song looks like while it plays">
+      <div class="strip">
+        <span>3/4</span>
+        <span class="dots"><span class="dot accent"></span><span class="dot on"></span><span class="dot"></span></span>
+        <span class="end">bar 2/2</span>
+      </div>
+      <div class="row played">
+        <div class="line">
+          <span class="seg"><span class="c">Dm</span><span class="l">Savoury, sage, </span></span>
+          <span class="seg"><span class="c">C</span><span class="l">rosemary and </span></span>
+          <span class="seg"><span class="c">Dm</span><span class="l">thyme,</span></span>
+        </div>
+      </div>
+      <div class="row active">
+        <div class="line">
+          <span class="seg"><span class="c">Dm</span><span class="l">Remember me to a </span></span>
+          <span class="seg"><span class="c hidden">C</span><span class="l">lass that lives </span></span>
+          <span class="seg"><span class="c">Dm</span><span class="l">there,</span></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="line">
+          <span class="seg"><span class="c">Dm</span><span class="l">For she was once a </span></span>
+          <span class="seg"><span class="c hidden">C</span><span class="l">true love of </span></span>
+          <span class="seg"><span class="c hidden">Dm</span><span class="l">mine.</span></span>
+        </div>
+      </div>
+      <p class="caption">The beat strip shows the meter, the beat sounding, and where you are in the line. A blurred chord is one you are learning to remember — tap the line to see it.</p>
+    </div>
+
+    <section>
+      <h2>How it works</h2>
+      <p>Each playthrough is a level. The first shows the verse and chorus whole and only starts thinning their repeats; the second hides half of every section; the third hides most of it, opening chords included. Set a level yourself, or let it climb on its own.</p>
+      <p>Lost a chord? Tap the line and it comes back for a few seconds — a glance at the answer, not a change of state.</p>
+    </section>
+
+    <section>
+      <h2>Notation</h2>
+      <p>One line per lyric line, with chords in brackets where they fall in the words.</p>
+      <ul>
+        <li><code>There [Am]is a [C]house in New [D]Orleans</code> — a chord sits over the word it is played on.</li>
+        <li><code>|4|</code> at the end of a line — this line lasts four bars instead of the song's usual.</li>
+        <li><code>{3/4}</code> at the start of a line — the meter changes from here until the next one.</li>
+      </ul>
+      <p>Tempo is a note and a number — <code>♩ = 90</code>, or <code>♪ = 180</code> — because a bare BPM does not say what it is counting. Transpose with a tap; read the chart as Nashville numerals if you think in degrees.</p>
+    </section>
+
+    <section>
+      <h2>Metronome</h2>
+      <p>A shaker by default, because it sits under a slow song rather than over it. A woodblock and a beep if you need to cut through. It counts you in, by one line's worth of bars, and the beat is on screen whether or not the sound is on.</p>
+    </section>
+
+    <section>
+      <h2>Your songs</h2>
+      <p>Signed out, songs live in your browser and the app works with no connection at all. Sign in with Google and they follow you between devices.</p>
+    </section>
+
+    <footer>
+      <a href="https://nochords-18219.web.app">Open the app</a>
+      <a href="https://github.com/anton-g-kulikov/NoChords">Source on GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>

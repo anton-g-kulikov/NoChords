@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NoChords — learn songs by hiding the chords</title>
-  <meta name="description" content="Type a song in once, play it back with the chart scrolling at tempo, and let the chords fade out over repeated playthroughs until you can follow the lyrics alone. Works offline, installs on Android and iOS." />
+  <title>NoChords — a chart that plays itself, chords that fade as you learn</title>
+  <meta name="description" content="Press play and the chart scrolls itself at your tempo, counted in. Every playthrough hides a few more chords, until you can follow the lyrics alone. Works offline, installs on Android and iOS." />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <meta property="og:title" content="NoChords" />
-  <meta property="og:description" content="Learn songs by hiding the chords, a little more each time." />
+  <meta property="og:description" content="A chart that plays itself. Chords that fade as you learn them." />
   <meta property="og:image" content="https://anton-g-kulikov.github.io/NoChords/icon.svg" />
   <style>
     /* The app's own palette, so the page and the thing it describes look like one family. */
@@ -50,9 +50,14 @@
     }
     .cta small { color: var(--muted); }
 
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 32px; }
+    .two h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .two p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    @media (max-width: 600px) { .two { grid-template-columns: 1fr; gap: 16px; } }
+
     /* A chart drawn the way the app draws one: a chord over the word it is played on. */
     .chart {
-      margin: 36px 0 44px; padding: 14px 16px 6px;
+      margin: 28px 0 44px; padding: 14px 16px 6px;
       border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
     }
     .strip {
@@ -106,14 +111,26 @@
     </header>
 
     <div class="hero">
-      <h1>Learn songs by hiding the chords, a little more each time.</h1>
+      <h1>A chart that plays itself.<br />Chords that fade as you learn them.</h1>
       <p>
-        Type a song in once. Play it back with the chart scrolling itself at tempo. Let the chords
-        fade out over repeated playthroughs — until you can follow the lyrics alone.
+        Type a song in once. Press play and the chart scrolls line by line at your tempo, counted
+        in, so your hands stay on the instrument. Every playthrough hides a few more chords — until
+        you can follow the lyrics alone.
       </p>
       <div class="cta">
         <a class="button" href="https://nochords-18219.web.app">Open the app</a>
         <small>Free · works offline · installs on Android and iOS</small>
+      </div>
+    </div>
+
+    <div class="two">
+      <div>
+        <h3>It plays itself</h3>
+        <p>Set the tempo, get counted in, and the chart moves with the song: the line being sung is marked, the beat is on screen, and the lines you have passed step back. Tap a line to jump.</p>
+      </div>
+      <div>
+        <h3>It hides the chords</h3>
+        <p>Level one shows the verse and chorus whole and thins their repeats. Level two hides half. Level three hides most of it. Tap a line to peek — it never costs you progress.</p>
       </div>
     </div>
 

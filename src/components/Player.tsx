@@ -154,7 +154,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   // A chart you are reading from is a page you never touch, so the phone dims it mid-verse.
   useWakeLock(isPlaying);
 
-  useMetronome({
+  const metronome = useMetronome({
     enabled: settings.metronomeEnabled,
     volume: settings.metronomeVolume,
     voice: settings.metronomeVoice,
@@ -533,7 +533,11 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         isAccent={(beatInBar) => accentAt(beatInBar - 1, schedule)}
         meter={song.meter}
         sound={settings.metronomeEnabled}
-        onSoundChange={(metronomeEnabled) => onSettingsChange({ metronomeEnabled })}
+        onSoundChange={(metronomeEnabled) => {
+          // Turning the sound on is a tap too, and may be the first one the audio clock sees.
+          if (metronomeEnabled) metronome.unlock();
+          onSettingsChange({ metronomeEnabled });
+        }}
         />
       </div>
 
@@ -576,7 +580,12 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           <button
             type="button"
             className="button button--primary controls__play"
-            onClick={toggle}
+            /* Open the audio clock here, inside the tap: Safari will not do it afterwards, and
+               an effect runs once the gesture is over (ADR-066). */
+            onClick={() => {
+              metronome.unlock();
+              toggle();
+            }}
           >
             <ListMinus size={18} aria-hidden />
             {isPlaying ? 'Pause' : finished ? 'Play again' : 'Play'}

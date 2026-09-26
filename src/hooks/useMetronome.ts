@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { accentAt, beatsInWindow, clickAt } from '../lib/metronome';
 import { voiceFor, type VoiceName } from '../lib/metronomeVoice';
+import { claimPlaybackSession } from '../lib/audioSession';
 import type { ScheduleEntry } from '../lib/playback';
 
 /** How often the scheduler wakes. Short enough to be responsive, long enough to be cheap. */
@@ -27,6 +28,12 @@ const LOOKAHEAD_MS = 150;
 
 /** Noise held for reuse; a quarter of a second is plenty to take varied slices from. */
 const NOISE_SECONDS = 0.25;
+
+/** What the player needs from the metronome besides the sound itself. */
+export interface MetronomeControls {
+  /** Call from inside a tap, before playing: iOS opens its audio clock only then (ADR-066). */
+  unlock: () => void;
+}
 
 export interface MetronomeOptions {
   enabled: boolean;
@@ -57,7 +64,7 @@ export function useMetronome({
   isPlaying,
   originMs,
   totalMs,
-}: MetronomeOptions): void {
+}: MetronomeOptions): MetronomeControls {
   const contextRef = useRef<AudioContext | null>(null);
   /** Seconds between scheduling a sound and hearing it. Fixed once per run, with the origin. */
   const latencyRef = useRef(0);
@@ -78,6 +85,43 @@ export function useMetronome({
   }, [volume, voice, beatMs, schedule, originMs, totalMs]);
 
   /** One click, scheduled at an absolute time on the audio clock. */
+  /**
+   * Opens the audio clock, from inside the tap that asked for sound (ADR-066).
+   *
+   * Safari only lets a context start while the page is being touched, and a React effect runs
+   * after the handler that scheduled it has returned — by then the gesture is over. Chrome treats
+   * one gesture as unlocking the page for good, which is why this was silent on an iPhone and fine
+   * on an Android.
+   */
+  const unlock = useCallback(() => {
+    let context = contextRef.current;
+    if (!context) {
+      try {
+        context = new AudioContext();
+        contextRef.current = context;
+      } catch {
+        // No Web Audio here; the app stays silent rather than breaking.
+        return;
+      }
+    }
+
+    claimPlaybackSession(typeof navigator === 'undefined' ? undefined : navigator);
+    void context.resume().catch(() => {});
+
+    /*
+     * A frame of silence through the graph. iOS counts a context as unlocked once something has
+     * actually played on it, and resume() alone does not always count.
+     */
+    try {
+      const silence = context.createBufferSource();
+      silence.buffer = context.createBuffer(1, 1, context.sampleRate);
+      silence.connect(context.destination);
+      silence.start(0);
+    } catch {
+      // An older Safari that dislikes a one-frame buffer: resume() above is the fallback.
+    }
+  }, []);
+
   /** One buffer of white noise, made once and sliced differently for every stroke. */
   const noiseRef = useRef<AudioBuffer | null>(null);
   const noiseFor = useCallback((context: AudioContext): AudioBuffer => {
@@ -153,7 +197,9 @@ export function useMetronome({
         return undefined;
       }
     }
-    // Browsers start the context suspended until a gesture; play() is that gesture.
+    // Normally already open, since the tap on Play opened it. This is the fallback for a run that
+    // started some other way — a seek, a restart — where a gesture may still be in hand.
+    claimPlaybackSession(typeof navigator === 'undefined' ? undefined : navigator);
     void context.resume().catch(() => {});
     audioOriginRef.current = null;
 
@@ -216,4 +262,6 @@ export function useMetronome({
     },
     []
   );
+
+  return { unlock };
 }

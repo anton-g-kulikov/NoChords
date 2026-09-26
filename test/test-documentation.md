@@ -447,6 +447,17 @@ the ones being asked for (ADR-062).
 | LB-02 | Waits for a signed-in account's store to answer | ✅ |
 | LB-03 | Shows the device library as soon as it is known there is no account | ✅ |
 
+### Audio session — `audio-session.test.ts`
+
+Intent: tell iOS the metronome is music rather than a sound effect, so the ring/silent switch does
+not silence it (ADR-066).
+
+| # | Case | Status |
+|---|------|--------|
+| AS-01 | **Audio is declared as playback where the browser has an audio session** | ✅ |
+| AS-02 | Nothing is said where there is nothing to say it to | ✅ |
+| AS-03 | A browser that exposes the property and refuses the value is survived | ✅ |
+
 ### Metronome voices — `metronome-voice.test.ts`
 
 Intent: the sounds the beat can make, as a table that can be read and checked without a sound card

@@ -1921,3 +1921,36 @@ machine.
 "pleasant" is not a thing a spectrum tells you. The table is named and separate so that "brighter",
 "longer" or "softer" is a one-number change rather than a redesign — and with three voices there are
 three times as many numbers set by a method that cannot hear their result.
+
+---
+
+## ADR-066 — The metronome opens its own audio clock, and calls itself music
+
+**Decision.** Two changes, both for iOS. The audio context is created and resumed inside the tap
+that asks for sound — the Play button, and the beat strip's sound switch — rather than in the effect
+that follows it. And `navigator.audioSession.type` is set to `playback` where the browser has one.
+
+**Reported symptom.** No metronome on an iPhone with the app installed to the home screen.
+
+**Why the gesture matters.** Safari starts an audio context only while the page has user activation,
+and a React effect runs *after* the handler that scheduled it has returned — by which time the
+gesture is over. The comment in the old code said "play() is that gesture", and it was wrong about
+when the code ran. Chrome treats one gesture as unlocking the page for the rest of its life, which
+is why this was fine on an Android for months and silent on the first iPhone. A frame of silence is
+pushed through the graph during the tap as well: iOS counts a context as open once something has
+actually played on it, and `resume()` alone does not always qualify.
+
+**Why the session category matters.** Safari plays Web Audio as *ambient* sound by default, and
+ambient is precisely what the ring/silent switch silences. A metronome someone pressed play on is
+not a notification chirp, so it declares itself `playback` and keeps sounding with the switch
+flipped, the way a music app does.
+
+**The cost of saying `playback`, plainly.** It is not a mixing category: declaring it can interrupt
+audio from another app. Someone practising against a backing track in another player may find this
+takes the output. The alternative, `ambient`, mixes politely and is muted by the silent switch —
+there is no category that does both, and for a metronome the switch matters more.
+
+**Untested where it matters.** Neither half of this can be verified from here: there is no iPhone in
+this loop, and no amount of unit testing distinguishes "the context opened" from "the phone was on
+silent". The session call is tested as a branch (AS-01..03); the gesture ordering is an argument
+from Safari's documented rule, not an observation.

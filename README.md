@@ -120,7 +120,9 @@ play is the length worth counting.
 **Sound** offers three voices: a shaker of filtered noise (the default, and the one that sits under
 a slow song), a woodblock, and a beep for a loud room. Each accents by playing the same sound harder
 rather than by changing pitch. They are synthesised rather than sampled, so there is nothing to
-download, and the strokes are scheduled onto the audio
+download. On an iPhone the beat keeps sounding with the ring/silent switch flipped, because the app
+declares its audio as playback rather than as a sound effect (ADR-066) — which does mean it can take
+the output from a backing track playing in another app. The strokes are scheduled onto the audio
 clock ahead of time rather than fired from the animation loop — measured beat-to-beat error is
 0.00ms, and a stuttering frame rate cannot make the click flam. Each one is fired early by the
 device's output latency so that it is *heard* on the beat rather than a tenth of a second after it

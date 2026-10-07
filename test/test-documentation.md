@@ -28,6 +28,7 @@ described at the end of this document.
 | Sign-in import decision | `src/lib/cloudImport.ts` | `cloud-import.test.ts` |
 | First-run example seeding | `src/lib/firstRun.ts` | `first-run.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
+| Light and dark | `src/lib/theme.ts` | `theme.test.ts` |
 | Service worker decisions | `src/lib/pwa.ts` | `pwa.test.ts` |
 | Install affordance | `src/lib/install.ts` | `install.test.ts` |
 | Screen wake lock | `src/lib/wakeLock.ts` | `wake-lock.test.ts` |
@@ -487,6 +488,20 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-10 | **With nothing set, the count-in follows the song's bars per line** | ✅ |
 | SET-11 | A count-in set outright wins, including none at all | ✅ |
 | SET-12 | A followed count-in stays inside the offered range | ✅ |
+| SET-14 | The chosen scheme is kept; anything else, or nothing, follows the device | ✅ |
+
+### Light and dark — `theme.test.ts`
+
+Intent: "system" has to mean the device decides, live — so it must put nothing on the page that
+would pin a scheme — and a fixed choice has to win over the device in both directions.
+
+| # | Case | Status |
+|---|------|--------|
+| TH-01 | "System" resolves to whatever the device asks for | ✅ |
+| TH-02 | A fixed choice wins over the device, both ways | ✅ |
+| TH-03 | "System" sets no attribute; a fixed choice sets its own | ✅ |
+| TH-04 | Only the three schemes are accepted as a preference | ✅ |
+| TH-05 | The pre-paint script's colours match the browser chrome's | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

@@ -5,6 +5,8 @@ import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { MAX_LEVEL, levelFor } from '../lib/learning';
 import type { Song } from '../types/song';
 import { tempoUnitSymbol } from '../lib/tempo';
+import type { ThemePreference } from '../lib/theme';
+import { ThemeSwitch } from './ThemeSwitch';
 
 interface SongListProps {
   songs: Song[];
@@ -19,6 +21,8 @@ interface SongListProps {
   onOpen: (songId: string) => void;
   onCreate: () => void;
   onOpenGuide: () => void;
+  theme: ThemePreference;
+  onThemeChange: (theme: ThemePreference) => void;
 }
 
 export function SongList({
@@ -30,6 +34,8 @@ export function SongList({
   onCreate,
   authAction,
   onOpenGuide,
+  theme,
+  onThemeChange,
 }: SongListProps) {
   const install = useInstallPrompt();
 
@@ -122,24 +128,29 @@ export function SongList({
         {/* After the songs, where wondering whether they are anywhere else belongs (ADR-064). */}
         {account}
 
-        {/* Which build this is. The service worker keys its cache on the same number, so this is
-          also how you tell whether an installed app has picked up a release yet (ADR-028). */}
-        <p className="library__version">
-        <button type="button" className="library__install" onClick={onOpenGuide}>
-          Bars, beats and meter
-        </button>
-          {' · '}v{__APP_VERSION__}
-          {install.affordance === 'prompt' && (
-          <>
-              {' · '}
-            <button type="button" className="library__install" onClick={install.install}>
-              Install app
+        <div className="library__colophon">
+          {/* Which build this is. The service worker keys its cache on the same number, so this is
+            also how you tell whether an installed app has picked up a release yet (ADR-028). */}
+          <p className="library__version">
+            <button type="button" className="library__install" onClick={onOpenGuide}>
+              Bars, beats and meter
             </button>
-          </>
-        )}
-          {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
-          {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
-        </p>
+            {' · '}v{__APP_VERSION__}
+            {install.affordance === 'prompt' && (
+              <>
+                {' · '}
+                <button type="button" className="library__install" onClick={install.install}>
+                  Install app
+                </button>
+              </>
+            )}
+            {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
+            {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
+          </p>
+
+          {/* With the other things that belong to this device rather than to a song (ADR-067). */}
+          <ThemeSwitch value={theme} onChange={onThemeChange} />
+        </div>
       </footer>
     </div>
   );

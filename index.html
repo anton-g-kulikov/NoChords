@@ -11,7 +11,25 @@
     />
     <title>NoChords</title>
     <meta name="description" content="Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo." />
-    <meta name="theme-color" content="#12141a" />
+    <!-- One per scheme, so the browser chrome matches the page under "system" with no script; a
+         fixed choice repaints both (ADR-067). Kept in step with THEME_COLOR in lib/theme.ts. -->
+    <meta name="theme-color" content="#f6f7fa" media="(prefers-color-scheme: light)" data-scheme="light" />
+    <meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" data-scheme="dark" />
+    <!-- Before anything paints: a chosen scheme goes on the root now, or the page would open in the
+         device's scheme and switch a moment later when React reads the setting (ADR-067). -->
+    <script>
+      try {
+        var theme = JSON.parse(localStorage.getItem('nochords.settings.v1') || '{}').theme;
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.dataset.theme = theme;
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (meta) {
+            meta.content = theme === 'dark' ? '#12141a' : '#f6f7fa';
+          });
+        }
+      } catch (error) {
+        // No storage, or nothing readable in it: the device's own scheme is a fine answer.
+      }
+    </script>
 
     <!-- Installable on Android and iOS (ADR-028). iOS reads none of the manifest's display or
          icon fields, so it needs its own tags alongside it. -->

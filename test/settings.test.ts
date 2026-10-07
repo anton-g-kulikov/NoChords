@@ -30,6 +30,19 @@ describe('countInBarsFor', () => {
     expect(load({ metronomeVoice: 'cowbell' })).toBe('shaker');
   });
 
+  it('SET-14 keeps the chosen scheme, and follows the device otherwise (ADR-067)', () => {
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load().theme;
+
+    expect(DEFAULT_SETTINGS.theme).toBe('system');
+    expect(load({ theme: 'light' })).toBe('light');
+    expect(load({ theme: 'dark' })).toBe('dark');
+    // Preferences written before there was a choice, and anything that is not a scheme.
+    expect(load({})).toBe('system');
+    expect(load({ theme: 'sepia' })).toBe('system');
+    expect(load({ theme: true })).toBe('system');
+  });
+
   it('SET-10 follows the song when nothing has been set (ADR-059)', () => {
     expect(DEFAULT_SETTINGS.countInBars).toBeNull();
     // A line's worth of bars is what you are about to play, so it is what the count says.
@@ -63,12 +76,14 @@ describe('createSettingsStore', () => {
       metronomeVoice: 'woodblock',
       metronomeVolume: 0.25,
       countInBars: 2,
+      theme: 'dark',
     });
     expect(createSettingsStore(backend).load()).toEqual({
       metronomeEnabled: true,
       metronomeVoice: 'woodblock',
       metronomeVolume: 0.25,
       countInBars: 2,
+      theme: 'dark',
     });
   });
 

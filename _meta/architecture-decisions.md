@@ -1954,3 +1954,35 @@ there is no category that does both, and for a metronome the switch matters more
 this loop, and no amount of unit testing distinguishes "the context opened" from "the phone was on
 silent". The session call is tested as a branch (AS-01..03); the gesture ordering is an argument
 from Safari's documented rule, not an observation.
+
+---
+
+## ADR-067 — Light and dark, and the device decides unless told otherwise
+
+**Decision.** A third device preference, `theme`: `system`, `light` or `dark`, defaulting to
+`system`. The stylesheet carries both schemes under one set of token names; `data-theme` on the root
+element overrides `prefers-color-scheme`, and its absence lets the device decide. A three-icon
+switch sits in the library's footer beside the version line.
+
+**Why "system" sets nothing.** If the app resolved the device's scheme in JavaScript and wrote it on
+the root, following a change at dusk would need a `matchMedia` listener, and getting it wrong would
+pin the page to whatever the device said at load. Leaving the attribute off means the media query
+answers, live, with no code at all. The two `theme-color` tags follow the same rule: one per scheme,
+each behind its own media query, both repainted only when a choice is fixed.
+
+**Why a script in `index.html`.** The setting lives in local storage and React reads it after the
+first paint. Someone who chose dark on a phone set to light would see the page flash white on every
+cold start. Eight lines before the stylesheet put the attribute on first; the hook only follows
+changes after that. The script repeats the two colours rather than importing them, and a test
+reads `index.html` to keep them in step (TH-05).
+
+**Why three icons rather than one that cycles.** A cycling button hides where it goes next, and
+"system" is the one state a sun or a moon cannot show on its own.
+
+**Why the footer.** It is a preference you set once per device, like signing in, and it sits with
+the other things that belong to the device rather than to a song. The player has no switch: a
+chart on a music stand follows the device, and the device already knows when the room went dark.
+
+**Cost.** The dark token block is written twice — once under the media query, once under the
+attribute — because a selector cannot be both. `light-dark()` would collapse them, and leaves any
+iPhone on iOS 17.4 or earlier with no colours at all.

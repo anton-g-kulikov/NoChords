@@ -7,6 +7,7 @@
  */
 import { defaultStorage, type StorageLike } from './storage';
 import { DEFAULT_VOICE, isVoiceName, type VoiceName } from './metronomeVoice';
+import { DEFAULT_THEME, isThemePreference, type ThemePreference } from './theme';
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
@@ -39,6 +40,8 @@ export interface Settings {
    * and so the length that tells you most (ADR-059).
    */
   countInBars: number | null;
+  /** Light, dark, or whatever the device says (ADR-067). */
+  theme: ThemePreference;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -46,6 +49,7 @@ export const DEFAULT_SETTINGS: Settings = {
   metronomeVoice: DEFAULT_VOICE,
   metronomeVolume: 0.5,
   countInBars: null,
+  theme: DEFAULT_THEME,
 };
 
 /** Bars to count in for a song, resolving "follow the song" against its line length. */
@@ -92,6 +96,7 @@ function sanitize(value: unknown): Settings {
   const countIn = stored === LEGACY_DEFAULT_BARS ? null : stored;
 
   return {
+    theme: isThemePreference(record.theme) ? record.theme : DEFAULT_THEME,
     metronomeVoice: isVoiceName(record.metronomeVoice) ? record.metronomeVoice : DEFAULT_VOICE,
     metronomeEnabled:
       typeof record.metronomeEnabled === 'boolean'

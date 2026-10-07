@@ -8,6 +8,48 @@
  */
 
 :root {
+  --radius: 10px;
+}
+
+/*
+ * Two schemes, one set of names (ADR-067). Light is the base; dark applies when the device asks for
+ * it and no choice says otherwise, or when it is chosen outright. The dark block is written twice
+ * because a media query and an attribute cannot share one selector — `light-dark()` would, but
+ * leaves an iPhone a year behind with no colours at all.
+ */
+:root {
+  --bg: #f6f7fa;
+  --surface: #ffffff;
+  --surface-raised: #eceff5;
+  --border: #d3d8e3;
+  --text: #151821;
+  --muted: #5b6375;
+  --accent: #2f6fe0;
+  --accent-contrast: #ffffff;
+  --danger: #cc3333;
+  --chord: #0a6aa3;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #12141a;
+    --surface: #1a1d26;
+    --surface-raised: #232733;
+    --border: #313747;
+    --text: #eef1f7;
+    --muted: #9aa3b8;
+    --accent: #5b9dff;
+    --accent-contrast: #08101f;
+    --danger: #ff6b6b;
+    --chord: #7fd1ff;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
   --bg: #12141a;
   --surface: #1a1d26;
   --surface-raised: #232733;
@@ -18,7 +60,6 @@
   --accent-contrast: #08101f;
   --danger: #ff6b6b;
   --chord: #7fd1ff;
-  --radius: 10px;
 
   color-scheme: dark;
 }
@@ -291,6 +332,51 @@ kbd {
   flex: none;
   padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--border);
+}
+
+/* The version line and the appearance switch, side by side under the account line (ADR-067). */
+.library__colophon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.library__colophon .library__version {
+  margin: 0;
+}
+
+/* Small and quiet: a preference you set once, at the foot of the screen (ADR-067). */
+.theme-switch {
+  flex: none;
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.theme-switch__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.theme-switch__option:hover {
+  color: var(--text);
+}
+
+.theme-switch__option--on {
+  background: var(--surface-raised);
+  color: var(--text);
 }
 
 /* The account line, after the songs (ADR-064). Quiet: an offer, not an announcement. */

@@ -2045,3 +2045,24 @@ scripts are fetched by `unicode-range` the first time a song needs them and cach
   stronger and it would read as dirt.
 - The app icon was recoloured to match, but the landing page in `site/` still carries the old
   palette.
+
+---
+
+## ADR-069 — A button that is on wears what the current line wears
+
+**Decision.** Supersedes one rule of ADR-068. Selected and primary controls — the chord-mode
+buttons, the open panel toggles, editing, Play, New song — are no longer filled with solid ink.
+They take the current line's treatment instead: a wash of the second ink behind them, and their
+edge and label in that ink. Everything else in ADR-068 stands.
+
+**Why.** On a device, solid ink did not read as "on". A black block on paper, and a near-white
+block on the dark scheme, were the highest-contrast things on the screen: they read as holes in the
+page and outweighed the chart they sat above. A solid fill of the accent was tried next and was
+still the brightest thing there. The wash is already the app's mark for "this one, now" — it is
+how the line being played is shown — so a button that is on now says it in the same voice, and the
+chart stays the loudest thing on the screen.
+
+**Cost.** Play is no longer the heaviest thing in the transport by weight; it is told apart by its
+word, its size and its colour instead. And the second ink is no longer only for the music: an
+active button and a chord now share it, though one is an outlined box at the edge and the other is
+type inside the chart.

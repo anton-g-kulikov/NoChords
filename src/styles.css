@@ -44,6 +44,8 @@
   --accent: #b4441f;
   --accent-contrast: #fbf6ee;
   --accent-wash: rgba(180, 68, 31, 0.07);
+  --accent-wash-strong: rgba(180, 68, 31, 0.12);
+  --accent-line: rgba(180, 68, 31, 0.45);
   --chord: #a83f1c;
   --danger: #a3202f;
   --grain-opacity: 0.05;
@@ -65,6 +67,8 @@
     --accent: #e9a15c;
     --accent-contrast: #1a1108;
     --accent-wash: rgba(233, 161, 92, 0.08);
+    --accent-wash-strong: rgba(233, 161, 92, 0.14);
+    --accent-line: rgba(233, 161, 92, 0.45);
     --chord: #efaa62;
     --danger: #ef7d6d;
     --grain-opacity: 0.035;
@@ -86,6 +90,8 @@
   --accent: #e9a15c;
   --accent-contrast: #1a1108;
   --accent-wash: rgba(233, 161, 92, 0.08);
+  --accent-wash-strong: rgba(233, 161, 92, 0.14);
+  --accent-line: rgba(233, 161, 92, 0.45);
   --chord: #efaa62;
   --danger: #ef7d6d;
   --grain-opacity: 0.035;
@@ -219,8 +225,9 @@ h1 {
 /* ---------- Controls ---------- */
 
 /*
- * Controls are drawn in ink, not in the second colour (ADR-068): the colour is kept for the music,
- * so a button that asks to be pressed does it by weight — solid ink — rather than by hue.
+ * Controls are outlined in ink. One that is on wears what the current line wears — a wash of the
+ * second ink — with its edge and its label in that ink (ADR-069). A solid fill, in ink or in the
+ * accent, was the brightest thing on the screen and outweighed the chart it sat above.
  */
 .button {
   display: inline-flex;
@@ -251,15 +258,14 @@ h1 {
 }
 
 .button--primary {
-  background: var(--text);
-  border-color: var(--text);
-  color: var(--bg);
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent);
   font-weight: 600;
 }
 
 .button--primary:hover {
-  background: var(--text);
-  opacity: 0.88;
+  background: var(--accent-wash-strong);
 }
 
 .icon-button {
@@ -318,11 +324,11 @@ h1 {
   border-left: none;
 }
 
-/* Reversed out of ink, the way a pressed key on a printed panel would be. */
+/* Washed in the second ink, like the current line: the one that is on (ADR-069). */
 .segment--active {
-  background: var(--text);
-  border-color: var(--text);
-  color: var(--bg);
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent);
 }
 
 .field {
@@ -883,13 +889,13 @@ kbd {
 
 /* Filled and reversed, so an open panel is unmistakable next to a merely live one. */
 .settings-bar__toggle--open {
-  background: var(--text);
-  border-color: var(--text);
-  color: var(--bg);
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent);
 }
 
 .settings-bar__toggle--open:hover {
-  background: var(--text);
+  background: var(--accent-wash-strong);
 }
 
 /*
@@ -1745,8 +1751,8 @@ kbd {
 }
 
 .stepper__button:hover {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--accent-wash-strong);
+  color: var(--accent);
 }
 
 .stepper__value {
@@ -1806,13 +1812,13 @@ kbd {
 
 /* Editing is a state you are in, so the button shows it rather than a tab showing which of two. */
 .pane-toggle--editing {
-  background: var(--text);
-  border-color: var(--text);
-  color: var(--bg);
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent);
 }
 
 .pane-toggle--editing:hover {
-  background: var(--text);
+  background: var(--accent-wash-strong);
 }
 
 /*

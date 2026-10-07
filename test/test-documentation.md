@@ -29,6 +29,7 @@ described at the end of this document.
 | First-run example seeding | `src/lib/firstRun.ts` | `first-run.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Light and dark | `src/lib/theme.ts` | `theme.test.ts` |
+| Chord typesetting | `src/lib/chordType.ts` | `chord-type.test.ts` |
 | Service worker decisions | `src/lib/pwa.ts` | `pwa.test.ts` |
 | Install affordance | `src/lib/install.ts` | `install.test.ts` |
 | Screen wake lock | `src/lib/wakeLock.ts` | `wake-lock.test.ts` |
@@ -502,6 +503,21 @@ would pin a scheme — and a fixed choice has to win over the device in both dir
 | TH-03 | "System" sets no attribute; a fixed choice sets its own | ✅ |
 | TH-04 | Only the three schemes are accepted as a preference | ✅ |
 | TH-05 | The pre-paint script's colours match the browser chrome's | ✅ |
+
+### Chord typesetting — `chord-type.test.ts`
+
+Intent: the chart sets a chord's root apart from its quality and writes real sharps and flats. The
+split must never change what a chord says — only where the cuts fall — and anything it cannot read
+must come through whole.
+
+| # | Case | Status |
+|---|------|--------|
+| CT-01 | The root is set apart from the quality | ✅ |
+| CT-02 | Accidentals on the root and the bass become ♯ and ♭ | ✅ |
+| CT-03 | An altered extension is signed; the letters of `sus` and `add` are not | ✅ |
+| CT-04 | Numerals split the same way, prefix included, and are marked as numerals | ✅ |
+| CT-05 | Anything unrecognised comes back whole | ✅ |
+| CT-06 | A key written as one string gets its signs | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

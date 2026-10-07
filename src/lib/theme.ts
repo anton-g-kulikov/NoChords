@@ -41,6 +41,6 @@ export function themeAttribute(preference: ThemePreference): Theme | null {
  * page read as one surface. Kept in step with `--bg` in `styles.css` and the tags in `index.html`.
  */
 export const THEME_COLOR: Record<Theme, string> = {
-  light: '#f6f7fa',
-  dark: '#12141a',
+  light: '#f4efe6',
+  dark: '#15120e',
 };

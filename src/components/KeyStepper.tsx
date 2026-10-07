@@ -1,4 +1,5 @@
 import { semitonesBetween, transposeKey } from '../lib/keys';
+import { withSigns } from '../lib/chordType';
 
 interface KeyStepperProps {
   value: string;
@@ -31,7 +32,7 @@ export function KeyStepper({ value, originalKey, onChange }: KeyStepperProps) {
           −
         </button>
         <span className="stepper__value" aria-live="polite">
-          {value}
+          {withSigns(value)}
         </span>
         <button
           type="button"

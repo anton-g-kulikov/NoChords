@@ -13,8 +13,8 @@
     <meta name="description" content="Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo." />
     <!-- One per scheme, so the browser chrome matches the page under "system" with no script; a
          fixed choice repaints both (ADR-067). Kept in step with THEME_COLOR in lib/theme.ts. -->
-    <meta name="theme-color" content="#f6f7fa" media="(prefers-color-scheme: light)" data-scheme="light" />
-    <meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" data-scheme="dark" />
+    <meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)" data-scheme="light" />
+    <meta name="theme-color" content="#15120e" media="(prefers-color-scheme: dark)" data-scheme="dark" />
     <!-- Before anything paints: a chosen scheme goes on the root now, or the page would open in the
          device's scheme and switch a moment later when React reads the setting (ADR-067). -->
     <script>
@@ -23,7 +23,7 @@
         if (theme === 'light' || theme === 'dark') {
           document.documentElement.dataset.theme = theme;
           document.querySelectorAll('meta[name="theme-color"]').forEach(function (meta) {
-            meta.content = theme === 'dark' ? '#12141a' : '#f6f7fa';
+            meta.content = theme === 'dark' ? '#15120e' : '#f4efe6';
           });
         }
       } catch (error) {
@@ -41,7 +41,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2312141a'/%3E%3Ctext x='16' y='23' font-size='20' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%237fd1ff'%3E%E2%99%AA%3C/text%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d1a16'/%3E%3Ctext x='16' y='23' font-size='20' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%23e9a15c'%3E%E2%99%AA%3C/text%3E%3C/svg%3E"
     />
   </head>
   <body>

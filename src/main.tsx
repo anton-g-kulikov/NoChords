@@ -1,6 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+/* Bundled, not fetched from a font service: the app has to look like itself offline (ADR-068).
+   Each file is split by script and fetched only when a page uses it, so Cyrillic lyrics cost
+   nothing to someone singing in English. */
+import '@fontsource-variable/literata/opsz.css';
+import '@fontsource-variable/literata/opsz-italic.css';
+import '@fontsource-variable/instrument-sans/wdth.css';
 import './styles.css';
 
 const container = document.getElementById('root');

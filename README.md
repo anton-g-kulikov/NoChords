@@ -163,6 +163,12 @@ The **first chord of every line stays visible** at levels 1 and 2, so you keep y
 while the detail goes. That means the share actually hidden can fall short of the nominal
 level — the bar reports what is really concealed, not the stage number.
 
+## Light and dark
+
+The app follows the device's light or dark setting. To fix one regardless, use the three icons at
+the foot of the library — match the device, light, or dark. The choice is per device, like the
+metronome's volume.
+
 ## Installing it
 
 NoChords is installable. On Android the library screen offers **Install app** — browsers stopped
@@ -195,7 +201,8 @@ magick -background none icon.svg -resize 512x512 icon-512.png
 
 ## How it is built
 
-React + TypeScript + Vite, plus Firebase for sync and Lucide for icons. All the real logic is in
+React + TypeScript + Vite, plus Firebase for sync, Lucide for icons, and two bundled typefaces from
+Fontsource — Literata for the song and Instrument Sans for the controls (ADR-068). All the real logic is in
 pure modules
 under `src/lib/`, with React kept to rendering and event wiring:
 
@@ -331,3 +338,6 @@ or positioning, tabs, chord diagrams, ear training, accounts, and cloud sync.
 The example songs are traditional public-domain texts (Scarborough Fair, I Am a Young Maiden /
 If I Was a Blackbird, House of the Rising Sun). Their chord placements and timings are original
 test arrangements written as development fixtures, not transcriptions of any recorded arrangement.
+
+Literata (The Literata Project Authors) and Instrument Sans (The Instrument Sans Project Authors)
+are used under the SIL Open Font License 1.1.

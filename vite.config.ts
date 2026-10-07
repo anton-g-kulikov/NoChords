@@ -30,7 +30,15 @@ function serviceWorker(): Plugin {
       const emitted = Object.entries(bundle)
         .filter(([, output]) => (output.type === 'chunk' ? output.isEntry : true))
         .map(([name]) => name)
-        .filter((name) => name.endsWith('.js') || name.endsWith('.css'))
+        // The Latin cut of each face too, or the first offline start draws the chart in a fallback
+        // font (ADR-068). Other scripts are left to cache themselves the first time a song needs
+        // them: precaching Cyrillic, Greek and Vietnamese for everybody is most of a megabyte.
+        .filter(
+          (name) =>
+            name.endsWith('.js') ||
+            name.endsWith('.css') ||
+            (name.endsWith('.woff2') && /-latin-(?!ext)/.test(name))
+        )
         .map((name) => `/${name}`);
       // `/` and `/index.html` are the same document to the app and different keys to the cache.
       const precache = ['/', '/index.html', ...emitted, ...PUBLIC_PRECACHE];

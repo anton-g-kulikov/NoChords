@@ -1986,3 +1986,62 @@ chart on a music stand follows the device, and the device already knows when the
 **Cost.** The dark token block is written twice — once under the media query, once under the
 attribute — because a selector cannot be both. `light-dark()` would collapse them, and leaves any
 iPhone on iOS 17.4 or earlier with no colours at all.
+
+---
+
+## ADR-068 — Ink, paper, and one second ink
+
+**Decision.** The app is designed as a printed songbook rather than as a generic dark web app:
+
+- **Two colours, the way a songbook is printed.** Ink for everything, and one second ink —
+  vermilion on warm paper in light, tungsten amber on warm charcoal in dark — used *only* for the
+  music: chords, the key, the beat, the line being played. Controls are drawn in ink, and the
+  button that matters most is solid ink rather than coloured.
+- **Two typefaces.** Literata, a reading serif, for everything that belongs to the song — titles,
+  lyrics, numerals, the key. Instrument Sans for everything that operates it, and for chords, set
+  slightly narrow and heavy as a lead sheet sets them. Both are bundled through Fontsource.
+- **Chords typeset, not just printed.** The root at full size, the quality and bass smaller beside
+  it, and real ♯ and ♭ (`chordParts`, CT-01..06). Numerals are set in the serif.
+- **Ruled, not boxed.** The library is a contents page — title, a line of detail, and the key where
+  the page number would be — with hairlines between entries instead of a card per song.
+- **Texture, faintly.** A few percent of grain over the whole page, and warm neutrals throughout:
+  no pure black, white or blue-grey anywhere.
+
+**Why one second colour, and only for the music.** On a music stand the eye has one job: find the
+harmony. When the accent also marked buttons, toggles and links, a busy setup panel competed with
+the chart for it. Restricting the colour to the music makes the chart the only coloured thing on
+most screens, and makes Play — solid ink — the heaviest thing in the transport by weight rather
+than by hue. The dark scheme is warm rather than blue-black because a blue-black screen on a stand
+reads as a laptop, and an amber chord is easier on dark-adapted eyes than a cyan one.
+
+**Why a serif for the words.** Lyrics are read in lines, at a distance, mid-song: that is the
+problem a book face was drawn for. Literata was designed for long-form reading on screens, has
+optical sizes (the large chart gets the tighter display cut automatically), and covers Cyrillic
+and Greek — songs are not all in English, and a lyric falling back to another font mid-line would
+look broken. Instrument Sans does not cover Cyrillic, which is why it is kept to the interface,
+whose words are the app's own.
+
+**Why chords are no longer monospaced.** Each chord is placed by the lyric under it (ADR-007), never
+by column, so a fixed pitch bought nothing and cost width: a narrow proportional face lets the chord
+line run a step larger on a phone. The editor's text area stays monospaced, because there the
+brackets *are* aligned by column.
+
+**Why roman numerals are in the serif.** In a sans, `III` is three vertical strokes — the same
+shape as a bar line or a pipe. Serifs give each `I` its feet.
+
+**Why bundled fonts.** A font service is a network request, and the app has to look like itself on
+a stage with no signal (ADR-028). The Latin cut of each face is precached with the shell; other
+scripts are fetched by `unicode-range` the first time a song needs them and cached then.
+
+**Cost.**
+- About 280 kB of fonts in the precache, on top of a shell of about 70 kB gzipped. Paid once per
+  release, and not on every visit.
+- ♯ and ♭ are not in either face, so they come from the system's symbol font. They look right on
+  Apple devices and in Noto; on an unusual system they could look heavier than the letters.
+- Chord widths changed, so a chart may fit at a slightly different scale than before (ADR-054) —
+  the fit measures rendered text, so it adjusts itself, but a song that only just fitted may not.
+- The grain is an overlay on top of the content, which keeps the pinned bars from showing as flat
+  bands but also grains the text by a few percent. At this strength it reads as paper; much
+  stronger and it would read as dirt.
+- The app icon was recoloured to match, but the landing page in `site/` still carries the old
+  palette.

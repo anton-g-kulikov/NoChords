@@ -8,7 +8,17 @@
  */
 
 :root {
-  --radius: 10px;
+  --radius: 8px;
+
+  /*
+   * Two faces (ADR-068). A reading serif for everything that belongs to the song — its title, its
+   * words — and a quiet sans for everything that operates it. Both are bundled rather than fetched
+   * from a font service, because the app has to look like itself on a stage with no signal.
+   */
+  --font-text: 'Literata Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-ui: 'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
 }
 
 /*
@@ -16,50 +26,70 @@
  * it and no choice says otherwise, or when it is chosen outright. The dark block is written twice
  * because a media query and an attribute cannot share one selector — `light-dark()` would, but
  * leaves an iPhone a year behind with no colours at all.
+ *
+ * Ink on paper, and one second ink (ADR-068): the way a songbook is printed. The second ink marks
+ * the music — chords, the beat, the line you are on — and nothing else, so on a busy screen the eye
+ * goes to the harmony first. Light is warm paper and vermilion; dark is a stage at night, warm
+ * charcoal and a tungsten amber, because a blue-black screen on a music stand reads as a laptop.
  */
 :root {
-  --bg: #f6f7fa;
-  --surface: #ffffff;
-  --surface-raised: #eceff5;
-  --border: #d3d8e3;
-  --text: #151821;
-  --muted: #5b6375;
-  --accent: #2f6fe0;
-  --accent-contrast: #ffffff;
-  --danger: #cc3333;
-  --chord: #0a6aa3;
+  --bg: #f4efe6;
+  --surface: #faf7f1;
+  --surface-raised: #ebe4d8;
+  --border: #e0d7c8;
+  --border-strong: #cbbfab;
+  --text: #1d1a16;
+  --muted: #6e655a;
+  --faint: #a1978a;
+  --accent: #b4441f;
+  --accent-contrast: #fbf6ee;
+  --accent-wash: rgba(180, 68, 31, 0.07);
+  --chord: #a83f1c;
+  --danger: #a3202f;
+  --grain-opacity: 0.05;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 1px 2px rgba(60, 40, 20, 0.08);
 
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #12141a;
-    --surface: #1a1d26;
-    --surface-raised: #232733;
-    --border: #313747;
-    --text: #eef1f7;
-    --muted: #9aa3b8;
-    --accent: #5b9dff;
-    --accent-contrast: #08101f;
-    --danger: #ff6b6b;
-    --chord: #7fd1ff;
+    --bg: #15120e;
+    --surface: #1c1814;
+    --surface-raised: #27221c;
+    --border: #2f2922;
+    --border-strong: #463e34;
+    --text: #ece5d8;
+    --muted: #a39887;
+    --faint: #6f6558;
+    --accent: #e9a15c;
+    --accent-contrast: #1a1108;
+    --accent-wash: rgba(233, 161, 92, 0.08);
+    --chord: #efaa62;
+    --danger: #ef7d6d;
+    --grain-opacity: 0.035;
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
 
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg: #12141a;
-  --surface: #1a1d26;
-  --surface-raised: #232733;
-  --border: #313747;
-  --text: #eef1f7;
-  --muted: #9aa3b8;
-  --accent: #5b9dff;
-  --accent-contrast: #08101f;
-  --danger: #ff6b6b;
-  --chord: #7fd1ff;
+  --bg: #15120e;
+  --surface: #1c1814;
+  --surface-raised: #27221c;
+  --border: #2f2922;
+  --border-strong: #463e34;
+  --text: #ece5d8;
+  --muted: #a39887;
+  --faint: #6f6558;
+  --accent: #e9a15c;
+  --accent-contrast: #1a1108;
+  --accent-wash: rgba(233, 161, 92, 0.08);
+  --chord: #efaa62;
+  --danger: #ef7d6d;
+  --grain-opacity: 0.035;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
 
   color-scheme: dark;
 }
@@ -87,9 +117,47 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+ * The paper's grain (ADR-068). A few percent of noise over everything, so a large flat field of
+ * colour reads as a surface rather than as a screen. Over the content rather than under it, because
+ * the pinned bars paint their own background and would show as flat bands across a grained page.
+ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--accent-wash);
+  color: inherit;
+}
+
+/* Lighter strokes than the icon set's default, to sit with type rather than shout over it. */
+svg.lucide {
+  stroke-width: 1.75px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /*
@@ -129,6 +197,8 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 0 20px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
 }
 
 .screen__head {
@@ -136,34 +206,60 @@ body {
   padding: 24px 20px 0;
 }
 
+/* Titles belong to the song, so they are set in the song's face. */
 h1 {
-  font-size: 1.6rem;
   margin: 0;
+  font-family: var(--font-text);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
 }
 
 /* ---------- Controls ---------- */
 
+/*
+ * Controls are drawn in ink, not in the second colour (ADR-068): the colour is kept for the music,
+ * so a button that asks to be pressed does it by weight — solid ink — rather than by hue.
+ */
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
   padding: 10px 18px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  background: var(--surface-raised);
+  background: var(--surface);
   color: var(--text);
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 550;
+  letter-spacing: 0.005em;
   cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
 }
 
 .button:hover {
-  border-color: var(--accent);
+  background: var(--surface-raised);
+}
+
+.button:active {
+  transform: translateY(0.5px);
 }
 
 .button--primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-contrast);
-  font-weight: 650;
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.button--primary:hover {
+  background: var(--text);
+  opacity: 0.88;
 }
 
 .icon-button {
@@ -179,7 +275,7 @@ h1 {
 
 .icon-button:hover:not(:disabled) {
   color: var(--text);
-  border-color: var(--accent);
+  border-color: var(--border-strong);
 }
 
 .icon-button:disabled {
@@ -195,11 +291,19 @@ h1 {
 .segment {
   min-height: 44px;
   padding: 10px 16px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   background: var(--surface);
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 550;
   cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.segment:hover:not(.segment--active) {
+  color: var(--text);
 }
 
 .segment:first-child {
@@ -214,10 +318,11 @@ h1 {
   border-left: none;
 }
 
+/* Reversed out of ink, the way a pressed key on a printed panel would be. */
 .segment--active {
-  background: var(--surface-raised);
-  color: var(--text);
-  box-shadow: inset 0 -3px 0 var(--accent);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
 }
 
 .field {
@@ -236,23 +341,31 @@ h1 {
   flex: 0 0 130px;
 }
 
+/* Small capitals, spaced: a label is read once and then only found again. */
 .field__label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
 }
 
 .field__input,
 .field__range {
   min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
   font-size: 1rem;
   font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.field__input:focus {
+  outline: none;
+  border-color: var(--text);
 }
 
 .field__range {
@@ -261,8 +374,8 @@ h1 {
 }
 
 code {
-  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
-  font-size: 0.9em;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
   color: var(--chord);
 }
 
@@ -293,6 +406,11 @@ kbd {
   flex: none;
 }
 
+/* A page's width, not a window's: past this the eye loses the line from a title to its key. */
+.library {
+  max-width: 760px;
+}
+
 /* Full width, because it is the one thing this screen is for. */
 .library__create {
   flex: none;
@@ -313,24 +431,38 @@ kbd {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 1.6rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  gap: 12px;
+  font-size: 1.75rem;
 }
 
 .library__mark {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 9px;
   /* The mark carries its own dark tile; on this background it needs the corner, not a border. */
   display: block;
+  box-shadow: var(--shadow);
+}
+
+/* The name, set rather than drawn (ADR-068). */
+.wordmark {
+  font-family: var(--font-text);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.wordmark em {
+  font-weight: 500;
+  color: var(--accent);
+  /* An italic leans into the next letter; a hair of room keeps the "o" off the "C". */
+  padding-right: 0.04em;
 }
 
 /* Holds the bottom of the screen, however short the list (ADR-064). */
 .library__foot {
   flex: none;
-  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--border);
 }
 
@@ -383,7 +515,7 @@ kbd {
 .account {
   margin: 0;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-align: center;
 }
 
@@ -403,49 +535,110 @@ kbd {
 .library__empty {
   color: var(--muted);
   padding: 32px 0;
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
 
+/* A running head over the contents: what this is, and how many. */
+.library__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 4px 0 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--text);
+  color: var(--text);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.library__count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ruled like a contents page, rather than boxed like a set of cards (ADR-068). */
 .library__list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 /* The row is the card (ADR-063): nothing beside it, so a long title has the whole width. */
 .library__item {
   display: flex;
+  border-bottom: 1px solid var(--border);
 }
 
 .library__open {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px 18px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  align-items: center;
+  gap: 16px;
+  /* Reaches into the gutter, so the hover wash has room around the type without moving it. */
+  margin: 0 -10px;
+  padding: 16px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
   color: inherit;
   text-align: left;
   cursor: pointer;
+  transition: background-color 120ms ease;
 }
 
 .library__open:hover {
-  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.library__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .library__title {
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-family: var(--font-text);
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .library__meta {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Where a page number would be: the key, in the second ink, because it is about the music. */
+.library__key {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: var(--chord);
+  font-family: var(--font-text);
+  font-size: 1.25rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.library__key-from {
+  color: var(--faint);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-style: normal;
+  letter-spacing: 0.02em;
 }
 
 /* ---------- Song view ---------- */
@@ -468,14 +661,21 @@ kbd {
   flex: 1;
   text-align: center;
   color: var(--muted);
-  font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
+  font-size: 1.05rem;
+}
+
+/* Small and quiet here: a running head, not the name on the cover. */
+.song-view__app .wordmark {
+  font-weight: 500;
+}
+
+.song-view__app .wordmark em {
+  color: inherit;
 }
 
 .song-view__title {
   flex: 1;
-  font-size: 1.3rem;
+  font-size: 1.55rem;
   min-width: 160px;
 }
 
@@ -487,7 +687,11 @@ kbd {
   padding: 4px 8px;
   margin: -4px -8px;
   font: inherit;
-  font-weight: 700;
+  font-family: var(--font-text);
+  /* `font` above resets the size; the title is the same size being edited as being read. */
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: inherit;
   background: none;
   border: 1px solid transparent;
@@ -501,7 +705,7 @@ kbd {
 .song-view__title--input:focus {
   outline: none;
   background: var(--surface);
-  border-color: var(--accent);
+  border-color: var(--text);
 }
 
 .song-view__title--input::placeholder {
@@ -521,7 +725,7 @@ kbd {
 .editor__note {
   margin: 0 0 16px;
   padding: 10px 14px;
-  border-left: 3px solid var(--accent);
+  border-left: 2px solid var(--accent);
   background: var(--surface);
   color: var(--muted);
   font-size: 0.9rem;
@@ -538,9 +742,10 @@ kbd {
 .editor__head {
   padding: 0 2px 8px;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
 }
 
 .editor__rows {
@@ -565,8 +770,8 @@ kbd {
 }
 
 .editor__input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
+  outline: none;
+  border-color: var(--text);
 }
 
 /*
@@ -580,12 +785,12 @@ kbd {
   width: 100%;
   min-height: 12rem;
   padding: 14px 16px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
-  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
-  font-size: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   line-height: 1.9;
   resize: none;
   white-space: pre;
@@ -595,8 +800,8 @@ kbd {
 }
 
 .editor__text:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
+  outline: none;
+  border-color: var(--text);
 }
 
 .editor__row-actions {
@@ -678,9 +883,13 @@ kbd {
 
 /* Filled and reversed, so an open panel is unmistakable next to a merely live one. */
 .settings-bar__toggle--open {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+.settings-bar__toggle--open:hover {
+  background: var(--text);
 }
 
 /*
@@ -696,6 +905,11 @@ kbd {
   padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
   background: var(--bg);
   border-top: 1px solid var(--border);
+}
+
+.controls__play {
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
 }
 
 .controls > * {
@@ -796,7 +1010,8 @@ kbd {
   text-align: center;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
   /* The first thing to give up room when the bar is narrow, and the least missed. */
   min-width: 0;
   overflow: hidden;
@@ -810,7 +1025,7 @@ kbd {
   gap: 16px;
   flex-wrap: wrap;
   padding: 14px 16px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -826,9 +1041,10 @@ kbd {
 
 .learning-bar__label {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
 }
 
 .learning-bar__steps {
@@ -846,6 +1062,12 @@ kbd {
   min-width: 200px;
 }
 
+.learning-bar__text strong {
+  font-family: var(--font-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 .learning-bar__text span {
   color: var(--muted);
   font-size: 0.9rem;
@@ -853,7 +1075,7 @@ kbd {
 
 .learning-bar__meter {
   flex: 1 1 160px;
-  height: 10px;
+  height: 4px;
   border-radius: 999px;
   background: var(--surface-raised);
   overflow: hidden;
@@ -885,14 +1107,18 @@ kbd {
   position: relative;
   padding: 10px 8px;
   /* Carried by every row, transparent until active, so nothing shifts as the song moves. */
-  border-bottom: 4px solid transparent;
-  border-radius: 6px;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px 4px 0 0;
   cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
 }
 
+/* A wash of the second ink and a rule under it: the line you are on, as a pencil would mark it. */
 .sheet__row--active {
   border-bottom-color: var(--accent);
-  background: var(--surface);
+  background: var(--accent-wash);
 }
 
 /*
@@ -900,7 +1126,7 @@ kbd {
  * come off is the most ordinary thing to do while playing.
  */
 .sheet__row--played {
-  opacity: 0.5;
+  opacity: 0.42;
   transition: opacity 300ms ease;
 }
 
@@ -924,16 +1150,47 @@ kbd {
   justify-content: flex-end;
 }
 
+/*
+ * Chords in the second ink, a little narrow and heavy, the way a lead sheet sets them (ADR-068):
+ * narrow so a chord over a short word does not push the next one along, heavy so it reads from the
+ * stand. Proportional, not monospaced — each chord is placed by its lyric, never by column.
+ */
 .seg__chord {
-  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+  font-family: var(--font-ui);
+  font-stretch: 88%;
   /* Scaled together with the lyric so the chart shrinks as one thing (ADR-054). */
   font-size: calc(1.4rem * var(--sheet-scale, 1));
-  font-weight: 700;
+  font-weight: 650;
+  letter-spacing: 0.01em;
   line-height: 1.35;
   color: var(--chord);
   white-space: pre;
   padding-right: 0.6em;
   min-height: 1.35em;
+  transition:
+    filter 250ms ease,
+    opacity 250ms ease;
+}
+
+/* The quality smaller than the root, and the bass smaller again (ADR-068). */
+.chord__quality {
+  font-size: 0.74em;
+  font-weight: 600;
+  margin-left: 0.04em;
+}
+
+.chord__bass {
+  font-size: 0.74em;
+  font-weight: 550;
+  opacity: 0.8;
+}
+
+/* Numerals in the serif, where an I has feet and `III` cannot be read as three bars (ADR-068). */
+.chord--numeral {
+  font-family: var(--font-text);
+  font-stretch: normal;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .seg__chord--concealed {
@@ -970,6 +1227,7 @@ kbd {
 }
 
 .seg__lyric {
+  font-family: var(--font-text);
   font-size: calc(1.6rem * var(--sheet-scale, 1));
   line-height: 1.35;
   white-space: pre;
@@ -1022,8 +1280,9 @@ kbd {
     font-size: calc(1.25rem * var(--sheet-scale, 1));
   }
 
+  /* A narrower face than the monospace it replaced, so it can afford a step more size (ADR-068). */
   .seg__chord {
-    font-size: calc(1.1rem * var(--sheet-scale, 1));
+    font-size: calc(1.2rem * var(--sheet-scale, 1));
   }
 }
 
@@ -1071,13 +1330,16 @@ kbd {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px;
+  padding: 6px 6px 6px 12px;
   border: 1px solid var(--border);
   /* The same marker the playing line carries, in its slot from the start so nothing shifts. */
-  border-bottom: 4px solid transparent;
-  border-radius: var(--radius);
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius) var(--radius) 2px 2px;
+  background: var(--surface);
   color: var(--muted);
-  transition: border-color 150ms ease;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
 
 /*
@@ -1086,6 +1348,7 @@ kbd {
  */
 .beat-strip--marked {
   border-bottom-color: var(--accent);
+  background: var(--accent-wash);
 }
 
 /* Brighter for the two seconds it is actually counting. */
@@ -1102,21 +1365,25 @@ kbd {
 }
 
 .beat-strip__beat {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--border);
-  transition: background-color 80ms linear;
+  background: var(--border-strong);
+  transition:
+    background-color 80ms linear,
+    transform 80ms ease-out;
 }
 
 /* The pulse of the bar: bigger, not merely brighter, so it reads before it lights. */
 .beat-strip__beat--accent {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
 }
 
+/* Lit, and swelling a little as it lands, like a struck note. */
 .beat-strip__beat--sounded {
   background: var(--accent);
+  transform: scale(1.25);
 }
 
 /* The sound switch, on the thing it governs (ADR-059). */
@@ -1127,9 +1394,9 @@ kbd {
   width: 32px;
   height: 32px;
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--bg);
   color: var(--muted);
   cursor: pointer;
   appearance: none;
@@ -1144,7 +1411,8 @@ kbd {
 .beat-strip__meter,
 .beat-strip__bars {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   flex: 0 0 auto;
@@ -1223,9 +1491,11 @@ kbd {
   gap: 16px;
   padding: 16px 18px;
   margin-bottom: 20px;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border-strong);
+  border-left: 2px solid var(--accent);
   border-radius: var(--radius);
   background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .import-prompt p {
@@ -1253,15 +1523,21 @@ kbd {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--accent);
+  color: var(--text);
   font: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.library__install:hover {
+  text-decoration-color: currentColor;
 }
 
 .import-prompt__error {
   margin: 0;
-  color: var(--accent);
+  color: var(--danger);
 }
 
 /*
@@ -1271,10 +1547,12 @@ kbd {
  * borrows the app's own type so a term looks the same here as it does in the editor.
  */
 .guide {
-  max-width: 46rem;
+  max-width: 42rem;
   margin: 0 auto;
-  padding: 1.5rem 1rem 4rem;
-  line-height: 1.6;
+  padding: 1.5rem 1.25rem 4rem;
+  font-family: var(--font-text);
+  font-size: 1.04rem;
+  line-height: 1.65;
 }
 
 .guide__head {
@@ -1286,7 +1564,7 @@ kbd {
 
 .guide__head h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
 }
 
 .guide__section {
@@ -1295,8 +1573,14 @@ kbd {
 
 .guide__section h2 {
   margin: 0 0 0.5rem;
-  font-size: 1rem;
-  color: var(--accent);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
 }
 
 .guide__section p {
@@ -1305,7 +1589,8 @@ kbd {
 
 .guide__aside {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  font-style: italic;
 }
 
 .guide__table {
@@ -1324,10 +1609,11 @@ kbd {
 
 .guide__table th {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
 }
 
 .guide__terms {
@@ -1361,10 +1647,10 @@ kbd {
 
 .setup__legend {
   margin: 0 0 0.35rem;
-  color: var(--muted);
+  color: var(--text);
   font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 650;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -1443,7 +1729,7 @@ kbd {
 .stepper {
   display: flex;
   align-items: stretch;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -1459,8 +1745,8 @@ kbd {
 }
 
 .stepper__button:hover {
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--text);
+  color: var(--bg);
 }
 
 .stepper__value {
@@ -1469,6 +1755,7 @@ kbd {
   background: var(--surface);
   text-align: center;
   font-variant-numeric: tabular-nums;
+  font-weight: 550;
 }
 
 /* A labelled field holding a button: the button is as wide as its word, not as its column. */
@@ -1500,6 +1787,11 @@ kbd {
   border-color: var(--accent);
 }
 
+/* A slider drawn in ink, with the second ink only where the sound is. */
+.metronome__range {
+  accent-color: var(--accent);
+}
+
 .metronome__volume {
   display: flex;
   align-items: center;
@@ -1514,8 +1806,13 @@ kbd {
 
 /* Editing is a state you are in, so the button shows it rather than a tab showing which of two. */
 .pane-toggle--editing {
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+.pane-toggle--editing:hover {
+  background: var(--text);
 }
 
 /*

@@ -5,6 +5,7 @@ import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { MAX_LEVEL, levelFor } from '../lib/learning';
 import type { Song } from '../types/song';
 import { tempoUnitSymbol } from '../lib/tempo';
+import { withSigns } from '../lib/chordType';
 import type { ThemePreference } from '../lib/theme';
 import { ThemeSwitch } from './ThemeSwitch';
 
@@ -56,7 +57,7 @@ export function SongList({
           {/* The app's own mark, from the file the installed icons are built from, so the two
               cannot drift apart (ADR-064). */}
           <img className="library__mark" src="/icons/icon.svg" alt="" width="40" height="40" />
-          NoChords
+          <Wordmark />
         </span>
         {authAction &&
           (authAction.kind === 'sign-out' ? (
@@ -101,23 +102,43 @@ export function SongList({
           <code>There [Am]is a [C]house in New [D]Orleans</code>.
         </p>
       ) : (
+        <>
+        <h2 className="library__heading">
+          Songs <span className="library__count">{songs.length}</span>
+        </h2>
+        {/* A contents page (ADR-068): the title, what it is, and the key where a page number
+            would be — the thing you look for before you play. */}
         <ul className="library__list">
           {songs.map((song) => (
             <li key={song.id} className="library__item">
               <button type="button" className="library__open" onClick={() => onOpen(song.id)}>
-                <span className="library__title">{song.title || 'Untitled song'}</span>
-                <span className="library__meta">
-                  {song.originalKey}
-                  {song.currentKey !== song.originalKey ? ` → ${song.currentKey}` : ''} ·{' '}
-                  {/* `♩ = 90`, not `90 bpm`: the number means nothing without the note (ADR-052). */}
-                  {tempoUnitSymbol(song.tempoUnit)} = {song.tempo} · {song.rows.length} line
-                  {song.rows.length === 1 ? '' : 's'} ·{' '}
-                  level {levelFor(song.learningPlaythrough)} of {MAX_LEVEL}
+                <span className="library__text">
+                  <span className="library__title">{song.title || 'Untitled song'}</span>
+                  <span className="library__meta">
+                    {/* `♩ = 90`, not `90 bpm`: the number means nothing without the note (ADR-052). */}
+                    {tempoUnitSymbol(song.tempoUnit)} = {song.tempo} · {song.rows.length} line
+                    {song.rows.length === 1 ? '' : 's'} · level {levelFor(song.learningPlaythrough)}{' '}
+                    of {MAX_LEVEL}
+                  </span>
+                </span>
+                <span
+                  className="library__key"
+                  title={
+                    song.currentKey !== song.originalKey
+                      ? `Written in ${song.originalKey}, played in ${song.currentKey}`
+                      : `In ${song.originalKey}`
+                  }
+                >
+                  {withSigns(song.currentKey)}
+                  {song.currentKey !== song.originalKey && (
+                    <span className="library__key-from">from {withSigns(song.originalKey)}</span>
+                  )}
                 </span>
               </button>
             </li>
           ))}
         </ul>
+        </>
       )}
 
       </div>
@@ -153,5 +174,17 @@ export function SongList({
         </div>
       </footer>
     </div>
+  );
+}
+
+/**
+ * The name as type rather than as an image (ADR-068): "No" set in italic, the way you would say it —
+ * no chords — and "Chords" upright beside it.
+ */
+export function Wordmark() {
+  return (
+    <span className="wordmark">
+      <em>No</em>Chords
+    </span>
   );
 }

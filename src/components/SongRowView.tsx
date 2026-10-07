@@ -1,3 +1,4 @@
+import { chordParts } from '../lib/chordType';
 import { chordSymbolFor, rowSegments } from '../lib/display';
 import { parseMeter } from '../lib/meter';
 import { occurrenceKey } from '../lib/learning';
@@ -47,7 +48,9 @@ export function SongRowView({ row, song, mode, concealed, revealed = false }: So
               className={hidden ? 'seg__chord seg__chord--concealed' : 'seg__chord'}
               aria-label={hidden ? 'hidden chord' : undefined}
             >
-              {segment.chord ? chordSymbolFor(segment.chord.symbol, song, mode) : ' '}
+              {segment.chord ? (
+                <ChordSymbol text={chordSymbolFor(segment.chord.symbol, song, mode)} />
+              ) : ' '}
             </span>
             <span className="seg__lyric">{segment.text || ' '}</span>
           </span>
@@ -68,5 +71,20 @@ export function SongRowView({ row, song, mode, concealed, revealed = false }: So
         </span>
       )}
     </div>
+  );
+}
+
+/**
+ * A chord as a chart prints it: the root at full size, the quality and the bass smaller beside it
+ * (ADR-068). Still one run of text to a screen reader, and to the blur that conceals it.
+ */
+function ChordSymbol({ text }: { text: string }) {
+  const { kind, head, tail, bass } = chordParts(text);
+  return (
+    <span className={`chord chord--${kind}`}>
+      {head}
+      {tail && <span className="chord__quality">{tail}</span>}
+      {bass && <span className="chord__bass">{bass}</span>}
+    </span>
   );
 }

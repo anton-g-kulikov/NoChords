@@ -4,6 +4,8 @@
  * Deliberately short. Someone opens this because a word in the editor meant nothing to them, and
  * they want to get back to the song — not to read a theory chapter.
  */
+import { ArrowLeft } from 'lucide-react';
+
 interface NotationGuideProps {
   onClose: () => void;
 }
@@ -19,7 +21,7 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
           title="Back to songs"
           onClick={onClose}
         >
-          ←
+          <ArrowLeft size={20} aria-hidden />
         </button>
         <h1>Bars, beats and meter</h1>
       </div>

@@ -47,6 +47,7 @@ import {
   type Reveals,
 } from '../lib/reveal';
 import type { DisplayMode, Song } from '../types/song';
+import { withSigns } from '../lib/chordType';
 
 interface PlayerProps {
   song: Song;
@@ -253,8 +254,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    */
   const firstChord = song.rows.find((row) => row.chords.length > 0)?.chords[0]?.symbol;
   const modeLabels: Record<DisplayMode, ReactNode> = {
-    full: song.currentKey,
-    nashville: firstChord ? toNashville(firstChord, song.originalKey) : 'I',
+    full: withSigns(song.currentKey),
+    // In the chart's own numeral face, so the button previews exactly what it switches to.
+    nashville: (
+      <span className="chord--numeral">
+        {firstChord ? withSigns(toNashville(firstChord, song.originalKey)) : 'I'}
+      </span>
+    ),
     learning: <Brain size={20} aria-hidden />,
   };
 

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Player } from './components/Player';
 import { SongEditor } from './components/SongEditor';
-import { Pencil } from 'lucide-react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
-import { SongList } from './components/SongList';
+import { SongList, Wordmark } from './components/SongList';
 import { AccountLine } from './components/AccountLine';
 import { accountAction, accountState } from './lib/account';
 import { ImportPrompt } from './components/ImportPrompt';
@@ -100,10 +100,12 @@ export function App() {
             title="Back to songs"
             onClick={() => setOpenSongId(null)}
           >
-            ←
+            <ArrowLeft size={20} aria-hidden />
           </button>
 
-          <span className="song-view__app">NoChords</span>
+          <span className="song-view__app">
+            <Wordmark />
+          </span>
 
           {/* One button rather than two segments (ADR-043): editing is a thing you enter and
               leave, not one of two equal places. */}

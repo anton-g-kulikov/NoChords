@@ -10,6 +10,7 @@ import { useSongLibrary } from './hooks/useSongLibrary';
 import { useSettings } from './hooks/useSettings';
 import { useAuth } from './hooks/useAuth';
 import { useTheme } from './hooks/useTheme';
+import { ACCENTS, nextAccent } from './lib/accent';
 
 type Pane = 'edit' | 'play';
 
@@ -27,7 +28,7 @@ export function App() {
     dismissImport,
   } = useSongLibrary(auth.user?.uid ?? null, auth.loading);
   const { settings, update: updateSettings } = useSettings();
-  useTheme(settings.theme);
+  useTheme(settings.theme, settings.accent);
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   // Opening an existing song lands on Play; only a brand new song starts in Edit.
@@ -80,6 +81,8 @@ export function App() {
         onOpenGuide={() => setShowGuide(true)}
         theme={settings.theme}
         onThemeChange={(theme) => updateSettings({ theme })}
+        onNextAccent={() => updateSettings({ accent: nextAccent(settings.accent) })}
+        accentLabel={ACCENTS[settings.accent].label}
         />
       </>
     );

@@ -2113,3 +2113,36 @@ then only taken up space.
 **Cost.** Nothing on screen now says *which* account is signed in. Someone with two Google accounts
 has to sign out to find out. If that turns out to matter, the place for it is the sign-out button's
 label or a menu behind it — not a sentence at the foot of the library.
+
+---
+
+## ADR-072 — Tapping the mark changes the second ink
+
+**Decision.** An easter egg. The mark in the library header is a button: each tap steps the second
+ink to the next of seven — vermilion, ochre, moss, teal, indigo, plum, rose, one for each mode from
+Ionian to Locrian — and round again. The choice is a per-device setting, `accent`, applied before
+first paint by the same script as the theme (ADR-067). The note gives a small struck animation on
+each tap, and none under `prefers-reduced-motion`.
+
+**How the colours change.** Each ink is two RGB triplets, one for paper and one for the night
+background. The stylesheet's scheme blocks take `--accent-rgb` from `--ink-light` or `--ink-dark`
+and derive every wash, rule and chord colour from it, so one attribute on the root re-inks the whole
+app — and the seven inks cost one short rule each rather than seven copies of every token. Vermilion
+has no rule at all: its triplets are the fallbacks, so a page with no attribute is a page in
+vermilion, exactly as before this existed.
+
+**Why each ink is tested for contrast.** The second ink is the colour of every chord. A pretty ink
+that reads at 3:1 would make the chart worse for anyone who picked it, and nobody choosing a colour
+by tapping a logo would know to blame it. Every light ink must reach 4.5:1 on paper and on the
+lighter sheet, every dark one on the night background and its sheet (AC-03); the table and the
+stylesheet are held to each other (AC-04).
+
+**Why the mark, and why no menu.** It is the one thing in the app with no job, and it is already
+drawn in the ink it would change, so the change shows where you tapped. A setting with a menu would
+be a feature to explain and support; this is a discovery, and the README mentions it in one line.
+
+**Cost.** Chords and the accent are now one colour in every ink but the default, where the chord
+keeps its slightly deeper shade. The home-screen icon stays amber whatever the ink, because an
+installed icon cannot follow a setting. And the button is labelled for screen readers — "Ink:
+Vermilion. Tap for the next one." — which makes the egg a little less hidden for those users, on
+purpose: an unlabelled button is worse than a spoiled surprise.

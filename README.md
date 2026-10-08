@@ -169,6 +169,9 @@ The app follows the device's light or dark setting. To fix one regardless, use t
 the foot of the library — match the device, light, or dark. The choice is per device, like the
 metronome's volume.
 
+The accent colour has seven settings, one for each mode from Ionian to Locrian. There is no menu for
+them: tap the mark beside the app's name.
+
 ## Installing it
 
 NoChords is installable. On Android the library screen offers **Install app** — browsers stopped

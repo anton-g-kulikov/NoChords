@@ -43,6 +43,16 @@ describe('countInBarsFor', () => {
     expect(load({ theme: true })).toBe('system');
   });
 
+  it('SET-15 keeps the chosen ink, and falls back to vermilion otherwise (ADR-072)', () => {
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load().accent;
+
+    expect(DEFAULT_SETTINGS.accent).toBe('vermilion');
+    expect(load({ accent: 'plum' })).toBe('plum');
+    expect(load({})).toBe('vermilion');
+    expect(load({ accent: 'chartreuse' })).toBe('vermilion');
+  });
+
   it('SET-10 follows the song when nothing has been set (ADR-059)', () => {
     expect(DEFAULT_SETTINGS.countInBars).toBeNull();
     // A line's worth of bars is what you are about to play, so it is what the count says.
@@ -77,6 +87,7 @@ describe('createSettingsStore', () => {
       metronomeVolume: 0.25,
       countInBars: 2,
       theme: 'dark',
+      accent: 'teal',
     });
     expect(createSettingsStore(backend).load()).toEqual({
       metronomeEnabled: true,
@@ -84,6 +95,7 @@ describe('createSettingsStore', () => {
       metronomeVolume: 0.25,
       countInBars: 2,
       theme: 'dark',
+      accent: 'teal',
     });
   });
 

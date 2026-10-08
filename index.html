@@ -19,7 +19,12 @@
          device's scheme and switch a moment later when React reads the setting (ADR-067). -->
     <script>
       try {
-        var theme = JSON.parse(localStorage.getItem('nochords.settings.v1') || '{}').theme;
+        var settings = JSON.parse(localStorage.getItem('nochords.settings.v1') || '{}');
+        var theme = settings.theme;
+        // The second ink too (ADR-072); the stylesheet ignores a name it has no colours for.
+        if (typeof settings.accent === 'string' && settings.accent !== 'vermilion') {
+          document.documentElement.dataset.accent = settings.accent;
+        }
         if (theme === 'light' || theme === 'dark') {
           document.documentElement.dataset.theme = theme;
           document.querySelectorAll('meta[name="theme-color"]').forEach(function (meta) {

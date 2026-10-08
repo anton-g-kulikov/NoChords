@@ -29,6 +29,7 @@ described at the end of this document.
 | First-run example seeding | `src/lib/firstRun.ts` | `first-run.test.ts` |
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Light and dark | `src/lib/theme.ts` | `theme.test.ts` |
+| The second ink | `src/lib/accent.ts` | `accent.test.ts` |
 | Chord typesetting | `src/lib/chordType.ts` | `chord-type.test.ts` |
 | The app's mark | `src/lib/mark.ts` | `mark.test.ts` |
 | Service worker decisions | `src/lib/pwa.ts` | `pwa.test.ts` |
@@ -491,6 +492,7 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-11 | A count-in set outright wins, including none at all | ✅ |
 | SET-12 | A followed count-in stays inside the offered range | ✅ |
 | SET-14 | The chosen scheme is kept; anything else, or nothing, follows the device | ✅ |
+| SET-15 | The chosen ink is kept; anything else, or nothing, is vermilion | ✅ |
 
 ### Light and dark — `theme.test.ts`
 
@@ -504,6 +506,20 @@ would pin a scheme — and a fixed choice has to win over the device in both dir
 | TH-03 | "System" sets no attribute; a fixed choice sets its own | ✅ |
 | TH-04 | Only the three schemes are accepted as a preference | ✅ |
 | TH-05 | The pre-paint script's colours match the browser chrome's | ✅ |
+
+### The second ink — `accent.test.ts`
+
+Intent: tapping the mark steps through seven inks. Each one becomes the colour of every chord, so
+each must still read as text in both schemes; and the inks live twice — in the table and in the
+stylesheet — so the two must agree.
+
+| # | Case | Status |
+|---|------|--------|
+| AC-01 | Seven inks; tapping visits every one and comes back to the first | ✅ |
+| AC-02 | The default puts no attribute on the page; any other ink names itself | ✅ |
+| AC-03 | Every ink reaches 4.5:1 as chord text on paper and on the night background | ✅ |
+| AC-04 | The stylesheet carries exactly the table's colours, the default as its fallback | ✅ |
+| AC-05 | The pre-paint script leaves the default off the page, as the hook does | ✅ |
 
 ### Chord typesetting — `chord-type.test.ts`
 

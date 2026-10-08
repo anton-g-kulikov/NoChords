@@ -8,6 +8,7 @@
 import { defaultStorage, type StorageLike } from './storage';
 import { DEFAULT_VOICE, isVoiceName, type VoiceName } from './metronomeVoice';
 import { DEFAULT_THEME, isThemePreference, type ThemePreference } from './theme';
+import { DEFAULT_ACCENT, isAccentName, type AccentName } from './accent';
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
@@ -42,6 +43,8 @@ export interface Settings {
   countInBars: number | null;
   /** Light, dark, or whatever the device says (ADR-067). */
   theme: ThemePreference;
+  /** The second ink, chosen by tapping the mark (ADR-072). */
+  accent: AccentName;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -50,6 +53,7 @@ export const DEFAULT_SETTINGS: Settings = {
   metronomeVolume: 0.5,
   countInBars: null,
   theme: DEFAULT_THEME,
+  accent: DEFAULT_ACCENT,
 };
 
 /** Bars to count in for a song, resolving "follow the song" against its line length. */
@@ -97,6 +101,7 @@ function sanitize(value: unknown): Settings {
 
   return {
     theme: isThemePreference(record.theme) ? record.theme : DEFAULT_THEME,
+    accent: isAccentName(record.accent) ? record.accent : DEFAULT_ACCENT,
     metronomeVoice: isVoiceName(record.metronomeVoice) ? record.metronomeVoice : DEFAULT_VOICE,
     metronomeEnabled:
       typeof record.metronomeEnabled === 'boolean'

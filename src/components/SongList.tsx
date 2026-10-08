@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { LogOut } from 'lucide-react';
 import type { AccountAction } from '../lib/account';
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
@@ -23,6 +23,10 @@ interface SongListProps {
   onOpenGuide: () => void;
   theme: ThemePreference;
   onThemeChange: (theme: ThemePreference) => void;
+  /** Steps the second ink on, from the mark (ADR-072). */
+  onNextAccent: () => void;
+  /** The ink now on, for the mark's label. */
+  accentLabel: string;
 }
 
 export function SongList({
@@ -35,8 +39,12 @@ export function SongList({
   onOpenGuide,
   theme,
   onThemeChange,
+  onNextAccent,
+  accentLabel,
 }: SongListProps) {
   const install = useInstallPrompt();
+  /* Only a tap strikes the note: arriving at the library is not a change of ink. */
+  const [struck, setStruck] = useState(false);
 
   return (
     <div className="screen library">
@@ -54,9 +62,19 @@ export function SongList({
         <span className="library__brand">
           {/* The app's own mark, in this page's colours rather than the home screen's; the same
               drawing as the installed icons, held to it by a test (ADR-064, ADR-070). */}
-          <span className="library__mark">
-            <Mark />
-          </span>
+          {/* An easter egg (ADR-072): tapping the mark steps the second ink through seven. Keyed on
+              the ink, so the note is struck afresh — and animates — on every change. */}
+          <button
+            type="button"
+            className="library__mark"
+            aria-label={`Ink: ${accentLabel}. Tap for the next one.`}
+            onClick={() => {
+              setStruck(true);
+              onNextAccent();
+            }}
+          >
+            <Mark key={accentLabel} className={struck ? 'library__note--struck' : undefined} />
+          </button>
           <Wordmark />
         </span>
         {authAction &&

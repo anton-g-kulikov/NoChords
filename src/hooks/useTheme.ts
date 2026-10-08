@@ -8,8 +8,17 @@
  */
 import { useEffect } from 'react';
 import { THEME_COLOR, themeAttribute, type Theme, type ThemePreference } from '../lib/theme';
+import { accentAttribute, type AccentName } from '../lib/accent';
 
-export function useTheme(preference: ThemePreference): void {
+export function useTheme(preference: ThemePreference, accent: AccentName): void {
+  // The second ink rides the same mechanism (ADR-072): an attribute the stylesheet answers, absent
+  // for the default, and put on before first paint by `index.html`.
+  useEffect(() => {
+    const attribute = accentAttribute(accent);
+    if (attribute) document.documentElement.dataset.accent = attribute;
+    else delete document.documentElement.dataset.accent;
+  }, [accent]);
+
   useEffect(() => {
     const root = document.documentElement;
     const attribute = themeAttribute(preference);

@@ -1179,7 +1179,13 @@ kbd {
  * so 16px of padding either side is read as smaller words on every line. The screen's own gutter
  * stays for every other page; the chart reaches further out than the rest.
  */
+/*
+ * No optical sizing in the chart (ADR-073). Literata draws its small sizes wider than a scaled-down
+ * large size, so with it on a line's width is not proportional to the type scale — and the fit
+ * (ADR-054) depends on exactly that proportion to land on an answer instead of hunting for one.
+ */
 .sheet {
+  font-optical-sizing: none;
   list-style: none;
   margin: 0 -8px;
   padding: 0 0 60vh;

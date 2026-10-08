@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { MIN_SHEET_SCALE, fitScale } from '../src/lib/fit';
 
@@ -32,5 +34,13 @@ describe('fitScale', () => {
     expect(fitScale([], 1)).toBe(1);
     expect(fitScale([0, Number.NaN, Number.POSITIVE_INFINITY], 1)).toBe(1);
     expect(fitScale([0.5], 0)).toBe(1);
+  });
+
+  it('FT-07 the chart keeps optical sizing off, so width stays proportional to scale (ADR-073)', () => {
+    // fitScale lands in one step only if halving the type halves the line. A face that redraws
+    // its small sizes wider breaks that, and the chart hunts between two scales forever.
+    const css = readFileSync(fileURLToPath(new URL('../src/styles.css', import.meta.url)), 'utf8');
+    const sheet = /\n\.sheet \{([^}]*)\}/.exec(css)?.[1] ?? '';
+    expect(sheet).toContain('font-optical-sizing: none');
   });
 });

@@ -426,6 +426,7 @@ above the wrong word (ADR-054). The measurements are the caller's; this is the a
 | FT-04 | It never shrinks past legibility — the line wraps instead | ✅ |
 | FT-05 | Rounded down, so the widest line never lands back over the edge | ✅ |
 | FT-06 | Measurements taken before there is anything to measure are ignored | ✅ |
+| FT-07 | **The chart keeps optical sizing off, so a line's width is proportional to the scale** | ✅ |
 
 ### Account state — `account.test.ts`
 

@@ -79,14 +79,42 @@ export function useFitScale(
     const root = ref.current;
     if (!root || typeof ResizeObserver === 'undefined') return undefined;
 
-    // A rotation, a keyboard, a window drag: all change what fits.
+    /*
+     * A rotation, a window drag: a change of *width* changes what fits. A change of height does not
+     * — and it is what the chart's own rescaling produces, so answering it closed a loop: every
+     * new scale changed the height, the height reset the pass count, and a fit that could not quite
+     * settle measured forever (ADR-073). Only the width is listened to.
+     */
+    let width = root.getBoundingClientRect().width;
     const observer = new ResizeObserver(() => {
+      const next = root.getBoundingClientRect().width;
+      if (next === width) return;
+      width = next;
       passes.current = 0;
       measure();
     });
     observer.observe(root);
     return () => observer.disconnect();
   }, [measure, ref]);
+
+  /*
+   * Measure again when a font arrives (ADR-073).
+   *
+   * The chart's faces load after first paint, and text set in the fallback is a different width.
+   * The height loop above used to catch this by accident — the new font changed the height — so
+   * without it the chart would keep a scale fitted to a font nobody sees.
+   */
+  useEffect(() => {
+    const fonts = typeof document === 'undefined' ? undefined : document.fonts;
+    if (!fonts) return undefined;
+    const refit = () => {
+      passes.current = 0;
+      measure();
+    };
+    fonts.addEventListener('loadingdone', refit);
+    void fonts.ready.then(refit);
+    return () => fonts.removeEventListener('loadingdone', refit);
+  }, [measure]);
 
   return scale;
 }

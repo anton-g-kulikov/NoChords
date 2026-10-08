@@ -2146,3 +2146,38 @@ keeps its slightly deeper shade. The home-screen icon stays amber whatever the i
 installed icon cannot follow a setting. And the button is labelled for screen readers — "Ink:
 Vermilion. Tap for the next one." — which makes the egg a little less hidden for those users, on
 purpose: an unlabelled button is worse than a spoiled surprise.
+
+---
+
+## ADR-073 — The fit listens to width only, and the chart has no optical sizes
+
+**Decision.** Three changes to the chart's fit (ADR-054), for one bug:
+
+- `.sheet` sets `font-optical-sizing: none`.
+- The fit's `ResizeObserver` re-measures only when the chart's *width* changes.
+- The fit re-measures when a web font finishes loading (`document.fonts`).
+
+**Reported symptom.** On an iPhone, a song's chart sat empty with its scrollbar growing and
+shrinking continuously: the page height never settled.
+
+**Why it looped.** `fitScale` lands on its answer in one step because text width is proportional to
+type size — measure once at any scale and the ratio says where to go. Literata, added in ADR-068,
+has an optical-size axis, and the browser applies it automatically: smaller sizes are drawn wider
+and looser than a scaled-down large size. Measured in Chrome, a line's width per unit of scale grew
+by 0.3% between scale 1 and 0.62; with optical sizing off it was constant to a tenth of a pixel.
+That small error was enough for the fit to step between two neighbouring scales instead of
+settling. On its own that would have stopped after four passes. But each new scale changed the
+chart's height, the observer saw a resize and reset the pass count, and the fit measured again —
+forever. The observer had always answered height changes; they were harmless while widths were
+proportional.
+
+**Why fix all three.** Turning optical sizing off removes the cause. Ignoring height closes the loop,
+so the next non-proportional thing — a font, a ligature, a rounding quirk on some engine — cannot
+reopen it. And the height loop had been quietly doing one useful job: when the web font arrived and
+the text changed width, the height changed too and the chart refitted. Listening to font loads
+does that job on purpose.
+
+**Cost.** Lyrics in the chart lose Literata's display cut at large sizes: they are drawn from the
+text cut scaled up, slightly wider and lower in contrast than titles of the same size. Titles and
+the library keep optical sizing. FT-07 holds the chart to this, because nothing else would notice
+the property being removed until a phone started hunting again.

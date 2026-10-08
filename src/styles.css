@@ -540,11 +540,8 @@ kbd {
   line-height: 1;
 }
 
-.wordmark em {
-  font-weight: 500;
+.wordmark__no {
   color: var(--accent);
-  /* An italic leans into the next letter; a hair of room keeps the "o" off the "C". */
-  padding-right: 0.04em;
 }
 
 /* Holds the bottom of the screen, however short the list (ADR-064). */
@@ -754,7 +751,7 @@ kbd {
   font-weight: 500;
 }
 
-.song-view__app .wordmark em {
+.song-view__app .wordmark__no {
   color: inherit;
 }
 

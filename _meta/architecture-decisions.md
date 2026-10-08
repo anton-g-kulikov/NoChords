@@ -2181,3 +2181,36 @@ does that job on purpose.
 text cut scaled up, slightly wider and lower in contrast than titles of the same size. Titles and
 the library keep optical sizing. FT-07 holds the chart to this, because nothing else would notice
 the property being removed until a phone started hunting again.
+
+---
+
+## ADR-074 — The mark is an empty pair of brackets, leaning; the name stands upright
+
+**Decision.** The quaver is replaced by `[ ]`: two square brackets with nothing between them,
+leaning 11°. The wordmark's "No" loses its italic and stands upright in the second ink. It applies
+everywhere the mark appears — the home-screen icons, the header tile, the favicon (now the icon file
+itself rather than a text glyph in a data URI) and the landing page.
+
+**Why brackets.** `[Am]` is how a chord is written in this app, and the app exists to take the chord
+away: what is left is `[ ]`. It is the name drawn rather than a picture of music. A quaver said
+"notation" — composers, theory, a grammar app — when the app is about chords, and about chords
+leaving. Other directions were drawn and set aside: a sharp reads as a hashtag at icon size, a chord
+box is guitar-only and too busy at 16px, stacked noteheads drift back to notation, and a chord over a
+lyric line is an illustration rather than a mark.
+
+**Why it leans, and why the name no longer does.** Of eight variations — light, bold, tight, tall,
+rounded, offset, regular and italic — the slanted one had the most character, because it rhymed with
+the italic "No" beside it. With both slanted, the logo said the same thing twice. The lean moved to
+the mark, which is the more memorable carrier, and the name stands upright so the logo has exactly
+one gesture.
+
+**Drawing.** On the icon's 512 grid: 272 tall and centred, stems 40 and feet 32 (horizontals drawn
+lighter, as a typeface draws them, so both read as one weight), a wide gap between. The slant is
+computed into the coordinates rather than applied as a transform, so every copy is a plain path that
+MK-01 can compare. The header draws the same paths through a closer viewBox (`64 64 384 384`): a
+home screen wants margin round a mark, but in a 38px tile beside the name the full grid read small
+and light.
+
+**Cost.** The quaver said "music" to someone who has never heard of the app; brackets need the name
+beside them, or a moment with the app, to mean anything. That is the trade for a mark that belongs
+to this app rather than to music software in general.

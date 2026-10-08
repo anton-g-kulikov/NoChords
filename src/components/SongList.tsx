@@ -197,13 +197,13 @@ export function SongList({
 }
 
 /**
- * The name as type rather than as an image (ADR-068): "No" set in italic, the way you would say it —
- * no chords — and "Chords" upright beside it.
+ * The name as type rather than as an image (ADR-068): "No" in the second ink, "Chords" in ink, both
+ * upright — the mark beside it carries the logo's one slant (ADR-074).
  */
 export function Wordmark() {
   return (
     <span className="wordmark">
-      <em>No</em>Chords
+      <span className="wordmark__no">No</span>Chords
     </span>
   );
 }

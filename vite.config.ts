@@ -9,7 +9,12 @@ const pkg = JSON.parse(
 ) as { version: string };
 
 /** Files served from `public/` that the app should still have with no network. */
-const PUBLIC_PRECACHE = ['/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
+const PUBLIC_PRECACHE = [
+  '/manifest.webmanifest',
+  '/icons/icon.svg',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+];
 
 /**
  * Compiles `src/sw.ts` to a service worker at the site root (ADR-028).

@@ -544,7 +544,7 @@ copy of the icon's geometry. The two must never drift apart.
 
 | # | Case | Status |
 |---|------|--------|
-| MK-01 | The header's note is the exact drawing in every icon SVG and on the landing page | ✅ |
+| MK-01 | The header's mark is the exact drawing in every icon SVG and on the landing page | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

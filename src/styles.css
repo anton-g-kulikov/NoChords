@@ -441,13 +441,26 @@ kbd {
   font-size: 1.75rem;
 }
 
+/*
+ * The mark's tile wears what a button that is on wears (ADR-070): a solid ink tile was the darkest
+ * thing in the header, and the one thing on the page that did not belong to its colours.
+ */
 .library__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 38px;
   height: 38px;
+  border: 1px solid var(--accent-line);
   border-radius: 9px;
-  /* The mark carries its own dark tile; on this background it needs the corner, not a border. */
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.library__mark svg {
   display: block;
-  box-shadow: var(--shadow);
+  width: 100%;
+  height: 100%;
 }
 
 /* The name, set rather than drawn (ADR-068). */

@@ -8,6 +8,7 @@ import { tempoUnitSymbol } from '../lib/tempo';
 import { withSigns } from '../lib/chordType';
 import type { ThemePreference } from '../lib/theme';
 import { ThemeSwitch } from './ThemeSwitch';
+import { Mark } from './Mark';
 
 interface SongListProps {
   songs: Song[];
@@ -54,9 +55,11 @@ export function SongList({
        */}
       <div className="screen__head library__head">
         <span className="library__brand">
-          {/* The app's own mark, from the file the installed icons are built from, so the two
-              cannot drift apart (ADR-064). */}
-          <img className="library__mark" src="/icons/icon.svg" alt="" width="40" height="40" />
+          {/* The app's own mark, in this page's colours rather than the home screen's; the same
+              drawing as the installed icons, held to it by a test (ADR-064, ADR-070). */}
+          <span className="library__mark">
+            <Mark />
+          </span>
           <Wordmark />
         </span>
         {authAction &&

@@ -2066,3 +2066,27 @@ chart stays the loudest thing on the screen.
 word, its size and its colour instead. And the second ink is no longer only for the music: an
 active button and a chord now share it, though one is an outlined box at the edge and the other is
 type inside the chart.
+
+---
+
+## ADR-070 — The header's mark takes the page's colours; the drawing is still one
+
+**Decision.** Amends ADR-064. The library header draws the quaver inline, on a tile washed in the
+second ink with an edge and a note in that ink — the same treatment as a button that is on
+(ADR-069). The installed icons keep their solid ink tile and amber note. The shapes live once in
+`lib/mark.ts`, and a test reads the three icon SVGs and fails unless each carries exactly those
+shapes (MK-01).
+
+**Why.** Once the active buttons moved from solid ink to a wash, the icon's solid tile was the
+darkest thing in the header and the one object on the page drawn in someone else's colours. An
+`<img>` cannot take the scheme's tokens, so the mark could not follow the page into dark or light.
+A home screen is a different surface — an icon there needs a solid ground of its own — so only the
+header changes.
+
+**What happens to ADR-064's rule.** "A logo that exists twice is a logo that changes once" still
+holds, but the guarantee moved from the file system to the test suite: there are now two copies of
+the geometry, and changing either one alone fails MK-01 instead of drifting silently.
+
+**Cost.** The header mark and the home-screen icon no longer look identical — same note, different
+ground. They are recognisably one mark, the way a logo printed in one colour and the same logo on
+its solid badge are.

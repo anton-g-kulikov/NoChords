@@ -30,6 +30,7 @@ described at the end of this document.
 | Device preferences | `src/lib/settings.ts` | `settings.test.ts` |
 | Light and dark | `src/lib/theme.ts` | `theme.test.ts` |
 | Chord typesetting | `src/lib/chordType.ts` | `chord-type.test.ts` |
+| The app's mark | `src/lib/mark.ts` | `mark.test.ts` |
 | Service worker decisions | `src/lib/pwa.ts` | `pwa.test.ts` |
 | Install affordance | `src/lib/install.ts` | `install.test.ts` |
 | Screen wake lock | `src/lib/wakeLock.ts` | `wake-lock.test.ts` |
@@ -518,6 +519,15 @@ must come through whole.
 | CT-04 | Numerals split the same way, prefix included, and are marked as numerals | ✅ |
 | CT-05 | Anything unrecognised comes back whole | ✅ |
 | CT-06 | A key written as one string gets its signs | ✅ |
+
+### The app's mark — `mark.test.ts`
+
+Intent: the header draws the mark inline so it can take the page's colours, which makes it a second
+copy of the icon's geometry. The two must never drift apart.
+
+| # | Case | Status |
+|---|------|--------|
+| MK-01 | The header's note is the exact drawing in every installed icon SVG | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

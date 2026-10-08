@@ -4,7 +4,6 @@ import { SongEditor } from './components/SongEditor';
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
 import { SongList, Wordmark } from './components/SongList';
-import { AccountLine } from './components/AccountLine';
 import { accountAction, accountState } from './lib/account';
 import { ImportPrompt } from './components/ImportPrompt';
 import { useSongLibrary } from './hooks/useSongLibrary';
@@ -47,7 +46,6 @@ export function App() {
       <>
         <SongList
         songs={songs}
-        account={<AccountLine auth={auth} />}
         notice={
           <>
             {importOffer && (

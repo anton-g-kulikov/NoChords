@@ -12,8 +12,6 @@ import { Mark } from './Mark';
 
 interface SongListProps {
   songs: Song[];
-  /** The account line, composed by the app and shown at the foot of the list (ADR-064). */
-  account: ReactNode;
   /** Signing in or out, and the run for it. Null when there is no account to act on. */
   authAction: (AccountAction & { run: () => void }) | null;
   /** Anything the library has to say right now — an import offer, a sign-in error. */
@@ -29,7 +27,6 @@ interface SongListProps {
 
 export function SongList({
   songs,
-  account,
   notice,
   loading,
   onOpen,
@@ -149,32 +146,33 @@ export function SongList({
       {/* Outside the scroller, so it holds the bottom of the screen however long the list is
           (ADR-037 — the shell already works this way for the player's transport). */}
       <footer className="library__foot">
-        {/* After the songs, where wondering whether they are anywhere else belongs (ADR-064). */}
-        {account}
+        {/*
+         * Three rows, each one kind of thing (ADR-071): where to read more, how the app looks on
+         * this device, and which build it is. The account line that used to lead it repeated the
+         * header's button in words, and is gone.
+         */}
+        <p className="library__links">
+          <button type="button" className="library__install" onClick={onOpenGuide}>
+            Bars, beats and meter
+          </button>
+          {install.affordance === 'prompt' && (
+            <>
+              {' · '}
+              <button type="button" className="library__install" onClick={install.install}>
+                Install app
+              </button>
+            </>
+          )}
+          {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
+          {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
+        </p>
 
-        <div className="library__colophon">
-          {/* Which build this is. The service worker keys its cache on the same number, so this is
+        {/* With the other things that belong to this device rather than to a song (ADR-067). */}
+        <ThemeSwitch value={theme} onChange={onThemeChange} />
+
+        {/* Which build this is. The service worker keys its cache on the same number, so this is
             also how you tell whether an installed app has picked up a release yet (ADR-028). */}
-          <p className="library__version">
-            <button type="button" className="library__install" onClick={onOpenGuide}>
-              Bars, beats and meter
-            </button>
-            {' · '}v{__APP_VERSION__}
-            {install.affordance === 'prompt' && (
-              <>
-                {' · '}
-                <button type="button" className="library__install" onClick={install.install}>
-                  Install app
-                </button>
-              </>
-            )}
-            {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
-            {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
-          </p>
-
-          {/* With the other things that belong to this device rather than to a song (ADR-067). */}
-          <ThemeSwitch value={theme} onChange={onThemeChange} />
-        </div>
+        <p className="library__version">v{__APP_VERSION__}</p>
       </footer>
     </div>
   );

@@ -2090,3 +2090,26 @@ the geometry, and changing either one alone fails MK-01 instead of drifting sile
 **Cost.** The header mark and the home-screen icon no longer look identical — same note, different
 ground. They are recognisably one mark, the way a logo printed in one colour and the same logo on
 its solid badge are.
+
+---
+
+## ADR-071 — The footer is three rows, and the account line is gone
+
+**Decision.** Amends ADR-064 and ADR-067. The library's footer is three centred rows, one kind of
+thing each: the links (the notation guide, and installing where the platform allows it), the
+appearance switch, and the version. The account line — "Sign in to sync across devices" signed
+out, "Syncing to …" signed in — is removed, along with its component.
+
+**Why.** The footer had grown into two rows of mixed things: a sentence about the account, then a
+line holding a link, a version number, an install offer and a three-icon control side by side,
+which wrapped unpredictably on a phone. Sorting it by kind gives each row one job, and puts the
+version last and smallest, where something you look up rather than read belongs.
+
+The account line was the weakest of them. Signed in, it named the account the header's sign-out
+button already belongs to; signed out, it explained a "Sign in" button sitting at the top of the
+same screen. ADR-064 put it there as helper text, and the helper turned out to be read once and
+then only taken up space.
+
+**Cost.** Nothing on screen now says *which* account is signed in. Someone with two Google accounts
+has to sign out to find out. If that turns out to matter, the place for it is the sign-out button's
+label or a menu behind it — not a sentence at the foot of the library.

@@ -35,8 +35,8 @@ the foot of the editor); deleting them is remembered, and they do not come back.
 the fixtures in [`src/lib/examples.ts`](src/lib/examples.ts) and deploy; existing libraries keep the
 copies they already have.
 
-**Sign in to sync across devices**, at the foot of the library, signs in with Google and moves the
-library to Firestore.
+**Sign in**, at the top of the library, signs in with Google and moves the library to Firestore so
+it syncs across devices.
 Opening a song from the library lands on **Play**; a newly created one opens in **Edit**.
 
 ## Writing a song

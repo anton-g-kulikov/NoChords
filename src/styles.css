@@ -481,21 +481,20 @@ kbd {
 /* Holds the bottom of the screen, however short the list (ADR-064). */
 .library__foot {
   flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--border);
 }
 
-/* The version line and the appearance switch, side by side under the account line (ADR-067). */
-.library__colophon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 6px;
-}
-
-.library__colophon .library__version {
+/* The links: where to read more, and installing. */
+.library__links {
   margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-align: center;
 }
 
 /* Small and quiet: a preference you set once, at the foot of the screen (ADR-067). */
@@ -530,13 +529,6 @@ kbd {
   color: var(--text);
 }
 
-/* The account line, after the songs (ADR-064). Quiet: an offer, not an announcement. */
-.account {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.85rem;
-  text-align: center;
-}
 
 
 
@@ -1530,11 +1522,13 @@ kbd {
   flex-wrap: wrap;
 }
 
-/* In the footer now, so it needs no space of its own above (ADR-064). */
+/* Last and smallest: looked up, not read (ADR-071). */
 .library__version {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 0.75rem;
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
 

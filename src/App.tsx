@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Player } from './components/Player';
 import { SongEditor } from './components/SongEditor';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import { ArrowLeft, Check, Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
 import { SongList, Wordmark } from './components/SongList';
 import { accountAction, accountState } from './lib/account';
@@ -111,7 +111,9 @@ export function App() {
           </span>
 
           {/* One button rather than two segments (ADR-043): editing is a thing you enter and
-              leave, not one of two equal places. */}
+              leave, not one of two equal places. While editing it is the way out, so it says so —
+              a check, as a title bar's save does — rather than staying a pencil that means "edit"
+              while you already are (ADR-092). The song saves as it is typed; this one leaves. */}
           <button
             type="button"
             className={
@@ -119,12 +121,11 @@ export function App() {
                 ? 'button button--icon pane-toggle pane-toggle--editing'
                 : 'button button--icon pane-toggle'
             }
-            aria-pressed={pane === 'edit'}
-            aria-label={pane === 'edit' ? 'Done editing' : 'Edit song'}
-            title={pane === 'edit' ? 'Done editing' : 'Edit song'}
+            aria-label={pane === 'edit' ? 'Save' : 'Edit song'}
+            title={pane === 'edit' ? 'Save' : 'Edit song'}
             onClick={() => setPane(pane === 'edit' ? 'play' : 'edit')}
           >
-            <Pencil size={20} aria-hidden />
+            {pane === 'edit' ? <Check size={20} aria-hidden /> : <Pencil size={20} aria-hidden />}
           </button>
         </div>
 

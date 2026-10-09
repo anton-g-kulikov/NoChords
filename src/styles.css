@@ -1642,6 +1642,11 @@ kbd {
   text-decoration-color: currentColor;
 }
 
+/* The brackets in "Buy me a [song] book", in the ink a chord would be written in (ADR-079). */
+.library__bracket {
+  color: var(--accent);
+}
+
 .import-prompt__error {
   margin: 0;
   color: var(--danger);

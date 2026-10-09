@@ -203,7 +203,11 @@
       padding: 20px 0 48px; color: var(--muted); border-top: 1px solid var(--border);
       font: 0.88rem/1.5 var(--font-ui);
     }
-    footer a { margin-right: 16px; }
+    /* Each link wraps as a whole: "Buy me a" alone at the end of a line reads as a sentence cut off. */
+    footer { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+    footer a { white-space: nowrap; }
+    /* The brackets in "Buy me a [song] book", in the ink a chord would be written in. */
+    .bracket { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -308,6 +312,7 @@
     <footer>
       <a href="https://nochords-18219.web.app">Open the app</a>
       <a href="https://github.com/anton-g-kulikov/NoChords">Source on GitHub</a>
+      <a href="https://buymeacoffee.com/antonkulikov">Buy me a <span class="bracket">[</span>song<span class="bracket">]</span> book</a>
     </footer>
   </div>
 </body>

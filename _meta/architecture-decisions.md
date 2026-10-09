@@ -2324,3 +2324,55 @@ repository's setting were ever cleared, nobody else could point their own Pages 
 `nochords-18219.web.app`. Moving the app onto the domain too (say `play.nochords.app` on Firebase) is
 a separate decision, with its own cost: an installed app's origin would change, and local songs do
 not follow an origin.
+
+---
+
+## ADR-079 — A new library starts with a song for each audience
+
+**Decision.** Amends ADR-076. A new library is seeded with two songs: House of the Rising Sun and
+Чёрный ворон. Both are ordinary songs under ADR-024 — editable, deletable, never restored.
+
+**Why Чёрный ворон.** ADR-076 wanted one song the visitor already knows, and for a Russian speaker
+the Rising Sun is not reliably it. Чёрный ворон is known to every generation — a Cossack song made
+famous again by the film «Чапаев» (1934). Its text is in the public domain: it grew from Nikolai
+Verevkin's 1831 poem into a folk song with no author to protect it. Almost no other song of that
+recognisability is. The mid-century Soviet repertoire people first think of — «Трава у дома»,
+«Притяжение Земли», «До свидания, Москва» — is under copyright in Russia until the 2060s–2090s,
+and in the US as well, because those works had their copyright restored there in 1996 (the URAA).
+A seeded song is the app distributing its text to every new library, so the rule that the fixtures
+use only public-domain lyrics applies to it in full.
+
+**Why both, not one chosen by language.** The app has no notion of the visitor's language yet. A
+switcher that filters the song list by language, leaving the UI alone, is the next step; until it
+exists, both songs are seeded for everyone. The two also differ in meter — 6/8 and 4/4 — so the
+count-in and beat strip show two shapes on a first run.
+
+**The arrangement.** Am, in 4/4 at 72 bpm, two bars to a line, each verse ending held for four
+(`|4|`) and the seven verses separated by blank lines so level 1 has repeats to thin (ADR-058). The
+chords — Am, Dm, E, G, C — are the fixture's own, not a transcription of any recording. The meter is
+a choice: the song is sung both as a slow 4/4 and as a waltz, and no source settles it.
+
+**Cost.** Two songs is a little more of a demo library than ADR-076 wanted, and an English-speaking
+visitor meets a Cyrillic song they may not know. The language switcher is what pays that back.
+Existing libraries are unaffected, since seeding only ever fills an empty library.
+
+---
+
+## ADR-079 — "Buy me a [song] book"
+
+**Decision.** A support link to Buy Me a Coffee, worded "Buy me a [song] book", sits in the links
+row at the foot of the library, after the notation guide, and in the landing page's footer. The
+brackets are drawn in the second ink; "song" is ordinary text.
+
+**Why the wording.** `[Am]` is how a chord is written in this app, and brackets are now its mark
+(ADR-074). Put "song" in them and the line says what the money is for in the app's own notation —
+a songbook — instead of borrowing a coffee joke from every other project.
+
+**Why there.** The library's footer already holds the things that are about the app rather than
+about a song: where to read more, how it looks, which build it is. An offer of support belongs with
+those, quiet and after everything else, never in the player and never as a prompt that interrupts
+playing. It opens in a new tab, or in the browser from the installed app, so tapping it does not
+lose your place.
+
+**Cost.** On Android, where "Install app" joins the same row, the links wrap to a second line. On the
+landing page each footer link wraps as a whole, so the phrase is never cut after "Buy me a".

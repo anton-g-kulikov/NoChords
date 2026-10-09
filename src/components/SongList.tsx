@@ -10,6 +10,9 @@ import type { ThemePreference } from '../lib/theme';
 import { ThemeSwitch } from './ThemeSwitch';
 import { Mark } from './Mark';
 
+/** Where "Buy me a [song] book" goes (ADR-079). */
+const SUPPORT_URL = 'https://buymeacoffee.com/antonkulikov';
+
 interface SongListProps {
   songs: Song[];
   /** Signing in or out, and the run for it. Null when there is no account to act on. */
@@ -173,6 +176,12 @@ export function SongList({
           <button type="button" className="library__install" onClick={onOpenGuide}>
             Bars, beats and meter
           </button>
+          {' · '}
+          {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. */}
+          <a className="library__install" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
+            Buy me a <span className="library__bracket">[</span>song
+            <span className="library__bracket">]</span> book
+          </a>
           {install.affordance === 'prompt' && (
             <>
               {' · '}

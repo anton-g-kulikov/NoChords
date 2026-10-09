@@ -1789,6 +1789,46 @@ kbd {
   border-bottom: none;
 }
 
+/*
+ * On a wide screen the panels get a column beside the chart rather than a place above it (ADR-077).
+ * Each column scrolls on its own, so a long song moves without dragging the panels with it, and a
+ * tall panel never pushes a line out of view. The transport spans both.
+ */
+.player--side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  /* Room between the chart's scrollbar and the column's rule, so they do not read as one line. */
+  column-gap: 8px;
+}
+
+.player--side .player__chart {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.player--side .controls {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.player__side {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 20px 24px;
+  border-left: 1px solid var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Its own column has its own edge, so the rule under the panels has nothing to separate. */
+.player__side .controls__setup {
+  padding-top: 0;
+  border-bottom: none;
+}
+
 /* Fields sized to what they hold, so a row of three fits 335px (ADR-041). */
 .field--compact {
   flex: 0 0 96px;

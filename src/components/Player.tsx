@@ -15,6 +15,7 @@ import { TempoField } from './TempoField';
 import { BeatStrip } from './BeatStrip';
 import { SongRowView } from './SongRowView';
 import { useFitScale } from '../hooks/useFitScale';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { MAX_TEMPO, MIN_TEMPO, buildSchedule } from '../lib/playback';
 import { msPerMeterBeat } from '../lib/tempo';
 import { VOICES, VOICE_NAMES, type VoiceName } from '../lib/metronomeVoice';
@@ -65,6 +66,9 @@ const MODES: Array<{ value: DisplayMode; hint: string }> = [
 
 const EMPTY_CONCEALMENT: Set<string> = new Set();
 
+/** Wide enough for the chart to keep a readable measure beside a 340px column (ADR-077). */
+const SIDE_COLUMN_QUERY = '(min-width: 900px)';
+
 const randomSeed = () => Math.floor(Math.random() * 2 ** 31);
 
 function formatTime(ms: number): string {
@@ -87,9 +91,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
    * and can be reopened at any time.
    */
   const [setupOpen, setSetupOpen] = useState(true);
+  // A wide screen has room beside the chart, so a panel opened there need not push it down.
+  const wide = useMediaQuery(SIDE_COLUMN_QUERY);
   /** The metronome opens on its own: it is reached for at different moments to the song's
    *  settings, and often while they are shut (ADR-042). */
   const [metronomeOpen, setMetronomeOpen] = useState(false);
+  // Only while something is open: with both panels shut the chart takes the whole width back.
+  const sideColumn = wide && (setupOpen || metronomeOpen);
   /** Lines whose concealed chords are showing, and when each stops (ADR-018). */
   const [reveals, setReveals] = useState<Reveals>({});
   const lastTap = useRef<LastTap | null>(null);
@@ -180,13 +188,15 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   );
 
   // Collapse on play, but deliberately do not reopen on pause: a pause is usually momentary, and
-  // having the controls spring back would shift the chart out from under you every time.
+  // having the controls spring back would shift the chart out from under you every time. Beside
+  // the chart they take nothing from it, and shutting them would widen it and re-fit every line
+  // at the moment you press Play, so there they stay (ADR-077).
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && !wide) {
       setSetupOpen(false);
       setMetronomeOpen(false);
     }
-  }, [isPlaying]);
+  }, [isPlaying, wide]);
 
   /**
    * A tap reveals the line straight away; a second tap inside the double-tap window also seeks.
@@ -269,77 +279,9 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const level = levelFor(song.learningPlaythrough);
   const rule = ruleFor(level);
 
-  return (
-    <div className="player">
-      <div className="screen__scroll player__chart">
-      {/*
-       * Settings live at the top and the transport at the bottom (ADR-036): two different jobs,
-       * and on a phone only one of them belongs under a thumb. The strip is pinned so the panel
-       * can be opened from anywhere in a long song, not only from the top of it.
-       */}
-      <div className="player__header">
-      <div className="settings-bar">
-        {/* In the strip rather than the panel (ADR-040): it is the one control reached for
-            mid-song, and the panel is shut while playing. Not in the transport, which is a
-            thumb-slip from Play and already at the width of a phone. */}
-          <div className="controls__group" role="group" aria-label="Chord display">
-            {MODES.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                title={option.hint}
-                aria-label={option.value}
-                aria-pressed={mode === option.value}
-                className={mode === option.value ? 'segment segment--active' : 'segment'}
-                onClick={() => setMode(option.value)}
-              >
-                {modeLabels[option.value]}
-              </button>
-            ))}
-          </div>
-
-        {/* The two disclosures travel together, at the end of the strip. */}
-        <div className="settings-bar__actions">
-          <button
-            type="button"
-            /* Two things at once: a blue icon means the beat is being heard, a blue button means
-               this panel is open (ADR-042). */
-            className={[
-              'button button--icon settings-bar__toggle',
-              metronomeOpen ? 'settings-bar__toggle--open' : '',
-              settings.metronomeEnabled ? 'settings-bar__toggle--live' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            aria-expanded={metronomeOpen}
-            aria-label={metronomeOpen ? 'Hide metronome' : 'Metronome'}
-            /* What it does, not what the sound is doing: the strip already says that. */
-            title={metronomeOpen ? 'Hide metronome settings' : 'Metronome settings'}
-            onClick={() => setMetronomeOpen((open) => !open)}
-          >
-            <Metronome size={20} aria-hidden />
-          </button>
-
-          <button
-            type="button"
-            className={
-              setupOpen
-                ? 'button button--icon settings-bar__toggle settings-bar__toggle--open'
-                : 'button button--icon settings-bar__toggle'
-            }
-            aria-expanded={setupOpen}
-            aria-label={setupOpen ? 'Hide settings' : 'Settings'}
-            title={setupOpen ? 'Hide settings' : 'Settings'}
-            onClick={() => setSetupOpen((open) => !open)}
-          >
-            {/* Faders rather than a cog: these are values to be set, not a system to configure. */}
-            <SlidersVertical size={20} aria-hidden />
-          </button>
-        </div>
-      </div>
-
-      {/* Inside the pinned header (ADR-060): a panel you open while deep in a song opens where
-          you are, rather than at the top of a page you would have to scroll back to. */}
+  // The panels: what the song is set to, the metronome, and how much is hidden.
+  const panels = (
+    <>
       <div
         className={
           setupOpen || metronomeOpen
@@ -525,6 +467,82 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           </button>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className={sideColumn ? 'player player--side' : 'player'}>
+      <div className="screen__scroll player__chart">
+      {/*
+       * Settings live at the top and the transport at the bottom (ADR-036): two different jobs,
+       * and on a phone only one of them belongs under a thumb. The strip is pinned so the panel
+       * can be opened from anywhere in a long song, not only from the top of it.
+       */}
+      <div className="player__header">
+      <div className="settings-bar">
+        {/* In the strip rather than the panel (ADR-040): it is the one control reached for
+            mid-song, and the panel is shut while playing. Not in the transport, which is a
+            thumb-slip from Play and already at the width of a phone. */}
+          <div className="controls__group" role="group" aria-label="Chord display">
+            {MODES.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                title={option.hint}
+                aria-label={option.value}
+                aria-pressed={mode === option.value}
+                className={mode === option.value ? 'segment segment--active' : 'segment'}
+                onClick={() => setMode(option.value)}
+              >
+                {modeLabels[option.value]}
+              </button>
+            ))}
+          </div>
+
+        {/* The two disclosures travel together, at the end of the strip. */}
+        <div className="settings-bar__actions">
+          <button
+            type="button"
+            /* Two things at once: a blue icon means the beat is being heard, a blue button means
+               this panel is open (ADR-042). */
+            className={[
+              'button button--icon settings-bar__toggle',
+              metronomeOpen ? 'settings-bar__toggle--open' : '',
+              settings.metronomeEnabled ? 'settings-bar__toggle--live' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            aria-expanded={metronomeOpen}
+            aria-label={metronomeOpen ? 'Hide metronome' : 'Metronome'}
+            /* What it does, not what the sound is doing: the strip already says that. */
+            title={metronomeOpen ? 'Hide metronome settings' : 'Metronome settings'}
+            onClick={() => setMetronomeOpen((open) => !open)}
+          >
+            <Metronome size={20} aria-hidden />
+          </button>
+
+          <button
+            type="button"
+            className={
+              setupOpen
+                ? 'button button--icon settings-bar__toggle settings-bar__toggle--open'
+                : 'button button--icon settings-bar__toggle'
+            }
+            aria-expanded={setupOpen}
+            aria-label={setupOpen ? 'Hide settings' : 'Settings'}
+            title={setupOpen ? 'Hide settings' : 'Settings'}
+            onClick={() => setSetupOpen((open) => !open)}
+          >
+            {/* Faders rather than a cog: these are values to be set, not a system to configure. */}
+            <SlidersVertical size={20} aria-hidden />
+          </button>
+        </div>
+      </div>
+
+      {/* On a phone, inside the pinned header (ADR-060): a panel you open while deep in a song
+          opens where you are, rather than at the top of a page you would have to scroll back to.
+          On a wide screen they get a column of their own instead (ADR-077). */}
+      {!sideColumn && panels}
 
       {/* Before a note is played the strip shows the bar it is about to count, not the first beat
           of a song nobody has started. Once the song has moved — playing, paused, or parked on a
@@ -577,6 +595,12 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
         ))}
       </ol>
       </div>
+
+      {sideColumn && (
+        <aside className="player__side" aria-label="Settings">
+          {panels}
+        </aside>
+      )}
 
       <div className="controls">
         <div className="controls__transport">

@@ -2759,9 +2759,11 @@ pressed would only contradict it.
 ## ADR-093 — The chart writes a line's length as the editor does
 
 **Decision.** Amends ADR-061. A line whose length differs from the song's default ends, in the
-chart, in `|4|` — the bar count between pipes, exactly as it is typed — rather than a bare `4`. Its
-size, place and faintness are ADR-061's: after the last word, at 0.35 opacity, scaled with the
-chart. The pipes are hidden from screen readers, which hear "4 bars". The mark is kept on one line.
+chart, in `| 4 |` — the bar count between pipes, as it is typed, with a space inside each pipe —
+rather than a bare `4`. It is set as the lyric is, in the same face, size and line height, so it
+sits on the lyric's baseline like the line's last word, and it keeps ADR-061's faintness, 0.35
+opacity. The pipes are hidden from screen readers, which hear "4 bars". The mark is kept on one
+line.
 
 **Why.** A bare numeral after a lyric reads as a footnote or a verse number. `|4|` is the notation
 the writer typed in the editor, so the chart and the editor say the same thing the same way, and

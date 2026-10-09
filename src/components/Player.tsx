@@ -174,6 +174,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
     volume: settings.metronomeVolume,
     voice: settings.metronomeVoice,
     beatMs,
+    countInBeats: countInBars * beatsPerBar,
     schedule,
     isPlaying,
     originMs,
@@ -647,7 +648,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           </button>
 
           <span className="controls__time">
-            {countingIn ? `count-in ${countInRemaining}` : formatTime(elapsedMs)} /{' '}
+            {/* In the silent second before the count there is nothing to count down yet (ADR-097). */}
+            {countingIn
+              ? countInRemaining > 0
+                ? `count-in ${countInRemaining}`
+                : 'count-in'
+              : formatTime(elapsedMs)}{' '}
+            /{' '}
             {formatTime(totalMs)}
           </span>
 

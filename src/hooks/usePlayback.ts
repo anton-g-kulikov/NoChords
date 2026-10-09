@@ -5,8 +5,8 @@
  * `lib/playback.ts`; swapping this clock for an audio element's `currentTime` later would not
  * touch that module (ADR-003).
  *
- * A count-in is simply negative elapsed time: play starts the clock at `-countInMs` and the song
- * proper begins as it crosses zero (ADR-015).
+ * A count-in is simply negative elapsed time: play starts the clock a silent second before
+ * `-countInMs` and the song proper begins as it crosses zero (ADR-015, ADR-097).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -16,6 +16,7 @@ import {
   totalDurationMs,
   type ScheduleEntry,
 } from '../lib/playback';
+import { countInRemainingAt } from '../lib/metronome';
 
 export interface PlaybackController {
   isPlaying: boolean;
@@ -27,7 +28,7 @@ export interface PlaybackController {
   finished: boolean;
   /** True while the count-in is running. */
   countingIn: boolean;
-  /** Beats still to count, 1..n, or 0 when not counting in. */
+  /** Beats still to count, 1..n, or 0 when not counting in — or in the silent second before it. */
   countInRemaining: number;
   /**
    * `performance.now()` at elapsed zero, or `null` when stopped. The metronome pins its audio
@@ -51,6 +52,15 @@ export interface PlaybackController {
  * a second before a count-in reads as nothing at all.
  */
 const LEAD_IN_MS = 250;
+
+/**
+ * A silent second before every count-in (ADR-097).
+ *
+ * Starting the clock this far ahead of the count's first beat gives the audio — a context that has
+ * only just woken, a sound not yet made — a moment to be ready, so the count does not come in late,
+ * or on two. Nothing sounds and nothing is counted in it.
+ */
+export const SILENT_LEAD_MS = 1000;
 
 export interface PlaybackOptions {
   /** Length of the count-in before the song starts. */
@@ -118,12 +128,7 @@ export function usePlayback(
   const finished = isComplete(schedule, elapsedMs);
   const activeIndex = rowIndexAt(schedule, elapsedMs);
   const countingIn = isPlaying && elapsedMs < 0;
-  // Capped at the length of the count-in: during the lead-in the clock has not reached the first
-  // beat yet, and the raw arithmetic would flash a number that is not part of the count.
-  const countInRemaining =
-    countingIn && beatMs > 0
-      ? Math.min(Math.ceil(-elapsedMs / beatMs), Math.ceil(countInMs / beatMs))
-      : 0;
+  const countInRemaining = countingIn ? countInRemainingAt(elapsedMs, countInMs, beatMs) : 0;
 
   /** Starts from the count-in, or from the top if the song has already finished. */
   const startFrom = useCallback(
@@ -138,7 +143,7 @@ export function usePlayback(
     const atEnd = isComplete(scheduleRef.current, elapsedRef.current);
     // Count in before the top of the song, but not when resuming from a pause mid-song.
     const resuming = !atEnd && elapsedRef.current > 0;
-    startFrom(resuming ? elapsedRef.current : -countInMs);
+    startFrom(resuming ? elapsedRef.current : -countInMs - (countInMs > 0 ? SILENT_LEAD_MS : 0));
   }, [countInMs, startFrom]);
 
   const pause = useCallback(() => setIsPlaying(false), []);

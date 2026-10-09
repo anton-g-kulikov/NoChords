@@ -83,6 +83,21 @@ export const VOICE_NAMES = Object.keys(VOICES) as VoiceName[];
 
 export const DEFAULT_VOICE: VoiceName = 'shaker';
 
+/**
+ * The count-in's own sound (ADR-097): a gentle tick, whichever voice the song's beat is in.
+ *
+ * A pure tone, steady and short — nothing like the shaker's hiss, the woodblock's falling knock or
+ * the beep's buzz — so the count is never taken for the song having started. Its plain beat is
+ * quieter than any voice's, and its "one" brighter by weight and a little pitch, as every voice
+ * accents.
+ */
+export const COUNT_IN_TICK: Pick<Voice, 'accent' | 'beat'> = {
+  // A pure tone carries its energy in one place, near where hearing is keenest, so it is set well
+  // under the voices' peaks to sit at about the shaker's measured loudness rather than over it.
+  accent: { kind: 'tone', hz: 1700, wave: 'sine', attack: 0.003, decay: 0.05, peak: 0.14 },
+  beat: { kind: 'tone', hz: 1400, wave: 'sine', attack: 0.003, decay: 0.045, peak: 0.1 },
+};
+
 export function isVoiceName(value: unknown): value is VoiceName {
   return typeof value === 'string' && value in VOICES;
 }

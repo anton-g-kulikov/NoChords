@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  COUNT_IN_TICK,
   DEFAULT_VOICE,
   VOICES,
   VOICE_NAMES,
@@ -43,5 +44,28 @@ describe('metronome voices', () => {
     expect(voiceFor(undefined)).toBe(VOICES[DEFAULT_VOICE]);
     expect(isVoiceName('beep')).toBe(true);
     expect(isVoiceName('cowbell')).toBe(false);
+  });
+
+  it('VC-05 **counts in with a gentle tick of its own, unlike any voice** (ADR-097)', () => {
+    const { accent, beat } = COUNT_IN_TICK;
+    // A steady pure tone: not the shaker's noise, the woodblock's falling triangle, or the beep's square.
+    for (const stroke of [accent, beat]) {
+      expect(stroke.kind).toBe('tone');
+      expect(stroke.wave).toBe('sine');
+      expect(stroke.toHz).toBeUndefined();
+    }
+    for (const voice of Object.values(VOICES)) {
+      for (const stroke of [voice.accent, voice.beat]) {
+        expect(stroke.kind === 'tone' && (stroke.wave ?? 'sine') === 'sine' && stroke.toHz === undefined).toBe(false);
+      }
+      // Gentler: its plain beat is quieter than any voice's.
+      expect(beat.peak).toBeLessThan(voice.beat.peak);
+    }
+    // It accents as every voice does: by weight, within a fifth.
+    expect(accent.peak).toBeGreaterThan(beat.peak);
+    expect(accent.hz / beat.hz).toBeLessThan(1.5);
+    expect(accent.hz).toBeGreaterThan(beat.hz);
+    // Short enough to be a tick even at the fastest count.
+    expect(Math.max(accent.decay, beat.decay)).toBeLessThan(0.2);
   });
 });

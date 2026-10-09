@@ -5,6 +5,7 @@ import {
   beatsInWindow,
   countInDurationMs,
   countInProgress,
+  countInRemainingAt,
   countInSounded,
   pulseAt,
   isAccent,
@@ -134,6 +135,21 @@ describe('countInProgress', () => {
   });
 });
 
+describe('countInRemainingAt', () => {
+  it('MT-23 **counts nothing in the silent second, then n down to one** (ADR-097)', () => {
+    // A bar of four at 500ms a beat: the count runs from -2000ms; the clock starts at -3000ms.
+    expect(countInRemainingAt(-3000, 2000, 500)).toBe(0);
+    expect(countInRemainingAt(-2001, 2000, 500)).toBe(0);
+    expect(countInRemainingAt(-2000, 2000, 500)).toBe(4);
+    expect(countInRemainingAt(-1501, 2000, 500)).toBe(4);
+    expect(countInRemainingAt(-1500, 2000, 500)).toBe(3);
+    expect(countInRemainingAt(-1, 2000, 500)).toBe(1);
+    // The song has started, or there is no beat to count by.
+    expect(countInRemainingAt(0, 2000, 500)).toBe(0);
+    expect(countInRemainingAt(-1000, 2000, 0)).toBe(0);
+  });
+});
+
 describe('countInDurationMs', () => {
   it('MT-03 is the count-in beats at the length of one beat', () => {
     expect(countInDurationMs(500, 4)).toBe(2000);
@@ -170,6 +186,19 @@ describe('beatsInWindow', () => {
     expect([...seen].sort((a, b) => a - b)).toEqual(seen);
     // The scan runs a little past 4000ms, so it covers beats 0..8.
     expect(seen).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it('MT-22 **plays nothing before the count-in\'s first beat, so the second before it is silent** (ADR-097)', () => {
+    // A one-bar count of four, with the clock started a silent second earlier: scanning from
+    // -3000ms finds only the four count beats, never a fifth or sixth in the silence.
+    const fourBeats = beatsInWindow(inFour, 500, -3000, 0, 4).map((beat) => beat.index);
+    expect(fourBeats).toEqual([-4, -3, -2, -1]);
+    // Two bars count eight.
+    expect(beatsInWindow(inFour, 500, -5000, 0, 8).map((beat) => beat.index)).toEqual([
+      -8, -7, -6, -5, -4, -3, -2, -1,
+    ]);
+    // A window that starts inside the count is unaffected by the bound.
+    expect(beatsInWindow(inFour, 500, -1200, 0, 4).map((beat) => beat.index)).toEqual([-2, -1]);
   });
 
   it('MT-07 runs negative through the count-in (ADR-015)', () => {

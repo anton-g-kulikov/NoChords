@@ -36,6 +36,17 @@ export function countInSounded(countInBeats: number, countInRemaining: number): 
   return Math.min(Math.max(countInBeats - countInRemaining + 1, 0), Math.max(countInBeats, 0));
 }
 
+/**
+ * Count-in beats still to come at a moment, n..1, or 0 outside the count.
+ *
+ * Zero in the silent second before it too (ADR-097): the clock is running but has not reached the
+ * count's first beat, and counting from the raw arithmetic would show a beat that has not sounded.
+ */
+export function countInRemainingAt(elapsedMs: number, countInMs: number, beatMs: number): number {
+  if (elapsedMs >= 0 || beatMs <= 0 || -elapsedMs > countInMs) return 0;
+  return Math.ceil(-elapsedMs / beatMs);
+}
+
 /** Where a count-in has got to: how far into the bar going by, and how many bars are left. */
 export interface CountInProgress {
   /** Beats sounded in the bar going by, from 1; zero when nothing is counting. */
@@ -149,16 +160,20 @@ export function beatsInWindow(
   schedule: ScheduleEntry[],
   countInBeatMs: number,
   fromMs: number,
-  toMs: number
+  toMs: number,
+  countInBeats = Number.POSITIVE_INFINITY
 ): ScheduledBeat[] {
   if (!(toMs > fromMs)) return [];
   const beats: ScheduledBeat[] = [];
 
-  // The count-in runs at negative indices, on the pulse of the meter the song opens in.
+  // The count-in runs at negative indices, on the pulse of the meter the song opens in. It has a
+  // first beat: the clock starts a silent second before it (ADR-097), and that second is silent
+  // because no beat earlier than the count's own first is played.
   const leadBeat = schedule.length > 0 ? entryBeatMs(schedule[0]) : Math.max(countInBeatMs, 0);
   const leadEnd = Math.min(toMs, 0);
   if (leadBeat > 0) {
-    for (let index = Math.ceil(fromMs / leadBeat); index * leadBeat < leadEnd; index += 1) {
+    const first = Math.max(Math.ceil(fromMs / leadBeat), -Math.max(Math.round(countInBeats), 0));
+    for (let index = first; index * leadBeat < leadEnd; index += 1) {
       beats.push({ index, atMs: index * leadBeat });
     }
   }

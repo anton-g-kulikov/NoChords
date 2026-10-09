@@ -7,7 +7,7 @@
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { accentAt, beatsInWindow, clickAt } from '../lib/metronome';
-import { voiceFor, type VoiceName } from '../lib/metronomeVoice';
+import { COUNT_IN_TICK, voiceFor, type VoiceName } from '../lib/metronomeVoice';
 import { claimPlaybackSession } from '../lib/audioSession';
 import type { ScheduleEntry } from '../lib/playback';
 
@@ -43,6 +43,8 @@ export interface MetronomeOptions {
   voice: VoiceName;
   /** Length of one beat of the song's opening meter, which the count-in runs on (ADR-052). */
   beatMs: number;
+  /** Beats in the count-in. None earlier than its first is played, so the second before is silent. */
+  countInBeats: number;
   /** The song's schedule, which carries the meter running at each beat (ADR-026). */
   schedule: ScheduleEntry[];
   isPlaying: boolean;
@@ -60,6 +62,7 @@ export function useMetronome({
   volume,
   voice,
   beatMs,
+  countInBeats,
   schedule,
   isPlaying,
   originMs,
@@ -79,10 +82,10 @@ export function useMetronome({
    */
   const audioOriginRef = useRef<number | null>(null);
 
-  const latest = useRef({ volume, voice, beatMs, schedule, originMs, totalMs });
+  const latest = useRef({ volume, voice, beatMs, countInBeats, schedule, originMs, totalMs });
   useEffect(() => {
-    latest.current = { volume, voice, beatMs, schedule, originMs, totalMs };
-  }, [volume, voice, beatMs, schedule, originMs, totalMs]);
+    latest.current = { volume, voice, beatMs, countInBeats, schedule, originMs, totalMs };
+  }, [volume, voice, beatMs, countInBeats, schedule, originMs, totalMs]);
 
   /** One click, scheduled at an absolute time on the audio clock. */
   /**
@@ -137,9 +140,11 @@ export function useMetronome({
   }, []);
 
   const scheduleClick = useCallback(
-    (context: AudioContext, at: number, accent: boolean) => {
+    (context: AudioContext, at: number, accent: boolean, countIn: boolean) => {
       const { volume: level, voice: name } = latest.current;
-      const stroke = accent ? voiceFor(name).accent : voiceFor(name).beat;
+      // The count-in ticks in its own sound, so it is never taken for the song's beat (ADR-097).
+      const strokes = countIn ? COUNT_IN_TICK : voiceFor(name);
+      const stroke = accent ? strokes.accent : strokes.beat;
 
       const gain = context.createGain();
       const peak = Math.max(0.0001, level * stroke.peak);
@@ -235,7 +240,13 @@ export function useMetronome({
       const to = elapsed + LOOKAHEAD_MS + latency * 1000;
       scannedToRef.current = to;
 
-      for (const { index, atMs } of beatsInWindow(current.schedule, current.beatMs, from, to)) {
+      for (const { index, atMs } of beatsInWindow(
+        current.schedule,
+        current.beatMs,
+        from,
+        to,
+        current.countInBeats
+      )) {
         // Stop at the end of the song; the count-in beats before zero still play.
         if (atMs >= current.totalMs) continue;
         const at = clickAt(audioOrigin, atMs, latency);
@@ -243,7 +254,7 @@ export function useMetronome({
         if (lateByMs > LATE_TOLERANCE_MS) continue;
         // A click a few milliseconds late still belongs at the top of the count: play it now
         // rather than dropping it, which is what silenced the first count-in beat.
-        scheduleClick(ctx, Math.max(at, ctx.currentTime), accentAt(index, current.schedule));
+        scheduleClick(ctx, Math.max(at, ctx.currentTime), accentAt(index, current.schedule), index < 0);
       }
     }, TICK_MS);
 

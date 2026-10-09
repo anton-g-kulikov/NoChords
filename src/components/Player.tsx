@@ -96,8 +96,11 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   /** The metronome opens on its own: it is reached for at different moments to the song's
    *  settings, and often while they are shut (ADR-042). */
   const [metronomeOpen, setMetronomeOpen] = useState(false);
-  // Only while something is open: with both panels shut the chart takes the whole width back.
-  const sideColumn = wide && (setupOpen || metronomeOpen);
+  // On a wide screen everything that sets the song up lives in a sidebar, open for good: the strip
+  // keeps only the beat, so there is no button left to open it with, and no need for one (ADR-082).
+  const sideColumn = wide;
+  const showSetup = sideColumn || setupOpen;
+  const showMetronome = sideColumn || metronomeOpen;
   /** Lines whose concealed chords are showing, and when each stops (ADR-018). */
   const [reveals, setReveals] = useState<Reveals>({});
   const lastTap = useRef<LastTap | null>(null);
@@ -279,12 +282,31 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const level = levelFor(song.learningPlaythrough);
   const rule = ruleFor(level);
 
-  // The panels: what the song is set to, the metronome, and how much is hidden.
-  const panels = (
+  // How the chords read: in the strip on a phone, at the head of the sidebar on a wide screen.
+  const modeSwitch = (
+    <div className="controls__group" role="group" aria-label="Chord display">
+      {MODES.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          title={option.hint}
+          aria-label={option.value}
+          aria-pressed={mode === option.value}
+          className={mode === option.value ? 'segment segment--active' : 'segment'}
+          onClick={() => setMode(option.value)}
+        >
+          {modeLabels[option.value]}
+        </button>
+      ))}
+    </div>
+  );
+
+  // What the song is set to, and the metronome.
+  const setupPanels = (
     <>
       <div
         className={
-          setupOpen || metronomeOpen
+          showSetup || showMetronome
             ? 'controls__setup'
             : 'controls__setup controls__setup--closed'
         }
@@ -299,7 +321,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
            * used to sit in one row: a display mode forgotten on the way out, a key saved to this
            * song, and a count-in that quietly changed every song on the device.
            */}
-          {setupOpen && (
+          {showSetup && (
           <section className="setup__group" aria-label="This song">
             <h2 className="setup__legend">This song</h2>
             <div className="setup__row">
@@ -319,7 +341,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           </section>
           )}
 
-          {metronomeOpen && (
+          {showMetronome && (
           <section className="setup__group" aria-label="Metronome">
             <h2 className="setup__legend">
               Metronome
@@ -411,7 +433,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
       </div>
 
 
-      {mode === 'learning' && setupOpen && (
+    </>
+  );
+
+  // How much is hidden, while learning.
+  const learningPanel = (
+    <>
+      {mode === 'learning' && showSetup && (
         <div className="learning-bar">
           {/* The level gets a row to itself: it is the one thing here you set, rather than read. */}
           <div className="learning-bar__levels">
@@ -479,25 +507,12 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
        * can be opened from anywhere in a long song, not only from the top of it.
        */}
       <div className="player__header">
+      {!sideColumn && (
       <div className="settings-bar">
         {/* In the strip rather than the panel (ADR-040): it is the one control reached for
             mid-song, and the panel is shut while playing. Not in the transport, which is a
             thumb-slip from Play and already at the width of a phone. */}
-          <div className="controls__group" role="group" aria-label="Chord display">
-            {MODES.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                title={option.hint}
-                aria-label={option.value}
-                aria-pressed={mode === option.value}
-                className={mode === option.value ? 'segment segment--active' : 'segment'}
-                onClick={() => setMode(option.value)}
-              >
-                {modeLabels[option.value]}
-              </button>
-            ))}
-          </div>
+          {modeSwitch}
 
         {/* The two disclosures travel together, at the end of the strip. */}
         <div className="settings-bar__actions">
@@ -538,11 +553,17 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
           </button>
         </div>
       </div>
+      )}
 
       {/* On a phone, inside the pinned header (ADR-060): a panel you open while deep in a song
           opens where you are, rather than at the top of a page you would have to scroll back to.
-          On a wide screen they get a column of their own instead (ADR-077). */}
-      {!sideColumn && panels}
+          On a wide screen they get a column of their own instead (ADR-077, ADR-082). */}
+      {!sideColumn && (
+        <>
+          {setupPanels}
+          {learningPanel}
+        </>
+      )}
 
       {/* Before a note is played the strip shows the bar it is about to count, not the first beat
           of a song nobody has started. Once the song has moved — playing, paused, or parked on a
@@ -598,7 +619,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
       {sideColumn && (
         <aside className="player__side" aria-label="Settings">
-          {panels}
+          <section className="setup__group player__side-mode" aria-label="Chords">
+            <h2 className="setup__legend">Chords</h2>
+            {modeSwitch}
+          </section>
+          {/* The level belongs to the mode that has one, so it follows it directly. */}
+          {learningPanel}
+          {setupPanels}
         </aside>
       )}
 

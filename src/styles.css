@@ -1877,9 +1877,16 @@ kbd {
   scrollbar-color: var(--border-strong) transparent;
 }
 
-/* Its own column has its own edge, so the rule under the panels has nothing to separate. */
+/* Its own column has its own edge, so the rule under the panels has nothing to separate. The
+   rule above them divides the panels from the chord display at the head of the column. */
+/* Directly under the mode that turned it on. */
+.player__side .learning-bar {
+  margin: 0.75rem 0 0;
+}
+
 .player__side .controls__setup {
-  padding-top: 0;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--border);
   border-bottom: none;
 }
 

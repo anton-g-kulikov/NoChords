@@ -7,6 +7,7 @@ import {
   songLanguage,
 } from '../src/lib/language';
 import { UNTITLED_SONG } from '../src/lib/songs';
+import { createExampleSongs } from '../src/lib/examples';
 import type { Song } from '../src/types/song';
 
 /** Just what the language is read from: a title and the lines' words. */
@@ -76,5 +77,15 @@ describe('song language (ADR-081)', () => {
     expect(effectiveLanguageFilter('ru', [RISING_SUN])).toBe('all');
     expect(effectiveLanguageFilter('ru', [RISING_SUN, VORON])).toBe('ru');
     expect(effectiveLanguageFilter('all', [RISING_SUN, VORON])).toBe('all');
+  });
+
+  it('LG-07 **a new library offers the choice from its first run**', () => {
+    // Seeding a song for each audience (ADR-080) is paid back by being able to set one aside.
+    const seeded = createExampleSongs();
+    expect(seeded.map((example) => [example.title, songLanguage(example)])).toEqual([
+      ['House of the Rising Sun', 'en'],
+      ['Чёрный ворон', 'ru'],
+    ]);
+    expect(offersLanguageChoice(seeded)).toBe(true);
   });
 });

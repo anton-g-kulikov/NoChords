@@ -608,6 +608,7 @@ and without the filter ever making a song look lost (ADR-081).
 | LG-04 | A filter keeps one language in the library's order; "All" keeps everything | ✅ |
 | LG-05 | A choice is offered only when the library holds more than one language | ✅ |
 | LG-06 | **A remembered choice cannot empty a library that no longer offers it** | ✅ |
+| LG-07 | **A new library offers the choice from its first run** | ✅ |
 
 ### Fixture acceptance — `examples.test.ts`
 

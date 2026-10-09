@@ -9,9 +9,10 @@
  * The Rising Sun closes every verse on the C it resolves to, then plays the turnaround — D, F, Am,
  * E, Am, E — as one line of six bars, a bar to each chord (`|6|`).
  *
- * The lyrics are traditional public-domain texts — Чёрный ворон is the folk song that grew from
- * Nikolai Verevkin's 1831 poem; the chord placements and timings are the fixture document's own
- * test arrangements, not transcriptions of any recorded arrangement.
+ * The lyrics are public-domain texts — the three folk songs are traditional, and Дорогой длинною is
+ * Konstantin Podrevsky's 1927 printing (he died in 1930, Boris Fomin in 1948); the chord placements
+ * and timings are the fixture document's own test arrangements, not transcriptions of any recorded
+ * arrangement.
  */
 import { createSong, rowsFromPastedText } from "./songs";
 import type { TempoUnit } from "./tempo";
@@ -108,34 +109,51 @@ Dear [Am]God, I [E]know I was [Am]one. [C]
 [D] [F] [Am] [E] [Am] [E] |6|
 `;
 
-const CHORNY_VORON = `
-[Am]Черный ворон, [Dm]черный [Am]ворон,
-[E]Что ж ты вьешься [Am]надо мной?
-[Dm]Ты добычи [G]не до[C]ждешься,
-[Dm]Черный ворон, [E]я не [Am]твой!
-[Dm]Ты добычи [G]не до[C]ждешься,
-[Dm]Черный ворон, [E]я не [Am]твой!|4|
+const DOROGOY_DLINNOYU = `
+[Gm]Ехали на тр[Cm]ойке с бубен[Gm]цами,
+[G7]А вдали мелькали огонь[Cm]ки.
+[Gm]Эх, когда бы мне [Cm]теперь за [Gm]вами,
+[A7]Душу бы развеять от тос[D7]ки!
 
-[Am]Передайте, [Dm]пере[Am]дачу,
-[E]Милой любе, [Am]дорогой,
-[Dm]И скажите [G]что, я же[C]натый,
-[Dm]Я женился [E]на дру[Am]гой!
-[Dm]И скажите [G]что, я же[C]натый,
-[Dm]Я женился [E]на дру[Am]гой!|4|
+Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
+Да с песней [F]той, что в даль летит, [Bb]звеня,
+И с той ста[Cm]ринною, да семист[Gm]рунною,
+Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
 
-[Am]А женила [Dm]меня [Am]пуля,
-[E]Под ракитовым [Am]кустом,
-[Dm]Востра шашка, [G]была [C]свашкой,
-[Dm]Конь буланый, [E]был сва[Am]том!
-[Dm]Востра шашка, [G]была [C]свашкой,
-[Dm]Конь буланый, [E]был сва[Am]том!|4|
+[Gm]Да, выходит, [Cm]пели мы за[Gm]даром.
+[G7]Понапрасну ночь за ночью [Cm]жгли.
+[Gm]Если мы по[Cm]кончили со [Gm]старым,
+[A7]Так и ночи эти ото[D7]шли!
 
-[Am]Черный ворон, [Dm]черный [Am]ворон,
-[E]Что ж ты вьешься [Am]надо мной?
-[Dm]Ты добычи [G]не до[C]ждешься,
-[Dm]Черный ворон, [E]я не [Am]твой!
-[Dm]Ты добычи [G]не до[C]ждешься,
-[Dm]Черный ворон, [E]я не [Am]твой!|4|
+Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
+Да с песней [F]той, что в даль летит, [Bb]звеня,
+И с той ста[Cm]ринною, да семист[Gm]рунною,
+Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
+
+[Gm]В даль иную — [Cm]новыми пу[Gm]тями —
+[G7]Ехать нам судьбою сужде[Cm]но!
+[Gm]Ехали на [Cm]тройке с бубен[Gm]цами,
+[A7]Да теперь проехали дав[D7]но.
+
+Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
+Да с песней [F]той, что в даль летит, [Bb]звеня,
+И с той ста[Cm]ринною, да семист[Gm]рунною,
+Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
+
+[Gm]Никому те[Cm]перь уж не нуж[Gm]на я,
+[G7]И любви былой не воро[Cm]тить,
+[Gm]Коль порвётся жизнь [Cm]моя боль[Gm]ная,
+[A7]Вы меня везите хоро[D7]нить.
+
+Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
+Да с песней [F]той, что в даль летит, [Bb]звеня,
+И с той ста[Cm]ринною, да семист[Gm]рунною,
+Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
+
+Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
+Да с песней [F]той, что в даль летит, [Bb]звеня,
+И с той ста[Cm]ринною, да семист[Gm]рунною,
+Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
 `;
 
 const SOURCES: ExampleSource[] = [
@@ -169,24 +187,26 @@ const SOURCES: ExampleSource[] = [
     fixture: RISING_SUN,
   },
   {
-    title: "Чёрный ворон",
-    key: "Am",
-    tempo: 72,
+    title: "Дорогой длинною",
+    key: "Gm",
+    tempo: 120,
     tempoUnit: "quarter",
-    barsPerLine: 2,
+    barsPerLine: 4,
     meter: "4/4",
-    fixture: CHORNY_VORON,
+    // Four bars a line would be a four-bar wait; two set the pulse without stalling.
+    countInBars: 2,
+    fixture: DOROGOY_DLINNOYU,
   },
 ];
 
 /**
- * Which fixtures a new library is given (ADR-076, ADR-080).
+ * Which fixtures a new library is given (ADR-076, ADR-080, ADR-084).
  *
- * The Rising Sun, and Чёрный ворон for Russian speakers: a song each audience already knows, one
- * in 6/8 and one in 4/4. The other fixtures stay — they are what the acceptance tests play — but a
+ * The Rising Sun, and Дорогой длинною for Russian speakers: a song each audience already knows,
+ * one in 6/8 and one in 4/4. The other fixtures stay — they are what the acceptance tests play — but a
  * first run is a welcome, not a test suite.
  */
-const SEEDED = new Set(["House of the Rising Sun", "Чёрный ворон"]);
+const SEEDED = new Set(["House of the Rising Sun", "Дорогой длинною"]);
 
 function build(source: ExampleSource): Song {
   return createSong({

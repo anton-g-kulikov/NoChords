@@ -621,7 +621,7 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | # | Case | Status |
 |---|------|--------|
 | EX-01 | The four fixtures load with their stated keys and tempos | ✅ |
-| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`|4|`); every Rising Sun verse closes on a six-bar turnaround (`|6|`); Чёрный ворон holds each of its four verse endings (`|4|`) | ✅ |
+| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`|4|`); every Rising Sun verse closes on a six-bar turnaround (`|6|`); Дорогой длинною keeps every line at its four bars, in nine verse and chorus sections | ✅ |
 | EX-03 | Lyric text is intact and each chord is anchored inside it | ✅ |
 | EX-04 | Relative representation matches the document (`Dm`→`1m`, `C`→`7`, etc.); Cyrillic lyrics parse like any other | ✅ |
 | EX-05 | Blackbird G→A gives A/D/E with degrees unchanged, stored rows untouched | ✅ |
@@ -630,8 +630,8 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-07 | Schedule runs the Rising Sun lines back to back — one bar a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
-| EX-12 | The Rising Sun counts in two bars; the other fixtures follow their line length | ✅ |
-| EX-11 | A new library is seeded with House of the Rising Sun and Чёрный ворон; the other fixtures are for tests | ✅ |
+| EX-12 | The seeded songs count in two bars; the other fixtures follow their line length | ✅ |
+| EX-11 | A new library is seeded with House of the Rising Sun and Дорогой длинною; the other fixtures are for tests | ✅ |
 
 ## Browser acceptance run
 

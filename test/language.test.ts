@@ -84,7 +84,7 @@ describe('song language (ADR-081)', () => {
     const seeded = createExampleSongs();
     expect(seeded.map((example) => [example.title, songLanguage(example)])).toEqual([
       ['House of the Rising Sun', 'en'],
-      ['Чёрный ворон', 'ru'],
+      ['Дорогой длинною', 'ru'],
     ]);
     expect(offersLanguageChoice(seeded)).toBe(true);
   });

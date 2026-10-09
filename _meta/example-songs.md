@@ -275,26 +275,30 @@ repeated playthroughs.
 
 ---
 
-## 4. Чёрный ворон
+## 4. Дорогой длинною
 
-**Type:** Traditional Russian (Cossack) folk song\
-**Test key:** A minor\
+**Type:** Russian romance, 1924; words by Konstantin Podrevsky, music by Boris Fomin\
+**Test key:** G minor\
 **Meter:** 4/4\
-**Tempo:** 72 BPM\
-**Purpose:** The Russian-language seed song (ADR-080): Cyrillic lyrics, a 4/4 meter beside the
-other fixtures' 3/4 and 6/8, four verses with the same chords so learning level 1 has repeats to
-thin. Each verse sings its last two lines twice, as the song is sung.
+**Tempo:** 120 BPM\
+**Count-in:** 2 bars\
+**Purpose:** The Russian-language seed song (ADR-084): Cyrillic lyrics, a 4/4 meter beside the
+other fixtures' 3/4 and 6/8, and verse–chorus sections — four verses with the same chords and the
+same chorus after each — so learning level 1 has repeats of both to thin. Its four-bar lines make
+it the fixture that needs a count-in of its own (ADR-083).
 
-Written directly in the app's inline notation, two bars to a line and each verse ending held for
-four (`|4|`), verses separated by blank lines. The text is `CHORNY_VORON` in `src/lib/examples.ts`.
+Written directly in the app's inline notation, four bars to a line, every verse and chorus its own
+block, and the last chorus sung twice. The text is `DOROGOY_DLINNOYU` in `src/lib/examples.ts`.
 
 ### Expected relative representation
 
-- `Am` → `i`
-- `Dm` → `iv`
-- `E` → `V`
-- `G` → `VII`
-- `C` → `III`
+- `Gm` → `i`
+- `Cm` → `iv`
+- `G7` → `I7`, the dominant into `Cm`
+- `A7` → `II7`, the dominant into `D7`
+- `D7` → `V7`
+- `F` → `VII`
+- `Bb` → `III`
 
 ---
 
@@ -372,12 +376,15 @@ Each fixture must:
 - **House of the Rising Sun:** traditional song with a printed version
   documented by Robert Winslow Gordon in 1925. The fixture is not a
   transcription of The Animals' arrangement.
-- **Чёрный ворон:** the folk song that grew from Nikolai Verevkin's poem
-  «Под ракитою зелёной», published in *Русский инвалид* in 1831, and
-  later sung in the film «Чапаев» (1934). The fixture uses a common folk
-  variant of the text — the "Передайте передачу" / "конь буланый" one,
-  opening and closing on the raven verse — not Gavriil Popov's film
-  arrangement.
+- **Дорогой длинною:** the text of the first printing — B. Fomin,
+  «Дорогой длинною», for voice and piano, words by K. N. Podrevsky
+  (Rostov-on-Don: author's edition, 1927), as transcribed on Wikisource
+  — all four verses. The chorus is the sung variant («и ночью лунною»,
+  «И с той старинною») rather than the printing's («погодой лунною»,
+  «Да со старинною»). Podrevsky died in 1930 and Fomin in 1948, so it is
+  in the public domain in Russia, and as a 1927 publication in the US.
+  Eugene Raskin's English lyrics, "Those Were the Days", are a separate
+  work under copyright and are not used.
 
 The chord arrangements, chord placement, timing values, and application
 formatting in this file were created specifically as development

@@ -2481,3 +2481,37 @@ Only devices with no stored preference get it: a device that ever saved its sett
 shows the resolved number, but working out why it is two takes knowing about both settings. And a
 first Play now makes a sound, which in a quiet room is a surprise rather than a discovery.
 
+---
+
+## ADR-084 — The Russian seed song is Дорогой длинною
+
+**Decision.** Amends ADR-080. The second seeded song is Дорогой длинною in place of Чёрный ворон:
+Konstantin Podrevsky's four verses as printed in 1927, with the chorus after each as it is usually
+sung and the last chorus twice, in Gm and 4/4 at 120 bpm, four bars to a line, counting in two bars
+(ADR-083). Чёрный ворон is no longer a fixture.
+
+**Why this song.** ADR-080 wanted the song a Russian speaker already knows, and the mid-century
+repertoire that is best known is under copyright. Дорогой длинною is the rare one that is not:
+written in 1924 and printed in 1927, its words are by Podrevsky, who died in 1930, and its music by
+Fomin, who died in 1948 — out of copyright in Russia since 2023 even with the wartime extension, and
+in the US as a work published before 1928. It was sung through the whole century, and it is known
+abroad as "Those Were the Days", so an English speaker meeting it in the library may know the tune
+too. Raskin's English lyrics are a separate work under copyright; only the Russian text is used.
+
+**Why the printed text, and the sung chorus.** Folk songs exist in variants, and ADR-080's choice of
+one was a guess at what people sing. A romance has an author and a first printing, so the verses
+follow it. The chorus is the exception: the printing has «погодой лунною» and «Да со старинною»,
+and the song is sung «и ночью лунною» and «И с той старинною» — the words people will sing along to.
+Both are Podrevsky's chorus, and neither is anyone else's copyright.
+
+**The arrangement.** Gm with its own secondary dominants — G7 into Cm, A7 into D7 — and F and B♭ in
+the chorus: the harmony of the romance as it is played, given by Anton for the first verse and
+chorus and carried through the other verses on the same syllables.
+
+**Why verse and chorus as separate sections.** Each verse and each chorus is its own block, so the
+four verses share one chord pattern and the five choruses another, and learning level 1 has
+repeats of both to thin (ADR-058) — the shape most songs people bring will have.
+
+**Cost.** Libraries already seeded with Чёрный ворон keep it; seeding only fills an empty library.
+At four bars a line it is a long song — nearly five minutes.
+

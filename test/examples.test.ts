@@ -41,7 +41,7 @@ const byTitle = (title: string): Song => {
 const scarborough = byTitle("Scarborough Fair");
 const blackbird = byTitle("If I Was a Blackbird");
 const risingSun = byTitle("House of the Rising Sun");
-const voron = byTitle("Чёрный ворон");
+const dorogoy = byTitle("Дорогой длинною");
 
 /** Every distinct chord symbol in a song, in first-seen order. */
 function symbolsOf(song: Song): string[] {
@@ -60,12 +60,12 @@ describe("example songs", () => {
     expect([scarborough.originalKey, scarborough.tempo]).toEqual(["Dm", 90]);
     expect([blackbird.originalKey, blackbird.tempo]).toEqual(["G", 90]);
     expect([risingSun.originalKey, risingSun.tempo]).toEqual(["Am", 80]);
-    expect([voron.originalKey, voron.tempo]).toEqual(["Am", 72]);
+    expect([dorogoy.originalKey, dorogoy.tempo]).toEqual(["Gm", 120]);
     // Six beats to a line either way: two bars of 3/4, or one of 6/8 (ADR-032).
     expect([scarborough.meter, scarborough.barsPerLine]).toEqual(['3/4', 2]);
     expect([blackbird.meter, blackbird.barsPerLine]).toEqual(['3/4', 2]);
     expect([risingSun.meter, risingSun.barsPerLine]).toEqual(['6/8', 1]);
-    expect([voron.meter, voron.barsPerLine]).toEqual(['4/4', 2]);
+    expect([dorogoy.meter, dorogoy.barsPerLine]).toEqual(['4/4', 4]);
     // A fixture opens in its own key.
     expect(examples.every((song) => song.currentKey === song.originalKey)).toBe(
       true,
@@ -77,11 +77,12 @@ describe("example songs", () => {
     expect(scarborough.rows).toHaveLength(16);
     expect(blackbird.rows).toHaveLength(16);
     expect(risingSun.rows).toHaveLength(35);
-    // Four six-line verses — each sings its last two lines twice — with a blank line between each.
-    expect(voron.rows).toHaveLength(27);
-    expect(voron.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
-      4, 4, 4, 4,
-    ]);
+    // Four verses, each followed by the chorus and the last chorus sung twice, every section its
+    // own block: nine sections of four lines and eight blank lines between them. Every line is
+    // the song's four bars.
+    expect(dorogoy.rows).toHaveLength(44);
+    expect(dorogoy.rows.filter((row) => row.bars !== null)).toEqual([]);
+    expect(sectionsOf(dorogoy.rows)).toHaveLength(9);
 
     // A line takes the song default unless it says otherwise, and it says so in bars (ADR-032).
     // Scarborough and Blackbird hold each verse ending for four bars against a usual two.
@@ -159,12 +160,14 @@ describe("example songs", () => {
     ]);
 
     // Cyrillic lyrics parse like any other: the chord still lands on its syllable.
-    expect(voron.rows[0].lyrics).toBe("Черный ворон, черный ворон,");
-    expect(symbolsOf(voron)).toEqual(["Am", "Dm", "E", "G", "C"]);
-    expect(symbolsOf(voron).map((s) => toNashville(s, "Am"))).toEqual([
+    expect(dorogoy.rows[0].lyrics).toBe("Ехали на тройке с бубенцами,");
+    expect(symbolsOf(dorogoy)).toEqual(["Gm", "Cm", "G7", "A7", "D7", "F", "Bb"]);
+    expect(symbolsOf(dorogoy).map((s) => toNashville(s, "Gm"))).toEqual([
       "i",
       "iv",
-      "V",
+      "I7",
+      "II7",
+      "V7",
       "VII",
       "III",
     ]);
@@ -281,22 +284,20 @@ describe("example songs", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("EX-12 the Rising Sun counts in two bars; the others follow their line length (ADR-083)", () => {
+  it("EX-12 the seeded songs count in two bars; the others follow their line length (ADR-083)", () => {
     // One bar of 6/8 is over before the pulse has settled, so the Rising Sun asks for two.
     expect(risingSun.countInBars).toBe(2);
     expect(countInBarsFor(null, risingSun.barsPerLine, risingSun.countInBars)).toBe(2);
-    expect([scarborough, blackbird, voron].map((song) => song.countInBars)).toEqual([
-      null,
-      null,
-      null,
-    ]);
+    // Дорогой длинною's line is four bars, which would be a four-bar wait; it asks for two.
+    expect(dorogoy.countInBars).toBe(2);
+    expect([scarborough, blackbird].map((song) => song.countInBars)).toEqual([null, null]);
   });
 
-  it("EX-11 a new library starts with the Rising Sun and Чёрный ворон (ADR-076, ADR-080)", () => {
+  it("EX-11 a new library starts with the Rising Sun and Дорогой длинною (ADR-076, ADR-084)", () => {
     // The other fixtures are for the tests above; a first run gets a song each audience knows.
     expect(createExampleSongs().map((song) => song.title)).toEqual([
       "House of the Rising Sun",
-      "Чёрный ворон",
+      "Дорогой длинною",
     ]);
   });
 });

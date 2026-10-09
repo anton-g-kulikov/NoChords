@@ -2770,3 +2770,33 @@ someone who has only ever played a song learns the notation by seeing it.
 **Why the meter mark is unchanged.** `4/4` already reads as a time signature on its own; braces
 would add nothing a musician needs to recognise it.
 
+---
+
+## ADR-094 — The count-in only counts; an intro is written into the song
+
+**Decision.** Supersedes ADR-059's Auto and ADR-083's per-song count-in. Every song starts with a
+count-in of one bar of its opening meter — "1 2 3 4" in 4/4, "1 2 3 4 5 6" in 6/8 — or two bars,
+a device setting chosen as `1 | 2` in the metronome panel (`Settings.countInBars: 1 | 2`, default
+1). The beat strip names it "count-in" while it runs and "1-bar count-in" before Play. Bars to be
+played before the singing are an **intro**, and an intro is part of the song: a line of chords with
+no words at the top of its text, `[Am] [C] [D] [F] |4|`, which the notation already reads. There is
+no intro setting. `Song.countInBars`, the editor's count-in field, Auto, and the 0–24 bar device
+range are gone.
+
+**Why.** A count-in is a count: the bar a band counts aloud so everyone comes in together. What the
+setting had become — four bars of clicks before the Rising Sun, or "one line's worth" by default —
+was an intro dressed as a count, and it could not say what the intro plays. Written into the song,
+an intro has chords, a length, and a place in the chart, scrolls like any other line, and is
+concealed while learning like any other line.
+
+**Why one or two, and per device.** One bar is the count; two is for a slow song, or a player who
+wants a bar to settle in. More than that is an intro. How long a player likes to be counted in is
+theirs, not the song's, so it lives with the metronome's other device settings (ADR-016).
+
+**What happens to stored values.** A song saved with its own count-in still loads; the field is not
+read and is dropped the next time the song is saved. A device count-in of two bars or more becomes
+2; anything else — none, one, Auto — becomes 1, since every song is now counted in. The Rising Sun
+fixture loses its `countInBars: 4`; its intro is for its arrangement to write.
+
+**Cost.** Someone who relied on a long count-in before a song with no intro written now gets one or
+two bars, and has to write the intro into the song to get the rest back.

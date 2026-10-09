@@ -230,7 +230,7 @@ described at the end of this document.
 | ST-09 | **A song stored before tempo units is read as the unit that preserves its timing** | ✅ |
 | ST-10 | A tempo unit the app does not offer is refused | ✅ |
 | ST-12 | **A song saved in the dotted quarter loads at the same speed in eighths or quarters** | ✅ |
-| ST-11 | A song's own count-in is kept; one stored without it reads as Auto; out-of-range numbers are clamped | ✅ |
+| ST-11 | A song saved with its own count-in still loads, and the count-in is left behind | ✅ |
 
 ### Metronome timing — `metronome.test.ts`
 
@@ -329,7 +329,7 @@ lossless for good data and must refuse bad data rather than letting it into the 
 | SD-08 | Unknown extra fields are dropped rather than carried into the app | ✅ |
 | SD-09 | The document contains no `undefined`, which Firestore rejects | ✅ |
 | SD-10 | The tempo unit is written, and supplied for a document stored without one | ✅ |
-| SD-11 | A song's count-in is written, as `null` for Auto, and read back as Auto when missing | ✅ |
+| SD-11 | A song's count-in is no longer written, and one an older version wrote is read past | ✅ |
 
 ### Sign-in import decision — `cloud-import.test.ts`
 
@@ -489,18 +489,16 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-03 | Corrupt or non-object JSON falls back to the defaults | ✅ |
 | SET-04 | A partly broken record keeps its valid fields | ✅ |
 | SET-05 | Volume is clamped into 0..1 | ✅ |
-| SET-06 | Count-in is clamped to a sane number of beats | ✅ |
+| SET-06 | A count-in other than one bar or two is never stored | ✅ |
 | SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
-| SET-08 | **A count-in stored in beats converts to the nearest whole bar, rounding** | ✅ |
-| SET-09 | **A count-in that was asked for never converts to none at all** | ✅ |
+| SET-08 | **A count-in stored in beats converts four to the bar, then to one bar or two** | ✅ |
+| SET-09 | **A count-in never becomes none at all** | ✅ |
 | SET-13 | The chosen sound is kept; one the app cannot make is refused | ✅ |
-| SET-10 | **With nothing set, the count-in follows the song's bars per line** | ✅ |
-| SET-11 | A count-in set outright wins, including none at all | ✅ |
-| SET-12 | A followed count-in stays inside the offered range | ✅ |
+| SET-10 | **Every song is counted in by one bar, or two if chosen** | ✅ |
+| SET-11 | **A count-in from before it was one bar or two becomes the nearer of the two** | ✅ |
 | SET-14 | The chosen scheme is kept; anything else, or nothing, follows the device | ✅ |
 | SET-15 | The chosen ink is kept; anything else, or nothing, is vermilion | ✅ |
 | SET-16 | The chosen song language is kept; anything else, or nothing, shows every song | ✅ |
-| SET-17 | **Following the song means its own count-in when it has one; a device count-in still wins** | ✅ |
 | SET-18 | The beat is heard by default, as a shaker; a device that turned it off keeps it off | ✅ |
 
 ### Light and dark — `theme.test.ts`
@@ -633,7 +631,6 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-07 | Schedule runs the Rising Sun lines back to back — four bars a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
-| EX-12 | The Rising Sun carries its own count-in of four bars; the other fixtures follow their line length | ✅ |
 | EX-11 | A new library is seeded with House of the Rising Sun and Постой, паровоз; the other fixtures are for tests | ✅ |
 
 ## Browser acceptance run

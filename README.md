@@ -29,11 +29,12 @@ npm run dev      # http://localhost:5173
 | `npm run deploy` | Build and deploy to Firebase Hosting |
 | `npm run deploy:rules` | Deploy the Firestore security rules |
 
-A new library starts with three traditional songs already in it, so there is something to play with
-on the first run (ADR-024). They are ordinary songs — edit or delete them like any other (deleting is at
-the foot of the editor); deleting them is remembered, and they do not come back. To change what everyone's first run contains, edit
-the fixtures in [`src/lib/examples.ts`](src/lib/examples.ts) and deploy; existing libraries keep the
-copies they already have.
+A new library starts with one traditional song already in it, House of the Rising Sun, so there is
+something to play with on the first run (ADR-024, ADR-076). It is an ordinary song — edit or delete it
+like any other (deleting is at the foot of the editor); deleting it is remembered, and it does not come
+back. To change what everyone's first run contains, edit `SEEDED` in
+[`src/lib/examples.ts`](src/lib/examples.ts) and deploy; existing libraries keep the copies they
+already have.
 
 **Sign in**, at the top of the library, signs in with Google and moves the library to Firestore so
 it syncs across devices.
@@ -338,9 +339,10 @@ or positioning, tabs, chord diagrams, ear training, accounts, and cloud sync.
 
 ## Credits
 
-The example songs are traditional public-domain texts (Scarborough Fair, I Am a Young Maiden /
-If I Was a Blackbird, House of the Rising Sun). Their chord placements and timings are original
-test arrangements written as development fixtures, not transcriptions of any recorded arrangement.
+The example song and the test fixtures are traditional public-domain texts (House of the Rising Sun,
+Scarborough Fair, I Am a Young Maiden / If I Was a Blackbird). Their chord placements and timings are
+original test arrangements written as development fixtures, not transcriptions of any recorded
+arrangement.
 
 Literata (The Literata Project Authors) and Instrument Sans (The Instrument Sans Project Authors)
 are used under the SIL Open Font License 1.1.

@@ -610,6 +610,7 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-07 | Schedule runs the Rising Sun lines back to back, starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
+| EX-11 | A new library is seeded with House of the Rising Sun alone; the other fixtures are for tests | ✅ |
 
 ## Browser acceptance run
 

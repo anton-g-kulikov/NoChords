@@ -2242,3 +2242,25 @@ cache answering nothing.
 **Cost.** iOS still cannot be reached: an icon already on a home screen stays as it was until the
 app is removed and added again. The version only guarantees that the *next* install gets the right
 one.
+
+---
+
+## ADR-076 — A new library starts with one song
+
+**Decision.** Amends ADR-024. A new library is seeded with House of the Rising Sun alone. Scarborough
+Fair and If I Was a Blackbird remain development fixtures — `createFixtureSongs()` builds all three
+for the acceptance tests — but `createExampleSongs()`, which seeds, returns only the songs named in
+`SEEDED`.
+
+**Why one.** Three songs read as a demo library someone else made: a first run spent deciding what to
+delete. One song everybody already knows says "this is what a song looks like here" and leaves the
+library to its owner. The Rising Sun is the one to keep: the best known of the three, in 6/8 so the
+count-in and the beat strip have something to show, with a regrouped `{3/4}` ending that shows the
+notation can do more than chords over words.
+
+**Why the fixtures stay.** They are what EX-01..09 play: Scarborough's held verse endings, Blackbird's
+G→A transposition, two waltzes against one 6/8. Dropping them from the seed is a decision about a
+welcome; dropping them from the tests would be losing coverage for it.
+
+**Cost.** Existing libraries keep the copies they were given — seeding only ever fills an empty
+library — so the change reaches new devices and new accounts only.

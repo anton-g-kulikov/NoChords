@@ -142,18 +142,34 @@ const SOURCES: ExampleSource[] = [
   },
 ];
 
-/** Builds a fresh copy of each example song, with new ids every call. */
+/**
+ * Which fixtures a new library is given (ADR-076).
+ *
+ * Only the Rising Sun: one song everybody already knows, in a meter that shows off the count-in and
+ * the regrouped ending. The other fixtures stay — they are what the acceptance tests play — but a
+ * first run is a welcome, not a test suite.
+ */
+const SEEDED = new Set(["House of the Rising Sun"]);
+
+function build(source: ExampleSource): Song {
+  return createSong({
+    title: source.title,
+    originalKey: source.key,
+    currentKey: source.key,
+    tempo: source.tempo,
+    tempoUnit: source.tempoUnit,
+    barsPerLine: source.barsPerLine,
+    meter: source.meter,
+    rows: rowsFromPastedText(source.fixture.trim()),
+  });
+}
+
+/** Builds a fresh copy of every development fixture, with new ids every call. */
+export function createFixtureSongs(): Song[] {
+  return SOURCES.map(build);
+}
+
+/** Builds a fresh copy of the songs a new library starts with, with new ids every call. */
 export function createExampleSongs(): Song[] {
-  return SOURCES.map((source) =>
-    createSong({
-      title: source.title,
-      originalKey: source.key,
-      currentKey: source.key,
-      tempo: source.tempo,
-      tempoUnit: source.tempoUnit,
-      barsPerLine: source.barsPerLine,
-      meter: source.meter,
-      rows: rowsFromPastedText(source.fixture.trim()),
-    }),
-  );
+  return SOURCES.filter((source) => SEEDED.has(source.title)).map(build);
 }

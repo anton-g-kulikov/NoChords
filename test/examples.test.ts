@@ -3,7 +3,7 @@
  * The expected values here are the ones that document states.
  */
 import { describe, expect, it } from "vitest";
-import { createExampleSongs } from "../src/lib/examples";
+import { createExampleSongs, createFixtureSongs } from "../src/lib/examples";
 import { transposeChord } from "../src/lib/chords";
 import { toNashville } from "../src/lib/nashville";
 import {
@@ -30,7 +30,7 @@ function memoryStorage(): StorageLike {
   };
 }
 
-const examples = createExampleSongs();
+const examples = createFixtureSongs();
 const byTitle = (title: string): Song => {
   const song = examples.find((item) => item.title === title);
   if (!song) throw new Error(`missing fixture: ${title}`);
@@ -256,5 +256,10 @@ describe("example songs", () => {
       ...song.rows.map((row) => row.id),
     ]);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("EX-11 a new library starts with the Rising Sun alone (ADR-076)", () => {
+    // The other fixtures are for the tests above; a first run gets one song everybody knows.
+    expect(createExampleSongs().map((song) => song.title)).toEqual(["House of the Rising Sun"]);
   });
 });

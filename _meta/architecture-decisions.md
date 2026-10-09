@@ -2255,10 +2255,14 @@ for the acceptance tests — but `createExampleSongs()`, which seeds, returns on
 **Why one.** Three songs read as a demo library someone else made: a first run spent deciding what to
 delete. One song everybody already knows says "this is what a song looks like here" and leaves the
 library to its owner. The Rising Sun is the one to keep: the best known of the three, in 6/8 so the
-count-in and the beat strip have something to show, with a regrouped `{3/4}` ending that shows the
-notation can do more than chords over words.
+count-in and the beat strip have something to show. Its arrangement was rewritten at the same time:
+every verse now ends on the C it resolves to and closes with a six-bar turnaround,
+`[D] [F] [Am] [E] [Am] [E] |6|` — one line, a bar to each chord — in place of the old two-line
+instrumental and the regrouped `{3/4}` ending. It shows the line-length notation on the song a new
+user meets first, and the same turnaround after every verse is easier to learn than an ending that
+appears once.
 
-**Why the fixtures stay.** They are what EX-01..09 play: Scarborough's held verse endings, Blackbird's
+**Why the fixtures stay.** They are what EX-01..10 play: Scarborough's held verse endings, Blackbird's
 G→A transposition, two waltzes against one 6/8. Dropping them from the seed is a decision about a
 welcome; dropping them from the tests would be losing coverage for it.
 

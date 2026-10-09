@@ -72,7 +72,7 @@ describe("example songs", () => {
   it("EX-02 parses every row, holding the verse endings for an extra bar", () => {
     expect(scarborough.rows).toHaveLength(16);
     expect(blackbird.rows).toHaveLength(16);
-    expect(risingSun.rows).toHaveLength(41);
+    expect(risingSun.rows).toHaveLength(35);
 
     // A line takes the song default unless it says otherwise, and it says so in bars (ADR-032).
     // Scarborough and Blackbird hold each verse ending for four bars against a usual two.
@@ -94,13 +94,14 @@ describe("example songs", () => {
       null,
       4,
     ]);
-    // Rising Sun writes only its ending: three bars on the last line, then one on each of the
-    // closing instrumental rows. Those are in 3/4, and with the tempo counting eighths a 3/4 bar
-    // and a 6/8 bar last exactly the same — the ending regroups the pulse, it does not slow down
-    // (ADR-052).
+    // Rising Sun closes every verse with the same turnaround — D, F, Am, E, Am, E — written as
+    // one line of six bars, a bar to each chord. Nothing else departs from the one-bar line.
     expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
-      3, 1, 1,
+      6, 6, 6, 6, 6, 6,
     ]);
+    const turnaround = risingSun.rows[4];
+    expect(turnaround.chords.map((chord) => chord.symbol)).toEqual(["D", "F", "Am", "E", "Am", "E"]);
+    expect(turnaround.lyrics.trim()).toBe("");
   });
 
   it("EX-03 keeps the lyric text intact and anchors each chord inside it", () => {
@@ -229,11 +230,13 @@ describe("example songs", () => {
     expect(risingSun.rows.some(isBlankRow)).toBe(true);
     expect(schedule).toHaveLength(played.length);
 
-    // Every line is one bar of 6/8 — six beats, 4500ms — except the closing lyric, held for
-    // three bars with `//3`, which is eighteen (ADR-026).
-    const held = schedule[schedule.length - 3];
-    expect(held.beats).toBe(18);
-    expect(totalDurationMs(schedule)).toBe(4500 * (played.length - 1) + 4500 * 3);
+    // Every lyric line is one bar of 6/8 — six beats, 4500ms. Each verse's turnaround is held for
+    // six bars with `|6|`, which is thirty-six (ADR-026, ADR-032).
+    const turnarounds = schedule.filter((entry) => entry.beats === 36);
+    expect(turnarounds).toHaveLength(6);
+    expect(schedule[4].beats).toBe(36);
+    const lyricLines = played.length - turnarounds.length;
+    expect(totalDurationMs(schedule)).toBe(4500 * lyricLines + 4500 * 6 * turnarounds.length);
 
     // Playback starts on the first row and finishes cleanly after the last.
     expect(rowIndexAt(schedule, 0)).toBe(0);

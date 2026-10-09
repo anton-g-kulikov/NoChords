@@ -6,9 +6,8 @@
  * handles real material, and there is no second parser to keep in step. The `duration` values of
  * the source document became the songs' `beatsPerLine` (ADR-011); its `pause` values became a
  * longer final line, written `|4|` — twice the usual two bars at the end of each verse (ADR-032).
- * The Rising Sun's closing `{3/4}` bars are one bar each: with the tempo pinned to the eighth, a
- * 3/4 bar and a 6/8 bar are the same length, and the ending regroups the pulse rather than
- * broadening it (ADR-052).
+ * The Rising Sun closes every verse on the C it resolves to, then plays the turnaround — D, F, Am,
+ * E, Am, E — as one line of six bars, a bar to each chord (`|6|`).
  *
  * The lyrics are traditional public-domain texts; the chord placements and timings are the
  * fixture document's own test arrangements, not transcriptions of any recorded arrangement.
@@ -72,44 +71,38 @@ const RISING_SUN = `
 There [Am]is a [C]house in New [D]Orleans, [F]
 They [Am]call the [C]Rising [E]Sun,
 And it's [Am]been the [C]ruin of [D]many a poor boy, [F]
-Dear [Am]God, I [E]know I was [Am]one.
-[C] [D] [F]
-[Am] [E] [Am] [E]
+Dear [Am]God, I [E]know I was [Am]one.  [C]
+[D] [F] [Am] [E] [Am] [E] |6|
 
 My [Am]mother [C]was a [D]tailor, [F]
 She [Am]sewed my [C]new blue [E]jeans, 
 And my [Am]father [C]was a [D]gamblin' [F]man, 
-[Am]Way down in [E]New Or[Am]leans.
-[C] [D] [F]
-[Am] [E] [Am] [E]
+[Am]Way down in [E]New Or[Am]leans. [C]
+[D] [F] [Am] [E] [Am] [E] |6|
 
 And the [Am]only [C]thing a [D]gambler [F]needs, 
 Is a [Am]suitcase [C]and a [E]trunk,
 And the [Am]only [C]time he's s[D]atis[F]fied,
-[Am]Is when he[E]'s a [Am]drunk.
-[C] [D] [F]
-[Am] [E] [Am] [E]
+[Am]Is when he[E]'s a [Am]drunk. [C] 
+[D] [F] [Am] [E] [Am] [E] |6|
 
 Oh, [Am]mother, [C]tell your [D]children, [F]
 Not to [Am]do [C]what I have [E]done,
 To [Am]spend your [C]lives in [D]sin and mise[F]ry,
-In the [Am]house of the [E]rising [Am]sun.
-[C] [D] [F]
-[Am] [E] [Am] [E]
+In the [Am]house of the [E]rising [Am]sun. [C]
+[D] [F] [Am] [E] [Am] [E] |6|
 
 I [Am]got one [C]foot on the [D]platform, [F]
 And [Am]another [C]on the [E]train,
 And I'm [Am]going [C]back to [D]New Or[F]leans,
-To [Am]wear that [E]ball and [Am]chain.
-[C] [D] [F]
-[Am] [E] [Am] [E]
+To [Am]wear that [E]ball and [Am]chain. [C]
+[D] [F] [Am] [E] [Am] [E] |6|
 
 There [Am]is a [C]house in New [D]Orleans, [F]
 They [Am]call the [C]Rising [E]Sun,
 And it's [Am]been the [C]ruin of [D]many a poor boy, [F]
-Dear [Am]God, I [E]know I was [Am]one.|3|
-{3/4}[C] [D] [F]|1|
-[Am] [E] [Am] [E]|1|
+Dear [Am]God, I [E]know I was [Am]one. [C]
+[D] [F] [Am] [E] [Am] [E] |6|
 `;
 
 const SOURCES: ExampleSource[] = [

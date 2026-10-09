@@ -601,13 +601,13 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | # | Case | Status |
 |---|------|--------|
 | EX-01 | The three fixtures load with their stated keys and tempos | ✅ |
-| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`|4|`), Rising Sun's ending is three bars then two single `{3/4}` bars | ✅ |
+| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`|4|`); every Rising Sun verse closes on a six-bar turnaround (`|6|`) | ✅ |
 | EX-03 | Lyric text is intact and each chord is anchored inside it | ✅ |
 | EX-04 | Relative representation matches the document (`Dm`→`1m`, `C`→`7`, etc.) | ✅ |
 | EX-05 | Blackbird G→A gives A/D/E with degrees unchanged, stored rows untouched | ✅ |
 | EX-06 | Each fixture has enough chords for the three levels to differ visibly | ✅ |
 | EX-10 | **Rising Sun marks its sections, so level 1 thins its repeats and leaves its opening verse whole** | ✅ |
-| EX-07 | Schedule runs the Rising Sun lines back to back, starts at row 1, completes cleanly | ✅ |
+| EX-07 | Schedule runs the Rising Sun lines back to back — one bar a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
 | EX-11 | A new library is seeded with House of the Rising Sun alone; the other fixtures are for tests | ✅ |

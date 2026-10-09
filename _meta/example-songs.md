@@ -176,6 +176,11 @@ For the MVP this fixture deliberately uses a compact traditional-text
 test version rather than attempting to reproduce The Animals' 1964
 arrangement.
 
+> **The app no longer plays the version below.** It is the song every new library starts with
+> (ADR-076), and its arrangement has moved on: each verse now ends on C and closes with a six-bar
+> turnaround, `[D] [F] [Am] [E] [Am] [E] |6|`. The current text is `RISING_SUN` in
+> `src/lib/examples.ts`; this section is kept as the fixture's origin.
+
 ### Fixture
 
 ```text

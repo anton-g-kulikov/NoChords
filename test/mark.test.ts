@@ -20,4 +20,16 @@ describe('mark', () => {
       for (const path of MARK_PATHS) expect(svg, name).toContain(`d="${path}"`);
     }
   });
+
+  it('MK-02 every reference to an icon asks for the same version of it (ADR-075)', () => {
+    // A home screen or an installed app only learns of a new drawing through a new URL, so the
+    // version is bumped everywhere at once — or some surface keeps the old icon indefinitely.
+    const refs = [read('index.html'), read('public/manifest.webmanifest'), read('vite.config.ts')]
+      .join('\n')
+      .match(/\/icons\/[\w.-]+(\?v=\d+)?/g);
+    expect(refs?.length).toBeGreaterThanOrEqual(8);
+    const versions = new Set(refs?.map((ref) => ref.split('?v=')[1] ?? 'none'));
+    expect([...versions]).toHaveLength(1);
+    expect(versions.has('none')).toBe(false);
+  });
 });

@@ -2214,3 +2214,31 @@ and light.
 **Cost.** The quaver said "music" to someone who has never heard of the app; brackets need the name
 beside them, or a moment with the app, to mean anything. That is the trade for a mark that belongs
 to this app rather than to music software in general.
+
+---
+
+## ADR-075 — Icon URLs carry a version
+
+**Decision.** Every reference to an icon — the manifest's three, the page's `apple-touch-icon` and
+favicon, and the service worker's precache list — asks for `?v=2`. When the drawing changes, the
+number goes up everywhere at once; MK-02 fails if any reference is left behind.
+
+**Reported symptom.** After the mark changed to brackets (ADR-074), the installed app still showed
+the quaver, although every icon file on the server was the new drawing.
+
+**Why the files alone were not enough.** Each surface that shows an icon keys it by URL, and the URLs
+had not changed. iOS takes the `apple-touch-icon` once, when the app is added to the home screen.
+Android rebuilds an installed app's icon only when it notices the manifest has changed, and a
+manifest whose icon entries are byte-for-byte the same has not. Hosting serves `/icons/` with an
+hour's `max-age`, and the service worker revalidates in the background, so even a browser tab can
+show the old drawing for a while. A new URL is the one signal all of them understand.
+
+**Why a query string rather than new file names.** The files keep stable names, so the README's
+`magick` commands and the icon SVGs that MK-01 reads stay where they are; bumping one number is the
+whole of an icon release. The service worker matches cached entries on the full URL, query
+included, so the precache has to list the versioned URLs — an unversioned entry would sit in the
+cache answering nothing.
+
+**Cost.** iOS still cannot be reached: an icon already on a home screen stays as it was until the
+app is removed and added again. The version only guarantees that the *next* install gets the right
+one.

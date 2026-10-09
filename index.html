@@ -39,12 +39,14 @@
     <!-- Installable on Android and iOS (ADR-028). iOS reads none of the manifest's display or
          icon fields, so it needs its own tags alongside it. -->
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <!-- Icon URLs carry a version: the files keep their names, and an installed app, a home screen
+         or a browser cache has no other way to learn that the drawing changed (ADR-075). -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=2" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="NoChords" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon.svg?v=2" type="image/svg+xml" />
   </head>
   <body>
     <div id="root"></div>

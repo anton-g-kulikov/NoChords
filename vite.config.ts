@@ -9,11 +9,15 @@ const pkg = JSON.parse(
 ) as { version: string };
 
 /** Files served from `public/` that the app should still have with no network. */
+/**
+ * The icons by the exact URLs the page and manifest ask for, version and all (ADR-075): the cache
+ * matches on the whole URL, so an unversioned entry would never answer a versioned request.
+ */
 const PUBLIC_PRECACHE = [
   '/manifest.webmanifest',
-  '/icons/icon.svg',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icons/icon.svg?v=2',
+  '/icons/icon-192.png?v=2',
+  '/icons/icon-512.png?v=2',
 ];
 
 /**

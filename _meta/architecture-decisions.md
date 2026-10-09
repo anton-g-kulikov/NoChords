@@ -2292,3 +2292,35 @@ they were.
 seed song still sets at full size. Narrower than that the column would cost the chart its type
 size, which is the thing the screen is for.
 
+
+---
+
+## ADR-078 — The landing page lives at nochords.app
+
+**Decision.** `nochords.app` (registered at Cloudflare, Cloudflare DNS) serves the landing page
+from GitHub Pages. The apex holds GitHub Pages' four A and four AAAA records, `www` is a CNAME to
+`anton-g-kulikov.github.io`, and every record is **DNS only** — not proxied. The custom domain is set
+in the repository's Pages settings, with HTTPS enforced, and the domain is verified on the GitHub
+account. The app itself stays on Firebase Hosting for now.
+
+**Why `.app`.** `nochords.com` was registered in 2025 by someone else and is locked until 2028.
+`.app` suits the product, and the whole TLD is on browsers' HSTS preload list, so it is HTTPS-only
+by construction — which an installable web app requires anyway.
+
+**Why not proxied.** GitHub provisions the certificate itself, by answering Let's Encrypt on the
+domain. Behind Cloudflare's proxy that challenge goes to Cloudflare instead, the certificate never
+issues, and because `.app` refuses plain HTTP outright the page would not load at all. DNS-only
+leaves Cloudflare as the nameserver and nothing more.
+
+**Why the setting and not a `CNAME` file.** Pages deployed by Actions ignores a `CNAME` file in the
+artifact; the domain is a repository setting. It was set only after DNS resolved: setting it first
+makes `github.io` redirect to a name that does not answer yet, and the existing page goes dark.
+
+**Why verify the domain.** A verified domain can only be used by Pages sites on this account. If the
+repository's setting were ever cleared, nobody else could point their own Pages site at
+`nochords.app` in the gap.
+
+**Cost.** The landing page and the app now live on different hosts — `nochords.app` and
+`nochords-18219.web.app`. Moving the app onto the domain too (say `play.nochords.app` on Firebase) is
+a separate decision, with its own cost: an installed app's origin would change, and local songs do
+not follow an origin.

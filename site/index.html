@@ -8,7 +8,10 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <meta property="og:title" content="NoChords" />
   <meta property="og:description" content="A chart that plays itself. Chords that fade as you learn them." />
-  <meta property="og:image" content="https://anton-g-kulikov.github.io/NoChords/icon.svg" />
+  <!-- The page's own address (ADR-078). A PNG for the preview image: most link previews ignore SVG. -->
+  <link rel="canonical" href="https://nochords.app/" />
+  <meta property="og:url" content="https://nochords.app/" />
+  <meta property="og:image" content="https://nochords.app/icon-512.png" />
   <meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#15120e" media="(prefers-color-scheme: dark)" />
   <link rel="preload" href="./fonts/literata-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin />

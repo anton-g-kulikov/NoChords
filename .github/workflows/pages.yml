@@ -1,6 +1,7 @@
-# The landing page at https://anton-g-kulikov.github.io/NoChords/ — static files in site/, deployed
-# by GitHub Pages' own Actions path. Independent of deploy.yml: the app lives on Firebase Hosting,
-# and this page only points at it.
+# The landing page at https://nochords.app — static files in site/, deployed by GitHub Pages' own
+# Actions path. Independent of deploy.yml: the app lives on Firebase Hosting, and this page only
+# points at it. The custom domain is a repository Pages setting, not a CNAME file: an Actions
+# deployment ignores one (ADR-078).
 name: Landing page
 
 on:

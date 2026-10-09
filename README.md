@@ -3,7 +3,7 @@
 Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo.
 
 **App:** [nochords-18219.web.app](https://nochords-18219.web.app) ·
-**About:** [anton-g-kulikov.github.io/NoChords](https://anton-g-kulikov.github.io/NoChords/)
+**About:** [nochords.app](https://nochords.app)
 
 Type a song in once, play it back with the chart scrolling itself, and let the chords fade out over
 repeated playthroughs — the first level keeps the verse and chorus whole and thins their repeats,

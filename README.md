@@ -128,8 +128,7 @@ many *bars* to count before the song starts, or 0 for none — a bar is as long 
 says, so one bar counts six in 6/8 and three in 3/4, and the count lands on the song's own downbeat.
 It is set to **Auto** by default, which means the song decides: its own count-in, if its editor sets
 one, and otherwise one line's worth of bars — the length you are about to play is the length worth
-counting. House of the Rising Sun asks for four bars, since its one-bar lines are over before the
-pulse has settled. A number typed into the metronome settings overrides every song.
+counting. A number typed into the metronome settings overrides every song.
 
 **Sound** offers three voices: a shaker of filtered noise (the default, and the one that sits under
 a slow song), a woodblock, and a beep for a loud room. Each accents by playing the same sound harder

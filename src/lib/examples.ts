@@ -181,9 +181,10 @@ const SOURCES: ExampleSource[] = [
     // ♪ = 180 is a dotted quarter of 60: one bar of 6/8 every two seconds.
     tempo: 180,
     tempoUnit: "eighth",
-    barsPerLine: 1,
+    // A bar to each chord of a verse line — Am, C, D, F — so a line is four bars.
+    barsPerLine: 4,
     meter: "6/8",
-    // A line is one bar of 6/8, over before the pulse has settled; four bars is a phrase's worth.
+    // A line's worth, as Auto would count — written down so it stays four if the line length moves.
     countInBars: 4,
     fixture: RISING_SUN,
   },

@@ -630,7 +630,7 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-05 | Blackbird G→A gives A/D/E with degrees unchanged, stored rows untouched | ✅ |
 | EX-06 | Each fixture has enough chords for the three levels to differ visibly | ✅ |
 | EX-10 | **Rising Sun marks its sections, so level 1 thins its repeats and leaves its opening verse whole** | ✅ |
-| EX-07 | Schedule runs the Rising Sun lines back to back — one bar a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
+| EX-07 | Schedule runs the Rising Sun lines back to back — four bars a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
 | EX-12 | The seeded songs carry their own count-in — four bars for the Rising Sun, two for Дорогой длинною; the other fixtures follow their line length | ✅ |

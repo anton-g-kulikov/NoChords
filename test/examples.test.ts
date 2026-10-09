@@ -61,10 +61,11 @@ describe("example songs", () => {
     expect([blackbird.originalKey, blackbird.tempo]).toEqual(["G", 90]);
     expect([risingSun.originalKey, risingSun.tempo]).toEqual(["Am", 180]);
     expect([dorogoy.originalKey, dorogoy.tempo]).toEqual(["Gm", 120]);
-    // Six beats to a line either way: two bars of 3/4, or one of 6/8 (ADR-032).
+    // A line's length is in bars of its own meter (ADR-032): two of 3/4 is six beats, and the Rising
+    // Sun's four of 6/8 — a bar to each chord — is twenty-four.
     expect([scarborough.meter, scarborough.barsPerLine]).toEqual(['3/4', 2]);
     expect([blackbird.meter, blackbird.barsPerLine]).toEqual(['3/4', 2]);
-    expect([risingSun.meter, risingSun.barsPerLine]).toEqual(['6/8', 1]);
+    expect([risingSun.meter, risingSun.barsPerLine]).toEqual(['6/8', 4]);
     expect([dorogoy.meter, dorogoy.barsPerLine]).toEqual(['4/4', 4]);
     // A fixture opens in its own key.
     expect(examples.every((song) => song.currentKey === song.originalKey)).toBe(
@@ -105,7 +106,7 @@ describe("example songs", () => {
       4,
     ]);
     // Rising Sun closes every verse with the same turnaround — D, F, Am, E, Am, E — written as
-    // one line of six bars, a bar to each chord. Nothing else departs from the one-bar line.
+    // one line of six bars, a bar to each chord. Nothing else departs from the four-bar line.
     expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
       6, 6, 6, 6, 6, 6,
     ]);
@@ -242,11 +243,11 @@ describe("example songs", () => {
       risingSun.barsPerLine,
       risingSun.meter,
     );
-    // An eighth at ♪ = 180 is a third of a second, so every six-beat line is 2000ms and they
-    // simply follow on.
+    // An eighth at ♪ = 180 is a third of a second, so a bar of 6/8 is 2000ms, every four-bar line
+    // is 8000ms, and they simply follow on.
     expect(schedule[0].startMs).toBe(0);
-    expect(schedule[0].endMs).toBeCloseTo(2000);
-    expect(schedule[4].startMs).toBeCloseTo(2000 * 4);
+    expect(schedule[0].endMs).toBeCloseTo(8000);
+    expect(schedule[4].startMs).toBeCloseTo(8000 * 4);
 
     // The blank lines between verses are rendered but never played (ADR-025), so they are absent
     // from the schedule and cost the song no time.
@@ -254,13 +255,14 @@ describe("example songs", () => {
     expect(risingSun.rows.some(isBlankRow)).toBe(true);
     expect(schedule).toHaveLength(played.length);
 
-    // Every lyric line is one bar of 6/8 — six beats, 2000ms. Each verse's turnaround is held for
-    // six bars with `|6|`, which is thirty-six (ADR-026, ADR-032).
+    // Every lyric line is four bars of 6/8 — twenty-four beats, 8000ms. Each verse's turnaround is
+    // held for six bars with `|6|`, which is thirty-six (ADR-026, ADR-032).
     const turnarounds = schedule.filter((entry) => entry.beats === 36);
     expect(turnarounds).toHaveLength(6);
     expect(schedule[4].beats).toBe(36);
     const lyricLines = played.length - turnarounds.length;
-    expect(totalDurationMs(schedule)).toBeCloseTo(2000 * lyricLines + 2000 * 6 * turnarounds.length);
+    expect(schedule.filter((entry) => entry.beats === 24)).toHaveLength(lyricLines);
+    expect(totalDurationMs(schedule)).toBeCloseTo(8000 * lyricLines + 2000 * 6 * turnarounds.length);
 
     // Playback starts on the first row and finishes cleanly after the last.
     expect(rowIndexAt(schedule, 0)).toBe(0);
@@ -286,7 +288,8 @@ describe("example songs", () => {
   });
 
   it("EX-12 the seeded songs carry their own count-in; the others follow their line length (ADR-083)", () => {
-    // One bar of 6/8 is over before the pulse has settled, so the Rising Sun asks for four.
+    // The Rising Sun writes down the four bars Auto would count, so they survive a change of line
+    // length.
     expect(risingSun.countInBars).toBe(4);
     expect(countInBarsFor(null, risingSun.barsPerLine, risingSun.countInBars)).toBe(4);
     // Дорогой длинною's line is four bars, which would be a four-bar wait; it asks for two.

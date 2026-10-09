@@ -418,6 +418,23 @@ h1 {
   border-color: var(--text);
 }
 
+/* A native select keeps its own height on macOS and ignores min-height, so next to an input it
+   came out half as tall. Drawn by us instead, with a caret in the theme's colour. :where() keeps
+   this at class weight so the tempo unit, which draws no caret, can take it back off. */
+:where(select).field__input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
 .field__range {
   padding: 0;
   accent-color: var(--accent);
@@ -1793,6 +1810,7 @@ kbd {
   text-align: center;
   text-align-last: center;
   padding-inline: 2px;
+  background-image: none;
   appearance: none;
   -webkit-appearance: none;
 }

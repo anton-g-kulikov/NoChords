@@ -1924,10 +1924,13 @@ kbd {
   appearance: none;
   -webkit-appearance: none;
   color: transparent;
+  /* Safari can paint a control's text from this rather than from colour. */
+  -webkit-text-fill-color: transparent;
 }
 
 .tempo__unit option {
   color: var(--text);
+  -webkit-text-fill-color: var(--text);
   background: var(--surface);
 }
 

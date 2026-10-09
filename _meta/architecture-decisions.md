@@ -2644,9 +2644,9 @@ illustration would fix that without any change to the page.
 
 **Decision.** Amends ADR-084. A new library is seeded with House of the Rising Sun and Постой,
 паровоз, which replaces Дорогой длинною; Дорогой длинною is no longer a fixture. The new song is in
-Am and 2/4 at ♩ = 120, four bars to a line, the three lines that end each phrase held for eight, and
-counts in by Auto — one line's worth. Its text and the first verse's chords are Anton's, carried
-through the other verses on the same syllables.
+C♯m — an inside joke; it is usually played in Am — and 2/4 at ♩ = 120, four bars to a line, the
+three lines that end each phrase held for eight, and counts in by Auto — one line's worth. Its text
+and the first verse's chords are Anton's, carried through the other verses on the same syllables.
 
 **Why it is treated as public domain.** It is an urban folk song of disputed origin, sung for decades
 before Leonid Gaidai put it in «Операция Ы» (1965). In 1996 the writer Nikolai Ivanovsky, born in

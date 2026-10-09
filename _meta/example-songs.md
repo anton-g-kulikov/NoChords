@@ -279,7 +279,7 @@ repeated playthroughs.
 ## 4. Постой, паровоз
 
 **Type:** Russian urban folk song, sung everywhere after «Операция Ы» (1965)\
-**Test key:** A minor\
+**Test key:** C♯ minor — an inside joke; it is usually played in A minor\
 **Meter:** 2/4\
 **Tempo:** ♩ = 120\
 **Purpose:** The Russian-language seed song (ADR-089), and the only fixture in 2/4. Four verses,
@@ -293,11 +293,11 @@ chords are Anton's; the other verses carry them on the same syllables. The text 
 
 ### Expected relative representation
 
-- `Am` → `i`
-- `Dm` → `iv`
-- `E` → `V`
-- `C` → `III`
-- `A` → `I`, the dominant into `Dm`
+- `C#m` → `i`
+- `F#m` → `iv`
+- `G#` → `V`
+- `E` → `III`
+- `C#` → `I`, the dominant into `F#m`
 
 ---
 

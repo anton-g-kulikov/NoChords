@@ -59,7 +59,7 @@ describe("example songs", () => {
     expect([scarborough.originalKey, scarborough.tempo]).toEqual(["Dm", 90]);
     expect([blackbird.originalKey, blackbird.tempo]).toEqual(["G", 90]);
     expect([risingSun.originalKey, risingSun.tempo]).toEqual(["Am", 180]);
-    expect([parovoz.originalKey, parovoz.tempo]).toEqual(["Am", 120]);
+    expect([parovoz.originalKey, parovoz.tempo]).toEqual(["C#m", 120]);
     // A line's length is in bars of its own meter (ADR-032): two of 3/4 is six beats, and the Rising
     // Sun's four of 6/8 — a bar to each chord — is twenty-four.
     expect([scarborough.meter, scarborough.barsPerLine]).toEqual(['3/4', 2]);
@@ -167,8 +167,8 @@ describe("example songs", () => {
 
     // Cyrillic lyrics parse like any other: the chord still lands on its syllable.
     expect(parovoz.rows[0].lyrics).toBe("Постой, паровоз...");
-    expect(symbolsOf(parovoz)).toEqual(["Am", "Dm", "E", "C", "A"]);
-    expect(symbolsOf(parovoz).map((s) => toNashville(s, "Am"))).toEqual([
+    expect(symbolsOf(parovoz)).toEqual(["C#m", "F#m", "G#", "E", "C#"]);
+    expect(symbolsOf(parovoz).map((s) => toNashville(s, "C#m"))).toEqual([
       "i",
       "iv",
       "V",

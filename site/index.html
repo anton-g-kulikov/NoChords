@@ -143,6 +143,38 @@
     .button:hover { background: var(--accent-wash-strong); }
     .cta small { color: var(--muted); font-size: 0.85rem; }
 
+    /* The install note and its (i): the panel hangs from the note, so the note is its anchor. */
+    .cta__note { position: relative; display: flex; align-items: center; gap: 8px; }
+    .info {
+      position: relative; display: grid; place-items: center;
+      width: 22px; height: 22px; padding: 0; border-radius: 50%;
+      border: 1px solid var(--border-strong); background: var(--surface); color: var(--muted);
+      font: italic 600 0.8rem/1 var(--font-text); cursor: pointer;
+      transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+    }
+    /* Drawn at 22px, tapped at 44: the target is the finger's size, not the glyph's. */
+    .info::after { content: ''; position: absolute; inset: -11px; }
+    .info:hover, .info[aria-expanded="true"] {
+      color: var(--accent); border-color: var(--accent-line); background: var(--accent-wash);
+    }
+    .info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .install-help {
+      position: absolute; top: calc(100% + 10px); left: 0; z-index: 5;
+      width: min(340px, calc(100vw - 32px)); padding: 14px 16px;
+      background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+      color: var(--text); font-size: 0.9rem; line-height: 1.45;
+    }
+    .install-help[hidden] { display: none; }
+    /* The hero's paragraphs are set large and narrow; inside the panel they are the panel's size. */
+    .cta .install-help p { font-size: inherit; line-height: inherit; max-width: none; }
+    .install-help__title { margin: 0 0 4px; font-weight: 600; }
+    .install-help dl { margin: 0; }
+    .install-help dt { margin-top: 8px; font-weight: 600; }
+    .install-help dd { margin: 2px 0 0; color: var(--muted); }
+    .install-help b { color: var(--text); font-weight: 600; }
+    .install-help > p:last-child { margin: 10px 0 0; color: var(--muted); }
+
     /*
      * The fretboard runs the full width of the page, past the nut and through half the headstock, cut
      * between the second and third pairs of tuners at the right edge. It keeps one height for its width, and a narrower screen
@@ -169,6 +201,10 @@
       pointer-events: none;
     }
     .wrap { position: relative; z-index: 1; }
+    /* Each column of text is its own layer over the fretboard, and a later one paints over an earlier
+       one. While the install panel is open it hangs past the hero into the next, so the hero's layer
+       goes on top for as long as it does. */
+    .wrap:has(.install-help:not([hidden])) { z-index: 2; }
     /*
      * The tuner keys start about 84% of the way across the page. Narrower than about 1000px, the text
      * column reaches past that and the keys would land on the words, so the pull stops where the key
@@ -270,7 +306,27 @@
       </p>
       <div class="cta">
         <a class="button" href="https://songs.nochords.app">Open the app</a>
-        <small>Free · works offline · installs on Android and iOS</small>
+        <div class="cta__note">
+          <small>Free · works offline · installs on Android and iOS</small>
+          <!-- Opened by a tap, not a hover: a phone has no hover, and it is phone readers this is for. -->
+          <button
+            type="button"
+            class="info"
+            aria-expanded="false"
+            aria-controls="install-help"
+            aria-label="How to install it on a phone"
+          >i</button>
+          <div class="install-help" id="install-help" hidden>
+            <p class="install-help__title">Install it on a phone</p>
+            <dl>
+              <dt>iPhone or iPad</dt>
+              <dd>Open <b>songs.nochords.app</b> in Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>.</dd>
+              <dt>Android</dt>
+              <dd>Open it in Chrome, tap the <b>⋮</b> menu, then <b>Install app</b> or <b>Add to Home screen</b>.</dd>
+            </dl>
+            <p>It then opens full screen from its own icon, and keeps working offline.</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -365,5 +421,27 @@
       <a href="https://buymeacoffee.com/antonkulikov">Buy me a <span class="bracket">[</span>song<span class="bracket">]</span> book</a>
     </footer>
   </div>
+  <script>
+    // The install note's (i): a tap opens it; a tap elsewhere or Escape shuts it.
+    (() => {
+      const toggle = document.querySelector('.info');
+      const help = document.getElementById('install-help');
+      if (!toggle || !help) return;
+      const set = (open) => {
+        help.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+      };
+      toggle.addEventListener('click', () => set(help.hidden));
+      document.addEventListener('click', (event) => {
+        if (!help.hidden && !event.target.closest('.cta__note')) set(false);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !help.hidden) {
+          set(false);
+          toggle.focus();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

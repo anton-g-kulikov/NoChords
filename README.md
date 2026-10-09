@@ -41,6 +41,12 @@ already have.
 it syncs across devices.
 Opening a song from the library lands on **Play**; a newly created one opens in **Edit**.
 
+Once the library holds songs in both English and Russian, its heading offers **All · English ·
+Russian**, which filters the list and nothing else — the app itself stays in English. A song's
+language is read from its letters rather than stored, so songs written before this, and songs
+already in an account, sort themselves; a song with no words yet shows under every choice. The
+choice is remembered per device (ADR-081).
+
 ## Writing a song
 
 The whole song lives in one text area, one line per lyric line. Chords go inline, in brackets,

@@ -2376,3 +2376,46 @@ a choice: the song is sung both as a slow 4/4 and as a waltz, and no source sett
 **Cost.** Two songs is a little more of a demo library than ADR-076 wanted, and an English-speaking
 visitor meets a Cyrillic song they may not know. The language switcher is what pays that back.
 Existing libraries are unaffected, since seeding only ever fills an empty library.
+
+---
+
+## ADR-081 — The library can be filtered by the language a song is in
+
+**Decision.** Once a library holds songs in more than one language, its running head offers
+**All · English · Russian**. The choice filters the song list and nothing else: the app stays in
+English, and the player, editor and seeding are untouched. A song's language is read from its
+letters — Cyrillic against Latin, title and lyrics together, the majority deciding — by
+`songLanguage` in `src/lib/language.ts`; it is not stored on the song. The choice is a device
+setting, `libraryLanguage`, defaulting to "All".
+
+**Why read rather than store.** Every song that already exists — written by hand, in someone's
+Firestore account, seeded before this — would otherwise arrive unlabelled, and need either a
+migration or a question nobody wants to answer while typing a song in. Reading the letters gets
+all of them right on the day it ships. The cost is the limit of an alphabet: a Spanish song reads
+as English and a Ukrainian one as Russian. A third language that shares an alphabet with one of
+these is the point at which a stored field, with this reading as its default, becomes worth it.
+
+**Songs with no words.** A song with no letters in it — the one New song has just made, or one of
+chords alone — has no language, and every choice shows it. Otherwise making a song with "Russian"
+chosen and stepping back before typing would make it vanish from the library it was just made in.
+For the same reason the title the app gives a new song, "Untitled song", does not count: it is the
+app's English, not the writer's.
+
+**Only when there is a choice.** With one language in the library there is nothing to switch
+between, so nothing is shown — and the remembered choice stands down until there is. Without that,
+deleting the last Russian song with "Russian" chosen would leave a library that looks empty and
+offers no way to say otherwise.
+
+**Why "All" by default, not the device's language.** A first run that hid half the seeded library
+because the phone is set to Russian would look like missing songs, not like a preference. The
+switcher is where the choice is made; the device's language is not asked.
+
+**Why seeding is left alone.** ADR-024 seeds once into an empty library and never restores. Choosing
+which songs to seed by language would mean asking before the library exists, or seeding differently
+on two devices of one account. Filtering a library that holds both costs neither.
+
+**Where it sits.** In the library's running head, set in its small capitals with the chosen one in
+the second ink — a contents page that can be read in either language, not a control panel above it.
+Each choice keeps a 44px tap target by padding given back with a negative margin, so the head keeps
+its height.
+

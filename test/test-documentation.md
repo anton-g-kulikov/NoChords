@@ -494,6 +494,7 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-12 | A followed count-in stays inside the offered range | ✅ |
 | SET-14 | The chosen scheme is kept; anything else, or nothing, follows the device | ✅ |
 | SET-15 | The chosen ink is kept; anything else, or nothing, is vermilion | ✅ |
+| SET-16 | The chosen song language is kept; anything else, or nothing, shows every song | ✅ |
 
 ### Light and dark — `theme.test.ts`
 
@@ -593,6 +594,20 @@ rule is separated from it and the hook holds no judgement of its own.
 | WL-03 | **The screen is held awake while a song plays** | ✅ |
 | WL-04 | Nothing playing lets the screen sleep | ✅ |
 | WL-05 | Nothing is requested while the page is hidden | ✅ |
+
+### Song language — `language.test.ts`
+
+Intent: the library can be read in one language at a time without any song having been labelled,
+and without the filter ever making a song look lost (ADR-081).
+
+| # | Case | Status |
+|---|------|--------|
+| LG-01 | A song in Cyrillic reads as Russian; one in Latin letters as English | ✅ |
+| LG-02 | Most of the letters decide, so a translated title does not move a song | ✅ |
+| LG-03 | **A song with no words yet — including the name the app gives it — has no language, and every filter shows it** | ✅ |
+| LG-04 | A filter keeps one language in the library's order; "All" keeps everything | ✅ |
+| LG-05 | A choice is offered only when the library holds more than one language | ✅ |
+| LG-06 | **A remembered choice cannot empty a library that no longer offers it** | ✅ |
 
 ### Fixture acceptance — `examples.test.ts`
 

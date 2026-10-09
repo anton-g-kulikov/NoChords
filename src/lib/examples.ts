@@ -9,10 +9,9 @@
  * The Rising Sun closes every verse on the C it resolves to, then plays the turnaround — D, F, Am,
  * E, Am, E — as one line of six bars, a bar to each chord (`|6|`).
  *
- * The lyrics are public-domain texts — the three folk songs are traditional, and Дорогой длинною is
- * Konstantin Podrevsky's 1927 printing (he died in 1930, Boris Fomin in 1948); the chord placements
- * and timings are the fixture document's own test arrangements, not transcriptions of any recorded
- * arrangement.
+ * The lyrics are public-domain texts — traditional folk songs, Постой, паровоз among them
+ * (ADR-089); the chord placements and timings are the fixture document's own test arrangements,
+ * not transcriptions of any recorded arrangement.
  */
 import { createSong, rowsFromPastedText } from "./songs";
 import type { TempoUnit } from "./tempo";
@@ -109,51 +108,46 @@ Dear [Am]God, I [E]know I was [Am]one. [C]
 [D] [F] [Am] [E] [Am] [E] |6|
 `;
 
-const DOROGOY_DLINNOYU = `
-[Gm]Ехали на тр[Cm]ойке с бубен[Gm]цами,
-[G7]А вдали мелькали огонь[Cm]ки.
-[Gm]Эх, когда бы мне [Cm]теперь за [Gm]вами,
-[A7]Душу бы развеять от тос[D7]ки!
+const POSTOY_PAROVOZ = `
+Пос[Am]той, паро[Dm]воз...
+Не сту[E]чите, ко[Am]леса...
+Кон[C]дуктор - нажми на тормоза [E]... |8|
+Я к [Am]маменьке родной
+С пос[A]ледним при[Dm]ветом
+Спе[E]шу показаться на гла[Am]за [E] |8|
+Я к [Am]маменьке родной
+С пос[A]ледним при[Dm]ветом
+Спе[E]шу показаться на гла[Am]за [E] |8|
 
-Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
-Да с песней [F]той, что в даль летит, [Bb]звеня,
-И с той ста[Cm]ринною, да семист[Gm]рунною,
-Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
+Не [Am]жди меня - [Dm]мама
+Хо[E]рошего [Am]сына
+Твой [C]сын - не такой, как был вчера [E]... |8|
+Ме[Am]ня засосала
+О[A]пасная тря[Dm]сина
+И [E]жизнь моя - вечная И[Am]гра [E] |8|
+Ме[Am]ня засосала
+О[A]пасная тря[Dm]сина
+И [E]жизнь моя - вечная И[Am]гра [E] |8|
 
-[Gm]Да, выходит, [Cm]пели мы за[Gm]даром.
-[G7]Понапрасну ночь за ночью [Cm]жгли.
-[Gm]Если мы по[Cm]кончили со [Gm]старым,
-[A7]Так и ночи эти ото[D7]шли!
+А [Am]если по[Dm]садят
+Ме[E]ня за ре[Am]шетку
+Я [C]буду сидеть и помирать [E] |8|
+По[Am]ка еще не поздно
+Сде[A]лать оста[Dm]новку
+Кон[E]дуктор - нажми на тормо[Am]за... [E] |8|
+По[Am]ка еще не поздно
+Сде[A]лать оста[Dm]новку
+Кон[E]дуктор - нажми на тормо[Am]за... [E] |8|
 
-Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
-Да с песней [F]той, что в даль летит, [Bb]звеня,
-И с той ста[Cm]ринною, да семист[Gm]рунною,
-Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
-
-[Gm]В даль иную — [Cm]новыми пу[Gm]тями —
-[G7]Ехать нам судьбою сужде[Cm]но!
-[Gm]Ехали на [Cm]тройке с бубен[Gm]цами,
-[A7]Да теперь проехали дав[D7]но.
-
-Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
-Да с песней [F]той, что в даль летит, [Bb]звеня,
-И с той ста[Cm]ринною, да семист[Gm]рунною,
-Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
-
-[Gm]Никому те[Cm]перь уж не нуж[Gm]на я,
-[G7]И любви былой не воро[Cm]тить,
-[Gm]Коль порвётся жизнь [Cm]моя боль[Gm]ная,
-[A7]Вы меня везите хоро[D7]нить.
-
-Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
-Да с песней [F]той, что в даль летит, [Bb]звеня,
-И с той ста[Cm]ринною, да семист[Gm]рунною,
-Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
-
-Дорогой дл[Gm]инною и [G7]ночью [Cm]лунною,
-Да с песней [F]той, что в даль летит, [Bb]звеня,
-И с той ста[Cm]ринною, да семист[Gm]рунною,
-Что по но[Cm]чам так [D7]мучает ме[Gm]ня.
+Пос[Am]той паро[Dm]воз...
+Не сту[E]чите ко[Am]леса...
+Кон[C]дуктор - нажми на тормоза [E]... |8|
+Я к [Am]маменьке родной
+Боль[A]ной и го[Dm]лодный
+Спе[E]шу показаться на гла[Am]за [E] |8|
+Я к [Am]маменьке родной
+Боль[A]ной и го[Dm]лодный
+Спе[E]шу показаться на гла[Am]за [E] |8|
 `;
 
 const SOURCES: ExampleSource[] = [
@@ -189,26 +183,25 @@ const SOURCES: ExampleSource[] = [
     fixture: RISING_SUN,
   },
   {
-    title: "Дорогой длинною",
-    key: "Gm",
+    title: "Постой, паровоз",
+    key: "Am",
     tempo: 120,
     tempoUnit: "quarter",
+    // Four bars of 2/4 to a line: room for its one to three chords at a walking pace.
     barsPerLine: 4,
-    meter: "4/4",
-    // Four bars a line would be a four-bar wait; two set the pulse without stalling.
-    countInBars: 2,
-    fixture: DOROGOY_DLINNOYU,
+    meter: "2/4",
+    fixture: POSTOY_PAROVOZ,
   },
 ];
 
 /**
- * Which fixtures a new library is given (ADR-076, ADR-080, ADR-084).
+ * Which fixtures a new library is given (ADR-076, ADR-080, ADR-089).
  *
- * The Rising Sun, and Дорогой длинною for Russian speakers: a song each audience already knows,
- * one in 6/8 and one in 4/4. The other fixtures stay — they are what the acceptance tests play — but a
+ * The Rising Sun, and Постой, паровоз for Russian speakers: a song each audience already knows, one
+ * in 6/8 and one in 2/4. The other fixtures stay — they are what the acceptance tests play — but a
  * first run is a welcome, not a test suite.
  */
-const SEEDED = new Set(["House of the Rising Sun", "Дорогой длинною"]);
+const SEEDED = new Set(["House of the Rising Sun", "Постой, паровоз"]);
 
 function build(source: ExampleSource): Song {
   return createSong({

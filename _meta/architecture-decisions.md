@@ -2637,3 +2637,26 @@ only and never committed: its preview licence does not cover publishing.
 **Cost.** At the largest sizes the band is drawn from a 576-pixel-tall source at up to 680 CSS
 pixels, so on a high-density screen it is upscaled and slightly soft. A larger render of the same
 illustration would fix that without any change to the page.
+
+---
+
+## ADR-089 — The Russian seed song is Постой, паровоз
+
+**Decision.** Amends ADR-084. A new library is seeded with House of the Rising Sun and Постой,
+паровоз, which replaces Дорогой длинною; Дорогой длинною is no longer a fixture. The new song is in
+Am and 2/4 at ♩ = 120, four bars to a line, the three lines that end each phrase held for eight, and
+counts in by Auto — one line's worth. Its text and the first verse's chords are Anton's, carried
+through the other verses on the same syllables.
+
+**Why it is treated as public domain.** It is an urban folk song of disputed origin, sung for decades
+before Leonid Gaidai put it in «Операция Ы» (1965). In 1996 the writer Nikolai Ivanovsky, born in
+1928, told «Комсомольская правда» he had written it in 1946. That claim was never upheld, and the song
+is treated as folk — no author whose copyright would run. This is a weaker footing than Дорогой
+длинною had, with its known author long dead, and it is recorded here so that the call can be
+revisited if an authorship claim is ever made good.
+
+**Why this song.** It is the one most likely to be sung at a Russian table, which is the point of the
+seed: a song the visitor already knows. Two seed songs, one per audience, is ADR-080's shape again.
+
+**Cost.** The copyright footing is a judgement, not a fact. Libraries seeded with Чёрный ворон or
+Дорогой длинною keep them; seeding only fills an empty library.

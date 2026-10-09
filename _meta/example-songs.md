@@ -276,30 +276,28 @@ repeated playthroughs.
 
 ---
 
-## 4. Дорогой длинною
+## 4. Постой, паровоз
 
-**Type:** Russian romance, 1924; words by Konstantin Podrevsky, music by Boris Fomin\
-**Test key:** G minor\
-**Meter:** 4/4\
-**Tempo:** 120 BPM\
-**Count-in:** 2 bars\
-**Purpose:** The Russian-language seed song (ADR-084): Cyrillic lyrics, a 4/4 meter beside the
-other fixtures' 3/4 and 6/8, and verse–chorus sections — four verses with the same chords and the
-same chorus after each — so learning level 1 has repeats of both to thin. Its four-bar lines make
-it the fixture that needs a count-in of its own (ADR-083).
+**Type:** Russian urban folk song, sung everywhere after «Операция Ы» (1965)\
+**Test key:** A minor\
+**Meter:** 2/4\
+**Tempo:** ♩ = 120\
+**Purpose:** The Russian-language seed song (ADR-089), and the only fixture in 2/4. Four verses,
+each closing on its last three lines sung twice.
 
-Written directly in the app's inline notation, four bars to a line, every verse and chorus its own
-block, and the last chorus sung twice. The text is `DOROGOY_DLINNOYU` in `src/lib/examples.ts`.
+Written directly in the app's inline notation, four bars to a line, verses separated by blank lines.
+Each verse has Anton's shape: every line opens on a pickup syllable before its first chord, the
+three lines that end a phrase are held for eight bars (`|8|`), and the two that end the verse turn
+back to the top on a closing `[E]`. Every verse has the same chords. The text and the first verse's
+chords are Anton's; the other verses carry them on the same syllables. The text is `POSTOY_PAROVOZ` in `src/lib/examples.ts`.
 
 ### Expected relative representation
 
-- `Gm` → `i`
-- `Cm` → `iv`
-- `G7` → `I7`, the dominant into `Cm`
-- `A7` → `II7`, the dominant into `D7`
-- `D7` → `V7`
-- `F` → `VII`
-- `Bb` → `III`
+- `Am` → `i`
+- `Dm` → `iv`
+- `E` → `V`
+- `C` → `III`
+- `A` → `I`, the dominant into `Dm`
 
 ---
 
@@ -377,15 +375,9 @@ Each fixture must:
 - **House of the Rising Sun:** traditional song with a printed version
   documented by Robert Winslow Gordon in 1925. The fixture is not a
   transcription of The Animals' arrangement.
-- **Дорогой длинною:** the text of the first printing — B. Fomin,
-  «Дорогой длинною», for voice and piano, words by K. N. Podrevsky
-  (Rostov-on-Don: author's edition, 1927), as transcribed on Wikisource
-  — all four verses. The chorus is the sung variant («и ночью лунною»,
-  «И с той старинною») rather than the printing's («погодой лунною»,
-  «Да со старинною»). Podrevsky died in 1930 and Fomin in 1948, so it is
-  in the public domain in Russia, and as a 1927 publication in the US.
-  Eugene Raskin's English lyrics, "Those Were the Days", are a separate
-  work under copyright and are not used.
+- **Постой, паровоз:** urban folk song of disputed origin. In 1996 the
+  writer Nikolai Ivanovsky claimed to have written it in 1946; the claim
+  was never upheld, and the song is treated as folk (ADR-089).
 
 The chord arrangements, chord placement, timing values, and application
 formatting in this file were created specifically as development

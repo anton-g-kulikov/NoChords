@@ -2,7 +2,7 @@
 
 Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo.
 
-**App:** [nochords-18219.web.app](https://nochords-18219.web.app) ·
+**App:** [songs.nochords.app](https://songs.nochords.app) ·
 **About:** [nochords.app](https://nochords.app) ·
 **Support:** [buy me a \[song\] book](https://buymeacoffee.com/antonkulikov)
 
@@ -306,7 +306,10 @@ npx firebase-tools login     # once, opens a browser
 npm run deploy               # builds, then deploys hosting
 ```
 
-The site is served at `https://nochords-18219.web.app`.
+The app is served at `https://songs.nochords.app`, a custom domain on the same Firebase Hosting
+site (ADR-087). The project's own address, `https://nochords-18219.web.app`, keeps serving the same
+build and is deliberately not redirected: songs kept without an account live in that address's
+browser storage, and a redirect would put them out of reach.
 
 `firebase.json` serves hashed assets under `/assets/**` with a one-year immutable cache and
 `index.html` with `no-cache`, so a deploy takes effect immediately without stale chunks. All paths

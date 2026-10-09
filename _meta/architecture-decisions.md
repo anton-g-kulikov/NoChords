@@ -2560,3 +2560,37 @@ tempo capped. A converted song is written back in its new unit the next time it 
 
 **Cost.** An app still running an older build reads `eighth` and `quarter` as it always did, so a
 song converted on one device plays the same on another that has not updated yet.
+
+---
+
+## ADR-087 — The app lives at songs.nochords.app
+
+**Decision.** Follows ADR-078. The app is served at `songs.nochords.app`, a custom domain on the
+existing Firebase Hosting site, and every link that points at the app — the landing page's two
+"Open the app" buttons, the README, the deploy workflow's environment URL, the release checklist's
+live checks — names it. The project's own address, `nochords-18219.web.app`, keeps serving the same
+build and is not redirected. Sign-in is unchanged: it opens a Google popup through
+`nochords-18219.firebaseapp.com`, which works from any origin listed under Firebase Authentication's
+authorised domains.
+
+**Setup outside the repository.** In Firebase Hosting, `songs.nochords.app` is added as a custom
+domain; the records it asks for go into Cloudflare as **DNS only**, for the reason ADR-078 gives —
+behind the proxy the certificate never issues, and `.app` will not load without one. In Firebase
+Authentication, `songs.nochords.app` is added to the authorised domains, or Google sign-in there
+fails with `auth/unauthorized-domain`. The links were changed before this was done, and are not to
+be released until the domain answers over HTTPS: a push to `site/` deploys the landing page at once.
+
+**Why `songs.`** The app opens on a library headed "Songs"; the address says what is kept there.
+`play.` was considered and is just as good; `app.nochords.app` says it twice. Either way it is
+chosen once, because of the cost below.
+
+**Why no redirect.** A browser keeps each origin's storage apart. Songs kept without an account
+live in `nochords-18219.web.app`'s storage, as does the library of an app installed from there.
+Redirecting would put them out of reach — the page that could read them would no longer load. Left
+running, the old address still opens them; signing in there moves them into the account, and the
+account brings them to `songs.nochords.app`.
+
+**Cost.** Two addresses serve one app, and a library kept without an account does not cross from
+one to the other on its own. An installed app keeps the address it was installed from; moving it
+means signing in on the old one, installing from the new one, and removing the old icon.
+

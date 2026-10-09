@@ -72,7 +72,7 @@ The deploy succeeding does not mean the right thing is deployed — and check *a
 finished*, not after a local deploy, or you are looking at bytes that are about to be replaced.
 
 ```bash
-B=https://nochords-18219.web.app
+B=https://songs.nochords.app
 js=$(curl -s $B/ | grep -o '/assets/index-[A-Za-z0-9_-]*\.js')
 curl -s $B$js | grep -c firebaseapp        # 1 = sign-in shipped, 0 = built without the key
 curl -s $B/sw.js | grep -o '"[0-9]*\.[0-9]*\.[0-9]*"' | head -1   # the version now cached
@@ -85,7 +85,14 @@ the app shell. Checking the status code proves nothing — check the content typ
 **Check the header on the URL the app opens, not on the file it serves** (ADR-056):
 
 ```bash
-curl -sI https://nochords-18219.web.app/ | grep -i cache-control   # must be no-cache
+curl -sI https://songs.nochords.app/ | grep -i cache-control   # must be no-cache
+```
+
+The project's own address serves the same build and stays up for anyone with songs in its storage
+(ADR-087). It needs no separate check beyond answering at all:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://nochords-18219.web.app/   # must be 200
 ```
 
 Header rules match the request path. `start_url` is `/`, the rewrite serves `index.html` for it, and

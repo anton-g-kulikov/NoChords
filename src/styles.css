@@ -1951,9 +1951,11 @@ kbd {
   padding-inline: 8px;
 }
 
-/* Sized so the player's setup still fits key, tempo and meter across 335px (ADR-041). */
+/* Room for three digits beside Safari's stepper, which takes about fifteen pixels of the number's
+   box: at 108px "180" was clipped to "18". The metronome row — this, then the volume — still fits
+   335px with room over (ADR-041). */
 .field--tempo-compact {
-  flex: 0 0 108px;
+  flex: 0 0 128px;
 }
 
 /* A value the player may read but not change. */

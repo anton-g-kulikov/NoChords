@@ -2702,3 +2702,34 @@ does not offer.
 `meter.ts`, `tempo.ts` or `inline.ts`, or renaming their exports, breaks the archive's pull requests
 until its script follows. Reviewing provenance is a maintainer's judgement, not something a check
 can do.
+
+---
+
+## ADR-091 — The landing page's lower half shows instead of tells
+
+**Decision.** Below the live chart, each section of the landing page puts a piece of the app beside
+its words, under a serif headline:
+
+- **How it works** — the same line, "call the Rising Sun", at levels one, two and three, with more
+  of its chords blurred in each.
+- **Notation** — what you type, in the editor's monospace, above what you play, as chord over lyric;
+  and `|4|`, `{3/4}` and `♩ = 90` as small chips with a line each.
+- **Metronome** — a 6/8 beat strip with its dot going round at ♪ = 160, still under
+  `prefers-reduced-motion`, and the three sounds as cards, the shaker marked as the default.
+- **Your songs** — on this device, everywhere you sign in, and the song archive, as cards rather than
+  paragraphs, with the archive's links as a button and a link.
+- A closing line set the way the app sets a song: "Play together, right now", over Bm, Bm/A and G —
+  the chords of the chorus it answers, on the same syllables — then that chorus's A, hanging with no
+  word under it, and a button, **With the app**, where its last phrase would be. It answers a famous chorus in the shape and the
+  chords of its call, with the button where the third phrase falls. The words are the page's own —
+  lyrics are licensed even a line at a time — and a chord progression belongs to no one.
+
+**Why.** The top half had a voice — headline, fretboard, a chart that moves — and the lower half was
+five sections of the same shape: a small-caps label and grey paragraphs between hairlines. It told
+everything and showed nothing, which is the wrong way round for an app whose idea is visual. The
+wording is kept; the pictures are drawn from the page's own chart pieces, so they look exactly like
+the app.
+
+**Cost.** The level cards are a third of the column wide, so their line is shortened to "call the
+Rising Sun" — the full lyric wrapped, and a wrapped line puts a chord over the wrong word, which is
+the one thing the app's own fit exists to prevent.

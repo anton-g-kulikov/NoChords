@@ -254,6 +254,8 @@
       color: var(--chord); white-space: pre; padding-right: 0.6em; min-height: 1.35em;
     }
     .c .q { font-size: 0.74em; font-weight: 600; margin-left: 0.04em; }
+    /* The bass after a slash, smaller again, as the app sets it. */
+    .c .b { font-size: 0.74em; font-weight: 550; opacity: 0.8; }
     .c.hidden { filter: blur(4px); opacity: 0.7; }
     /* Sized to the viewport, capped at the desktop size: the app fits its type to the longest line
        rather than wrapping (ADR-054), and the mock has to do the same by hand, or it shows the one
@@ -267,6 +269,98 @@
     }
 
     section { padding: 8px 0 28px; border-top: 1px solid var(--border); }
+
+    /*
+     * The lower half shows rather than tells: each section puts a piece of the app next to its words —
+     * the same line at three levels, what you type beside what you play, a beat going round. A serif
+     * headline under the small-caps label gives it the top half's voice.
+     */
+    section.feature { padding: 12px 0 44px; }
+    .feature__title {
+      margin: 2px 0 12px; font-size: 1.6rem; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em;
+    }
+    .feature__aside { font-size: 0.95rem; font-style: italic; }
+
+    .levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 22px 0 18px; }
+    .level {
+      margin: 0; padding: 12px 14px 14px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    .level figcaption {
+      margin-bottom: 6px; color: var(--muted);
+      font: 600 0.68rem/1.4 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .level .l { font-size: 1.05rem; }
+    .level .c { font-size: 0.92rem; }
+
+    .typed {
+      margin: 20px 0 16px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+      background: var(--surface);
+    }
+    .typed__in, .typed__out { padding: 14px 16px; }
+    .typed__in { border-bottom: 1px dashed var(--border-strong); background: var(--bg); }
+    .typed__in code { display: block; font-size: 0.9rem; color: var(--text); white-space: pre-wrap; }
+    .typed__label {
+      display: block; margin-bottom: 6px; color: var(--muted);
+      font: 600 0.68rem/1.4 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .tokens { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; }
+    .tokens li { display: flex; align-items: baseline; gap: 12px; margin: 0; }
+    .tokens code {
+      flex: none; min-width: 72px; padding: 3px 8px; text-align: center; border-radius: 6px;
+      background: var(--accent-wash); border: 1px solid var(--accent-line); font-size: 0.85rem;
+    }
+    .tokens span { color: var(--muted); font-size: 0.95rem; }
+
+    .strip--live { margin: 20px 0 16px; background: var(--surface); }
+    .strip--live .dot { animation: beat 2.25s steps(1, end) infinite; }
+    .strip--live .dot:nth-child(2) { animation-delay: 0.375s; }
+    .strip--live .dot:nth-child(3) { animation-delay: 0.75s; }
+    .strip--live .dot:nth-child(4) { animation-delay: 1.125s; }
+    .strip--live .dot:nth-child(5) { animation-delay: 1.5s; }
+    .strip--live .dot:nth-child(6) { animation-delay: 1.875s; }
+    /* Each dot is lit for one eighth of the bar's six — at ♪ = 160 an eighth is 0.375s. */
+    @keyframes beat {
+      0% { background: var(--accent); transform: scale(1.25); }
+      16.66% { background: var(--border-strong); transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .strip--live .dot { animation: none; }
+      .strip--live .dot:first-child { background: var(--accent); }
+    }
+    .voices { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .voice {
+      margin: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); font-size: 0.9rem; line-height: 1.45;
+    }
+    .voice strong { display: block; margin-bottom: 2px; font-weight: 600; }
+    .voice span { color: var(--muted); }
+    .voice--on { background: var(--accent-wash); border-color: var(--accent-line); }
+    .voice--on strong { color: var(--accent); }
+
+    .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .card {
+      padding: 16px 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+    }
+    .card--wide { grid-column: 1 / -1; }
+    .card h4 { margin: 0 0 6px; font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
+    .card p { margin: 0 0 8px; font-size: 0.95rem; }
+    .card__links { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 14px 0 0 !important; font-family: var(--font-ui); }
+    .button--small { padding: 8px 16px; font-size: 0.9rem; }
+
+    /* Buttons are set in the interface face wherever they sit; here the section would lend it the serif. */
+    .closing .button { font-family: var(--font-ui); }
+    .closing { padding: 40px 0 48px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; }
+    .closing__title { margin: 0 !important; color: var(--text) !important; }
+    .closing__title .l { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; }
+    .closing__title .c { font-size: 1.1rem; }
+
+    @media (max-width: 640px) {
+      .levels, .voices { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .feature__title { font-size: 1.35rem; }
+      .closing__title .l { font-size: 1.6rem; }
+    }
     /* Section heads as small spaced capitals, the way the app labels a group. */
     section h2 {
       margin: 22px 0 10px; color: var(--text);
@@ -388,37 +482,122 @@
       <p class="caption">The beat strip shows the meter, the beat sounding, and where you are in the line. A blurred chord is one you are learning to remember — tap the line to see it.</p>
     </div>
 
-    <section>
+    <section class="feature">
       <h2>How it works</h2>
+      <h3 class="feature__title">Every playthrough, a little less to lean on</h3>
       <p>Each playthrough is a level. The first shows the verse and chorus whole and only starts thinning their repeats; the second hides half of every section; the third hides most of it, opening chords included. Set a level yourself, or let it climb on its own.</p>
-      <p>Lost a chord? Tap the line and it comes back for a few seconds — a glance at the answer, not a change of state.</p>
+      <!-- The same line at each level: the idea of the app in one picture. -->
+      <div class="levels" aria-label="One line at levels one, two and three, with more chords hidden at each">
+        <figure class="level">
+          <figcaption>Level 1</figcaption>
+          <div class="line">
+            <span class="seg"><span class="c">A<span class="q">m</span></span><span class="l">call the </span></span>
+            <span class="seg"><span class="c">C</span><span class="l">Rising </span></span>
+            <span class="seg"><span class="c">E</span><span class="l">Sun,</span></span>
+          </div>
+        </figure>
+        <figure class="level">
+          <figcaption>Level 2</figcaption>
+          <div class="line">
+            <span class="seg"><span class="c">A<span class="q">m</span></span><span class="l">call the </span></span>
+            <span class="seg"><span class="c hidden">C</span><span class="l">Rising </span></span>
+            <span class="seg"><span class="c">E</span><span class="l">Sun,</span></span>
+          </div>
+        </figure>
+        <figure class="level">
+          <figcaption>Level 3</figcaption>
+          <div class="line">
+            <span class="seg"><span class="c hidden">A<span class="q">m</span></span><span class="l">call the </span></span>
+            <span class="seg"><span class="c hidden">C</span><span class="l">Rising </span></span>
+            <span class="seg"><span class="c">E</span><span class="l">Sun,</span></span>
+          </div>
+        </figure>
+      </div>
+      <p class="feature__aside">Lost a chord? Tap the line and it comes back for a few seconds — a glance at the answer, not a change of state.</p>
     </section>
 
-    <section>
+    <section class="feature">
       <h2>Notation</h2>
+      <h3 class="feature__title">Write it the way you would scribble it</h3>
       <p>One line per lyric line, with chords in brackets where they fall in the words.</p>
-      <ul>
-        <li><code>There [Am]is a [C]house in New [D]Orleans</code> — a chord sits over the word it is played on.</li>
-        <li><code>|4|</code> at the end of a line — this line lasts four bars instead of the song's usual.</li>
-        <li><code>{3/4}</code> at the start of a line — the meter changes from here until the next one.</li>
+      <!-- What you type, and what the chart makes of it. -->
+      <div class="typed">
+        <div class="typed__in"><span class="typed__label">You type</span><code>There [Am]is a [C]house in New [D]Orleans, [F]</code></div>
+        <div class="typed__out" aria-hidden="true">
+          <span class="typed__label">You play</span>
+          <div class="line">
+            <span class="seg"><span class="c"></span><span class="l">There </span></span>
+            <span class="seg"><span class="c">A<span class="q">m</span></span><span class="l">is a </span></span>
+            <span class="seg"><span class="c">C</span><span class="l">house in New </span></span>
+            <span class="seg"><span class="c">D</span><span class="l">Orleans, </span></span>
+            <span class="seg"><span class="c">F</span><span class="l"> </span></span>
+          </div>
+        </div>
+      </div>
+      <ul class="tokens">
+        <li><code>|4|</code><span>at the end of a line — it lasts four bars instead of the song's usual</span></li>
+        <li><code>{3/4}</code><span>at the start of a line — the meter changes from here on</span></li>
+        <li><code>♩ = 90</code><span>a tempo is a note and a number, because a bare BPM does not say what it counts</span></li>
       </ul>
-      <p>Tempo is a note and a number — <code>♩ = 90</code>, or <code>♪ = 180</code> — because a bare BPM does not say what it is counting. Transpose with a tap.</p>
+      <p class="feature__aside">Transpose with a tap; the chords follow and the degrees stay put.</p>
     </section>
 
-    <section>
+    <section class="feature">
       <h2>Metronome</h2>
-      <p>A shaker by default, because it sits under a slow song rather than over it. A woodblock and a beep if you need to cut through. It counts you in, by one line's worth of bars, and the beat is on screen whether or not the sound is on.</p>
+      <h3 class="feature__title">Counted in, every time</h3>
+      <p>It counts you in, by one line's worth of bars, and the beat is on screen whether or not the sound is on.</p>
+      <!-- A bar of 6/8 going round, the way the app's strip shows it. -->
+      <div class="strip strip--live" aria-hidden="true">
+        <span>6/8</span>
+        <span class="dots"><span class="dot accent"></span><span class="dot"></span><span class="dot"></span><span class="dot accent"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="end">♪ = 160</span>
+      </div>
+      <ul class="voices" aria-label="Metronome sounds">
+        <li class="voice voice--on"><strong>Shaker</strong><span>the default — it sits under a slow song rather than over it</span></li>
+        <li class="voice"><strong>Woodblock</strong><span>when you need to cut through</span></li>
+        <li class="voice"><strong>Beep</strong><span>for when nothing else will do</span></li>
+      </ul>
     </section>
 
-    <section>
+    <section class="feature">
       <h2>Your songs</h2>
-      <p>Signed out, songs live in your browser and the app works with no connection at all. Sign in with Google and they follow you between devices.</p>
+      <h3 class="feature__title">Whenever you play</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>On this device</h4>
+          <p>Signed out, songs live in your browser and the app works with no connection at all.</p>
+        </div>
+        <div class="card">
+          <h4>Everywhere you sign in</h4>
+          <p>Sign in with Google and your songs follow you between devices.</p>
+        </div>
+        <div class="card card--wide">
+          <h4>The song archive</h4>
+          <p>Looking for more to play, or have an arrangement of your own to share? The NoChords song archive is a public collection of songs written out for the app — traditional and public-domain songs, and originals shared by the people who wrote them.</p>
+          <p class="card__links">
+            <a class="button button--small" href="https://github.com/anton-g-kulikov/nochords-songs">Browse the archive</a>
+            <a href="https://github.com/anton-g-kulikov/nochords-songs/issues/new?template=song.yml">Share a song with a short form on GitHub</a>
+          </p>
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2>More songs</h2>
-      <p>Looking for more to play, or have an arrangement of your own to share? The <a href="https://github.com/anton-g-kulikov/nochords-songs">NoChords song archive</a> is a public collection of songs written out for the app. Copy any of them into your library, or add yours with a pull request — or, with no GitHub know-how, <a href="https://github.com/anton-g-kulikov/nochords-songs/issues/new?template=song.yml">a short form</a>.</p>
-      <p>It takes traditional and public-domain songs, and originals shared by the people who wrote them.</p>
+    <!-- The page ends on the thing it is for. -->
+    <section class="closing">
+      <!--
+        The page's last line, set the way the app sets a song. It answers a famous chorus in the shape
+        and chords of its call, with the button where the third phrase falls. Chords are no one's, and
+        the words are the page's own.
+      -->
+      <p class="closing__title line" aria-label="Play together, right now">
+        <span class="seg"><span class="c"></span><span class="l">Play </span></span>
+        <span class="seg"><span class="c">B<span class="q">m</span></span><span class="l">together, </span></span>
+        <span class="seg"><span class="c">B<span class="q">m</span><span class="b">/A</span></span><span class="l">right </span></span>
+        <span class="seg"><span class="c">G</span><span class="l">now </span></span>
+        <!-- The chorus's last chord, hanging with no word under it: the button is the phrase it leads to. -->
+        <span class="seg"><span class="c">A</span><span class="l"> </span></span>
+      </p>
+      <a class="button" href="https://songs.nochords.app">With the app</a>
     </section>
 
     <footer>

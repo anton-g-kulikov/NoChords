@@ -42,6 +42,9 @@ export function createRow(overrides: Partial<SongRow> = {}): SongRow {
   };
 }
 
+/** What a new song is called until it is given a name. Stored, not just displayed. */
+export const UNTITLED_SONG = 'Untitled song';
+
 /** A new song with one empty row, ready to type into. */
 export function createSong(overrides: Partial<Song> = {}): Song {
   const originalKey = overrides.originalKey ?? DEFAULT_KEY;

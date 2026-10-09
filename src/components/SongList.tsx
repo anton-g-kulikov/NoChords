@@ -9,6 +9,13 @@ import { withSigns } from '../lib/chordType';
 import type { ThemePreference } from '../lib/theme';
 import { ThemeSwitch } from './ThemeSwitch';
 import { Mark } from './Mark';
+import {
+  LANGUAGE_FILTERS,
+  effectiveLanguageFilter,
+  filterByLanguage,
+  offersLanguageChoice,
+  type LanguageFilter,
+} from '../lib/language';
 
 /** Where "Buy me a [song] book" goes (ADR-079). */
 const SUPPORT_URL = 'https://buymeacoffee.com/antonkulikov';
@@ -30,6 +37,9 @@ interface SongListProps {
   onNextAccent: () => void;
   /** The ink now on, for the mark's label. */
   accentLabel: string;
+  /** Which songs to list, by language; remembered on this device (ADR-081). */
+  language: LanguageFilter;
+  onLanguageChange: (language: LanguageFilter) => void;
 }
 
 export function SongList({
@@ -44,10 +54,16 @@ export function SongList({
   onThemeChange,
   onNextAccent,
   accentLabel,
+  language,
+  onLanguageChange,
 }: SongListProps) {
   const install = useInstallPrompt();
   /* Only a tap strikes the note: arriving at the library is not a change of ink. */
   const [struck, setStruck] = useState(false);
+  // Only a library with songs in two languages has anything to choose between (ADR-081).
+  const languageChoice = offersLanguageChoice(songs);
+  const shownLanguage = effectiveLanguageFilter(language, songs);
+  const shown = filterByLanguage(songs, shownLanguage);
 
   return (
     <div className="screen library">
@@ -124,13 +140,40 @@ export function SongList({
         </p>
       ) : (
         <>
-        <h2 className="library__heading">
-          Songs <span className="library__count">{songs.length}</span>
-        </h2>
+        <div
+          className={
+            languageChoice ? 'library__heading library__heading--languages' : 'library__heading'
+          }
+        >
+          <h2 className="library__heading-text">
+            Songs <span className="library__count">{shown.length}</span>
+          </h2>
+          {/* In the running head, as the head's own type: a contents page that can be read in
+              either language, not a control panel over it (ADR-081). */}
+          {languageChoice && (
+            <div className="library__languages" role="group" aria-label="Song language">
+              {LANGUAGE_FILTERS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={
+                    option.value === shownLanguage
+                      ? 'library__language library__language--active'
+                      : 'library__language'
+                  }
+                  aria-pressed={option.value === shownLanguage}
+                  onClick={() => onLanguageChange(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         {/* A contents page (ADR-068): the title, what it is, and the key where a page number
             would be — the thing you look for before you play. */}
         <ul className="library__list">
-          {songs.map((song) => (
+          {shown.map((song) => (
             <li key={song.id} className="library__item">
               <button type="button" className="library__open" onClick={() => onOpen(song.id)}>
                 <span className="library__text">

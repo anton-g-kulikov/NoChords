@@ -659,6 +659,55 @@ kbd {
   font-variant-numeric: tabular-nums;
 }
 
+/* The heading inside the head: the title and its count, spread across it as before. */
+.library__heading-text {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+/* With the languages on the right, the count stays beside the word it counts. */
+.library__heading--languages .library__heading-text {
+  flex: 0 1 auto;
+  justify-content: flex-start;
+  gap: 0.6em;
+}
+
+.library__languages {
+  display: flex;
+  gap: 2px;
+}
+
+/* Set in the head's own small capitals. The padding is the finger's, given back by the margin,
+   so the head keeps its height while the tap target does not shrink to the type (ADR-081). */
+.library__language {
+  margin: -14px 0;
+  padding: 14px 8px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.library__language:hover:not(.library__language--active) {
+  color: var(--text);
+}
+
+.library__language:last-child {
+  margin-right: -8px;
+}
+
+/* In the second ink, like every other thing that is on (ADR-069). */
+.library__language--active {
+  color: var(--accent);
+}
+
 /* Ruled like a contents page, rather than boxed like a set of cards (ADR-068). */
 .library__list {
   list-style: none;

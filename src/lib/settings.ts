@@ -9,6 +9,7 @@ import { defaultStorage, type StorageLike } from './storage';
 import { DEFAULT_VOICE, isVoiceName, type VoiceName } from './metronomeVoice';
 import { DEFAULT_THEME, isThemePreference, type ThemePreference } from './theme';
 import { DEFAULT_ACCENT, isAccentName, type AccentName } from './accent';
+import { DEFAULT_LANGUAGE_FILTER, isLanguageFilter, type LanguageFilter } from './language';
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
@@ -45,6 +46,8 @@ export interface Settings {
   theme: ThemePreference;
   /** The second ink, chosen by tapping the mark (ADR-072). */
   accent: AccentName;
+  /** Which songs the library lists, by the language they are written in (ADR-081). */
+  libraryLanguage: LanguageFilter;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -54,6 +57,7 @@ export const DEFAULT_SETTINGS: Settings = {
   countInBars: null,
   theme: DEFAULT_THEME,
   accent: DEFAULT_ACCENT,
+  libraryLanguage: DEFAULT_LANGUAGE_FILTER,
 };
 
 /** Bars to count in for a song, resolving "follow the song" against its line length. */
@@ -102,6 +106,9 @@ function sanitize(value: unknown): Settings {
   return {
     theme: isThemePreference(record.theme) ? record.theme : DEFAULT_THEME,
     accent: isAccentName(record.accent) ? record.accent : DEFAULT_ACCENT,
+    libraryLanguage: isLanguageFilter(record.libraryLanguage)
+      ? record.libraryLanguage
+      : DEFAULT_LANGUAGE_FILTER,
     metronomeVoice: isVoiceName(record.metronomeVoice) ? record.metronomeVoice : DEFAULT_VOICE,
     metronomeEnabled:
       typeof record.metronomeEnabled === 'boolean'

@@ -53,6 +53,18 @@ describe('countInBarsFor', () => {
     expect(load({ accent: 'chartreuse' })).toBe('vermilion');
   });
 
+  it('SET-16 keeps the chosen song language; anything else, or nothing, shows every song (ADR-081)', () => {
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
+        .libraryLanguage;
+
+    expect(DEFAULT_SETTINGS.libraryLanguage).toBe('all');
+    expect(load({ libraryLanguage: 'ru' })).toBe('ru');
+    expect(load({ libraryLanguage: 'en' })).toBe('en');
+    expect(load({})).toBe('all');
+    expect(load({ libraryLanguage: 'de' })).toBe('all');
+  });
+
   it('SET-10 follows the song when nothing has been set (ADR-059)', () => {
     expect(DEFAULT_SETTINGS.countInBars).toBeNull();
     // A line's worth of bars is what you are about to play, so it is what the count says.
@@ -88,6 +100,7 @@ describe('createSettingsStore', () => {
       countInBars: 2,
       theme: 'dark',
       accent: 'teal',
+      libraryLanguage: 'ru',
     });
     expect(createSettingsStore(backend).load()).toEqual({
       metronomeEnabled: true,
@@ -96,6 +109,7 @@ describe('createSettingsStore', () => {
       countInBars: 2,
       theme: 'dark',
       accent: 'teal',
+      libraryLanguage: 'ru',
     });
   });
 

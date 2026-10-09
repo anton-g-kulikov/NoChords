@@ -16,7 +16,7 @@ import {
 } from '../lib/cloudImport';
 import { hasSeededExamples, markExamplesSeeded, shouldSeedExamples } from '../lib/firstRun';
 import { createExampleSongs } from '../lib/examples';
-import { createSong } from '../lib/songs';
+import { UNTITLED_SONG, createSong } from '../lib/songs';
 import { isAwaitingAccount } from '../lib/library';
 import type { Song } from '../types/song';
 
@@ -202,7 +202,7 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
   }, [flush]);
 
   const addSong = useCallback((): Song => {
-    const song = createSong({ title: 'Untitled song' });
+    const song = createSong({ title: UNTITLED_SONG });
     setSongs((current) => [...current, song]);
     queueWrite(song);
     return song;

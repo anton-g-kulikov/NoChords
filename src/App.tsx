@@ -83,6 +83,8 @@ export function App() {
         onThemeChange={(theme) => updateSettings({ theme })}
         onNextAccent={() => updateSettings({ accent: nextAccent(settings.accent) })}
         accentLabel={ACCENTS[settings.accent].label}
+        language={settings.libraryLanguage}
+        onLanguageChange={(libraryLanguage) => updateSettings({ libraryLanguage })}
         />
       </>
     );

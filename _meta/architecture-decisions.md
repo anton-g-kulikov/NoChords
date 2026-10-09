@@ -2268,3 +2268,27 @@ welcome; dropping them from the tests would be losing coverage for it.
 
 **Cost.** Existing libraries keep the copies they were given — seeding only ever fills an empty
 library — so the change reaches new devices and new accounts only.
+
+## ADR-077 — On a wide screen the panels sit beside the chart
+
+**Decision.** Amends ADR-060 for windows 900px and wider. The panels — This song, Metronome and the
+learning level — render in a 340px column to the right of the chart instead of inside the pinned
+header above it. The column scrolls on its own; the transport spans both columns. With both panels
+shut the column goes and the chart takes the full width back. Below 900px nothing changes. Where
+the panels render is decided by `useMediaQuery`, because CSS can restyle an element but cannot move
+it out of the sticky header.
+
+**Why.** On a desktop the panel above the chart pushed the song a third of the way down a screen
+with half its width empty. ADR-046 put the panel in the flow so that it could never hide a line;
+beside the chart it still hides nothing, and no longer moves anything either.
+
+**Playback no longer shuts them, here.** On a phone the panels collapse when Play is pressed because
+they take the screen the chart needs. In a column they take none of it, and shutting them would
+widen the chart and re-fit every line (ADR-054) at the moment the song starts — the same shift out
+from under the reader that the panels deliberately avoid on pause. So on a wide screen they stay as
+they were.
+
+**Why 900px.** At 900 the chart column keeps about 510px of measure, where the longest line of the
+seed song still sets at full size. Narrower than that the column would cost the chart its type
+size, which is the thing the screen is for.
+

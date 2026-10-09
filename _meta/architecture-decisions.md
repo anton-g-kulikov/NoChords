@@ -2826,3 +2826,22 @@ than a volume, and it is the song's to keep. ADR-039's "Chords" group now outliv
 app from before this change that edits a synced song writes it back without the field, and the song
 then opens on names until its display is chosen again.
 
+---
+
+## ADR-096 — A line of chords and no words is its chord row alone
+
+**Decision.** Amends ADR-093. A row with chords and no lyric — an intro, a turnaround, written
+`[Am] [C] [D] [F] |4|` (ADR-094) — is drawn as its chord row alone: the empty lyric row every other
+line keeps under its chords is not drawn (`line--chords`). Its length mark is set as the chords are,
+in their face and size, on their baseline, still at ADR-061's faintness. A row with words is
+unchanged, and so is a row with neither, which stays the blank line between sections.
+
+**Why.** Each line reserves a lyric row so that its chords sit over words. A line with no words kept
+that row empty, so a two-line intro stood a whole lyric row apart, and the length mark — set as the
+lyric, on the lyric's baseline (ADR-093) — landed on the empty row, under and after the chords it
+measures. Without the row, intro lines stack as a chord chart's do, and the mark reads as the end of
+the line it belongs to.
+
+**Cost.** A chord-only line is shorter than a lyric line, so the chart's lines are no longer one
+height; the playing line's highlight and the scroll follow each row's own box, as they already did.
+

@@ -69,8 +69,9 @@ follows the meter it is in.
 Songs that change meter say so inline. Open a line with `{4/4}` and the signature runs from there
 until the next one, so a bridge in four inside a song in six clicks in four while it lasts — and the
 line shows it while you play, a small `4/4` before its first chord. A line
-whose length differs from the song's default says so with a small raised number after its last word
-— written into the line rather than floating beside it, so the words never run under it (ADR-061).
+whose length differs from the song's default says so after its last word, faintly and as it is typed
+— `|4|` — written into the line rather than floating beside it, so the words never run under it
+(ADR-061, ADR-093).
 
 Tempo is a note and a number — `♩ = 90`, or `♪ = 180` — because a bare BPM does not say what it is
 counting. Two notes are offered, the eighth and the quarter — 6/8 can be written `♪ = 180` or

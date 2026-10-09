@@ -2754,3 +2754,19 @@ are finished, and pressing it does keep what they did — it only stops being ab
 name and picture with its state, so a screen reader hears "Edit song" or "Save" — the action — and
 pressed would only contradict it.
 
+---
+
+## ADR-093 — The chart writes a line's length as the editor does
+
+**Decision.** Amends ADR-061. A line whose length differs from the song's default ends, in the
+chart, in `|4|` — the bar count between pipes, exactly as it is typed — rather than a bare `4`. Its
+size, place and faintness are ADR-061's: after the last word, at 0.35 opacity, scaled with the
+chart. The pipes are hidden from screen readers, which hear "4 bars". The mark is kept on one line.
+
+**Why.** A bare numeral after a lyric reads as a footnote or a verse number. `|4|` is the notation
+the writer typed in the editor, so the chart and the editor say the same thing the same way, and
+someone who has only ever played a song learns the notation by seeing it.
+
+**Why the meter mark is unchanged.** `4/4` already reads as a time signature on its own; braces
+would add nothing a musician needs to recognise it.
+

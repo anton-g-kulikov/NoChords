@@ -229,6 +229,7 @@ described at the end of this document.
 | ST-08 | A failing storage backend (quota, blocked) does not crash save or load | ✅ |
 | ST-09 | **A song stored before tempo units is read as the unit that preserves its timing** | ✅ |
 | ST-10 | A tempo unit the app does not offer is refused | ✅ |
+| ST-12 | **A song saved in the dotted quarter loads at the same speed in eighths or quarters** | ✅ |
 | ST-11 | A song's own count-in is kept; one stored without it reads as Auto; out-of-range numbers are clamped | ✅ |
 
 ### Metronome timing — `metronome.test.ts`
@@ -402,19 +403,20 @@ notes and no meter gets a special case (ADR-052).
 |---|------|--------|
 | TU-01 | A bar is measured in quarter notes: 6/8 is three, 7/8 is three and a half | ✅ |
 | TU-02 | An unreadable meter falls back to a bar of four | ✅ |
-| TU-03 | Each unit is worth 0.5, 1 or 1.5 quarter notes | ✅ |
-| TU-04 | **Bar length from meter, number and unit: 4/4 ♩=120 → 2s, 3/4 ♩=60 → 3s, 6/8 ♩.=60 → 2s, 6/8 ♪=180 → 2s** | ✅ |
-| TU-05 | **6/8 ♪=180 and 6/8 ♩.=60 are the same music** | ✅ |
+| TU-03 | Each unit is worth 0.5 or 1 quarter notes | ✅ |
+| TU-04 | **Bar length from meter, number and unit: 4/4 ♩=120 → 2s, 3/4 ♩=60 → 3s, 6/8 ♪=180 → 2s** | ✅ |
+| TU-05 | **A tempo saved as 6/8 ♩.=60 loads as ♪=180, the same music** | ✅ |
 | TU-06 | A zero or negative tempo is floored rather than lasting forever | ✅ |
 | TU-07 | The metronome's beat is the meter's unit, not the tempo's | ✅ |
 | TU-08 | **An old bare number is read as the meter's denominator, so 6/8 stays in eighths** | ✅ |
-| TU-09 | A new song is offered the unit its meter is counted in (6/8, 9/8, 12/8 → ♩.) | ✅ |
-| TU-10 | Only the three offered units are accepted | ✅ |
-| TU-11 | Each unit writes as its note: ♪, ♩, ♩. | ✅ |
-| TU-12 | **Five bars of 6/8 last ten seconds at ♪=180 and at ♩.=60, with identical beat grids** | ✅ |
+| TU-09 | A new song is offered the unit its meter is counted in (6/8, 9/8, 12/8 → ♪) | ✅ |
+| TU-10 | Only the two offered units are accepted; the dotted quarter is not | ✅ |
+| TU-11 | Each unit writes as its note: ♪, ♩ | ✅ |
+| TU-12 | **Five bars of 6/8 saved at ♩.=60 still last ten seconds over thirty beats, identical to ♪=180** | ✅ |
 | TU-13 | Bars stay whole — 7/8 at ♩=120 is one bar of 1750ms, never a fractional bar | ✅ |
 | TU-14 | The tempo bounds stay usable at both ends | ✅ |
-| TU-15 | Each unit is offered as its note and its value: ♪ – 1/8, ♩ – 1/4, ♩. – 3/8 | ✅ |
+| TU-15 | Each unit is offered as its note and its value: ♪ – 1/8, ♩ – 1/4 | ✅ |
+| TU-16 | **A dotted quarter too fast for eighths becomes quarters at the same speed; capped only past ♩.=200** | ✅ |
 
 ### Fitting the chart — `fit.test.ts`
 

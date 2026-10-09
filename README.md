@@ -71,8 +71,9 @@ whose length differs from the song's default says so with a small raised number 
 — written into the line rather than floating beside it, so the words never run under it (ADR-061).
 
 Tempo is a note and a number — `♩ = 90`, or `♪ = 180` — because a bare BPM does not say what it is
-counting. In 6/8 that is the difference between the eighth and the dotted-quarter pulse, a factor of
-three; both readings are offered and play identically. Timing is bars and beats throughout — there
+counting. Two notes are offered, the eighth and the quarter — 6/8 can be written `♪ = 180` or
+`♩ = 90`, and both play identically. A song saved in the dotted quarter the app used to offer loads
+as the same speed in one of these (ADR-086). Timing is bars and beats throughout — there
 are no seconds anywhere, so changing the tempo rescales the whole song, held lines included. Just
 type; everything saves as you go.
 

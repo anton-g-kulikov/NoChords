@@ -2533,3 +2533,30 @@ not fit the 46px button. So the select's own text is made transparent — `color
 events so the select underneath still takes the tap. The options set both properties back, for
 browsers whose open list inherits them. Screen readers still hear the select's full option text.
 
+---
+
+## ADR-086 — The dotted quarter is no longer a tempo unit
+
+**Decision.** Amends ADR-052 and ADR-085. A tempo counts eighths or quarters; `dottedQuarter` is
+gone from `TempoUnit` and from the list. A song saved in it is converted in `sanitizeSong`, the one
+door both stored JSON and Firestore documents come through, to the same speed in a unit still
+offered: eighths at three times the number when that fits the field's 300 (♩. = 60 is ♪ = 180),
+quarters at one and a half times otherwise (♩. = 120 is ♩ = 180). New songs in 6/8, 9/8 and 12/8
+start in eighths.
+
+**Why.** Nobody chose it. No seeded song used it, and the app only reached for it on its own for a
+new song created in a compound meter — but new songs start in 4/4, and changing the meter never
+changes the unit, so in practice it was picked by hand or not at all. Meanwhile it was the one
+option whose value needed explaining: listed as `♩. – 3/8` (ADR-085) it reads like the time
+signature 3/8, which is something else. Eighths say the same thing about 6/8 without the dot.
+
+**Never the bare number.** Reading a saved `♩. = 60` as `♪ = 60` would play the song at a third of
+its speed, and as `♩ = 60` at two thirds. The conversion keeps how the song sounds, as ADR-052's
+migration did, at the price of the number changing on screen.
+
+**Where it can move.** Eighths are exact. Quarters are exact for an even number and round half a
+beat a minute for an odd one, and only past ♩. = 200 — three hundred quarter notes a minute — is the
+tempo capped. A converted song is written back in its new unit the next time it is saved.
+
+**Cost.** An app still running an older build reads `eighth` and `quarter` as it always did, so a
+song converted on one device plays the same on another that has not updated yet.

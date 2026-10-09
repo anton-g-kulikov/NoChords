@@ -26,7 +26,6 @@ const sample: Song = {
   tempoUnit: 'quarter',
   barsPerLine: 6,
   meter: '3/4',
-  countInBars: null,
   learningPlaythrough: 3,
   rows: [
     {
@@ -156,18 +155,13 @@ describe('createSongStore', () => {
     expect([fast.tempo, fast.tempoUnit]).toEqual([180, 'quarter']);
   });
 
-  it('ST-11 keeps a song\'s own count-in, and reads one stored without it as Auto (ADR-083)', async () => {
-    const { countInBars: _dropped, ...withoutCountIn } = sample;
-    const stored = JSON.stringify([
-      { ...sample, countInBars: 2 },
-      { ...withoutCountIn, id: 'song-2' },
-      { ...sample, id: 'song-3', countInBars: 999 },
-      { ...sample, id: 'song-4', countInBars: 'two' },
-    ]);
+  it('ST-11 loads a song saved with its own count-in, and leaves the count-in behind (ADR-094)', async () => {
+    // Songs saved while a song could carry a count-in still load, whole; the count-in is now the
+    // device's one bar or two, and an intro is written into the song.
+    const stored = JSON.stringify([{ ...sample, countInBars: 4 }, { ...sample, id: 'song-2', countInBars: null }]);
     const loaded = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
-    // A song written before it could have one follows its line length, as it always did; a number
-    // past the offered range is clamped rather than becoming a ten-minute wait.
-    expect(loaded.map((song) => song.countInBars)).toEqual([2, null, 24, null]);
+    expect(loaded.map((song) => song.id)).toEqual([sample.id, 'song-2']);
+    expect(loaded.every((song) => !('countInBars' in song))).toBe(true);
   });
 
   it('ST-08 survives a storage backend that refuses to write', async () => {

@@ -12,7 +12,6 @@ const sample: Song = {
   tempoUnit: 'quarter',
   barsPerLine: 6,
   meter: '3/4',
-  countInBars: null,
   learningPlaythrough: 3,
   rows: [
     {
@@ -106,11 +105,12 @@ describe('songToDoc / songFromDoc', () => {
     expect(seen).toEqual([]);
   });
 
-  it('SD-11 writes a song\'s own count-in, and null for Auto rather than leaving it out', () => {
-    expect(songFromDoc(songToDoc({ ...sample, countInBars: 2 }))?.countInBars).toBe(2);
-    expect(songToDoc(sample).countInBars).toBeNull();
-    const { countInBars: _dropped, ...stored } = songToDoc(sample);
-    expect(songFromDoc(stored)?.countInBars).toBeNull();
+  it('SD-11 no longer writes a song\'s count-in, and reads past one an older version wrote (ADR-094)', () => {
+    expect('countInBars' in songToDoc(sample)).toBe(false);
+    const older = { ...songToDoc(sample), countInBars: 2 };
+    const read = songFromDoc(older);
+    expect(read?.id).toBe(sample.id);
+    expect(read && 'countInBars' in read).toBe(false);
   });
 
   it('round-trips a song the app itself just made', () => {

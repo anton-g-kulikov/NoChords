@@ -118,7 +118,7 @@ transposing is lossless and repeatable, and Nashville numbers never move.
 
 A strip sits pinned under the buttons: the meter, then a row of dots — one per beat of the bar,
 with the one sounding lit — then which bar of the line you are in. The count-in comes first,
-counting its bars down, then the song, counting the line's bars up and starting the dots again at
+labelled as a count-in, then the song, counting the line's bars up and starting the dots again at
 every barline. A `{3/4}` line says 3/4 and draws three dots, since it reports the meter actually
 running. It is a picture of the beat, so
 it runs whether or not anything is clicking, and the switch beside it is what decides that — on to
@@ -126,12 +126,11 @@ begin with. Turn the
 sound on and every beat clicks, accented on the first of the bar; turn it off and you are still
 counted in and still shown the beat, in silence.
 
-**Tempo**, **volume** and **count-in** live together in the metronome settings. The count-in is how
-many *bars* to count before the song starts, or 0 for none — a bar is as long as the song's meter
-says, so one bar counts six in 6/8 and three in 3/4, and the count lands on the song's own downbeat.
-It is set to **Auto** by default, which means the song decides: its own count-in, if its editor sets
-one, and otherwise one line's worth of bars — the length you are about to play is the length worth
-counting. A number typed into the metronome settings overrides every song.
+**Tempo**, **volume** and **count-in** live together in the metronome settings. Every song starts
+with a count-in of **one bar**, or **two** if you choose it there — a count and nothing more: "1 2 3
+4" in 4/4, "1 2 3 4 5 6" in 6/8, landing on the song's own downbeat. Bars to be played before the
+singing are an intro, and an intro is part of the song: a line of chords with no words at the top
+of it, `[Am] [C] [D] [F] |4|` (ADR-094).
 
 **Sound** offers three voices: a shaker of filtered noise (the default, and the one that sits under
 a slow song), a woodblock, and a beep for a loud room. Each accents by playing the same sound harder
@@ -145,7 +144,7 @@ device's output latency so that it is *heard* on the beat rather than a tenth of
 (ADR-030), which is also why playback begins a quarter of a second after you press it.
 
 The sound starts **on**, as a shaker, so the first Play is counted in out loud; switching it off is
-remembered. Sound, volume and the count-in override are per-device rather than per-song, since how
+remembered. Sound, volume and the count-in are per-device rather than per-song, since how
 loud a click should be depends on where you are playing, not on what. Tempo sits with them because it is the first thing a
 metronome is asked for, but it belongs to the song.
 

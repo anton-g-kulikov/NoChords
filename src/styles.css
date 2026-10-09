@@ -1577,23 +1577,6 @@ kbd {
   text-align: right;
 }
 
-/* Auto, then the number it resolves to. */
-.count-in-field {
-  display: flex;
-  gap: 4px;
-}
-
-.count-in-field .segment {
-  padding-inline: 10px;
-  border-radius: var(--radius);
-}
-
-.count-in-field__value {
-  flex: 1 1 56px;
-  min-width: 0;
-  padding-inline: 8px;
-}
-
 @media (max-width: 720px) {
   .metronome {
     padding-left: 0;

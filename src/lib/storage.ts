@@ -10,7 +10,6 @@
  */
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
 import { fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
-import { MAX_COUNT_IN_BARS } from './metronome';
 import type { ChordAnchor, Song, SongRow } from '../types/song';
 
 export const STORAGE_KEY = 'nochords.songs.v1';
@@ -126,7 +125,6 @@ export function sanitizeSong(value: unknown): Song | null {
     beatsPerLine,
     barsPerLine,
     meter,
-    countInBars,
     learningPlaythrough,
     rows,
   } = value;
@@ -184,11 +182,8 @@ export function sanitizeSong(value: unknown): Song | null {
     barsPerLine: bars,
     // Songs written before meters existed are in four: that is what they were played as.
     meter: songMeter,
-    // Songs written before they could have a count-in follow their line length, as they always did.
-    countInBars:
-      typeof countInBars === 'number' && Number.isFinite(countInBars)
-        ? Math.min(Math.max(Math.round(countInBars), 0), MAX_COUNT_IN_BARS)
-        : null,
+    // A song's own count-in, from before the count-in was a device's one bar or two, is not read:
+    // an intro is now written into the song as a line of chords (ADR-094).
     learningPlaythrough,
     rows: sanitizedRows,
   };

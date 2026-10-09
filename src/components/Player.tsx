@@ -10,7 +10,6 @@ import {
 import { Brain, ListMinus, ListRestart, Metronome, SlidersVertical } from 'lucide-react';
 import { toNashville } from '../lib/nashville';
 import { KeyStepper } from './KeyStepper';
-import { NumberInput } from './NumberInput';
 import { TempoField } from './TempoField';
 import { BeatStrip } from './BeatStrip';
 import { SongRowView } from './SongRowView';
@@ -37,7 +36,7 @@ import { usePlayback } from '../hooks/usePlayback';
 import { useMetronome } from '../hooks/useMetronome';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { accentAt, countInDurationMs, pulseAt } from '../lib/metronome';
-import { MAX_COUNT_IN_BARS, countInBarsFor, type Settings } from '../lib/settings';
+import { COUNT_IN_OPTIONS, type Settings } from '../lib/settings';
 import {
   isDoubleTap,
   isRevealed,
@@ -120,8 +119,10 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   const beatsPerBar = beatsPerBarOf(song.meter);
   // One beat of the song's own meter — an eighth in 6/8 — at whatever note value its tempo counts.
   const beatMs = msPerMeterBeat(song.meter, song.tempo, song.tempoUnit);
-  // A count-in is counted in the song's own time: one bar of 6/8 is six beats, of 3/4 three.
-  const countInBars = countInBarsFor(settings.countInBars, song.barsPerLine, song.countInBars);
+  // A count-in is counted in the song's own time: one bar of 6/8 is six beats, of 3/4 three. It is
+  // the device's one bar or two, the same for every song; an intro is written into the song
+  // (ADR-094).
+  const countInBars = settings.countInBars;
   const countInMs = countInDurationMs(beatMs, countInBars * beatsPerBar);
 
   const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
@@ -401,30 +402,25 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 </select>
               </label>
 
-              {/* Auto is a real value here, not an empty field: it means the song's own count-in,
-                  or one line's worth of bars, which changes with the song (ADR-059, ADR-083). */}
+              {/* One bar or two of "1 2 3 4" before every song — a count, nothing more. Bars to be
+                  played before the singing are an intro, written into the song (ADR-094). */}
               <div className="field field--narrow">
                 <span className="field__label">Count-in (bars)</span>
-                <div className="count-in-field">
-                  <button
-                    type="button"
-                    className={
-                      settings.countInBars === null ? 'segment segment--active' : 'segment'
-                    }
-                    aria-pressed={settings.countInBars === null}
-                    title="Use the song's count-in"
-                    onClick={() => onSettingsChange({ countInBars: null })}
-                  >
-                    Auto
-                  </button>
-                  <NumberInput
-                    className="field__input count-in-field__value"
-                    value={countInBars}
-                    min={0}
-                    max={MAX_COUNT_IN_BARS}
-                    aria-label="Count-in bars"
-                    onCommit={(bars) => onSettingsChange({ countInBars: bars })}
-                  />
+                <div className="controls__group" role="group" aria-label="Count-in bars">
+                  {COUNT_IN_OPTIONS.map((bars) => (
+                    <button
+                      key={bars}
+                      type="button"
+                      className={
+                        settings.countInBars === bars ? 'segment segment--active' : 'segment'
+                      }
+                      aria-pressed={settings.countInBars === bars}
+                      title={`Count in ${bars} bar${bars === 1 ? '' : 's'}`}
+                      onClick={() => onSettingsChange({ countInBars: bars })}
+                    >
+                      {bars}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>

@@ -10,17 +10,23 @@ import { DEFAULT_VOICE, isVoiceName, type VoiceName } from './metronomeVoice';
 import { DEFAULT_THEME, isThemePreference, type ThemePreference } from './theme';
 import { DEFAULT_ACCENT, isAccentName, type AccentName } from './accent';
 import { DEFAULT_LANGUAGE_FILTER, isLanguageFilter, type LanguageFilter } from './language';
-import { MAX_COUNT_IN_BARS } from './metronome';
-
-export { MAX_COUNT_IN_BARS };
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
 /** What a count-in used to be measured in, before it was counted in bars (ADR-027). */
 const LEGACY_BEATS_PER_BAR = 4;
 
-/** The count-in everybody had before it followed the song's line length (ADR-059). */
-const LEGACY_DEFAULT_BARS = 1;
+/**
+ * A count-in is one bar or two, counted in the song's opening meter (ADR-094).
+ *
+ * It only counts: "1 2 3 4", then the first line. Bars to be played before the singing starts are
+ * an intro, and an intro is written into the song as a line of chords.
+ */
+export type CountInBars = 1 | 2;
+
+export const COUNT_IN_OPTIONS: readonly CountInBars[] = [1, 2];
+
+export const DEFAULT_COUNT_IN_BARS: CountInBars = 1;
 
 export interface Settings {
   metronomeEnabled: boolean;
@@ -29,14 +35,12 @@ export interface Settings {
   /** 0..1. */
   metronomeVolume: number;
   /**
-   * Bars counted in before the song starts; 0 for none, `null` to follow the song.
+   * Bars counted in before every song: one or two (ADR-094).
    *
-   * A bar is as long as the song's meter says, so the count is in the song's own time (ADR-027).
-   * Following the song means its own count-in if it has one (ADR-083), and otherwise one line's
-   * worth of bars, which is the length you are about to play and so the length that tells you
-   * most (ADR-059).
+   * A bar is as long as the song's opening meter says, so the count is in the song's own time
+   * (ADR-027): "1 2 3 4" in 4/4, "1 2 3 4 5 6" in 6/8.
    */
-  countInBars: number | null;
+  countInBars: CountInBars;
   /** Light, dark, or whatever the device says (ADR-067). */
   theme: ThemePreference;
   /** The second ink, chosen by tapping the mark (ADR-072). */
@@ -50,27 +54,11 @@ export const DEFAULT_SETTINGS: Settings = {
   metronomeEnabled: true,
   metronomeVoice: DEFAULT_VOICE,
   metronomeVolume: 0.5,
-  countInBars: null,
+  countInBars: DEFAULT_COUNT_IN_BARS,
   theme: DEFAULT_THEME,
   accent: DEFAULT_ACCENT,
   libraryLanguage: DEFAULT_LANGUAGE_FILTER,
 };
-
-/**
- * Bars to count in for a song.
- *
- * A device count-in set outright wins. Otherwise the song decides: its own count-in if it has one
- * (ADR-083), else one line's worth of bars (ADR-059).
- */
-export function countInBarsFor(
-  countInBars: number | null,
-  barsPerLine: number,
-  songCountInBars: number | null = null
-): number {
-  if (countInBars !== null) return countInBars;
-  if (songCountInBars !== null) return songCountInBars;
-  return clamp(Math.round(barsPerLine), 1, MAX_COUNT_IN_BARS);
-}
 
 export interface SettingsStore {
   load(): Settings;
@@ -87,27 +75,19 @@ function sanitize(value: unknown): Settings {
   const record = value as Record<string, unknown>;
 
   const volume = record.metronomeVolume;
-  // Settings written before the count-in was measured in bars hold beats, read four to the bar —
-  // the only bar length the app had then. Anything short of half a bar would otherwise round to
-  // nothing, which would answer "I want a count-in" with silence; a count-in that was asked for
-  // survives as one bar (ADR-027).
-  const fromBeats = (beats: number): number =>
-    beats > 0 ? Math.max(1, Math.round(beats / LEGACY_BEATS_PER_BAR)) : 0;
-
   /*
-   * A stored bar count that is the old default of one is read as "follow the song".
-   *
-   * There is no telling a deliberate 1 from the 1 everybody was given, and the count-in now
-   * follows the line length unless told otherwise (ADR-059). Any other number was typed on
-   * purpose and is left alone.
+   * Any count-in stored before it was one bar or two (ADR-094): two bars or more asked for a long
+   * count, and keeps the longer of the two; anything else — none, one, Auto — is one bar. Settings
+   * older still hold beats, read four to the bar, the only bar length the app had then (ADR-027).
    */
-  const stored =
-    typeof record.countInBars === 'number'
+  const storedBars =
+    typeof record.countInBars === 'number' && Number.isFinite(record.countInBars)
       ? record.countInBars
       : typeof record.countInBeats === 'number' && Number.isFinite(record.countInBeats)
-        ? fromBeats(record.countInBeats)
-        : undefined;
-  const countIn = stored === LEGACY_DEFAULT_BARS ? null : stored;
+        ? Math.round(record.countInBeats / LEGACY_BEATS_PER_BAR)
+        : null;
+  const countInBars: CountInBars =
+    storedBars !== null && storedBars >= 2 ? 2 : DEFAULT_COUNT_IN_BARS;
 
   return {
     theme: isThemePreference(record.theme) ? record.theme : DEFAULT_THEME,
@@ -124,12 +104,7 @@ function sanitize(value: unknown): Settings {
       typeof volume === 'number' && Number.isFinite(volume)
         ? clamp(volume, 0, 1)
         : DEFAULT_SETTINGS.metronomeVolume,
-    countInBars:
-      countIn === null
-        ? null
-        : typeof countIn === 'number' && Number.isFinite(countIn)
-          ? clamp(Math.round(countIn), 0, MAX_COUNT_IN_BARS)
-          : DEFAULT_SETTINGS.countInBars,
+    countInBars,
   };
 }
 

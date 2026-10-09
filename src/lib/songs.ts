@@ -60,7 +60,6 @@ export function createSong(overrides: Partial<Song> = {}): Song {
     tempoUnit: preferredTempoUnit(overrides.meter ?? DEFAULT_METER),
     barsPerLine: DEFAULT_BARS_PER_LINE,
     meter: DEFAULT_METER,
-    countInBars: null,
     learningPlaythrough: 0,
     rows: [createRow()],
     ...overrides,

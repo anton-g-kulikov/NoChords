@@ -19,7 +19,6 @@ import {
 } from "../src/lib/playback";
 import { createSongStore, type StorageLike } from "../src/lib/storage";
 import { setCurrentKey } from "../src/lib/songs";
-import { countInBarsFor } from "../src/lib/settings";
 import type { Song } from "../src/types/song";
 
 function memoryStorage(): StorageLike {
@@ -289,18 +288,6 @@ describe("example songs", () => {
       ...song.rows.map((row) => row.id),
     ]);
     expect(new Set(ids).size).toBe(ids.length);
-  });
-
-  it("EX-12 the seeded songs carry their own count-in; the others follow their line length (ADR-083)", () => {
-    // The Rising Sun writes down the four bars Auto would count, so they survive a change of line
-    // length.
-    expect(risingSun.countInBars).toBe(4);
-    expect(countInBarsFor(null, risingSun.barsPerLine, risingSun.countInBars)).toBe(4);
-    expect([scarborough, blackbird, parovoz].map((song) => song.countInBars)).toEqual([
-      null,
-      null,
-      null,
-    ]);
   });
 
   it("EX-11 a new library starts with the Rising Sun and Постой, паровоз (ADR-089)", () => {

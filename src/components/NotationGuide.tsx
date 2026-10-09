@@ -150,7 +150,16 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
           <dd>A chord, written where it falls in the words.</dd>
 
           <dt>Count-in</dt>
-          <dd>How many bars of clicks before the song starts, so you come in in time.</dd>
+          <dd>
+            One bar of clicks before the song starts — two, if you choose it in the metronome
+            settings — counted in the song's own meter, so you come in in time.
+          </dd>
+
+          <dt>Intro</dt>
+          <dd>
+            Bars you play before the singing starts, written as a line of chords with no words at
+            the top of the song: <code>[Am] [C] [D] [F] |4|</code>. It comes after the count-in.
+          </dd>
         </dl>
       </section>
 

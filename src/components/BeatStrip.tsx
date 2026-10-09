@@ -96,11 +96,15 @@ export function BeatStrip({
        */}
       <span className="beat-strip__end">
         <span className="beat-strip__bars">
+        {/* The count is named as a count, not as bars of the song (ADR-094): one bar of it reads
+            "count-in", and the first of two says how many are left. */}
         {counting
-          ? `${count.barsLeft} bar${count.barsLeft === 1 ? '' : 's'} left`
+          ? count.barsLeft > 1
+            ? `count-in · ${count.barsLeft} bars`
+            : 'count-in'
           : pulse
             ? `bar ${pulse.bar}/${pulse.bars}`
-            : `${countInBars} bar${countInBars === 1 ? '' : 's'}`}
+            : `${countInBars}-bar count-in`}
         </span>
 
         <button

@@ -9,15 +9,6 @@
  */
 import type { ScheduleEntry } from './playback';
 
-/**
- * Longest count-in offered, in bars.
- *
- * Generous rather than opinionated: counting yourself in for a long intro, or setting up a groove
- * before a slow song, are both real. The ceiling is here to stop a typo becoming a ten-minute
- * wait, not to have a view about how long is sensible.
- */
-export const MAX_COUNT_IN_BARS = 24;
-
 /** Where the accent falls when a meter cannot say: the first beat of a bar of four. */
 const DEFAULT_ACCENT_EVERY = 4;
 
@@ -54,11 +45,10 @@ export interface CountInProgress {
 }
 
 /**
- * Reads the count-in as one bar going round rather than as a long line of beats (ADR-053).
+ * Reads the count-in as one bar going round rather than as a line of beats (ADR-053).
  *
- * A count can run to twenty-four bars, which is hundreds of beats at 12/8 and unreadable drawn out
- * in full. One bar cycling, with the bars counted down beside it, says the same thing in a shape
- * that can be taken in at a glance.
+ * The strip shows one bar of dots, so a count of two bars goes round it twice, with the bars left
+ * counted beside it (ADR-094).
  */
 export function countInProgress(
   countInBars: number,

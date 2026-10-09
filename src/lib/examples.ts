@@ -27,8 +27,6 @@ interface ExampleSource {
   barsPerLine: number;
   /** The time signature, which sets bar length and where the accent falls (ADR-026). */
   meter: string;
-  /** Bars to count in, when one line's worth is too short a run-up (ADR-083). */
-  countInBars?: number;
   fixture: string;
 }
 
@@ -179,7 +177,6 @@ const SOURCES: ExampleSource[] = [
     barsPerLine: 4,
     meter: "6/8",
     // A line's worth, as Auto would count — written down so it stays four if the line length moves.
-    countInBars: 4,
     fixture: RISING_SUN,
   },
   {
@@ -212,7 +209,6 @@ function build(source: ExampleSource): Song {
     tempoUnit: source.tempoUnit,
     barsPerLine: source.barsPerLine,
     meter: source.meter,
-    countInBars: source.countInBars ?? null,
     rows: rowsFromPastedText(source.fixture.trim()),
   });
 }

@@ -49,7 +49,7 @@ export interface Song {
   currentKey: string;
   /** The tempo number driving playback: this many `tempoUnit`s a minute. */
   tempo: number;
-  /** The note value the tempo counts — `♪`, `♩` or `♩.` (ADR-052). */
+  /** The note value the tempo counts — `♪` or `♩` (ADR-052, ADR-086). */
   tempoUnit: TempoUnit;
   /** Default length of a line in bars; a line may override it with `|n|` (ADR-032). */
   barsPerLine: number;

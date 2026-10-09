@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   MAX_TEMPO,
   MIN_TEMPO,
+  TEMPO_UNITS,
+  fromDottedQuarter,
   isTempoUnit,
   msPerBar,
   msPerMeterBeat,
@@ -41,7 +43,6 @@ describe('quartersPerTempoBeat', () => {
   it('TU-03 is what each unit is worth in quarter notes', () => {
     expect(quartersPerTempoBeat('eighth')).toBe(0.5);
     expect(quartersPerTempoBeat('quarter')).toBe(1);
-    expect(quartersPerTempoBeat('dottedQuarter')).toBe(1.5);
   });
 });
 
@@ -49,13 +50,14 @@ describe('msPerBar', () => {
   it('TU-04 times a bar from the meter, the number and the unit', () => {
     expect(msPerBar('4/4', 120, 'quarter')).toBe(2000);
     expect(msPerBar('3/4', 60, 'quarter')).toBe(3000);
-    expect(msPerBar('6/8', 60, 'dottedQuarter')).toBe(2000);
     expect(msPerBar('6/8', 180, 'eighth')).toBe(2000);
   });
 
-  it('TU-05 reads the same tempo two ways as the same music (ADR-052)', () => {
-    // The spec's own equivalence: ♪ = 180 and ♩. = 60 are the same 6/8.
-    expect(msPerBar('6/8', 180, 'eighth')).toBe(msPerBar('6/8', 60, 'dottedQuarter'));
+  it('TU-05 reads a tempo saved in the dotted quarter as the same music in eighths (ADR-086)', () => {
+    // ♩. = 60 in 6/8 was a two-second bar; it loads as ♪ = 180, which is the same two seconds.
+    expect(fromDottedQuarter(60)).toEqual({ tempo: 180, tempoUnit: 'eighth' });
+    expect(msPerBar('6/8', 180, 'eighth')).toBe(2000);
+    expect(fromDottedQuarter(100)).toEqual({ tempo: 300, tempoUnit: 'eighth' });
   });
 
   it('TU-06 floors a nonsensical tempo rather than returning forever', () => {
@@ -67,8 +69,8 @@ describe('msPerBar', () => {
 describe('msPerMeterBeat', () => {
   it('TU-07 is the meter’s own unit, not the tempo’s', () => {
     // 6/8 counts six eighths a bar however its tempo happens to be written.
-    expect(msPerMeterBeat('6/8', 60, 'dottedQuarter')).toBeCloseTo(333.333, 3);
     expect(msPerMeterBeat('6/8', 180, 'eighth')).toBeCloseTo(333.333, 3);
+    expect(msPerMeterBeat('6/8', 90, 'quarter')).toBeCloseTo(333.333, 3);
     expect(msPerMeterBeat('4/4', 120, 'quarter')).toBe(500);
   });
 });
@@ -86,17 +88,21 @@ describe('unit defaults', () => {
     expect(preferredTempoUnit('3/4')).toBe('quarter');
     expect(preferredTempoUnit('4/4')).toBe('quarter');
     expect(preferredTempoUnit('5/4')).toBe('quarter');
-    expect(preferredTempoUnit('6/8')).toBe('dottedQuarter');
-    expect(preferredTempoUnit('9/8')).toBe('dottedQuarter');
-    expect(preferredTempoUnit('12/8')).toBe('dottedQuarter');
+    // Compound meters are counted in the eighths they are written in (ADR-086).
+    expect(preferredTempoUnit('6/8')).toBe('eighth');
+    expect(preferredTempoUnit('9/8')).toBe('eighth');
+    expect(preferredTempoUnit('12/8')).toBe('eighth');
     // 7/8 is compound only by denominator; it is counted in eighths, so the quarter stands.
     expect(preferredTempoUnit('7/8')).toBe('quarter');
     expect(preferredTempoUnit('nonsense')).toBe('quarter');
   });
 
   it('TU-10 recognises only the units it offers', () => {
+    expect(TEMPO_UNITS.map((unit) => unit.value)).toEqual(['eighth', 'quarter']);
     expect(isTempoUnit('quarter')).toBe(true);
-    expect(isTempoUnit('dottedQuarter')).toBe(true);
+    expect(isTempoUnit('eighth')).toBe(true);
+    // No longer offered: read once on load and converted, never accepted as it is (ADR-086).
+    expect(isTempoUnit('dottedQuarter')).toBe(false);
     expect(isTempoUnit('half')).toBe(false);
     expect(isTempoUnit(120)).toBe(false);
     expect(isTempoUnit(undefined)).toBe(false);
@@ -105,14 +111,22 @@ describe('unit defaults', () => {
   it('TU-11 writes each unit as its note', () => {
     expect(tempoUnitSymbol('eighth')).toBe('♪');
     expect(tempoUnitSymbol('quarter')).toBe('♩');
-    expect(tempoUnitSymbol('dottedQuarter')).toBe('♩.');
   });
 
   it('TU-15 offers each unit as its note and its value', () => {
     expect(tempoUnitLabel('eighth')).toBe('♪ – 1/8');
     expect(tempoUnitLabel('quarter')).toBe('♩ – 1/4');
-    // A dotted quarter is a quarter and half again: three eighths.
-    expect(tempoUnitLabel('dottedQuarter')).toBe('♩. – 3/8');
+  });
+
+  it('TU-16 **turns a dotted quarter too fast for eighths into quarters, still the same speed**', () => {
+    // Three times ♩. = 120 would be ♪ = 360, past the field's 300; ♩ = 180 is the same speed.
+    expect(fromDottedQuarter(120)).toEqual({ tempo: 180, tempoUnit: 'quarter' });
+    expect(msPerBar('6/8', 180, 'quarter')).toBe(msPerBar('6/8', 360, 'eighth'));
+    // An odd number lands on half a beat a minute, and rounds.
+    expect(fromDottedQuarter(101)).toEqual({ tempo: 152, tempoUnit: 'quarter' });
+    // Only past ♩. = 200 does the ceiling bite.
+    expect(fromDottedQuarter(200)).toEqual({ tempo: 300, tempoUnit: 'quarter' });
+    expect(fromDottedQuarter(250)).toEqual({ tempo: 300, tempoUnit: 'quarter' });
   });
 });
 
@@ -120,14 +134,14 @@ describe('a line at a tempo', () => {
   it('TU-12 times a five-bar line the same either way round (ADR-052)', () => {
     const line = [{ ...row('a'), bars: 5 }];
 
+    // Five bars of 6/8 at ♩. = 60 were ten seconds of thirty beats; converted, they still are.
+    const converted = fromDottedQuarter(60);
     const inEighths = buildSchedule(line, 180, 1, '6/8', 'eighth');
-    const inDotted = buildSchedule(line, 60, 1, '6/8', 'dottedQuarter');
+    const fromSaved = buildSchedule(line, converted.tempo, 1, '6/8', converted.tempoUnit);
 
-    expect(inEighths[0].durationMs).toBe(10000);
-    expect(inDotted[0].durationMs).toBe(10000);
-    // Identical playback, not merely equal durations: the beat grid matches too.
-    expect(inEighths[0].beats).toBe(inDotted[0].beats);
-    expect(inEighths).toEqual(inDotted);
+    expect(fromSaved[0].durationMs).toBe(10000);
+    expect(fromSaved[0].beats).toBe(30);
+    expect(fromSaved).toEqual(inEighths);
   });
 
   it('TU-13 keeps bars whole — a tempo unit never splits one', () => {

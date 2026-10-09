@@ -37,7 +37,7 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
         </p>
         <p>
           That matters most in 6/8, where the same music can honestly be written{' '}
-          <code>♪ = 180</code> or <code>♩. = 60</code>. Both play identically; pick whichever you
+          <code>♪ = 180</code> or <code>♩ = 90</code>. Both play identically; pick whichever you
           count in. Everything in NoChords is measured in beats and bars rather than seconds, which
           is why changing the tempo stretches the whole song evenly instead of pulling it out of
           shape.
@@ -117,7 +117,7 @@ export function NotationGuide({ onClose }: NotationGuideProps) {
 
           <dt>Tempo</dt>
           <dd>
-            A note and a number — <code>♪</code>, <code>♩</code> or <code>♩.</code> — saying how
+            A note and a number — <code>♪</code> or <code>♩</code> — saying how
             many of that note fill a minute. Changing the meter leaves it alone: what you chose to
             count in is yours.
           </dd>

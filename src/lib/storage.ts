@@ -9,7 +9,7 @@
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
-import { isTempoUnit, unitFromMeterDenominator } from './tempo';
+import { fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
 import { MAX_COUNT_IN_BARS } from './metronome';
 import type { ChordAnchor, Song, SongRow } from '../types/song';
 
@@ -153,7 +153,15 @@ export function sanitizeSong(value: unknown): Song | null {
    * an old song sounding exactly as it did; the conventional dotted-quarter reading would play it
    * three times too fast.
    */
-  const unit = isTempoUnit(tempoUnit) ? tempoUnit : unitFromMeterDenominator(songMeter);
+  /*
+   * The dotted quarter is no longer offered (ADR-086). A song saved in it is read as the same speed
+   * in eighths or quarters — never as its bare number in another unit, which would play it at a
+   * third or two thirds of the speed it was written at.
+   */
+  const timing =
+    tempoUnit === 'dottedQuarter'
+      ? fromDottedQuarter(tempo)
+      : { tempo, tempoUnit: isTempoUnit(tempoUnit) ? tempoUnit : unitFromMeterDenominator(songMeter) };
 
   if (typeof learningPlaythrough !== 'number' || !Number.isFinite(learningPlaythrough)) return null;
   if (!Array.isArray(rows)) return null;
@@ -171,8 +179,8 @@ export function sanitizeSong(value: unknown): Song | null {
     title,
     originalKey,
     currentKey,
-    tempo,
-    tempoUnit: unit,
+    tempo: timing.tempo,
+    tempoUnit: timing.tempoUnit,
     barsPerLine: bars,
     // Songs written before meters existed are in four: that is what they were played as.
     meter: songMeter,

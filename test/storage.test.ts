@@ -144,6 +144,18 @@ describe('createSongStore', () => {
     expect(loaded.tempoUnit).toBe('quarter');
   });
 
+  it('ST-12 **reads a song saved in the dotted quarter as the same speed in a unit still offered (ADR-086)**', async () => {
+    const stored = JSON.stringify([
+      { ...sample, meter: '6/8', tempo: 60, tempoUnit: 'dottedQuarter' },
+      { ...sample, id: 'song-2', meter: '6/8', tempo: 120, tempoUnit: 'dottedQuarter' },
+    ]);
+    const [slow, fast] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+
+    // Not ♪ = 60 or ♩ = 60, which would play it at a third or two thirds of its speed.
+    expect([slow.tempo, slow.tempoUnit]).toEqual([180, 'eighth']);
+    expect([fast.tempo, fast.tempoUnit]).toEqual([180, 'quarter']);
+  });
+
   it('ST-11 keeps a song\'s own count-in, and reads one stored without it as Auto (ADR-083)', async () => {
     const { countInBars: _dropped, ...withoutCountIn } = sample;
     const stored = JSON.stringify([

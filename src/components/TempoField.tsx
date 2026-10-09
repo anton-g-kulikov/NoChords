@@ -13,7 +13,7 @@ interface TempoFieldProps {
 }
 
 /**
- * Tempo: a number and the note it counts, side by side — `♩. = 60` (ADR-052).
+ * Tempo: a number and the note it counts, side by side — `♪ = 180` (ADR-052).
  *
  * The unit sits with the number rather than anywhere else in the form, because the two are one
  * fact: neither half means anything on its own. `120` alone is a question, not a tempo.

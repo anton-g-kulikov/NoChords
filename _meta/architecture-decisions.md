@@ -2671,7 +2671,8 @@ editor labels them — `original key`, `meter`, `tempo` (`♩ = 90`), `bars per 
 `count-in bars` — with `language`, `licence`, `source` and `arranged by`; GitHub shows that header
 as a table. The song text sits in a single `text` block, which GitHub gives a copy button. The app
 does not read the repository: people copy a song into a new song themselves. The landing page links
-it in a "More songs" section and in its footer; the README links it beside the app.
+it in a "More songs" section and in its footer, the app's library footer links it as "More songs",
+and the README links it beside the app.
 
 **Why a repository.** It is an archive that is personal and public at once: Anton owns and merges
 it, anyone can read and download it, and anyone can propose a song as a pull request, which is

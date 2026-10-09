@@ -111,6 +111,9 @@ Three display modes:
   `G C D Em` in G reads `I IV V vi`, and stays that way no matter what key you transpose to.
 - **Learning** — chord names with a share of them blurred out.
 
+A song remembers the mode it was left in and opens that way next time, on every device it syncs
+to. Постой, паровоз starts on numerals.
+
 Transposing changes only what is displayed. Chords are stored in the key you wrote them in, so
 transposing is lossless and repeatable, and Nashville numbers never move.
 

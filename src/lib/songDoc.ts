@@ -29,6 +29,7 @@ export function songToDoc(song: Song): SongDoc {
     // Never `undefined`: Firestore rejects the entire document for one undefined field, which
     // would lose a whole song rather than one value.
     meter: song.meter ?? DEFAULT_METER,
+    displayMode: song.displayMode ?? 'full',
     learningPlaythrough: song.learningPlaythrough,
     rows: song.rows.map((row) => ({
       id: row.id,

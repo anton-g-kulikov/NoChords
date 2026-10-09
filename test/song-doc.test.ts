@@ -12,6 +12,7 @@ const sample: Song = {
   tempoUnit: 'quarter',
   barsPerLine: 6,
   meter: '3/4',
+  displayMode: 'nashville',
   learningPlaythrough: 3,
   rows: [
     {
@@ -111,6 +112,13 @@ describe('songToDoc / songFromDoc', () => {
     const read = songFromDoc(older);
     expect(read?.id).toBe(sample.id);
     expect(read && 'countInBars' in read).toBe(false);
+  });
+
+  it('SD-12 writes the chord display, and opens a document written without it on names (ADR-095)', () => {
+    expect(songToDoc(sample).displayMode).toBe('nashville');
+    expect(songFromDoc(songToDoc(sample))?.displayMode).toBe('nashville');
+    const { displayMode: _dropped, ...stored } = songToDoc(sample);
+    expect(songFromDoc(stored)?.displayMode).toBe('full');
   });
 
   it('round-trips a song the app itself just made', () => {

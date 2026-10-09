@@ -55,6 +55,8 @@ export interface Song {
   barsPerLine: number;
   /** The song's time signature, e.g. `6/8`. Sets bar length and the accent pulse (ADR-026). */
   meter: string;
+  /** How the chart reads: the chord display the song was last left in, so it opens that way (ADR-095). */
+  displayMode: DisplayMode;
   /** Completed learning playthroughs, saturating at `CONCEALMENT_STAGES.length - 1`. */
   learningPlaythrough: number;
   rows: SongRow[];

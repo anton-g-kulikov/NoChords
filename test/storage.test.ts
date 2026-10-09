@@ -26,6 +26,7 @@ const sample: Song = {
   tempoUnit: 'quarter',
   barsPerLine: 6,
   meter: '3/4',
+  displayMode: 'nashville',
   learningPlaythrough: 3,
   rows: [
     {
@@ -153,6 +154,18 @@ describe('createSongStore', () => {
     // Not ♪ = 60 or ♩ = 60, which would play it at a third or two thirds of its speed.
     expect([slow.tempo, slow.tempoUnit]).toEqual([180, 'eighth']);
     expect([fast.tempo, fast.tempoUnit]).toEqual([180, 'quarter']);
+  });
+
+  it('ST-13 keeps the chord display a song was left in, and opens an older one on names (ADR-095)', async () => {
+    const { displayMode: _dropped, ...withoutMode } = sample;
+    const stored = JSON.stringify([
+      sample,
+      { ...sample, id: 'song-2', displayMode: 'learning' },
+      { ...withoutMode, id: 'song-3' },
+      { ...sample, id: 'song-4', displayMode: 'karaoke' },
+    ]);
+    const loaded = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(loaded.map((song) => song.displayMode)).toEqual(['nashville', 'learning', 'full', 'full']);
   });
 
   it('ST-11 loads a song saved with its own count-in, and leaves the count-in behind (ADR-094)', async () => {

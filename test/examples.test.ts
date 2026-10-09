@@ -290,6 +290,15 @@ describe("example songs", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("EX-12 Постой, паровоз opens on scale degrees; the others on chord names (ADR-095)", () => {
+    expect(parovoz.displayMode).toBe("nashville");
+    expect([scarborough, blackbird, risingSun].map((song) => song.displayMode)).toEqual([
+      "full",
+      "full",
+      "full",
+    ]);
+  });
+
   it("EX-11 a new library starts with the Rising Sun and Постой, паровоз (ADR-089)", () => {
     // The other fixtures are for the tests above; a first run gets a song each audience knows.
     expect(createExampleSongs().map((song) => song.title)).toEqual([

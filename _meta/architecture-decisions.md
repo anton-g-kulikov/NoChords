@@ -2802,3 +2802,27 @@ fixture loses its `countInBars: 4`; its intro is for its arrangement to write.
 
 **Cost.** Someone who relied on a long count-in before a song with no intro written now gets one or
 two bars, and has to write the intro into the song to get the rest back.
+
+---
+
+## ADR-095 — A song remembers its chord display
+
+**Decision.** Amends ADR-039. The chord display — names, numerals or learning — is stored on the song
+as `displayMode` and the song opens the way it was last left. The three buttons above the chart are
+the setting; there is no other control. Songs saved before read as names, which is how every song
+used to open. The seeded Постой, паровоз starts on numerals.
+
+**Why on the song.** ADR-039 put the display in its own lifetime, "this session", forgotten on the
+way out. In use it is a property of how you work on a particular song: one you are learning stays in
+learning, one you play from the numbers stays in numbers. Opening every song on names made the most
+common thing — picking up where you left off — a tap every time.
+
+**Why Постой, паровоз opens on numerals.** It is written in C♯m as an inside joke (ADR-089), and
+numerals are what make the key not matter: i, iv, V read the same in any key.
+
+**Cost.** Changing the display now writes the song, so it syncs and dirties its record — the thing
+ADR-016 kept the metronome's settings out of songs to avoid. A display is changed far less often
+than a volume, and it is the song's to keep. ADR-039's "Chords" group now outlives the session. An
+app from before this change that edits a synced song writes it back without the field, and the song
+then opens on names until its display is chosen again.
+

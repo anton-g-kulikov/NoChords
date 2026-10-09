@@ -10,7 +10,7 @@
  */
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
 import { fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
-import type { ChordAnchor, Song, SongRow } from '../types/song';
+import type { ChordAnchor, DisplayMode, Song, SongRow } from '../types/song';
 
 export const STORAGE_KEY = 'nochords.songs.v1';
 
@@ -125,6 +125,7 @@ export function sanitizeSong(value: unknown): Song | null {
     beatsPerLine,
     barsPerLine,
     meter,
+    displayMode,
     learningPlaythrough,
     rows,
   } = value;
@@ -184,9 +185,17 @@ export function sanitizeSong(value: unknown): Song | null {
     meter: songMeter,
     // A song's own count-in, from before the count-in was a device's one bar or two, is not read:
     // an intro is now written into the song as a line of chords (ADR-094).
+    // Songs saved before they remembered it open on chord names, as every song used to.
+    displayMode: isDisplayMode(displayMode) ? displayMode : 'full',
     learningPlaythrough,
     rows: sanitizedRows,
   };
+}
+
+const DISPLAY_MODES: readonly DisplayMode[] = ['full', 'nashville', 'learning'];
+
+function isDisplayMode(value: unknown): value is DisplayMode {
+  return DISPLAY_MODES.includes(value as DisplayMode);
 }
 
 /** `localStorage` when it is available and usable, otherwise `null`. */

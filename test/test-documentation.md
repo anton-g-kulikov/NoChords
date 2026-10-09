@@ -231,6 +231,7 @@ described at the end of this document.
 | ST-10 | A tempo unit the app does not offer is refused | ✅ |
 | ST-12 | **A song saved in the dotted quarter loads at the same speed in eighths or quarters** | ✅ |
 | ST-11 | A song saved with its own count-in still loads, and the count-in is left behind | ✅ |
+| ST-13 | A song keeps the chord display it was left in; one saved before, or with an unknown mode, opens on names | ✅ |
 
 ### Metronome timing — `metronome.test.ts`
 
@@ -330,6 +331,7 @@ lossless for good data and must refuse bad data rather than letting it into the 
 | SD-09 | The document contains no `undefined`, which Firestore rejects | ✅ |
 | SD-10 | The tempo unit is written, and supplied for a document stored without one | ✅ |
 | SD-11 | A song's count-in is no longer written, and one an older version wrote is read past | ✅ |
+| SD-12 | The chord display is written, and a document without one opens on names | ✅ |
 
 ### Sign-in import decision — `cloud-import.test.ts`
 
@@ -631,6 +633,7 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-07 | Schedule runs the Rising Sun lines back to back — four bars a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
+| EX-12 | Постой, паровоз opens on scale degrees; the other fixtures on chord names | ✅ |
 | EX-11 | A new library is seeded with House of the Rising Sun and Постой, паровоз; the other fixtures are for tests | ✅ |
 
 ## Browser acceptance run

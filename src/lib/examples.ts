@@ -15,7 +15,7 @@
  */
 import { createSong, rowsFromPastedText } from "./songs";
 import type { TempoUnit } from "./tempo";
-import type { Song } from "../types/song";
+import type { DisplayMode, Song } from "../types/song";
 
 interface ExampleSource {
   title: string;
@@ -27,6 +27,8 @@ interface ExampleSource {
   barsPerLine: number;
   /** The time signature, which sets bar length and where the accent falls (ADR-026). */
   meter: string;
+  /** How the chart opens, when chord names are not the point (ADR-095). */
+  displayMode?: DisplayMode;
   fixture: string;
 }
 
@@ -181,13 +183,15 @@ const SOURCES: ExampleSource[] = [
   },
   {
     title: "Постой, паровоз",
-    // In C#m rather than the usual Am — an inside joke.
+    // In C#m rather than the usual Am — an inside joke, and why it opens on scale degrees: the
+    // numerals read the same in any key.
     key: "C#m",
     tempo: 120,
     tempoUnit: "quarter",
     // Four bars of 2/4 to a line: room for its one to three chords at a walking pace.
     barsPerLine: 4,
     meter: "2/4",
+    displayMode: "nashville",
     fixture: POSTOY_PAROVOZ,
   },
 ];
@@ -210,6 +214,7 @@ function build(source: ExampleSource): Song {
     tempoUnit: source.tempoUnit,
     barsPerLine: source.barsPerLine,
     meter: source.meter,
+    displayMode: source.displayMode ?? "full",
     rows: rowsFromPastedText(source.fixture.trim()),
   });
 }

@@ -82,7 +82,9 @@ function formatTime(ms: number): string {
  * song scrolls cannot reshuffle which chords are hidden (ADR-002).
  */
 export function Player({ song, onChange, settings, onSettingsChange }: PlayerProps) {
-  const [mode, setMode] = useState<DisplayMode>('full');
+  // The chord display belongs to the song, so it opens the way it was left (ADR-095).
+  const mode = song.displayMode;
+  const setMode = (displayMode: DisplayMode) => onChange({ ...song, displayMode });
   const [concealSeed, setConcealSeed] = useState(randomSeed);
   /**
    * Key, tempo and metronome are set before you play, not during. On a phone they filled most of

@@ -20,6 +20,9 @@ import {
 /** Where "Buy me a [song] book" goes (ADR-079). */
 const SUPPORT_URL = 'https://buymeacoffee.com/antonkulikov';
 
+/** The public song archive: songs to copy into a library, and where to share one (ADR-090). */
+const SONGS_URL = 'https://github.com/anton-g-kulikov/nochords-songs';
+
 interface SongListProps {
   songs: Song[];
   /** Signing in or out, and the run for it. Null when there is no account to act on. */
@@ -219,6 +222,11 @@ export function SongList({
           <button type="button" className="library__install" onClick={onOpenGuide}>
             Bars, beats and meter
           </button>
+          {' · '}
+          {/* Named for what you go for — songs to play — rather than for where they are kept. */}
+          <a className="library__install" href={SONGS_URL} target="_blank" rel="noopener noreferrer">
+            More songs
+          </a>
           {' · '}
           {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. */}
           <a className="library__install" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">

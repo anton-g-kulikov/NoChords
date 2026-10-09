@@ -1691,6 +1691,11 @@ kbd {
   text-decoration-color: currentColor;
 }
 
+/* Each link stays whole; a narrow footer breaks between them, never inside "Buy me a [song] book". */
+.library__links .library__install {
+  white-space: nowrap;
+}
+
 /* The brackets in "Buy me a [song] book", in the ink a chord would be written in (ADR-079). */
 .library__bracket {
   color: var(--accent);

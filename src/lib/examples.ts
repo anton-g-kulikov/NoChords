@@ -6,9 +6,9 @@
  * handles real material, and there is no second parser to keep in step. The `duration` values of
  * the source document became the songs' `beatsPerLine` (ADR-011); its `pause` values became a
  * longer final line, written `|4|` — twice the usual two bars at the end of each verse (ADR-032).
- * The Rising Sun opens on a two-line intro — Am, C, D, F, then E, Am, E — closes every verse on the
- * C it resolves to, then plays the turnaround — D, F, Am, E, Am, E — as one line of six bars, a bar
- * to each chord (`|6|`).
+ * The Rising Sun opens on a two-line intro — Am, C, D, F, then Am, E, Am, E — closes every verse
+ * on the C it resolves to, then plays the turnaround — D, F, Am, E, Am, E — as one line of six
+ * bars, a bar to each chord (`|6|`).
  *
  * The lyrics are public-domain texts — traditional folk songs, Постой, паровоз among them
  * (ADR-089); the chord placements and timings are the fixture document's own test arrangements,
@@ -73,7 +73,7 @@ const BLACKBIRD = `
 
 const RISING_SUN = `
 [Am] [C] [D] [F]
-[E] [Am] [E]
+[Am] [E] [Am] [E]
 
 There [Am]is a [C]house in New [D]Orleans, [F]
 They [Am]call the [C]Rising [E]Sun,

@@ -179,7 +179,7 @@ arrangement.
 > **The app no longer plays the version below.** It is the song every new library starts with
 > (ADR-076), and its arrangement has moved on: each verse now ends on C and closes with a six-bar
 > turnaround, `[D] [F] [Am] [E] [Am] [E] |6|`. It plays at ♪ = 180, four bars to a line — a bar
-> to each chord — and opens on a two-line intro, `[Am] [C] [D] [F]` and `[E] [Am] [E]`, in place
+> to each chord — and opens on a two-line intro, `[Am] [C] [D] [F]` and `[Am] [E] [Am] [E]`, in place
 > of the four-bar count-in it had before the count-in only counted (ADR-094). The current text is
 > `RISING_SUN` in `src/lib/examples.ts`; this section is kept as the fixture's origin.
 

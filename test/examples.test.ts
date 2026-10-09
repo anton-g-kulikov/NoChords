@@ -123,7 +123,7 @@ describe("example songs", () => {
     const intro = risingSun.rows.slice(0, 2);
     expect(intro.map((row) => row.chords.map((chord) => chord.symbol))).toEqual([
       ["Am", "C", "D", "F"],
-      ["E", "Am", "E"],
+      ["Am", "E", "Am", "E"],
     ]);
     expect(intro.every((row) => row.lyrics.trim() === "" && row.bars === null)).toBe(true);
   });

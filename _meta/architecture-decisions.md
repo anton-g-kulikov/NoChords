@@ -2594,3 +2594,46 @@ account brings them to `songs.nochords.app`.
 one to the other on its own. An installed app keeps the address it was installed from; moving it
 means signing in on the old one, installing from the new one, and removing the old icon.
 
+
+---
+
+## ADR-088 — The landing page shows a fretboard, edge to edge
+
+**Decision.** Between the call to action and the three features, the landing page runs a photograph-
+style fretboard across the full width of the page, through the nut and half the headstock — two of
+its three pairs of tuners — cut at the right edge. It is one WebP (`site/fretboard.webp`, 1748×576,
+97 kB) with a transparent background, so it sits on paper and on the
+night scheme alike. The image is an original
+AI-generated illustration, not stock.
+
+**How it behaves.** The band's height follows the page width — `clamp(170px, 33.5vw, 680px)` — and the
+image fills it with `object-fit: cover` pinned to the right. The band is kept narrower for its height
+than the image (about 3:1), because past that `cover` would trim the tuner keys off the top and bottom
+instead of frets off the left; only screens wider than about 2000px reach the cap and lose key tips. A narrower screen shows fewer frets,
+never a thinner board, and half the headstock is always the last thing before the edge. The exact
+half falls through the second pair of tuner keys, so the cut is in the gap after them instead. The
+keys reach far above and below the board, which makes the band well over twice the board's height —
+about 430px on a laptop. The band sits
+outside the text column rather than reaching out of it with `100vw`, which counts a classic
+scrollbar and would push the board under one.
+
+**How it sits between the text.** The board fills only the middle of the image; above and below it
+is air, except for the tuner keys at the far right. On screens wider than about 1000px the keys fall
+outside the text column, so the band takes negative margins — a fifth of its height above, a bit more
+below — and the text closes in to about 40px from the board. The band lets taps through and sits
+under the text, since its box now overlaps the button above it. Narrower than that, the column
+reaches into the keys' path, so the pull stops just short of the key tips and the board keeps about
+60px of air on a phone.
+
+**Why a fretboard and not the whole neck.** With the whole headstock in frame the image had to keep
+its proportions, so spanning the page made it 400px tall on a laptop and 600 on a large screen.
+Cropped to the board and half the headstock it can still span the page at a bearable height, and it reads as "this is about playing" before
+a word of the page is read.
+
+**What was tried first.** A drawn neck in the page's own inks, with an A minor fingering and one
+finger fading, was set aside for a photographic image. An iStock image was used for a local mock-up
+only and never committed: its preview licence does not cover publishing.
+
+**Cost.** At the largest sizes the band is drawn from a 576-pixel-tall source at up to 680 CSS
+pixels, so on a high-density screen it is upscaled and slightly soft. A larger render of the same
+illustration would fix that without any change to the page.

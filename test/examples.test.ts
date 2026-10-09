@@ -40,6 +40,7 @@ const byTitle = (title: string): Song => {
 const scarborough = byTitle("Scarborough Fair");
 const blackbird = byTitle("If I Was a Blackbird");
 const risingSun = byTitle("House of the Rising Sun");
+const voron = byTitle("Чёрный ворон");
 
 /** Every distinct chord symbol in a song, in first-seen order. */
 function symbolsOf(song: Song): string[] {
@@ -53,15 +54,17 @@ function symbolsOf(song: Song): string[] {
 }
 
 describe("example songs", () => {
-  it("EX-01 provides the three fixtures with their stated keys and tempos", () => {
-    expect(examples).toHaveLength(3);
+  it("EX-01 provides the four fixtures with their stated keys and tempos", () => {
+    expect(examples).toHaveLength(4);
     expect([scarborough.originalKey, scarborough.tempo]).toEqual(["Dm", 90]);
     expect([blackbird.originalKey, blackbird.tempo]).toEqual(["G", 90]);
     expect([risingSun.originalKey, risingSun.tempo]).toEqual(["Am", 80]);
+    expect([voron.originalKey, voron.tempo]).toEqual(["Am", 72]);
     // Six beats to a line either way: two bars of 3/4, or one of 6/8 (ADR-032).
     expect([scarborough.meter, scarborough.barsPerLine]).toEqual(['3/4', 2]);
     expect([blackbird.meter, blackbird.barsPerLine]).toEqual(['3/4', 2]);
     expect([risingSun.meter, risingSun.barsPerLine]).toEqual(['6/8', 1]);
+    expect([voron.meter, voron.barsPerLine]).toEqual(['4/4', 2]);
     // A fixture opens in its own key.
     expect(examples.every((song) => song.currentKey === song.originalKey)).toBe(
       true,
@@ -73,6 +76,11 @@ describe("example songs", () => {
     expect(scarborough.rows).toHaveLength(16);
     expect(blackbird.rows).toHaveLength(16);
     expect(risingSun.rows).toHaveLength(35);
+    // Seven four-line verses with a blank line between each.
+    expect(voron.rows).toHaveLength(34);
+    expect(voron.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
+      4, 4, 4, 4, 4, 4, 4,
+    ]);
 
     // A line takes the song default unless it says otherwise, and it says so in bars (ADR-032).
     // Scarborough and Blackbird hold each verse ending for four bars against a usual two.
@@ -147,6 +155,17 @@ describe("example songs", () => {
       "IV",
       "VI",
       "V",
+    ]);
+
+    // Cyrillic lyrics parse like any other: the chord still lands on its syllable.
+    expect(voron.rows[0].lyrics).toBe("Чёрный ворон, что ты вьёшься");
+    expect(symbolsOf(voron)).toEqual(["Am", "Dm", "E", "G", "C"]);
+    expect(symbolsOf(voron).map((s) => toNashville(s, "Am"))).toEqual([
+      "i",
+      "iv",
+      "V",
+      "VII",
+      "III",
     ]);
   });
 
@@ -261,8 +280,11 @@ describe("example songs", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("EX-11 a new library starts with the Rising Sun alone (ADR-076)", () => {
-    // The other fixtures are for the tests above; a first run gets one song everybody knows.
-    expect(createExampleSongs().map((song) => song.title)).toEqual(["House of the Rising Sun"]);
+  it("EX-11 a new library starts with the Rising Sun and Чёрный ворон (ADR-076, ADR-080)", () => {
+    // The other fixtures are for the tests above; a first run gets a song each audience knows.
+    expect(createExampleSongs().map((song) => song.title)).toEqual([
+      "House of the Rising Sun",
+      "Чёрный ворон",
+    ]);
   });
 });

@@ -2327,7 +2327,28 @@ not follow an origin.
 
 ---
 
-## ADR-079 — A new library starts with a song for each audience
+## ADR-079 — "Buy me a [song] book"
+
+**Decision.** A support link to Buy Me a Coffee, worded "Buy me a [song] book", sits in the links
+row at the foot of the library, after the notation guide, and in the landing page's footer. The
+brackets are drawn in the second ink; "song" is ordinary text.
+
+**Why the wording.** `[Am]` is how a chord is written in this app, and brackets are now its mark
+(ADR-074). Put "song" in them and the line says what the money is for in the app's own notation —
+a songbook — instead of borrowing a coffee joke from every other project.
+
+**Why there.** The library's footer already holds the things that are about the app rather than
+about a song: where to read more, how it looks, which build it is. An offer of support belongs with
+those, quiet and after everything else, never in the player and never as a prompt that interrupts
+playing. It opens in a new tab, or in the browser from the installed app, so tapping it does not
+lose your place.
+
+**Cost.** On Android, where "Install app" joins the same row, the links wrap to a second line. On the
+landing page each footer link wraps as a whole, so the phrase is never cut after "Buy me a".
+
+---
+
+## ADR-080 — A new library starts with a song for each audience
 
 **Decision.** Amends ADR-076. A new library is seeded with two songs: House of the Rising Sun and
 Чёрный ворон. Both are ordinary songs under ADR-024 — editable, deletable, never restored.
@@ -2355,24 +2376,3 @@ a choice: the song is sung both as a slow 4/4 and as a waltz, and no source sett
 **Cost.** Two songs is a little more of a demo library than ADR-076 wanted, and an English-speaking
 visitor meets a Cyrillic song they may not know. The language switcher is what pays that back.
 Existing libraries are unaffected, since seeding only ever fills an empty library.
-
----
-
-## ADR-079 — "Buy me a [song] book"
-
-**Decision.** A support link to Buy Me a Coffee, worded "Buy me a [song] book", sits in the links
-row at the foot of the library, after the notation guide, and in the landing page's footer. The
-brackets are drawn in the second ink; "song" is ordinary text.
-
-**Why the wording.** `[Am]` is how a chord is written in this app, and brackets are now its mark
-(ADR-074). Put "song" in them and the line says what the money is for in the app's own notation —
-a songbook — instead of borrowing a coffee joke from every other project.
-
-**Why there.** The library's footer already holds the things that are about the app rather than
-about a song: where to read more, how it looks, which build it is. An offer of support belongs with
-those, quiet and after everything else, never in the player and never as a prompt that interrupts
-playing. It opens in a new tab, or in the browser from the installed app, so tapping it does not
-lose your place.
-
-**Cost.** On Android, where "Install app" joins the same row, the links wrap to a second line. On the
-landing page each footer link wraps as a whole, so the phrase is never cut after "Buy me a".

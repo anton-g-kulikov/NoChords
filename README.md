@@ -31,7 +31,7 @@ npm run dev      # http://localhost:5173
 | `npm run deploy:rules` | Deploy the Firestore security rules |
 
 A new library starts with two traditional songs already in it, House of the Rising Sun and Чёрный
-ворон, so there is something to play with on the first run (ADR-024, ADR-076, ADR-079). They are
+ворон, so there is something to play with on the first run (ADR-024, ADR-076, ADR-080). They are
 ordinary songs — edit or delete them like any other (deleting is at the foot of the editor); deleting
 one is remembered, and it does not come back. To change what everyone's first run contains, edit `SEEDED` in
 [`src/lib/examples.ts`](src/lib/examples.ts) and deploy; existing libraries keep the copies they

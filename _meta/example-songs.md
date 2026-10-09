@@ -275,6 +275,29 @@ repeated playthroughs.
 
 ---
 
+## 4. Чёрный ворон
+
+**Type:** Traditional Russian (Cossack) folk song\
+**Test key:** A minor\
+**Meter:** 4/4\
+**Tempo:** 72 BPM\
+**Purpose:** The Russian-language seed song (ADR-080): Cyrillic lyrics, a 4/4 meter beside the
+other fixtures' 3/4 and 6/8, seven verses with the same chords so learning level 1 has repeats to
+thin.
+
+Written directly in the app's inline notation, two bars to a line and each verse ending held for
+four (`|4|`), verses separated by blank lines. The text is `CHORNY_VORON` in `src/lib/examples.ts`.
+
+### Expected relative representation
+
+- `Am` → `i`
+- `Dm` → `iv`
+- `E` → `V`
+- `G` → `VII`
+- `C` → `III`
+
+---
+
 ## Acceptance Tests Using These Fixtures
 
 ### Parsing
@@ -349,6 +372,10 @@ Each fixture must:
 - **House of the Rising Sun:** traditional song with a printed version
   documented by Robert Winslow Gordon in 1925. The fixture is not a
   transcription of The Animals' arrangement.
+- **Чёрный ворон:** the folk song that grew from Nikolai Verevkin's poem
+  «Под ракитою зелёной», published in *Русский инвалид* in 1831, and
+  later sung in the film «Чапаев» (1934). The fixture uses a common folk
+  version of the text, not Gavriil Popov's film arrangement.
 
 The chord arrangements, chord placement, timing values, and application
 formatting in this file were created specifically as development

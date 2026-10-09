@@ -9,8 +9,9 @@
  * The Rising Sun closes every verse on the C it resolves to, then plays the turnaround — D, F, Am,
  * E, Am, E — as one line of six bars, a bar to each chord (`|6|`).
  *
- * The lyrics are traditional public-domain texts; the chord placements and timings are the
- * fixture document's own test arrangements, not transcriptions of any recorded arrangement.
+ * The lyrics are traditional public-domain texts — Чёрный ворон is the folk song that grew from
+ * Nikolai Verevkin's 1831 poem; the chord placements and timings are the fixture document's own
+ * test arrangements, not transcriptions of any recorded arrangement.
  */
 import { createSong, rowsFromPastedText } from "./songs";
 import type { TempoUnit } from "./tempo";
@@ -105,6 +106,43 @@ Dear [Am]God, I [E]know I was [Am]one. [C]
 [D] [F] [Am] [E] [Am] [E] |6|
 `;
 
+const CHORNY_VORON = `
+[Am]Чёрный ворон, [Dm]что ты [Am]вьёшься
+[E]Над моею [Am]головой?
+[Dm]Ты добычи [G]не до[C]ждёшься,
+[Dm]Чёрный ворон, [E]я не [Am]твой!|4|
+
+[Am]Что ты когти [Dm]распус[Am]каешь
+[E]Над моею [Am]головой?
+[Dm]Иль добычу [G]себе [C]чаешь?
+[Dm]Чёрный ворон, [E]я не [Am]твой!|4|
+
+[Am]Завяжу смер[Dm]тельну [Am]рану
+[E]Подарённым [Am]мне платком,
+[Dm]А потом с то[G]бой я [C]стану
+[Dm]Говорить всё [E]об од[Am]ном.|4|
+
+[Am]Полети в [Dm]мою сто[Am]ронку,
+[E]Скажи маменьке [Am]моей,
+[Dm]Ты скажи [G]моей лю[C]безной,
+[Dm]Что за родину [E]я [Am]пал.|4|
+
+[Am]Отнеси пла[Dm]ток кро[Am]вавый
+[E]Милой любушке [Am]моей.
+[Dm]Ты скажи — о[G]на сво[C]бодна,
+[Dm]Я женился [E]на дру[Am]гой.|4|
+
+[Am]Взял невесту [Dm]тиху, [Am]скромну
+[E]В чистом поле [Am]под кустом,
+[Dm]Обвенчальна [G]была [C]сваха —
+[Dm]Сабля вострая [E]мо[Am]я.|4|
+
+[Am]Калена стре[Dm]ла вен[Am]чала
+[E]Среди битвы [Am]роковой.
+[Dm]Вижу, смерть мо[G]я при[C]ходит —
+[Dm]Чёрный ворон, [E]весь я [Am]твой!|4|
+`;
+
 const SOURCES: ExampleSource[] = [
   {
     title: "Scarborough Fair",
@@ -133,16 +171,25 @@ const SOURCES: ExampleSource[] = [
     meter: "6/8",
     fixture: RISING_SUN,
   },
+  {
+    title: "Чёрный ворон",
+    key: "Am",
+    tempo: 72,
+    tempoUnit: "quarter",
+    barsPerLine: 2,
+    meter: "4/4",
+    fixture: CHORNY_VORON,
+  },
 ];
 
 /**
- * Which fixtures a new library is given (ADR-076).
+ * Which fixtures a new library is given (ADR-076, ADR-080).
  *
- * Only the Rising Sun: one song everybody already knows, in a meter that shows off the count-in and
- * the regrouped ending. The other fixtures stay — they are what the acceptance tests play — but a
+ * The Rising Sun, and Чёрный ворон for Russian speakers: a song each audience already knows, one
+ * in 6/8 and one in 4/4. The other fixtures stay — they are what the acceptance tests play — but a
  * first run is a welcome, not a test suite.
  */
-const SEEDED = new Set(["House of the Rising Sun"]);
+const SEEDED = new Set(["House of the Rising Sun", "Чёрный ворон"]);
 
 function build(source: ExampleSource): Song {
   return createSong({

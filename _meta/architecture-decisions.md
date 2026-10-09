@@ -2515,3 +2515,21 @@ repeats of both to thin (ADR-058) — the shape most songs people bring will hav
 **Cost.** Libraries already seeded with Чёрный ворон keep it; seeding only fills an empty library.
 At four bars a line it is a long song — nearly five minutes.
 
+---
+
+## ADR-085 — The tempo unit list names each note's value
+
+**Decision.** Amends ADR-052. The tempo unit's options read `♪ – 1/8`, `♩ – 1/4` and `♩. – 3/8`: the
+note, then what it is worth as a fraction of a whole note. Closed, the button still shows the note
+alone. The three units are unchanged — none is added.
+
+**Why.** A note shape is quick for someone who reads music and a guess for someone who does not;
+"1/4" is the same fact said a second way, in the place the choice is made. The button keeps the
+bare note because it already sits beside the number it qualifies, `♩ 80`, and is read there.
+
+**How the button stays bare.** A native select shows its chosen option's text, and `♩. – 3/8` does
+not fit the 46px button. So the select's own text is made transparent — `color` and, for Safari,
+`-webkit-text-fill-color` — and the note is drawn over it from `tempoUnitSymbol`, ignoring pointer
+events so the select underneath still takes the tap. The options set both properties back, for
+browsers whose open list inherits them. Screen readers still hear the select's full option text.
+

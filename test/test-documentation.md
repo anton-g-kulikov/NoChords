@@ -414,6 +414,7 @@ notes and no meter gets a special case (ADR-052).
 | TU-12 | **Five bars of 6/8 last ten seconds at ♪=180 and at ♩.=60, with identical beat grids** | ✅ |
 | TU-13 | Bars stay whole — 7/8 at ♩=120 is one bar of 1750ms, never a fractional bar | ✅ |
 | TU-14 | The tempo bounds stay usable at both ends | ✅ |
+| TU-15 | Each unit is offered as its note and its value: ♪ – 1/8, ♩ – 1/4, ♩. – 3/8 | ✅ |
 
 ### Fitting the chart — `fit.test.ts`
 

@@ -59,8 +59,9 @@ export function SongRowView({ row, song, mode, concealed, revealed = false }: So
 
       {/*
        * A line that runs longer or shorter than the song's default says so after the last word,
-       * written as the editor writes it — `|4|` — so the mark read while playing is the mark typed
-       * (ADR-061, ADR-093). The bars are for the eye; a screen reader hears "4 bars".
+       * written as the editor writes it, opened out a little — `| 4 |` — and set as the lyric is, so
+       * it reads as the line's last word, only faint (ADR-061, ADR-093). The bars are for the eye;
+       * a screen reader hears "4 bars".
        *
        * Inside the line rather than in the margin, so it is part of what the type scale is fitted
        * to (ADR-054): a note that floats over the text can be overlapped by it, and this one
@@ -68,7 +69,7 @@ export function SongRowView({ row, song, mode, concealed, revealed = false }: So
        */}
       {row.bars !== null && row.bars > 0 && row.bars !== song.barsPerLine && (
         <span className="line__bars" title={`${row.bars} bars`}>
-          <span aria-hidden="true">|{row.bars}|</span>
+          <span aria-hidden="true">| {row.bars} |</span>
           <span className="visually-hidden">{row.bars} bars</span>
         </span>
       )}

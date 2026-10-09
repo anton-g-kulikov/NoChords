@@ -1370,13 +1370,15 @@ kbd {
   opacity: 0.35;
 }
 
+/* Set as the lyric is — same face, size and line height, so it sits on the lyric's baseline as the
+   line's last word — and kept faint: there to be found, not to be read (ADR-093). */
 .line__bars {
   align-self: flex-end;
-  margin-left: 0.4em;
-  padding-bottom: 0.55em;
-  font-size: calc(0.85rem * var(--sheet-scale, 1));
+  margin-left: 0.5em;
+  font-family: var(--font-text);
+  font-size: calc(1.6rem * var(--sheet-scale, 1));
+  line-height: 1.35;
   font-variant-numeric: tabular-nums;
-  /* A fifth of the lyric's presence: there to be found, not to be read. */
   opacity: 0.35;
   /* `|4|` reads as one mark; it never breaks from its number. */
   white-space: nowrap;
@@ -1419,7 +1421,8 @@ kbd {
     grid-column: 1 / -1;
   }
 
-  .seg__lyric {
+  .seg__lyric,
+  .line__bars {
     font-size: calc(1.25rem * var(--sheet-scale, 1));
   }
 

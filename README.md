@@ -117,7 +117,8 @@ with the one sounding lit — then which bar of the line you are in. The count-i
 counting its bars down, then the song, counting the line's bars up and starting the dots again at
 every barline. A `{3/4}` line says 3/4 and draws three dots, since it reports the meter actually
 running. It is a picture of the beat, so
-it runs whether or not anything is clicking, and the switch beside it is what decides that. Turn the
+it runs whether or not anything is clicking, and the switch beside it is what decides that — on to
+begin with. Turn the
 sound on and every beat clicks, accented on the first of the bar; turn it off and you are still
 counted in and still shown the beat, in silence.
 
@@ -140,8 +141,9 @@ clock ahead of time rather than fired from the animation loop — measured beat-
 device's output latency so that it is *heard* on the beat rather than a tenth of a second after it
 (ADR-030), which is also why playback begins a quarter of a second after you press it.
 
-Sound, volume and the count-in override are per-device rather than per-song, since how loud a click
-should be depends on where you are playing, not on what. Tempo sits with them because it is the first thing a
+The sound starts **on**, as a shaker, so the first Play is counted in out loud; switching it off is
+remembered. Sound, volume and the count-in override are per-device rather than per-song, since how
+loud a click should be depends on where you are playing, not on what. Tempo sits with them because it is the first thing a
 metronome is asked for, but it belongs to the song.
 
 ## Learning mode

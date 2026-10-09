@@ -103,6 +103,17 @@ describe('createSettingsStore', () => {
     expect(DEFAULT_SETTINGS.metronomeVolume).toBeLessThanOrEqual(1);
   });
 
+  it('SET-18 the beat is heard by default, and a device that turned it off keeps it off', () => {
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
+        .metronomeEnabled;
+
+    expect(DEFAULT_SETTINGS.metronomeEnabled).toBe(true);
+    expect(DEFAULT_SETTINGS.metronomeVoice).toBe('shaker');
+    expect(load({})).toBe(true);
+    expect(load({ metronomeEnabled: false })).toBe(false);
+  });
+
   it('SET-02 round-trips saved settings', () => {
     const backend = memoryStorage();
     createSettingsStore(backend).save({

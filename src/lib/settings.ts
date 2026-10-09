@@ -46,7 +46,8 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  metronomeEnabled: false,
+  // Heard from the first Play: a beat you can only see is a feature to discover (ADR-083).
+  metronomeEnabled: true,
   metronomeVoice: DEFAULT_VOICE,
   metronomeVolume: 0.5,
   countInBars: null,

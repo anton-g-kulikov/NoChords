@@ -2449,13 +2449,14 @@ the width beside a song was empty more often than it was wanted.
 
 ---
 
-## ADR-083 — A song can carry its own count-in
+## ADR-083 — A song can carry its own count-in, and the beat is heard by default
 
 **Decision.** Amends ADR-016 and ADR-059. A song has an optional `countInBars`, set in its editor
 beside bars per line: a number, or `null` for **Auto**, one line's worth of bars. The metronome's
 count-in keeps its meaning — a number set there wins for every song — but its Auto now means "what
 the song says": the song's count-in if it has one, otherwise a line's worth. The seeded House of the
-Rising Sun counts in two bars.
+Rising Sun counts in two bars. Separately, `metronomeEnabled` now defaults to `true`, with the shaker
+still the default voice (ADR-065).
 
 **Why on the song.** How long a run-up a song needs is a property of the song, not of the room.
 ADR-059 got most of the way by following the line length, and it fails exactly where a line is
@@ -2470,6 +2471,13 @@ song override it would make that setting silently mean less on some songs than o
 length, so `null` is the value that keeps it sounding as it did. Storage and Firestore both read a
 missing or invalid value as `null`; a number is clamped to the range the metronome offers.
 
+**Why the sound starts on.** With the sound off the first Play is a silent count-in that only the
+dots show, and the shaker — chosen to sit under a slow song — is a feature you have to find. Play is
+already the gesture that opens the audio clock (ADR-066), so starting on costs nothing technically.
+Only devices with no stored preference get it: a device that ever saved its settings stored the
+`false` it had, and keeps it.
+
 **Cost.** One more field on every song, and one more place a count-in can come from: the strip
-shows the resolved number, but working out why it is two takes knowing about both settings.
+shows the resolved number, but working out why it is two takes knowing about both settings. And a
+first Play now makes a sound, which in a quiet room is a surprise rather than a discovery.
 

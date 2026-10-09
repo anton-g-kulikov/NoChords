@@ -498,6 +498,7 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-15 | The chosen ink is kept; anything else, or nothing, is vermilion | ✅ |
 | SET-16 | The chosen song language is kept; anything else, or nothing, shows every song | ✅ |
 | SET-17 | **Following the song means its own count-in when it has one; a device count-in still wins** | ✅ |
+| SET-18 | The beat is heard by default, as a shaker; a device that turned it off keeps it off | ✅ |
 
 ### Light and dark — `theme.test.ts`
 

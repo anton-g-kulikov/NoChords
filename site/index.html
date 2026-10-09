@@ -172,20 +172,19 @@
     .seg { display: inline-flex; flex-direction: column; justify-content: flex-end; }
     /* Narrow and heavy, root large and quality small, as a lead sheet sets them (ADR-068). */
     .c {
-      font: 650 1.1rem/1.35 var(--font-ui); font-stretch: 88%; letter-spacing: 0.01em;
+      font: 650 min(1.1rem, 3.2vw)/1.35 var(--font-ui); font-stretch: 88%; letter-spacing: 0.01em;
       color: var(--chord); white-space: pre; padding-right: 0.6em; min-height: 1.35em;
     }
     .c .q { font-size: 0.74em; font-weight: 600; margin-left: 0.04em; }
     .c.hidden { filter: blur(4px); opacity: 0.7; }
-    .l { font-size: 1.25rem; line-height: 1.35; white-space: pre; }
+    /* Sized to the viewport, capped at the desktop size: the app fits its type to the longest line
+       rather than wrapping (ADR-054), and the mock has to do the same by hand, or it shows the one
+       thing the app does not do. "And it's been the ruin of many a poor boy" sets the scale. */
+    .l { font-size: min(1.25rem, 3.6vw); line-height: 1.35; white-space: pre; }
     .caption { color: var(--muted); font: 0.82rem/1.5 var(--font-ui); margin: 10px 8px 6px; }
 
-    /* The app fits its type to the longest line rather than wrapping (ADR-054); on a phone the
-       mock has to do the same by hand, or it shows the one thing the app does not do. */
     @media (max-width: 480px) {
       .chart { padding: 12px 8px 4px; }
-      .l { font-size: 0.95rem; }
-      .c { font-size: 0.88rem; }
       .hero h1 { font-size: 1.85rem; }
     }
 
@@ -240,35 +239,40 @@
       </div>
       <div>
         <h3>It reads in degrees</h3>
-        <p>One tap turns the chart into roman numerals: <code>Am Em G F</code> becomes <code>i v VII VI</code>. Degrees describe the song rather than the key, so they stay put when you transpose.</p>
+        <p>One tap turns the chart into roman numerals: <code>Am C D F</code> becomes <code>i III IV VI</code>. Degrees describe the song rather than the key, so they stay put when you transpose.</p>
       </div>
     </div>
 
     <div class="chart" aria-label="What a song looks like while it plays">
       <div class="strip">
-        <span>3/4</span>
-        <span class="dots"><span class="dot accent"></span><span class="dot on"></span><span class="dot"></span></span>
-        <span class="end">bar 2/2</span>
+        <span>6/8</span>
+        <span class="dots"><span class="dot accent"></span><span class="dot on"></span><span class="dot"></span><span class="dot accent"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="end">bar 1/1</span>
       </div>
       <div class="row played">
         <div class="line">
-          <span class="seg"><span class="c">D<span class="q">m</span></span><span class="l">Savoury, sage, </span></span>
-          <span class="seg"><span class="c">C</span><span class="l">rosemary and </span></span>
-          <span class="seg"><span class="c">D<span class="q">m</span></span><span class="l">thyme,</span></span>
+          <span class="seg"><span class="c"></span><span class="l">There </span></span>
+          <span class="seg"><span class="c">A<span class="q">m</span></span><span class="l">is a </span></span>
+          <span class="seg"><span class="c">C</span><span class="l">house in New </span></span>
+          <span class="seg"><span class="c">D</span><span class="l">Orleans, </span></span>
+          <span class="seg"><span class="c">F</span><span class="l"> </span></span>
         </div>
       </div>
       <div class="row active">
         <div class="line">
-          <span class="seg"><span class="c">D<span class="q">m</span></span><span class="l">Remember me to a </span></span>
-          <span class="seg"><span class="c hidden">C</span><span class="l">lass that lives </span></span>
-          <span class="seg"><span class="c">D<span class="q">m</span></span><span class="l">there,</span></span>
+          <span class="seg"><span class="c"></span><span class="l">They </span></span>
+          <span class="seg"><span class="c">A<span class="q">m</span></span><span class="l">call the </span></span>
+          <span class="seg"><span class="c hidden">C</span><span class="l">Rising </span></span>
+          <span class="seg"><span class="c">E</span><span class="l">Sun,</span></span>
         </div>
       </div>
       <div class="row">
         <div class="line">
-          <span class="seg"><span class="c">D<span class="q">m</span></span><span class="l">For she was once a </span></span>
-          <span class="seg"><span class="c hidden">C</span><span class="l">true love of </span></span>
-          <span class="seg"><span class="c hidden">D<span class="q">m</span></span><span class="l">mine.</span></span>
+          <span class="seg"><span class="c"></span><span class="l">And it's </span></span>
+          <span class="seg"><span class="c">A<span class="q">m</span></span><span class="l">been the </span></span>
+          <span class="seg"><span class="c hidden">C</span><span class="l">ruin of </span></span>
+          <span class="seg"><span class="c hidden">D</span><span class="l">many a poor boy, </span></span>
+          <span class="seg"><span class="c">F</span><span class="l"> </span></span>
         </div>
       </div>
       <p class="caption">The beat strip shows the meter, the beat sounding, and where you are in the line. A blurred chord is one you are learning to remember — tap the line to see it.</p>

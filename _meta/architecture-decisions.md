@@ -2660,3 +2660,44 @@ seed: a song the visitor already knows. Two seed songs, one per audience, is ADR
 
 **Cost.** The copyright footing is a judgement, not a fact. Libraries seeded with Чёрный ворон or
 Дорогой длинною keep them; seeding only fills an empty library.
+
+---
+
+## ADR-090 — Songs are shared in a public repository, and copied in by hand
+
+**Decision.** Songs to share live in a separate public repository, `anton-g-kulikov/nochords-songs`,
+one Markdown file each under `songs/<language>/`. A file's header holds its settings, named as the
+editor labels them — `original key`, `meter`, `tempo` (`♩ = 90`), `bars per line`, an optional
+`count-in bars` — with `language`, `licence`, `source` and `arranged by`; GitHub shows that header
+as a table. The song text sits in a single `text` block, which GitHub gives a copy button. The app
+does not read the repository: people copy a song into a new song themselves. The landing page links
+it in a "More songs" section and in its footer; the README links it beside the app.
+
+**Why a repository.** It is an archive that is personal and public at once: Anton owns and merges
+it, anyone can read and download it, and anyone can propose a song as a pull request, which is
+reviewed before it is added. For people who do not use git, an issue form takes the same fields and
+the song text, and its maintainer turns a submission into a file.
+
+**Why copied by hand.** The app gains nothing to maintain — no import, no index, no network fetch —
+and a person setting four fields and pasting one block is a minute's work. If that ever is not
+enough, the header is already machine-readable.
+
+**What it accepts.** Traditional songs, public-domain songs, and originals shared by their writers —
+nothing else. Lyrics stay in copyright for decades after their author dies, and a public archive of
+them is taken down; so is a modern version of an old song, however old the song. Every file names
+its source, and a pull request ticks that it is one of the three. Arrangements — chord choice and
+placement, timing, transcription — are licensed CC BY 4.0, credited to `arranged by`; an original
+is CC BY 4.0 in full. It starts with the app's two seed songs, House of the Rising Sun and Постой,
+паровоз, the second marked traditional with its disputed authorship stated in `source`.
+
+**Why the checks use the app's parser.** Every pull request runs `scripts/check-songs.ts` against a
+checkout of this repository, importing the chord, key, meter, tempo and line parsers rather than
+copying them, so the archive cannot drift from what the app reads. Because the line parser never
+refuses anything — an unknown chord or an unclosed bracket simply becomes lyric — the check fails on
+exactly those: a chord the app cannot read, a stray `[`, `|`, `{` or `}`, and any setting the editor
+does not offer.
+
+**Cost.** The check depends on this repository's file layout: moving `src/lib/chords.ts`, `keys.ts`,
+`meter.ts`, `tempo.ts` or `inline.ts`, or renaming their exports, breaks the archive's pull requests
+until its script follows. Reviewing provenance is a maintainer's judgement, not something a check
+can do.

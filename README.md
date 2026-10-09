@@ -4,6 +4,7 @@ Learn songs by progressively hiding chord cues while playing through lyrics at a
 
 **App:** [songs.nochords.app](https://songs.nochords.app) ·
 **About:** [nochords.app](https://nochords.app) ·
+**Songs:** [nochords-songs](https://github.com/anton-g-kulikov/nochords-songs) ·
 **Support:** [buy me a \[song\] book](https://buymeacoffee.com/antonkulikov)
 
 Type a song in once, play it back with the chart scrolling itself, and let the chords fade out over

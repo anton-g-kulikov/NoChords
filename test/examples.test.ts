@@ -76,10 +76,10 @@ describe("example songs", () => {
     expect(scarborough.rows).toHaveLength(16);
     expect(blackbird.rows).toHaveLength(16);
     expect(risingSun.rows).toHaveLength(35);
-    // Seven four-line verses with a blank line between each.
-    expect(voron.rows).toHaveLength(34);
+    // Four six-line verses — each sings its last two lines twice — with a blank line between each.
+    expect(voron.rows).toHaveLength(27);
     expect(voron.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
-      4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4,
     ]);
 
     // A line takes the song default unless it says otherwise, and it says so in bars (ADR-032).
@@ -158,7 +158,7 @@ describe("example songs", () => {
     ]);
 
     // Cyrillic lyrics parse like any other: the chord still lands on its syllable.
-    expect(voron.rows[0].lyrics).toBe("Чёрный ворон, что ты вьёшься");
+    expect(voron.rows[0].lyrics).toBe("Черный ворон, черный ворон,");
     expect(symbolsOf(voron)).toEqual(["Am", "Dm", "E", "G", "C"]);
     expect(symbolsOf(voron).map((s) => toNashville(s, "Am"))).toEqual([
       "i",

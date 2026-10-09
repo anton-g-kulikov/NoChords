@@ -2363,18 +2363,22 @@ and in the US as well, because those works had their copyright restored there in
 A seeded song is the app distributing its text to every new library, so the rule that the fixtures
 use only public-domain lyrics applies to it in full.
 
-**Why both, not one chosen by language.** The app has no notion of the visitor's language yet. A
-switcher that filters the song list by language, leaving the UI alone, is the next step; until it
-exists, both songs are seeded for everyone. The two also differ in meter — 6/8 and 4/4 — so the
-count-in and beat strip show two shapes on a first run.
+**Why both, not one chosen by language.** The app has no notion of the visitor's language, so both
+songs are seeded for everyone. Each visitor narrows the list instead: the library's language filter
+(ADR-081) leaves seeding alone, and two songs in two languages are what show it from the first run.
+The two also differ in meter — 6/8 and 4/4 — so the count-in and beat strip show two shapes on a
+first run.
 
 **The arrangement.** Am, in 4/4 at 72 bpm, two bars to a line, each verse ending held for four
-(`|4|`) and the seven verses separated by blank lines so level 1 has repeats to thin (ADR-058). The
+(`|4|`) and the four verses separated by blank lines so level 1 has repeats to thin (ADR-058).
+The text is a common folk variant: four six-line verses, each singing its last two lines twice, and
+the raven verse both first and last. The
 chords — Am, Dm, E, G, C — are the fixture's own, not a transcription of any recording. The meter is
 a choice: the song is sung both as a slow 4/4 and as a waltz, and no source settles it.
 
 **Cost.** Two songs is a little more of a demo library than ADR-076 wanted, and an English-speaking
-visitor meets a Cyrillic song they may not know. The language switcher is what pays that back.
+visitor meets a Cyrillic song they may not know. The language filter (ADR-081) is what pays that
+back.
 Existing libraries are unaffected, since seeding only ever fills an empty library.
 
 ---

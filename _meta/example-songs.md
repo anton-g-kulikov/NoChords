@@ -282,8 +282,8 @@ repeated playthroughs.
 **Meter:** 4/4\
 **Tempo:** 72 BPM\
 **Purpose:** The Russian-language seed song (ADR-080): Cyrillic lyrics, a 4/4 meter beside the
-other fixtures' 3/4 and 6/8, seven verses with the same chords so learning level 1 has repeats to
-thin.
+other fixtures' 3/4 and 6/8, four verses with the same chords so learning level 1 has repeats to
+thin. Each verse sings its last two lines twice, as the song is sung.
 
 Written directly in the app's inline notation, two bars to a line and each verse ending held for
 four (`|4|`), verses separated by blank lines. The text is `CHORNY_VORON` in `src/lib/examples.ts`.
@@ -375,7 +375,9 @@ Each fixture must:
 - **Чёрный ворон:** the folk song that grew from Nikolai Verevkin's poem
   «Под ракитою зелёной», published in *Русский инвалид* in 1831, and
   later sung in the film «Чапаев» (1934). The fixture uses a common folk
-  version of the text, not Gavriil Popov's film arrangement.
+  variant of the text — the "Передайте передачу" / "конь буланый" one,
+  opening and closing on the raven verse — not Gavriil Popov's film
+  arrangement.
 
 The chord arrangements, chord placement, timing values, and application
 formatting in this file were created specifically as development

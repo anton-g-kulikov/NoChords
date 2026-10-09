@@ -2733,3 +2733,24 @@ the app.
 **Cost.** The level cards are a third of the column wide, so their line is shortened to "call the
 Rising Sun" — the full lyric wrapped, and a wrapped line puts a chord over the wrong word, which is
 the one thing the app's own fit exists to prevent.
+
+---
+
+## ADR-092 — While editing, the pencil becomes a save button
+
+**Decision.** Amends ADR-043. The header button that enters editing is a pencil, labelled "Edit
+song"; while editing it is a check, labelled "Save", and pressing it returns to playing. It keeps
+the accent colour while editing. It is no longer marked `aria-pressed`.
+
+**Why.** A pencil says "edit", and in edit mode that is the one thing the button does not do — it
+leaves. A check is how a title bar says "this is the way out, and it keeps what you did", which is
+what the button is for.
+
+**Why "Save" when nothing waits to be saved.** The song saves as it is typed, and that is
+unchanged: leaving by the back arrow keeps everything too. "Save" is what people look for when they
+are finished, and pressing it does keep what they did — it only stops being able to lose it.
+
+**Why not `aria-pressed`.** A toggle announced as pressed or not keeps one name. This one now changes
+name and picture with its state, so a screen reader hears "Edit song" or "Save" — the action — and
+pressed would only contradict it.
+

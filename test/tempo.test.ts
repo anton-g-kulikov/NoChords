@@ -8,6 +8,7 @@ import {
   preferredTempoUnit,
   quarterNotesPerBar,
   quartersPerTempoBeat,
+  tempoUnitLabel,
   tempoUnitSymbol,
   unitFromMeterDenominator,
 } from '../src/lib/tempo';
@@ -105,6 +106,13 @@ describe('unit defaults', () => {
     expect(tempoUnitSymbol('eighth')).toBe('♪');
     expect(tempoUnitSymbol('quarter')).toBe('♩');
     expect(tempoUnitSymbol('dottedQuarter')).toBe('♩.');
+  });
+
+  it('TU-15 offers each unit as its note and its value', () => {
+    expect(tempoUnitLabel('eighth')).toBe('♪ – 1/8');
+    expect(tempoUnitLabel('quarter')).toBe('♩ – 1/4');
+    // A dotted quarter is a quarter and half again: three eighths.
+    expect(tempoUnitLabel('dottedQuarter')).toBe('♩. – 3/8');
   });
 });
 

@@ -1905,15 +1905,41 @@ kbd {
   gap: 4px;
 }
 
-/* The three note glyphs are the whole control, so it keeps no room for a caret it does not draw. */
-.tempo__unit {
+/* The note glyph is the whole closed control, so it keeps no room for a caret it does not draw. */
+.tempo__unit-wrap {
+  position: relative;
+  display: flex;
   flex: 0 0 46px;
+}
+
+/* Its own text is the list's `♩ – 1/4`, too wide to show shut; the glyph over it shows instead.
+   The options set their colour back, for the browsers whose list inherits the select's (ADR-085). */
+.tempo__unit {
+  width: 100%;
+  min-width: 0;
   text-align: center;
   text-align-last: center;
   padding-inline: 2px;
   background-image: none;
   appearance: none;
   -webkit-appearance: none;
+  color: transparent;
+}
+
+.tempo__unit option {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.tempo__unit-glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: var(--text);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .tempo__value {

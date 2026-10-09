@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { TEMPO_UNITS, type TempoUnit } from '../lib/tempo';
+import { TEMPO_UNITS, tempoUnitLabel, tempoUnitSymbol, type TempoUnit } from '../lib/tempo';
 import { commitValue } from '../lib/numberField';
 
 interface TempoFieldProps {
@@ -41,18 +41,25 @@ export function TempoField({
     <div className={className}>
       <span className="field__label">Tempo</span>
       <div className="tempo">
-        <select
-          className="field__input tempo__unit"
-          value={unit}
-          aria-label="Tempo unit"
-          onChange={(event) => onUnitChange(event.target.value as TempoUnit)}
-        >
-          {TEMPO_UNITS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.symbol}
-            </option>
-          ))}
-        </select>
+        {/* The list names each note and its value, `♩ – 1/4`; shut, the button has room for the
+            note alone, so that is drawn over the select, whose own text would not fit (ADR-085). */}
+        <span className="tempo__unit-wrap">
+          <select
+            className="field__input tempo__unit"
+            value={unit}
+            aria-label="Tempo unit"
+            onChange={(event) => onUnitChange(event.target.value as TempoUnit)}
+          >
+            {TEMPO_UNITS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {tempoUnitLabel(option.value)}
+              </option>
+            ))}
+          </select>
+          <span className="tempo__unit-glyph" aria-hidden>
+            {tempoUnitSymbol(unit)}
+          </span>
+        </span>
         <input
           className="field__input tempo__value"
           type="number"

@@ -24,16 +24,20 @@ export const MAX_TEMPO = 300;
 
 export type TempoUnit = 'eighth' | 'quarter' | 'dottedQuarter';
 
-/** The units offered, with what each is worth in quarter notes. */
+/**
+ * The units offered, with what each is worth in quarter notes, and as a fraction of a whole note —
+ * the name for a reader who does not read note shapes at a glance (ADR-085).
+ */
 export const TEMPO_UNITS: ReadonlyArray<{
   value: TempoUnit;
   symbol: string;
+  fraction: string;
   name: string;
   quarters: number;
 }> = [
-  { value: 'eighth', symbol: '♪', name: 'eighth note', quarters: 0.5 },
-  { value: 'quarter', symbol: '♩', name: 'quarter note', quarters: 1 },
-  { value: 'dottedQuarter', symbol: '♩.', name: 'dotted quarter', quarters: 1.5 },
+  { value: 'eighth', symbol: '♪', fraction: '1/8', name: 'eighth note', quarters: 0.5 },
+  { value: 'quarter', symbol: '♩', fraction: '1/4', name: 'quarter note', quarters: 1 },
+  { value: 'dottedQuarter', symbol: '♩.', fraction: '3/8', name: 'dotted quarter', quarters: 1.5 },
 ];
 
 export const DEFAULT_TEMPO_UNIT: TempoUnit = 'quarter';
@@ -45,6 +49,12 @@ export function isTempoUnit(value: unknown): value is TempoUnit {
 /** What one tempo beat is worth in quarter notes. */
 export function quartersPerTempoBeat(unit: TempoUnit): number {
   return TEMPO_UNITS.find((entry) => entry.value === unit)?.quarters ?? 1;
+}
+
+/** How the unit is offered in a list: the note, then what it is worth — `♩. – 3/8`. */
+export function tempoUnitLabel(unit: TempoUnit): string {
+  const entry = TEMPO_UNITS.find((candidate) => candidate.value === unit);
+  return entry ? `${entry.symbol} – ${entry.fraction}` : '♩ – 1/4';
 }
 
 /** How the unit is written: ♪, ♩ or ♩. */

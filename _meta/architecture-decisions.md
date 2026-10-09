@@ -2455,7 +2455,7 @@ the width beside a song was empty more often than it was wanted.
 beside bars per line: a number, or `null` for **Auto**, one line's worth of bars. The metronome's
 count-in keeps its meaning — a number set there wins for every song — but its Auto now means "what
 the song says": the song's count-in if it has one, otherwise a line's worth. The seeded House of the
-Rising Sun counts in two bars. Separately, `metronomeEnabled` now defaults to `true`, with the shaker
+Rising Sun counts in four bars, at ♪ = 180. Separately, `metronomeEnabled` now defaults to `true`, with the shaker
 still the default voice (ADR-065).
 
 **Why on the song.** How long a run-up a song needs is a property of the song, not of the room.

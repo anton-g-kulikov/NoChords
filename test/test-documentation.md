@@ -633,7 +633,7 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-07 | Schedule runs the Rising Sun lines back to back — one bar a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
-| EX-12 | The seeded songs count in two bars; the other fixtures follow their line length | ✅ |
+| EX-12 | The seeded songs carry their own count-in — four bars for the Rising Sun, two for Дорогой длинною; the other fixtures follow their line length | ✅ |
 | EX-11 | A new library is seeded with House of the Rising Sun and Дорогой длинною; the other fixtures are for tests | ✅ |
 
 ## Browser acceptance run

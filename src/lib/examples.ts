@@ -178,12 +178,13 @@ const SOURCES: ExampleSource[] = [
   {
     title: "House of the Rising Sun",
     key: "Am",
-    tempo: 80,
+    // ♪ = 180 is a dotted quarter of 60: one bar of 6/8 every two seconds.
+    tempo: 180,
     tempoUnit: "eighth",
     barsPerLine: 1,
     meter: "6/8",
-    // A line is one bar of 6/8, and a single bar is over before the pulse has settled.
-    countInBars: 2,
+    // A line is one bar of 6/8, over before the pulse has settled; four bars is a phrase's worth.
+    countInBars: 4,
     fixture: RISING_SUN,
   },
   {

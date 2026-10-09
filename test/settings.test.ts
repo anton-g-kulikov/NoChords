@@ -79,7 +79,7 @@ describe('countInBarsFor', () => {
   });
 
   it('SET-17 following the song means its own count-in when it has one (ADR-083)', () => {
-    // The Rising Sun's lines are one bar long, and it asks for two.
+    // A song of one-bar lines that asks for two.
     expect(countInBarsFor(null, 1, 2)).toBe(2);
     // A song can ask for none at all.
     expect(countInBarsFor(null, 2, 0)).toBe(0);

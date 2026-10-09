@@ -76,7 +76,8 @@ describe("example songs", () => {
   it("EX-02 parses every row, holding the verse endings for an extra bar", () => {
     expect(scarborough.rows).toHaveLength(16);
     expect(blackbird.rows).toHaveLength(16);
-    expect(risingSun.rows).toHaveLength(35);
+    // A two-line intro and a blank line, then six five-line verses with a blank line between each.
+    expect(risingSun.rows).toHaveLength(38);
     // Four nine-line verses, each closing on its last three lines sung twice, with a blank line
     // between. A line is four bars of 2/4, and the three that end a phrase are held for eight.
     expect(parovoz.rows).toHaveLength(39);
@@ -115,9 +116,16 @@ describe("example songs", () => {
     expect(risingSun.rows.filter((row) => row.bars !== null).map((row) => row.bars)).toEqual([
       6, 6, 6, 6, 6, 6,
     ]);
-    const turnaround = risingSun.rows[4];
+    const turnaround = risingSun.rows[7];
     expect(turnaround.chords.map((chord) => chord.symbol)).toEqual(["D", "F", "Am", "E", "Am", "E"]);
     expect(turnaround.lyrics.trim()).toBe("");
+    // The intro is chords with no words, at the song's own four bars a line (ADR-094).
+    const intro = risingSun.rows.slice(0, 2);
+    expect(intro.map((row) => row.chords.map((chord) => chord.symbol))).toEqual([
+      ["Am", "C", "D", "F"],
+      ["E", "Am", "E"],
+    ]);
+    expect(intro.every((row) => row.lyrics.trim() === "" && row.bars === null)).toBe(true);
   });
 
   it("EX-03 keeps the lyric text intact and anchors each chord inside it", () => {
@@ -230,9 +238,9 @@ describe("example songs", () => {
 
     const concealed = createConcealment(risingSun!.rows, 0, 11);
     expect(concealed.size).toBeGreaterThan(0);
-    // Nothing in the opening section: that is the verse you are reading for the first time.
-    const opening = sectionsOf(risingSun!.rows)[0];
-    for (const key of collectChordOccurrences(opening)) {
+    // Nothing in the intro or the first verse: both are being read for the first time.
+    const [intro, firstVerse] = sectionsOf(risingSun!.rows);
+    for (const key of collectChordOccurrences([...intro, ...firstVerse])) {
       expect(concealed.has(key)).toBe(false);
     }
   });
@@ -247,7 +255,7 @@ describe("example songs", () => {
       risingSun.meter,
     );
     // An eighth at ♪ = 180 is a third of a second, so a bar of 6/8 is 2000ms, every four-bar line
-    // is 8000ms, and they simply follow on.
+    // — the intro's two, then the verse's — is 8000ms, and they simply follow on.
     expect(schedule[0].startMs).toBe(0);
     expect(schedule[0].endMs).toBeCloseTo(8000);
     expect(schedule[4].startMs).toBeCloseTo(8000 * 4);
@@ -258,11 +266,11 @@ describe("example songs", () => {
     expect(risingSun.rows.some(isBlankRow)).toBe(true);
     expect(schedule).toHaveLength(played.length);
 
-    // Every lyric line is four bars of 6/8 — twenty-four beats, 8000ms. Each verse's turnaround is
-    // held for six bars with `|6|`, which is thirty-six (ADR-026, ADR-032).
+    // Every other line, intro included, is four bars of 6/8 — twenty-four beats, 8000ms. Each
+    // verse's turnaround is held for six bars with `|6|`, which is thirty-six (ADR-026, ADR-032).
     const turnarounds = schedule.filter((entry) => entry.beats === 36);
     expect(turnarounds).toHaveLength(6);
-    expect(schedule[4].beats).toBe(36);
+    expect(schedule[6].beats).toBe(36);
     const lyricLines = played.length - turnarounds.length;
     expect(schedule.filter((entry) => entry.beats === 24)).toHaveLength(lyricLines);
     expect(totalDurationMs(schedule)).toBeCloseTo(8000 * lyricLines + 2000 * 6 * turnarounds.length);

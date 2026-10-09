@@ -624,13 +624,13 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | # | Case | Status |
 |---|------|--------|
 | EX-01 | The four fixtures load with their stated keys and tempos | ✅ |
-| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`|4|`); every Rising Sun verse closes on a six-bar turnaround (`|6|`); Постой, паровоз holds the three phrase endings of each of its four 2/4 verses for eight bars (`|8|`) | ✅ |
+| EX-02 | Every row parses; Scarborough and Blackbird hold their verse endings (`|4|`); the Rising Sun opens on a two-line intro and every verse closes on a six-bar turnaround (`|6|`); Постой, паровоз holds the three phrase endings of each of its four 2/4 verses for eight bars (`|8|`) | ✅ |
 | EX-03 | Lyric text is intact and each chord is anchored inside it | ✅ |
 | EX-04 | Relative representation matches the document (`Dm`→`1m`, `C`→`7`, etc.); Cyrillic lyrics parse like any other | ✅ |
 | EX-05 | Blackbird G→A gives A/D/E with degrees unchanged, stored rows untouched | ✅ |
 | EX-06 | Each fixture has enough chords for the three levels to differ visibly | ✅ |
-| EX-10 | **Rising Sun marks its sections, so level 1 thins its repeats and leaves its opening verse whole** | ✅ |
-| EX-07 | Schedule runs the Rising Sun lines back to back — four bars a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
+| EX-10 | **Rising Sun marks its sections, so level 1 thins its repeats and leaves its intro and opening verse whole** | ✅ |
+| EX-07 | Schedule runs the Rising Sun lines back to back — four bars an intro or lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
 | EX-12 | Постой, паровоз opens on scale degrees; the other fixtures on chord names | ✅ |

@@ -2845,3 +2845,34 @@ the line it belongs to.
 **Cost.** A chord-only line is shorter than a lyric line, so the chart's lines are no longer one
 height; the playing line's highlight and the scroll follow each row's own box, as they already did.
 
+---
+
+## ADR-097 — A silent second, then the count-in in its own gentle tick
+
+**Decision.** Amends ADR-094. Pressing Play to start a song begins a second of silence before the
+count-in's first beat (`SILENT_LEAD_MS`, on top of ADR-030's quarter-second lead-in): the clock
+starts at `-(countIn + 1000)`, the metronome plays no beat earlier than the count's own first, and
+the strip and the timer show no beat until it sounds. Resuming mid-song is unchanged. The count-in
+ticks in its own sound, `COUNT_IN_TICK`, whichever voice the song's beat uses: a steady sine,
+1400 Hz on a plain beat and 1700 Hz on the "one", with a 3 ms attack.
+
+**Why the silent second.** On a phone the audio context may only just have woken when Play is
+pressed, and the first sound of a run has to be made before it can play. A count that starts on the
+press can lose its "one" to that, and a count that comes in on two is worse than one that comes in
+a second later. A second is long enough to be ready and short enough to read as "here it comes".
+
+**Why its own sound.** The count is a cue, not the song. In the song's own voice the last count beat
+and the first beat of the song sound alike, and the shaker — the default — is soft enough to be
+taken for the song already playing. A pure, steady tone shares nothing with the shaker's noise, the
+woodblock's falling knock or the beep's square buzz.
+
+**Why gentle, and how that was set.** A pure tone puts all its energy near where hearing is keenest,
+so at a voice's peak it sounds sharper than the voice. Rendered offline and measured, the first
+draft (peaks 0.17/0.24 at 1600/1900 Hz) averaged about twice the shaker's level. At 0.10/0.14 and
+1400/1700 Hz it averages about the shaker's (0.013–0.018 against 0.010–0.020 RMS at half volume),
+peaks lower, and lasts about 30 ms against the shaker's 65–70: a tick. Like every voice it accents
+by weight and a little pitch, within a fifth (ADR-065).
+
+**Unchanged.** The count-in still follows the sound switch: with the metronome off it is shown, in
+silence, as before.
+

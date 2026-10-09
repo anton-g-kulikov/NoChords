@@ -133,7 +133,9 @@ counted in and still shown the beat, in silence.
 with a count-in of **one bar**, or **two** if you choose it there — a count and nothing more: "1 2 3
 4" in 4/4, "1 2 3 4 5 6" in 6/8, landing on the song's own downbeat. Bars to be played before the
 singing are an intro, and an intro is part of the song: a line of chords with no words at the top
-of it, `[Am] [C] [D] [F] |4|` (ADR-094).
+of it, `[Am] [C] [D] [F] |4|` (ADR-094). The count starts a silent second after Play, which gives the
+sound time to be ready, and it ticks in a sound of its own — a soft, short tone, whichever voice the
+song's beat is in — so it is never mistaken for the song having started (ADR-097).
 
 **Sound** offers three voices: a shaker of filtered noise (the default, and the one that sits under
 a slow song), a woodblock, and a beep for a loud room. Each accents by playing the same sound harder

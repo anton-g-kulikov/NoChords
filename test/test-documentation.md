@@ -262,6 +262,8 @@ described at the end of this document.
 | MT-19 | **One count-in beat has sounded on the first click, all of them on the last** | ✅ |
 | MT-20 | Nothing is lit when nothing is counting, and never a beat that is not there | ✅ |
 | MT-21 | **The count cycles one bar of dots and counts the bars down beside it** | ✅ |
+| MT-22 | **No beat earlier than the count-in's first is played, so the second before it is silent** | ✅ |
+| MT-23 | **Nothing is counted in the silent second; then the count runs n down to one** | ✅ |
 | MT-22 | Not counting reads as a full count with nothing sounded; a zero-length bar cannot divide by zero | ✅ |
 | MT-18 | **A click fires early by the output latency, so it is heard on the beat** | ✅ |
 | MT-19 | With no reported latency the timing is unchanged | ✅ |
@@ -481,6 +483,7 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | VC-02 | **Every voice accents by weight, never by becoming another instrument** | ✅ |
 | VC-03 | Every stroke clears the fastest beat the tempo field allows | ✅ |
 | VC-04 | A stored name that is not a voice falls back rather than falling silent | ✅ |
+| VC-05 | **The count-in ticks in a gentle sound of its own, unlike any voice, quieter than any voice's beat** | ✅ |
 
 ### Device preferences — `settings.test.ts`
 

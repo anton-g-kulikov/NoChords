@@ -10,17 +10,11 @@ import { DEFAULT_VOICE, isVoiceName, type VoiceName } from './metronomeVoice';
 import { DEFAULT_THEME, isThemePreference, type ThemePreference } from './theme';
 import { DEFAULT_ACCENT, isAccentName, type AccentName } from './accent';
 import { DEFAULT_LANGUAGE_FILTER, isLanguageFilter, type LanguageFilter } from './language';
+import { MAX_COUNT_IN_BARS } from './metronome';
+
+export { MAX_COUNT_IN_BARS };
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
-
-/**
- * Longest count-in offered, in bars.
- *
- * Generous rather than opinionated: counting yourself in for a long intro, or setting up a groove
- * before a slow song, are both real. The ceiling is here to stop a typo becoming a ten-minute
- * wait, not to have a view about how long is sensible.
- */
-export const MAX_COUNT_IN_BARS = 24;
 
 /** What a count-in used to be measured in, before it was counted in bars (ADR-027). */
 const LEGACY_BEATS_PER_BAR = 4;
@@ -38,8 +32,9 @@ export interface Settings {
    * Bars counted in before the song starts; 0 for none, `null` to follow the song.
    *
    * A bar is as long as the song's meter says, so the count is in the song's own time (ADR-027).
-   * Following the song means one line's worth of bars, which is the length you are about to play
-   * and so the length that tells you most (ADR-059).
+   * Following the song means its own count-in if it has one (ADR-083), and otherwise one line's
+   * worth of bars, which is the length you are about to play and so the length that tells you
+   * most (ADR-059).
    */
   countInBars: number | null;
   /** Light, dark, or whatever the device says (ADR-067). */
@@ -60,9 +55,19 @@ export const DEFAULT_SETTINGS: Settings = {
   libraryLanguage: DEFAULT_LANGUAGE_FILTER,
 };
 
-/** Bars to count in for a song, resolving "follow the song" against its line length. */
-export function countInBarsFor(countInBars: number | null, barsPerLine: number): number {
+/**
+ * Bars to count in for a song.
+ *
+ * A device count-in set outright wins. Otherwise the song decides: its own count-in if it has one
+ * (ADR-083), else one line's worth of bars (ADR-059).
+ */
+export function countInBarsFor(
+  countInBars: number | null,
+  barsPerLine: number,
+  songCountInBars: number | null = null
+): number {
   if (countInBars !== null) return countInBars;
+  if (songCountInBars !== null) return songCountInBars;
   return clamp(Math.round(barsPerLine), 1, MAX_COUNT_IN_BARS);
 }
 

@@ -12,6 +12,7 @@ const sample: Song = {
   tempoUnit: 'quarter',
   barsPerLine: 6,
   meter: '3/4',
+  countInBars: null,
   learningPlaythrough: 3,
   rows: [
     {
@@ -103,6 +104,13 @@ describe('songToDoc / songFromDoc', () => {
     walk(songToDoc(sample), 'doc');
     walk(songToDoc(createSong({ title: 'fresh' })), 'new');
     expect(seen).toEqual([]);
+  });
+
+  it('SD-11 writes a song\'s own count-in, and null for Auto rather than leaving it out', () => {
+    expect(songFromDoc(songToDoc({ ...sample, countInBars: 2 }))?.countInBars).toBe(2);
+    expect(songToDoc(sample).countInBars).toBeNull();
+    const { countInBars: _dropped, ...stored } = songToDoc(sample);
+    expect(songFromDoc(stored)?.countInBars).toBeNull();
   });
 
   it('round-trips a song the app itself just made', () => {

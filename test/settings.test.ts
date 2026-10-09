@@ -78,6 +78,18 @@ describe('countInBarsFor', () => {
     expect(countInBarsFor(0, 4)).toBe(0);
   });
 
+  it('SET-17 following the song means its own count-in when it has one (ADR-083)', () => {
+    // The Rising Sun's lines are one bar long, and it asks for two.
+    expect(countInBarsFor(null, 1, 2)).toBe(2);
+    // A song can ask for none at all.
+    expect(countInBarsFor(null, 2, 0)).toBe(0);
+    // Without one it is a line's worth, as before.
+    expect(countInBarsFor(null, 2, null)).toBe(2);
+    // A device count-in set outright still wins over the song's.
+    expect(countInBarsFor(3, 1, 2)).toBe(3);
+    expect(countInBarsFor(0, 1, 2)).toBe(0);
+  });
+
   it('SET-12 keeps a followed count-in inside the offered range', () => {
     expect(countInBarsFor(null, 0)).toBe(1);
     expect(countInBarsFor(null, 999)).toBe(MAX_COUNT_IN_BARS);

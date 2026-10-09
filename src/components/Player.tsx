@@ -121,7 +121,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   // One beat of the song's own meter — an eighth in 6/8 — at whatever note value its tempo counts.
   const beatMs = msPerMeterBeat(song.meter, song.tempo, song.tempoUnit);
   // A count-in is counted in the song's own time: one bar of 6/8 is six beats, of 3/4 three.
-  const countInBars = countInBarsFor(settings.countInBars, song.barsPerLine);
+  const countInBars = countInBarsFor(settings.countInBars, song.barsPerLine, song.countInBars);
   const countInMs = countInDurationMs(beatMs, countInBars * beatsPerBar);
 
   const playback = usePlayback(schedule, { countInMs, beatMs, onComplete: handleComplete });
@@ -401,8 +401,8 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                 </select>
               </label>
 
-              {/* Auto is a real value here, not an empty field: it means one line's worth of
-                  bars, which changes with the song (ADR-059). */}
+              {/* Auto is a real value here, not an empty field: it means the song's own count-in,
+                  or one line's worth of bars, which changes with the song (ADR-059, ADR-083). */}
               <div className="field field--narrow">
                 <span className="field__label">Count-in (bars)</span>
                 <div className="count-in-field">
@@ -412,7 +412,7 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                       settings.countInBars === null ? 'segment segment--active' : 'segment'
                     }
                     aria-pressed={settings.countInBars === null}
-                    title="Match the song's bars per line"
+                    title="Use the song's count-in"
                     onClick={() => onSettingsChange({ countInBars: null })}
                   >
                     Auto

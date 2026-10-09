@@ -124,8 +124,10 @@ counted in and still shown the beat, in silence.
 **Tempo**, **volume** and **count-in** live together in the metronome settings. The count-in is how
 many *bars* to count before the song starts, or 0 for none — a bar is as long as the song's meter
 says, so one bar counts six in 6/8 and three in 3/4, and the count lands on the song's own downbeat.
-It is set to **Auto** by default, which means one line's worth of bars: the length you are about to
-play is the length worth counting.
+It is set to **Auto** by default, which means the song decides: its own count-in, if its editor sets
+one, and otherwise one line's worth of bars — the length you are about to play is the length worth
+counting. House of the Rising Sun asks for two bars, since its one-bar lines are over before the
+pulse has settled. A number typed into the metronome settings overrides every song.
 
 **Sound** offers three voices: a shaker of filtered noise (the default, and the one that sits under
 a slow song), a woodblock, and a beep for a loud room. Each accents by playing the same sound harder
@@ -138,8 +140,8 @@ clock ahead of time rather than fired from the animation loop — measured beat-
 device's output latency so that it is *heard* on the beat rather than a tenth of a second after it
 (ADR-030), which is also why playback begins a quarter of a second after you press it.
 
-Sound, volume and count-in are per-device rather than per-song, since how loud a click should be
-depends on where you are playing, not on what. Tempo sits with them because it is the first thing a
+Sound, volume and the count-in override are per-device rather than per-song, since how loud a click
+should be depends on where you are playing, not on what. Tempo sits with them because it is the first thing a
 metronome is asked for, but it belongs to the song.
 
 ## Learning mode

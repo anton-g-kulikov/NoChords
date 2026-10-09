@@ -229,6 +229,7 @@ described at the end of this document.
 | ST-08 | A failing storage backend (quota, blocked) does not crash save or load | ✅ |
 | ST-09 | **A song stored before tempo units is read as the unit that preserves its timing** | ✅ |
 | ST-10 | A tempo unit the app does not offer is refused | ✅ |
+| ST-11 | A song's own count-in is kept; one stored without it reads as Auto; out-of-range numbers are clamped | ✅ |
 
 ### Metronome timing — `metronome.test.ts`
 
@@ -327,6 +328,7 @@ lossless for good data and must refuse bad data rather than letting it into the 
 | SD-08 | Unknown extra fields are dropped rather than carried into the app | ✅ |
 | SD-09 | The document contains no `undefined`, which Firestore rejects | ✅ |
 | SD-10 | The tempo unit is written, and supplied for a document stored without one | ✅ |
+| SD-11 | A song's count-in is written, as `null` for Auto, and read back as Auto when missing | ✅ |
 
 ### Sign-in import decision — `cloud-import.test.ts`
 
@@ -495,6 +497,7 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-14 | The chosen scheme is kept; anything else, or nothing, follows the device | ✅ |
 | SET-15 | The chosen ink is kept; anything else, or nothing, is vermilion | ✅ |
 | SET-16 | The chosen song language is kept; anything else, or nothing, shows every song | ✅ |
+| SET-17 | **Following the song means its own count-in when it has one; a device count-in still wins** | ✅ |
 
 ### Light and dark — `theme.test.ts`
 
@@ -626,6 +629,7 @@ Covers the "Acceptance Tests Using These Fixtures" section of `../_meta/example-
 | EX-07 | Schedule runs the Rising Sun lines back to back — one bar a lyric line, six a turnaround — starts at row 1, completes cleanly | ✅ |
 | EX-08 | Fixtures round-trip through storage unchanged | ✅ |
 | EX-09 | Every fixture and row gets a distinct id on each call | ✅ |
+| EX-12 | The Rising Sun counts in two bars; the other fixtures follow their line length | ✅ |
 | EX-11 | A new library is seeded with House of the Rising Sun and Чёрный ворон; the other fixtures are for tests | ✅ |
 
 ## Browser acceptance run

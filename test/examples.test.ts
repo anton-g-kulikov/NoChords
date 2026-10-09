@@ -19,6 +19,7 @@ import {
 } from "../src/lib/playback";
 import { createSongStore, type StorageLike } from "../src/lib/storage";
 import { setCurrentKey } from "../src/lib/songs";
+import { countInBarsFor } from "../src/lib/settings";
 import type { Song } from "../src/types/song";
 
 function memoryStorage(): StorageLike {
@@ -278,6 +279,17 @@ describe("example songs", () => {
       ...song.rows.map((row) => row.id),
     ]);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("EX-12 the Rising Sun counts in two bars; the others follow their line length (ADR-083)", () => {
+    // One bar of 6/8 is over before the pulse has settled, so the Rising Sun asks for two.
+    expect(risingSun.countInBars).toBe(2);
+    expect(countInBarsFor(null, risingSun.barsPerLine, risingSun.countInBars)).toBe(2);
+    expect([scarborough, blackbird, voron].map((song) => song.countInBars)).toEqual([
+      null,
+      null,
+      null,
+    ]);
   });
 
   it("EX-11 a new library starts with the Rising Sun and Чёрный ворон (ADR-076, ADR-080)", () => {

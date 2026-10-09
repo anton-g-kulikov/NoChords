@@ -2446,3 +2446,30 @@ the control that turns that mode on, rather than at the foot of the column below
 **Cost.** The chart is always 348px narrower on a wide screen; there is no closing the sidebar to
 get the width back. At 900px that still leaves about 510px of measure (ADR-077), and on a desktop
 the width beside a song was empty more often than it was wanted.
+
+---
+
+## ADR-083 — A song can carry its own count-in
+
+**Decision.** Amends ADR-016 and ADR-059. A song has an optional `countInBars`, set in its editor
+beside bars per line: a number, or `null` for **Auto**, one line's worth of bars. The metronome's
+count-in keeps its meaning — a number set there wins for every song — but its Auto now means "what
+the song says": the song's count-in if it has one, otherwise a line's worth. The seeded House of the
+Rising Sun counts in two bars.
+
+**Why on the song.** How long a run-up a song needs is a property of the song, not of the room.
+ADR-059 got most of the way by following the line length, and it fails exactly where a line is
+short: the Rising Sun's line is one bar of 6/8, and six quick eighths are over before the pulse has
+settled. A device setting cannot fix that without lengthening every other song's count too.
+
+**Why the device still wins.** ADR-016's reason stands for anyone who wants the same count before
+everything, and it was already an explicit choice — a number there was typed on purpose. Letting a
+song override it would make that setting silently mean less on some songs than others.
+
+**Why old songs read as Auto.** A song written before the field existed was counted in by its line
+length, so `null` is the value that keeps it sounding as it did. Storage and Firestore both read a
+missing or invalid value as `null`; a number is clamped to the range the metronome offers.
+
+**Cost.** One more field on every song, and one more place a count-in can come from: the strip
+shows the resolved number, but working out why it is two takes knowing about both settings.
+

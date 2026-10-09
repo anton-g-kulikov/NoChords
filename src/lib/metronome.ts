@@ -9,6 +9,15 @@
  */
 import type { ScheduleEntry } from './playback';
 
+/**
+ * Longest count-in offered, in bars.
+ *
+ * Generous rather than opinionated: counting yourself in for a long intro, or setting up a groove
+ * before a slow song, are both real. The ceiling is here to stop a typo becoming a ten-minute
+ * wait, not to have a view about how long is sensible.
+ */
+export const MAX_COUNT_IN_BARS = 24;
+
 /** Where the accent falls when a meter cannot say: the first beat of a bar of four. */
 const DEFAULT_ACCENT_EVERY = 4;
 

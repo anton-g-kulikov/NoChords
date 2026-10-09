@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { KeySelect } from './KeySelect';
 import { COMMON_METERS } from '../lib/meter';
 import { MAX_TEMPO, MIN_TEMPO } from '../lib/playback';
+import { MAX_COUNT_IN_BARS } from '../lib/metronome';
 import { NumberField } from './NumberField';
+import { NumberInput } from './NumberInput';
 import { TempoField } from './TempoField';
 import { songToText, textToRows } from '../lib/songs';
 import type { Song } from '../types/song';
@@ -130,6 +132,31 @@ export function SongEditor({ song, onChange, onOpenGuide, onDelete }: SongEditor
           max={64}
           onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
         />
+
+        {/* Auto is one line's worth of bars, so it shows that number until one is typed. The
+            metronome's own count-in, when set outright, still wins over this (ADR-083). */}
+        <div className="field field--narrow">
+          <span className="field__label">Count-in (bars)</span>
+          <div className="count-in-field">
+            <button
+              type="button"
+              className={song.countInBars === null ? 'segment segment--active' : 'segment'}
+              aria-pressed={song.countInBars === null}
+              title="Count in one line's worth of bars"
+              onClick={() => onChange({ ...song, countInBars: null })}
+            >
+              Auto
+            </button>
+            <NumberInput
+              className="field__input count-in-field__value"
+              value={song.countInBars ?? Math.min(Math.max(song.barsPerLine, 1), MAX_COUNT_IN_BARS)}
+              min={0}
+              max={MAX_COUNT_IN_BARS}
+              aria-label="Song count-in bars"
+              onCommit={(countInBars) => onChange({ ...song, countInBars })}
+            />
+          </div>
+        </div>
       </div>
 
       {transposed && (

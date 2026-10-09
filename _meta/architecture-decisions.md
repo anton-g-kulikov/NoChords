@@ -2423,3 +2423,26 @@ the second ink — a contents page that can be read in either language, not a co
 Each choice keeps a 44px tap target by padding given back with a negative margin, so the head keeps
 its height.
 
+---
+
+## ADR-082 — On a wide screen the strip keeps only the beat
+
+**Decision.** Amends ADR-077, and on wide screens ADR-040 and ADR-042. At 900px and wider the sidebar
+is always there, and holds everything that sets the song up: the chord display at its head, the
+learning level under it while learning, then This song and the metronome. Above the chart only
+the beat strip is left. The strip's two disclosure buttons are gone at that width — everything they
+opened is already open — and so is the choice of whether the sidebar shows. Below 900px nothing
+changes: the mode and the two buttons stay in the strip, and the panels open in the pinned header.
+
+**Why.** ADR-077 moved the panels beside the chart but left their controls above it, so setting a
+song up meant looking in two places, and the row above the chart was buttons for a column beside
+it. With the sidebar permanent the chart's column is the song and its beat, nothing else. ADR-040
+put the mode in the strip because it is reached for mid-song and the panel was shut while playing;
+on a wide screen the sidebar is never shut, so the mode is as close at hand there.
+
+**The learning level follows the mode.** It is the setting of one mode, so it sits directly under
+the control that turns that mode on, rather than at the foot of the column below the metronome.
+
+**Cost.** The chart is always 348px narrower on a wide screen; there is no closing the sidebar to
+get the width back. At 900px that still leaves about 510px of measure (ADR-077), and on a desktop
+the width beside a song was empty more often than it was wanted.

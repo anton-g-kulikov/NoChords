@@ -90,8 +90,9 @@ so the controls sit where a native player puts them and where your thumb already
 depending on fixed positioning (ADR-037). Settings — mode, key, timing, metronome — open from a strip pinned at
 the top. On a phone the panel opens inside that pinned header, so a key change three verses in
 happens where you are rather than at the top of a page you would have to scroll back to (ADR-060);
-on a window 900px or wider it opens as a column beside the chart instead, which then stays open
-while the song plays (ADR-077). They never share space with the controls you touch mid-verse (ADR-036). While a song plays the app holds a screen wake lock, so the phone
+on a window 900px or wider everything that sets the song up — the chord display, the learning level,
+the song's settings and the metronome — lives in a sidebar beside the chart, always open, and
+only the beat strip stays above the song (ADR-077, ADR-082). They never share space with the controls you touch mid-verse (ADR-036). While a song plays the app holds a screen wake lock, so the phone
 does not dim halfway through (ADR-035).
 
 When playback starts the setup controls fold away, leaving just Play/Pause, Restart and the time —

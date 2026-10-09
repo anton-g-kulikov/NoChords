@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cacheNameFor, isCacheable, staleCaches, strategyFor } from '../src/lib/pwa';
 
-const ORIGIN = 'https://nochords-18219.web.app';
+const ORIGIN = 'https://songs.nochords.app';
 const get = (url: string, mode?: string) => ({ url, method: 'GET', mode });
 
 describe('cache naming', () => {

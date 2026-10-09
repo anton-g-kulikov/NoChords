@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://nochords-18219.web.app
+      url: https://songs.nochords.app
     steps:
       - uses: actions/checkout@v5
 

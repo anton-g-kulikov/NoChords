@@ -1384,6 +1384,23 @@ kbd {
   white-space: nowrap;
 }
 
+/*
+ * A line of chords and no words — an intro, a turnaround (ADR-096). It has no lyric to reserve a row
+ * for, so it is its chord row alone, and consecutive ones stack like the lines of a chord chart
+ * rather than standing a lyric row apart. Its length mark is set as the chords are, so it sits on
+ * their baseline instead of on an empty lyric row below them.
+ */
+.line--chords .seg__lyric {
+  display: none;
+}
+
+.line--chords .line__bars {
+  font-family: var(--font-ui);
+  font-stretch: 88%;
+  font-size: calc(1.4rem * var(--sheet-scale, 1));
+  line-height: 1.35;
+}
+
 /* Read aloud, not shown: what a mark drawn for the eye means in words. */
 .visually-hidden {
   position: absolute;
@@ -1427,7 +1444,8 @@ kbd {
   }
 
   /* A narrower face than the monospace it replaced, so it can afford a step more size (ADR-068). */
-  .seg__chord {
+  .seg__chord,
+  .line--chords .line__bars {
     font-size: calc(1.2rem * var(--sheet-scale, 1));
   }
 }

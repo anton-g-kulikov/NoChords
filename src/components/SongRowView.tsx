@@ -23,8 +23,12 @@ interface SongRowViewProps {
  * or lyric moves when concealment changes (ADR-007).
  */
 export function SongRowView({ row, song, mode, concealed, revealed = false }: SongRowViewProps) {
+  // An intro or a turnaround: chords and no words. It is drawn as its chord row alone, with no
+  // empty lyric row under it, and its length mark sits beside the chords (ADR-096).
+  const chordsOnly = row.chords.length > 0 && row.lyrics.trim() === '';
+
   return (
-    <div className="line">
+    <div className={chordsOnly ? 'line line--chords' : 'line'}>
       {/*
        * A line that changes the meter says so before its first chord, where a score puts a new
        * time signature — the change applies from here, and reading it after the bar it governs

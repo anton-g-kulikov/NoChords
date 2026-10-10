@@ -1,0 +1,139 @@
+/*
+ * The landing page's base look, shared by its plain pages (Licence, Privacy): the same fonts,
+ * paper, inks and wordmark, so a page reached from the footer is plainly the same site (ADR-102).
+ * The landing page keeps its own copy inline, as it always has; this is the subset the text pages need.
+ */
+@font-face {
+  font-family: 'Literata Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url(./fonts/literata-latin-opsz-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Literata Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url(./fonts/literata-latin-opsz-italic.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Sans Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  src: url(./fonts/instrument-sans-latin-wdth-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --font-text: 'Literata Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-ui: 'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --radius: 8px;
+
+  --bg: #f4efe6;
+  --surface: #faf7f1;
+  --surface-raised: #ebe4d8;
+  --border: #e0d7c8;
+  --border-strong: #cbbfab;
+  --text: #1d1a16;
+  --muted: #6e655a;
+  --faint: #a1978a;
+  --accent: #b4441f;
+  --accent-wash: rgba(180, 68, 31, 0.07);
+  --accent-wash-strong: rgba(180, 68, 31, 0.12);
+  --accent-line: rgba(180, 68, 31, 0.45);
+  --chord: #a83f1c;
+  --grain-opacity: 0.05;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15120e;
+    --surface: #1c1814;
+    --surface-raised: #27221c;
+    --border: #2f2922;
+    --border-strong: #463e34;
+    --text: #ece5d8;
+    --muted: #a39887;
+    --faint: #6f6558;
+    --accent: #e9a15c;
+    --accent-wash: rgba(233, 161, 92, 0.08);
+    --accent-wash-strong: rgba(233, 161, 92, 0.14);
+    --accent-line: rgba(233, 161, 92, 0.45);
+    --chord: #efaa62;
+    --grain-opacity: 0.035;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.6 var(--font-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+/* The paper's grain, as in the app. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection { background: var(--accent-wash-strong); }
+a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+}
+a:hover { text-decoration-color: currentColor; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+header { display: flex; align-items: center; gap: 12px; padding: 28px 0 8px; }
+/* The name in its brackets (ADR-100): the brackets in the second ink, the name upright in ink. */
+.wordmark {
+  display: inline-flex; align-items: center; gap: 0.2em;
+  font-size: 1.75rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1;
+}
+.wordmark .bracket { display: block; height: 1.18em; width: auto; color: var(--accent); }
+
+/* Here the name is the way home, so it is a link — without a link's underline. */
+a.wordmark { color: var(--text); text-decoration: none; }
+
+/* A page of reading, at the landing page's measure. */
+main { padding: 8px 0 8px; }
+h1 { font-size: 2rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; margin: 20px 0 6px; }
+.updated { color: var(--muted); font: 0.88rem/1.5 var(--font-ui); margin: 0 0 24px; }
+.lead { font-size: 1.12rem; margin: 0 0 24px; }
+section { padding: 8px 0 20px; border-top: 1px solid var(--border); }
+section h2 {
+  margin: 14px 0 8px; color: var(--text);
+  font: 600 0.72rem/1.4 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase;
+}
+section p, section li { color: var(--muted); }
+section p { margin: 0 0 10px; }
+section ul { margin: 0 0 10px; padding-left: 1.2em; }
+section li { margin: 0 0 6px; }
+section strong { color: var(--text); font-weight: 600; }
+code { font-family: var(--font-mono); font-size: 0.88em; }
+
+footer {
+  padding: 20px 0 48px; color: var(--muted); border-top: 1px solid var(--border);
+  font: 0.88rem/1.5 var(--font-ui);
+  display: flex; flex-wrap: wrap; gap: 6px 18px;
+}
+/* Each link wraps as a whole: "Buy me a" alone at the end of a line reads as a sentence cut off. */
+footer a { white-space: nowrap; }
+/* The brackets in "Buy me a [song] book", in the ink a chord would be written in. */
+.bracket { color: var(--accent); }

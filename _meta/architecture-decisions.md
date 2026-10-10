@@ -2920,3 +2920,35 @@ ink, and both brackets are struck on each change; its label names the app before
 
 **Cost.** The header lost its only square target; the button is now the logo's own shape, which is
 a little wider and less obviously tappable — acceptable for an easter egg.
+
+---
+
+## ADR-102 — A help address, and Licence and Privacy pages
+
+**Decision.** `help@nochords.app` is the support address. Cloudflare Email Routing is enabled for
+`nochords.app` — three MX records, SPF and DKIM, added by Cloudflare beside the Pages A records — with
+one rule, `help@nochords.app` forwarded to the maker's Gmail (already a verified destination), and the
+catch-all left to drop. Two pages join the landing page on GitHub Pages, `nochords.app/licence/` and
+`nochords.app/privacy/`, sharing `site/page.css`, a cut of the landing page's own styles. The address
+and both pages are linked from the landing footer and from a third line of the library footer
+(ADR-098); the README names them too.
+
+**The licence.** NoChords' own code and design are all rights reserved. The repository is public so the
+code can be read, which grants no right to reuse it; using the app is free. A song someone writes is
+theirs, and the app claims nothing in it. The song archive stays CC BY 4.0 (ADR-090), and the fonts
+(OFL 1.1) and libraries keep their own licences, named on the page.
+
+**The privacy page says only what the code does.** No ads, analytics or tracking; songs in the
+browser's storage without an account; with one, Google sign-in through Firebase Authentication (name,
+email, photo link, an ID) and songs in Firestore that the security rules let only their owner read or
+write; hosting logs at Firebase Hosting and GitHub Pages; mail forwarded by Cloudflare. Each claim was
+checked against the code and `firestore.rules` when written, and has to be re-checked whenever any of
+them changes.
+
+**Why pages on the site, not screens in the app.** The App Store and Play Store need a privacy policy
+at a public address, and a page on the site is one address for the stores, the landing page and the
+app alike.
+
+**Open.** There is no way to delete an account in the app: the privacy page says to write to
+`help@`. Apple requires apps that create accounts to offer deletion inside the app (guideline
+5.1.1(v)), so the iOS app will need it before review.

@@ -189,5 +189,13 @@ describe('bar and meter tags', () => {
     // A signature typed mid-line is normalised to the head, a bar count to the tail.
     expect(formatInlineRow(parseInlineRow('a {3/4}line|2|'))).toBe('{3/4}a line|2|');
   });
+
+  it('IN-22 **ignores a line length past what a line may hold, rather than freezing the player** (ADR-108)', () => {
+    expect(parseInlineRow('[C]la|64|').bars).toBe(64);
+    expect(parseInlineRow('[C]la|65|').bars).toBeNull();
+    expect(parseInlineRow('[C]la|999999999|').bars).toBeNull();
+    // An unreadable signature is dropped too, as any signature that is not one.
+    expect(parseInlineRow('{99999999/4}[C]la').meter).toBeNull();
+  });
 });
 

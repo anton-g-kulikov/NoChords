@@ -8,6 +8,7 @@
  * Stored data is untrusted input — another tab, an older app version, or a user with devtools can
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
+import { MAX_BARS_PER_LINE, boundedBars } from './bounds';
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
 import { fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
 import type { ChordAnchor, DisplayMode, Song, SongRow } from '../types/song';
@@ -55,7 +56,9 @@ function sanitizeChord(value: unknown): ChordAnchor | null {
 function sanitizeOptionalCount(value: unknown): number | null | undefined {
   if (value === null || value === undefined) return null;
   if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
-  return value;
+  // A number out of range is not corruption to lose the song over: the line falls back to the
+  // song's default length, as `|0|` does when typed (ADR-108).
+  return boundedBars(value);
 }
 
 /** The meter a row's own tag names, for reading a legacy beat count against. */
@@ -72,7 +75,7 @@ function meterFor(value: Record<string, unknown>): string {
  */
 function legacyBars(beats: unknown, meter: string): number | null {
   if (typeof beats !== 'number' || !Number.isFinite(beats) || beats <= 0) return null;
-  return Math.max(1, Math.round(beats / beatsPerBarOf(meter)));
+  return boundedBars(Math.max(1, Math.round(beats / beatsPerBarOf(meter))));
 }
 
 function sanitizeRow(value: unknown): SongRow | null {
@@ -139,13 +142,16 @@ export function sanitizeSong(value: unknown): Song | null {
   // Line length moved from beats to bars (ADR-032). A song written in beats is converted by the
   // bar length of its own meter, so it keeps the length it had rather than the number it had.
   const songMeter = typeof meter === 'string' && parseMeter(meter) ? meter : DEFAULT_METER;
-  const bars =
+  const rawBars =
     typeof barsPerLine === 'number' && Number.isFinite(barsPerLine)
       ? barsPerLine
       : typeof beatsPerLine === 'number' && Number.isFinite(beatsPerLine)
-        ? Math.max(1, Math.round(beatsPerLine / beatsPerBarOf(songMeter)))
+        ? beatsPerLine / beatsPerBarOf(songMeter)
         : null;
-  if (bars === null) return null;
+  if (rawBars === null) return null;
+  // Kept to a whole number of bars the editor could have set: a stored `1e308` would otherwise
+  // reach the schedule as an infinite song (ADR-108).
+  const bars = Math.min(Math.max(Math.round(rawBars), 1), MAX_BARS_PER_LINE);
 
   /*
    * A song written before tempo units existed carries a bare number, and that number meant beats

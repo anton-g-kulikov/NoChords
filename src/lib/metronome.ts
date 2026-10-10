@@ -183,7 +183,13 @@ export function beatsInWindow(
     if (entry.startMs >= toMs) break;
 
     const beatMs = entryBeatMs(entry);
-    for (let offset = 0; offset < entry.beats; offset += 1) {
+    if (!(beatMs > 0) || !Number.isFinite(beatMs)) continue;
+    // Only the beats inside the window, found by arithmetic: this runs every 25 ms, and walking
+    // every beat of a long row on each tick is what froze the player (ADR-108). One beat of slack
+    // either side absorbs rounding; the exact test below decides.
+    const first = Math.max(0, Math.floor((fromMs - entry.startMs) / beatMs));
+    const last = Math.min(entry.beats, Math.ceil((toMs - entry.startMs) / beatMs) + 1);
+    for (let offset = first; offset < last; offset += 1) {
       const atMs = entry.startMs + offset * beatMs;
       if (atMs < fromMs || atMs >= toMs) continue;
       beats.push({ index: entry.startBeat + offset, atMs });

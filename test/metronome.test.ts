@@ -164,6 +164,15 @@ describe('countInDurationMs', () => {
 });
 
 describe('beatsInWindow', () => {
+  it('MT-24 **costs what the window holds, not what the row holds** (ADR-108)', () => {
+    // A row of four billion beats at ♩ = 120: the old loop walked all of them on every 25 ms tick.
+    const huge = buildSchedule([{ ...row('a'), bars: 1_000_000_000 }], 120, 1, '4/4', 'quarter');
+    const started = performance.now();
+    const found = beatsInWindow(huge, 500, 1_000_000, 1_001_600).map((beat) => beat.index);
+    expect(performance.now() - started).toBeLessThan(5);
+    expect(found).toEqual([2000, 2001, 2002, 2003]);
+  });
+
   it('MT-05 returns the beats falling in the window', () => {
     expect(indices(inFour, 500, 0, 1600)).toEqual([0, 1, 2, 3]);
     expect(indices(inFour, 500, 500, 1500)).toEqual([1, 2]);

@@ -1,3 +1,4 @@
+import { MAX_BARS_PER_LINE } from '../lib/bounds';
 import { useEffect, useRef, useState } from 'react';
 import { KeySelect } from './KeySelect';
 import { COMMON_METERS } from '../lib/meter';
@@ -127,7 +128,7 @@ export function SongEditor({ song, onChange, onOpenGuide, onDelete }: SongEditor
           label="Bars per line"
           value={song.barsPerLine}
           min={1}
-          max={64}
+          max={MAX_BARS_PER_LINE}
           onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
         />
 

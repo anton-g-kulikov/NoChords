@@ -10,6 +10,8 @@
  */
 
 /** What a song is in when it does not say. Four beats to the bar, accent on the first. */
+import { MAX_BEATS_PER_BAR } from './bounds';
+
 export const DEFAULT_METER = '4/4';
 
 export interface Meter {
@@ -26,7 +28,8 @@ export function parseMeter(text: string): Meter | null {
 
   const beatsPerBar = Number(match[1]);
   const unit = Number(match[2]);
-  if (!Number.isInteger(beatsPerBar) || beatsPerBar < 1) return null;
+  // A bar of millions of beats is not a meter but a way to freeze the player (ADR-108).
+  if (!Number.isInteger(beatsPerBar) || beatsPerBar < 1 || beatsPerBar > MAX_BEATS_PER_BAR) return null;
   // Only real note values: a bar of "n/5" is not a thing anyone writes.
   if (![1, 2, 4, 8, 16, 32].includes(unit)) return null;
 

@@ -169,6 +169,21 @@ describe('createSongStore', () => {
     expect(loaded.map((song) => song.displayMode)).toEqual(['nashville', 'learning', 'full', 'full']);
   });
 
+  it('ST-15 **keeps stored line lengths within what the editor allows** (ADR-108)', async () => {
+    const row = (id: string, bars: unknown) => ({ id, lyrics: 'la', chords: [], bars, meter: null });
+    const stored = JSON.stringify([
+      { ...sample, barsPerLine: 1e308, rows: [row('a', 1e9), row('b', 64), row('c', -3)] },
+      { ...sample, id: 'song-2', barsPerLine: -3 },
+      { ...sample, id: 'song-3', barsPerLine: 2.6 },
+    ]);
+    const [huge, negative, fraction] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    // Out of range is not corruption: the song loads, at lengths the editor could have set.
+    expect(huge.barsPerLine).toBe(64);
+    expect(huge.rows.map((r) => r.bars)).toEqual([null, 64, null]);
+    expect(negative.barsPerLine).toBe(1);
+    expect(fraction.barsPerLine).toBe(3);
+  });
+
   it('ST-14 keeps when a song was last opened, and reads an older song as never opened (ADR-106)', async () => {
     const { openedAt: _dropped, ...withoutOpened } = sample;
     const stored = JSON.stringify([

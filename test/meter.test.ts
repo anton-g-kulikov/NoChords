@@ -24,6 +24,12 @@ describe('parseMeter', () => {
     expect(parseMeter('4/5')).toBeNull();
     expect(parseMeter('4/0')).toBeNull();
   });
+
+  it('ME-08 **refuses a bar of more than 32 beats** (ADR-108)', () => {
+    expect(parseMeter('32/4')).toEqual({ beatsPerBar: 32, unit: 4 });
+    expect(parseMeter('33/4')).toBeNull();
+    expect(parseMeter('99999999/4')).toBeNull();
+  });
 });
 
 describe('accent placement', () => {

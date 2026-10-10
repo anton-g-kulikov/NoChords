@@ -8,7 +8,9 @@
  * Stored data is untrusted input — another tab, an older app version, or a user with devtools can
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
-import { MAX_BARS_PER_LINE, MAX_TITLE_LENGTH, boundedBars } from './bounds';
+import { MAX_BARS_PER_LINE, MAX_ROWS, MAX_TITLE_LENGTH, boundedBars } from './bounds';
+import { parseKey } from './chords';
+import { DEFAULT_KEY } from './songs';
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
 import { MAX_TEMPO, MIN_TEMPO, fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
 import type { ChordAnchor, DisplayMode, Song, SongRow } from '../types/song';
@@ -36,6 +38,9 @@ export interface SongStore {
   clear(): Promise<void>;
   subscribe?(onChange: (songs: Song[]) => void): () => void;
 }
+
+/** A key as written, if the app can read it; otherwise `null`. */
+const readableKey = (key: string): string | null => (parseKey(key) ? key : null);
 
 /** What a song id may be: what the app makes, and what Firestore accepts as a document name. */
 const SONG_ID = /^[A-Za-z0-9_-]{1,128}$/;
@@ -204,10 +209,13 @@ export function sanitizeSong(value: unknown): Song | null {
 
   return {
     id: storableSongId(id),
-    // Cut, not refused: a long title is still the song's (ADR-108).
-    title: title.slice(0, MAX_TITLE_LENGTH),
-    originalKey,
-    currentKey,
+    // Cut, not refused: a long title is still the song's (ADR-108). By characters, not code
+    // units, so an emoji or an accent at the cut is never split in half.
+    title: Array.from(title).slice(0, MAX_TITLE_LENGTH).join(''),
+    // A key the app can read, as the database requires: an unreadable one falls back rather than
+    // making every save of the song refused (ADR-108).
+    originalKey: readableKey(originalKey) ?? DEFAULT_KEY,
+    currentKey: readableKey(currentKey) ?? readableKey(originalKey) ?? DEFAULT_KEY,
     // Within the tempo field's own range: a stored 1e12 is a song a few nanoseconds long (ADR-108).
     tempo: Math.min(Math.max(timing.tempo, MIN_TEMPO), MAX_TEMPO),
     tempoUnit: timing.tempoUnit,
@@ -221,7 +229,8 @@ export function sanitizeSong(value: unknown): Song | null {
     // Songs saved before the library could sort by it have never been opened, as far as it knows.
     openedAt: typeof openedAt === 'number' && Number.isFinite(openedAt) ? openedAt : null,
     learningPlaythrough,
-    rows: sanitizedRows,
+    // No more lines than a song may hold, as the database requires (ADR-108).
+    rows: sanitizedRows.slice(0, MAX_ROWS),
   };
 }
 

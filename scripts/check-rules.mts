@@ -42,6 +42,9 @@ const cases: Array<[string, number, () => Promise<number>]> = [
   ['a field that is not a song field', 403, () => write('alice', 'alice', id, { ...doc, evil: 'x' })],
   ['a 201-character title', 403, () => write('alice', 'alice', id, { ...doc, title: 'x'.repeat(201) })],
   ['a 200-character title', 200, () => write('alice', 'alice', id, { ...doc, title: 'x'.repeat(200) })],
+  // The rule counts characters, as the app does, so a Cyrillic title has the same 200.
+  ['a 200-character Cyrillic title', 200, () => write('alice', 'alice', id, { ...doc, title: 'ж'.repeat(200) })],
+  ['a 201-character Cyrillic title', 403, () => write('alice', 'alice', id, { ...doc, title: 'ж'.repeat(201) })],
   ['tempo 1e6', 403, () => write('alice', 'alice', id, { ...doc, tempo: 1000000 })],
   ['barsPerLine 1e9', 403, () => write('alice', 'alice', id, { ...doc, barsPerLine: 1000000000 })],
   ['an id that is not the document id', 403, () => write('alice', 'alice', id, { ...doc, id: 'other' })],

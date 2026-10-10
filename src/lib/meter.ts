@@ -12,7 +12,6 @@
 import { MAX_BEATS_PER_BAR } from './bounds';
 
 /** What a song is in when it does not say. Four beats to the bar, accent on the first. */
-
 export const DEFAULT_METER = '4/4';
 
 export interface Meter {

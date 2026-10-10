@@ -17,6 +17,18 @@ export const MAX_BARS_PER_LINE = 64;
 /** Characters in a song's title: a long title, not a pasted page — the same cap the database keeps. */
 export const MAX_TITLE_LENGTH = 200;
 
+/**
+ * Lines in a song. The database refuses a song with more (ADR-108), so the app stops here first:
+ * a refused save is lost silently, a capped one is not.
+ */
+export const MAX_ROWS = 1000;
+
+/**
+ * Characters in a song's text. Firestore refuses a document over 1 MiB; 200,000 characters stays
+ * well under it even in Cyrillic, two bytes a letter, with every row's own fields on top.
+ */
+export const MAX_SONG_TEXT = 200_000;
+
 /** A line length that is a whole number of bars within range, or `null` for "use the default". */
 export function boundedBars(value: number): number | null {
   return Number.isInteger(value) && value >= 1 && value <= MAX_BARS_PER_LINE ? value : null;

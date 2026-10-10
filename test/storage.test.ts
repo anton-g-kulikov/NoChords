@@ -219,6 +219,24 @@ describe('createSongStore', () => {
     expect(storableSongId(sample.id)).toBe(sample.id);
   });
 
+  it('ST-19 **keeps a stored song within what the database accepts** (ADR-108)', async () => {
+    const many = Array.from({ length: 1200 }, (_, n) => ({ id: `r${n}`, lyrics: 'la', chords: [], bars: null, meter: null }));
+    const stored = JSON.stringify([
+      { ...sample, rows: many },
+      { ...sample, id: 'song-2', originalKey: 'H#major', currentKey: 'nonsense' },
+      { ...sample, id: 'song-3', currentKey: 'nonsense' },
+      { ...sample, id: 'song-4', title: '😀'.repeat(250) },
+    ]);
+    const [long, badKeys, badCurrent, emoji] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(long.rows).toHaveLength(1000);
+    expect([badKeys.originalKey, badKeys.currentKey]).toEqual(['C', 'C']);
+    // An unreadable display key falls back to the song's own key.
+    expect(badCurrent.currentKey).toBe(sample.originalKey);
+    // Cut by characters: two hundred whole emoji, none split in half.
+    expect(Array.from(emoji.title)).toHaveLength(200);
+    expect(emoji.title).toBe('😀'.repeat(200));
+  });
+
   it('ST-14 keeps when a song was last opened, and reads an older song as never opened (ADR-106)', async () => {
     const { openedAt: _dropped, ...withoutOpened } = sample;
     const stored = JSON.stringify([

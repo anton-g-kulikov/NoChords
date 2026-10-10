@@ -5,6 +5,7 @@
  * means the whole editing model is unit-testable, and it is the seam a future backend would sit
  * behind (ADR-005).
  */
+import { MAX_ROWS } from './bounds';
 import { LEARNING_LEVELS } from './learning';
 import { formatInlineRow, parseInlineRow } from './inline';
 import { DEFAULT_BARS_PER_LINE } from './playback';
@@ -80,7 +81,8 @@ export function songToText(song: Song): string {
  * which matters because learning concealment addresses chords by row id.
  */
 export function textToRows(text: string, existing: SongRow[] = []): SongRow[] {
-  return text.split('\n').map((line, index) => {
+  // No more lines than a song may hold (ADR-108); the editor says so when there are.
+  return text.split('\n').slice(0, MAX_ROWS).map((line, index) => {
     const parsed = parseInlineRow(line);
     const id = existing[index]?.id;
     return id ? { id, ...parsed } : createRow(parsed);
@@ -96,7 +98,7 @@ export function rowsFromPastedText(text: string): SongRow[] {
   while (lines.length > 0 && lines[lines.length - 1].trim() === '') {
     lines.pop();
   }
-  return lines.map((line) => createRow(parseInlineRow(line)));
+  return lines.slice(0, MAX_ROWS).map((line) => createRow(parseInlineRow(line)));
 }
 
 /** Removes a row. A song always keeps at least one row so there is somewhere to type. */

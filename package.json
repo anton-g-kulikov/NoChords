@@ -1,6 +1,6 @@
 {
   "name": "nochords",
-  "version": "0.29.4",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Learn songs by progressively hiding chord cues while playing through lyrics at a controlled tempo.",

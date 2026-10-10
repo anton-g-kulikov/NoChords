@@ -3244,3 +3244,19 @@ rather than "Last opened" for room; the button's title says "Last opened first".
 cannot hold the count, the order and three languages on one line, so it wraps: the languages take a
 line of their own at the right, 28px below, so the two rows' tap targets never overlap.
 
+---
+
+## ADR-107 — On a phone the library head is just the list's controls
+
+**Decision.** Amends ADR-106 and ADR-081. At 430px and under, the library's running head shows only
+the list's controls, on one line: **Recent · A–Z** at the left, lined up with the song titles, and the
+languages at the right in short form, **All · Eng · Ru**. "Songs" and its count are hidden from view
+but kept for screen readers, and each language button keeps its full name as its accessible label.
+Wider screens are unchanged: "Songs" with its count, the order beside it, the full language names.
+
+**Why.** At phone width the head could not hold the count, the order and three full language names,
+so ADR-106 wrapped it onto two lines with the languages alone on the second — a head taller than it
+is useful. On a phone the list is short enough to count by eye, so the count is the part to give up,
+and the language names are the part to shorten. The order of the languages is the same as on wider
+screens, so a choice never moves between them.
+

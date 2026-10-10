@@ -2876,3 +2876,17 @@ by weight and a little pitch, within a fifth (ADR-065).
 **Unchanged.** The count-in still follows the sound switch: with the metronome off it is shown, in
 silence, as before.
 
+---
+
+## ADR-098 — The library footer's links take two lines
+
+**Decision.** Amends ADR-071. The library footer's links are two lines rather than one that wraps
+where it falls: "Bars, beats and meter" — with "Install app" or the iPhone's Share hint beside it
+when there is one — then "More songs · Buy me a [song] book". The theme switch and the version
+follow, as before.
+
+**Why.** One line of four or five links wrapped at whatever width the phone happened to be, so the
+same link landed on a different line on different screens. Two lines, each one kind of link — the
+app itself, how to read it and install it; then what lies beyond it, more songs and support — break
+the same everywhere, and keep the support link together with the archive it sits beside.
+

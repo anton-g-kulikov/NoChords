@@ -214,25 +214,16 @@ export function SongList({
           (ADR-037 — the shell already works this way for the player's transport). */}
       <footer className="library__foot">
         {/*
-         * Three rows, each one kind of thing (ADR-071): where to read more, how the app looks on
-         * this device, and which build it is. The account line that used to lead it repeated the
-         * header's button in words, and is gone.
+         * Rows, each one kind of thing (ADR-071, ADR-098): the app's own links, the links beyond it,
+         * how the app looks on this device, and which build it is. The account line that used to
+         * lead it repeated the header's button in words, and is gone.
          */}
+        {/* Two lines, each one kind of link: the app itself — how to read it, how to install it —
+            then what lies beyond it, more songs and support (ADR-098). */}
         <p className="library__links">
           <button type="button" className="library__install" onClick={onOpenGuide}>
             Bars, beats and meter
           </button>
-          {' · '}
-          {/* Named for what you go for — songs to play — rather than for where they are kept. */}
-          <a className="library__install" href={SONGS_URL} target="_blank" rel="noopener noreferrer">
-            More songs
-          </a>
-          {' · '}
-          {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. */}
-          <a className="library__install" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
-            Buy me a <span className="library__bracket">[</span>song
-            <span className="library__bracket">]</span> book
-          </a>
           {install.affordance === 'prompt' && (
             <>
               {' · '}
@@ -243,6 +234,18 @@ export function SongList({
           )}
           {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
           {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
+        </p>
+        <p className="library__links">
+          {/* Named for what you go for — songs to play — rather than for where they are kept. */}
+          <a className="library__install" href={SONGS_URL} target="_blank" rel="noopener noreferrer">
+            More songs
+          </a>
+          {' · '}
+          {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. */}
+          <a className="library__install" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
+            Buy me a <span className="library__bracket">[</span>song
+            <span className="library__bracket">]</span> book
+          </a>
         </p>
 
         {/* With the other things that belong to this device rather than to a song (ADR-067). */}

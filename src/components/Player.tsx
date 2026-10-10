@@ -380,6 +380,10 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
                   min={0}
                   max={100}
                   value={Math.round(settings.metronomeVolume * 100)}
+                  // How far the ink runs along the track (ADR-116).
+                  style={
+                    { '--fill': `${Math.round(settings.metronomeVolume * 100)}%` } as CSSProperties
+                  }
                   disabled={!settings.metronomeEnabled}
                   aria-label="Metronome volume"
                   onChange={(event) =>

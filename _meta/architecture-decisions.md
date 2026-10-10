@@ -2964,3 +2964,62 @@ ink, and both brackets are struck on each change; its label names the app before
 
 **Cost.** The header lost its only square target; the button is now the logo's own shape, which is
 a little wider and less obviously tappable — acceptable for an easter egg.
+
+---
+
+## ADR-101 — The store apps sign in with the platform's own Google sign-in
+
+**Decision.** Amends ADR-099. In the iOS and Android apps, Sign in opens the platform's own Google
+sign-in through `@capacitor-firebase/authentication`. The plugin only fetches Google's ID token
+(`skipNativeAuth: true`), and the Firebase JS SDK signs in with it through `signInWithCredential`.
+The website keeps `signInWithPopup`. The plugin is imported only on the native path, inside the
+Firebase chunk, so the website never fetches it.
+
+Firebase knows the apps as `app.nochords`: one iOS app and one Android app, registered alongside the
+web app. The Android one carries the debug key's SHA-1. Their configs, `GoogleService-Info.plist`
+and `google-services.json`, come from `firebase apps:sdkconfig` and are not committed.
+
+**Why the JS SDK holds the session.** Firestore, `watchAuth` and the cloud store all read the JS
+SDK's user. Signing in natively as well would leave two sessions to keep in step. With the token
+handed over, nothing downstream knows which way someone signed in.
+
+**Why not the popup.** Google refuses OAuth inside an embedded web view, so `signInWithPopup`
+cannot work in either shell.
+
+**Backing out is not an error.** The plugin reports a cancel as a failure, in the platform's own
+words. `isCancelledSignIn` recognises those words, and the cancel is passed on as the web's
+closed-popup code, so `useAuth` stays quiet about it as it already does for a closed popup.
+
+**Signing out signs out of Google too.** Otherwise the next sign-in skips the account chooser and
+silently picks whoever signed in last.
+
+**Why the configs stay out of git.** The repository is public, and the web key already lives in an
+uncommitted `.env`. A fresh checkout has to fetch both files with `firebase apps:sdkconfig` before
+the apps will build. Without the plist, the plugin's Google sign-in never answers at all.
+
+**Smaller things it took.**
+
+- **iOS URL scheme.** `Info.plist` registers the reversed client ID as a URL scheme, which Google
+  sign-in requires.
+- **App name.** `CFBundleName` is `NoChords`, not the target's name. iOS names the app by it in
+  the "wants to use accounts.google.com" sheet, which said "App" before this.
+- **Google only.** The Swift package links Google's SDK and not Facebook's, through the `Google`
+  trait.
+- **SPM symlink.** The plugin's symlink in `CapApp-SPM/symlinks` is ignored, because `cap sync`
+  writes it as an absolute path into this machine's `node_modules`.
+- **Signing team and encryption.** The signing team is `R9BBCR3NF6` (ANTON KULIKOV), and
+  `ITSAppUsesNonExemptEncryption` is false: the app uses only HTTPS.
+
+**Seen, and not yet seen.** In the iOS simulator, Sign in opens Google's sheet, and cancelling it
+returns quietly to the library. The Android build compiles and resolves the web client ID that
+Android's credential manager uses. Nobody has yet completed a sign-in on either platform, and
+Android has not been run at all.
+
+**Cost.**
+
+- **A Play Store release needs one more fingerprint.** Its signing key's SHA-1 has to be added to
+  the Android app in Firebase, or sign-in fails for anyone who installed from the Play Store.
+- **App Review needs Sign in with Apple.** Guideline 4.8 requires it alongside Google. The App ID
+  already has the capability. The code and the Firebase Apple provider do not.
+- **App Review needs in-app account deletion.** Guideline 5.1.1(v) requires it, and nothing here
+  offers it.

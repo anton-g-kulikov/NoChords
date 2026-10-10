@@ -3586,7 +3586,9 @@ bars. Three was never offered, and an old stored 3 reads as 2.
 ## ADR-117 — The store apps carry no donation link
 
 **Decision.** Amends ADR-079. In the iOS and Android apps, the library footer's "Buy me a [song]
-book" link is not rendered. That footer line holds only "More songs" there. The website keeps the
+book" link is not rendered. Its line would have held only "More songs", so in the apps "More songs"
+joins the first line instead: "Bars, beats and meter · More songs", then help and the small print.
+Two lines, not three. The website keeps the
 link. So do the landing, Licence and Privacy pages, which are the website and open in the browser.
 
 **Why.** Anton asked for it. It is also what both stores require:

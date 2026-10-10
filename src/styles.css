@@ -49,6 +49,11 @@
   --accent-wash: rgba(var(--accent-rgb), 0.07);
   --accent-wash-strong: rgba(var(--accent-rgb), 0.12);
   --accent-line: rgba(var(--accent-rgb), 0.45);
+  /*
+   * The outline every control wears: the second ink, so the controls belong to the page's colour
+   * (ADR-112). One token, so the whole set changes together. Values inside fields stay in ink.
+   */
+  --control-line: var(--accent-line);
   --chord: rgb(var(--chord-rgb));
   --danger: #a3202f;
   --grain-opacity: 0.05;
@@ -290,7 +295,7 @@ h1 {
   justify-content: center;
   min-height: 44px;
   padding: 10px 18px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
@@ -326,7 +331,7 @@ h1 {
 .icon-button {
   min-width: 40px;
   min-height: 40px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-line);
   border-radius: var(--radius);
   background: transparent;
   color: var(--muted);
@@ -336,7 +341,7 @@ h1 {
 
 .icon-button:hover:not(:disabled) {
   color: var(--text);
-  border-color: var(--border-strong);
+  border-color: var(--accent);
 }
 
 .icon-button:disabled {
@@ -352,7 +357,7 @@ h1 {
 .segment {
   min-height: 44px;
   padding: 10px 16px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-line);
   background: var(--surface);
   color: var(--muted);
   font-size: 0.95rem;
@@ -415,7 +420,7 @@ h1 {
 .field__range {
   min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
@@ -604,7 +609,7 @@ kbd {
   flex: none;
   display: inline-flex;
   padding: 2px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-line);
   border-radius: 999px;
 }
 
@@ -893,11 +898,6 @@ kbd {
   font-weight: 500;
 }
 
-/* The running head's brackets stay in its grey: the second ink belongs to the song on this screen. */
-.song-view__app .wordmark__bracket {
-  color: inherit;
-}
-
 .song-view__title {
   flex: 1;
   font-size: 1.55rem;
@@ -985,7 +985,7 @@ kbd {
 .editor__input {
   min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
@@ -1010,7 +1010,7 @@ kbd {
   width: 100%;
   min-height: 12rem;
   padding: 14px 16px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
@@ -1649,7 +1649,7 @@ kbd {
   width: 32px;
   height: 32px;
   padding: 0;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-line);
   border-radius: 6px;
   background: var(--bg);
   color: var(--muted);
@@ -2141,7 +2141,7 @@ kbd {
 .stepper {
   display: flex;
   align-items: stretch;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-line);
   border-radius: var(--radius);
   overflow: hidden;
 }

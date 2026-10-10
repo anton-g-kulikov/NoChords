@@ -3263,3 +3263,47 @@ is useful. On a phone the list is short enough to count by eye, so the count is 
 and the language names are the part to shorten. The order of the languages is the same as on wider
 screens, so a choice never moves between them.
 
+---
+
+## ADR-108 — The phone apps paint the page colour behind the page
+
+**Decision.** Amends ADR-099. The iOS and Android shells each carry a small plugin of their own,
+`PageChrome`, with one method, `setTheme({ color, dark })`:
+
+- **iOS:** it sets the web view, its scroll view, the view controller's view and the window to the
+  page colour, and switches the status bar's text: light on the dark page, dark on the light one.
+- **Android:** it sets the window and the web view to the page colour, and the status and
+  navigation bars' icons to match.
+
+`useTheme` calls it through `setPageChrome` whenever the resolved theme changes. With the "system"
+preference it also listens for the device switching. On iOS, before the page has said anything,
+`AppViewController` paints the native background in the system's appearance: paper in light mode,
+night in dark.
+
+**Why.** Anton found it in the TestFlight build on iOS 27: a pure white strip behind the status
+bar, under a dark page and under a light one alike. White is `systemBackground`, the colour
+Capacitor gives the web view when no background is configured. It is not our paper `#f4efe6`. So
+iOS 27 insets the page below the status bar even with `contentInset` at `never`, and the strip shows
+the web view's own background. iOS 26.5 does not inset it, which is why the simulator never showed
+the strip. The native background has to be the page colour, whatever the system does with insets.
+
+**Why a plugin of our own.** Capacitor's `SystemBars` can set the status bar's text style but not
+the colour behind it, and the colour is the bug. One method covering both is simpler than two
+plugins.
+
+**Why the call goes through `nativePromise`.** `Capacitor.Plugins` is only filled in by
+`@capacitor/core`'s `registerPlugin`, and the web build deliberately does not load it (ADR-099). The
+injected bridge's `nativePromise` is what `registerPlugin` calls underneath, and it is there on both
+platforms.
+
+**Seen, and not yet seen.** On the iOS 26.5 simulator, the page calls the plugin at start and again
+when the theme changes, and the status bar's text turns light on the dark page. The strip itself
+only appears on iOS 27, which this Mac cannot run, so the fix is unconfirmed until a TestFlight build
+reaches Anton's phone. Android builds but has not been run.
+
+**Cost.**
+
+- **Two native files** that `cap sync` does not manage: `AppViewController.swift` and
+  `PageChromePlugin.java`.
+- **Two copies of the colours.** The native default repeats `THEME_COLOR`, so changing the paper or
+  night colour means changing it in `AppViewController` too.

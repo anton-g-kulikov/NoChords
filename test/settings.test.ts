@@ -65,7 +65,7 @@ describe('device preferences', () => {
     expect(load({ libraryLanguage: 'de' })).toBe('all');
   });
 
-  it('SET-18 keeps the chosen library order; anything else, or nothing, is last opened first (ADR-106)', () => {
+  it('SET-19 keeps the chosen library order; anything else, or nothing, is last opened first (ADR-106)', () => {
     const load = (stored: object) =>
       createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
         .librarySort;

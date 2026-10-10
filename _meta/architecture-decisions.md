@@ -3410,3 +3410,27 @@ scale; the eighth step is the first note again, an octave up, in the plain ink.
 **Cost.** Without a second ink, the current line, buttons that are on and the chords no longer stand
 apart from the text by colour, only by wash, weight and face. That is the point of the setting, and
 it is one tap away from the colours.
+
+---
+
+## ADR-111 — A blank line is a gap, and Sign in wears the ink
+
+**Decision.** Amends ADR-096 and ADR-110.
+
+- **Blank lines.** A line with no chords and no words, the blank between an intro and a verse or
+  between two verses, is drawn as a sliver: its chord and lyric rows are hidden and it keeps 0.35rem
+  of height (scaled with the chart), so with the row's padding it is about a third of a sung line.
+  It was drawn at full height, as an empty chord row over an empty lyric row.
+- **Sign in.** The library's Sign in button (and the account button that replaces it) is outlined
+  in the second ink, with no fill and a wash on hover, instead of the neutral outline of a plain
+  button.
+
+**Why.** A blank line is never played (it is not in the schedule), so it only has to set the verses
+apart. At full height it left a gap as tall as a line of the song, which on a phone pushes the
+first verse down a screen-third. Sign in sat beside the logo, the one other control in the header,
+and stayed grey when the ink changed, so with any ink but the default it looked as if it belonged to
+another app. Outlined rather than washed, it stays a step quieter than New song.
+
+**Cost.** A song that uses several blank lines in a row for a long pause now shows a small gap
+rather than a big one. Text that needs that much air can still use a chord-only line or a section
+label.

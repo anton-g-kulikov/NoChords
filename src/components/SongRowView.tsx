@@ -39,9 +39,12 @@ export const SongRowView = memo(function SongRowView({
   // An intro or a turnaround: chords and no words. It is drawn as its chord row alone, with no
   // empty lyric row under it, and its length mark sits beside the chords (ADR-096).
   const chordsOnly = row.chords.length > 0 && row.lyrics.trim() === '';
+  // A blank line between verses: a pause for the eye, not a line of the song, so it is drawn as a
+  // gap a fraction of a line's height rather than as an empty chord row and lyric row (ADR-111).
+  const blank = row.chords.length === 0 && row.lyrics.trim() === '';
 
   return (
-    <div className={chordsOnly ? 'line line--chords' : 'line'}>
+    <div className={chordsOnly ? 'line line--chords' : blank ? 'line line--blank' : 'line'}>
       {/*
        * A line that changes the meter says so before its first chord, where a score puts a new
        * time signature — the change applies from here, and reading it after the bar it governs

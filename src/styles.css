@@ -480,8 +480,19 @@ kbd {
   margin-bottom: 20px;
 }
 
+/*
+ * Signing in follows the ink (ADR-111): outlined in the second ink, with no fill, so it belongs to
+ * the page's colour like New song beneath it but stays a step quieter than that washed button.
+ */
 .library__signin {
   flex: none;
+  border-color: var(--accent-line);
+  background: transparent;
+  color: var(--accent);
+}
+
+.library__signin:hover {
+  background: var(--accent-wash);
 }
 
 /* A page's width, not a window's: past this the eye loses the line from a title to its key. */
@@ -1465,6 +1476,20 @@ kbd {
   font-stretch: 88%;
   font-size: calc(1.4rem * var(--sheet-scale, 1));
   line-height: 1.35;
+}
+
+/*
+ * A blank line between verses (ADR-111). It is a pause for the eye rather than a line of the song —
+ * it is never played — so it keeps only a sliver of height: with the row's own padding, about a
+ * third of a sung line, enough to set the verses apart without a screenful of empty chart.
+ */
+.line--blank {
+  height: calc(0.35rem * var(--sheet-scale, 1));
+  overflow: hidden;
+}
+
+.line--blank > * {
+  display: none;
 }
 
 /* Read aloud, not shown: what a mark drawn for the eye means in words. */

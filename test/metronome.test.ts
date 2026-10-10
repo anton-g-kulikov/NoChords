@@ -169,7 +169,8 @@ describe('beatsInWindow', () => {
     const huge = buildSchedule([{ ...row('a'), bars: 1_000_000_000 }], 120, 1, '4/4', 'quarter');
     const started = performance.now();
     const found = beatsInWindow(huge, 500, 1_000_000, 1_001_600).map((beat) => beat.index);
-    expect(performance.now() - started).toBeLessThan(5);
+    // Generous, so a busy machine cannot fail it: walking the row took about fifteen seconds.
+    expect(performance.now() - started).toBeLessThan(200);
     expect(found).toEqual([2000, 2001, 2002, 2003]);
   });
 

@@ -3542,3 +3542,41 @@ the top of a song, so the same mark looked like two marks.
 
 **Cost.** The running head is a little louder than before. Its size and weight still keep it below
 the song's title.
+
+---
+
+## ADR-116 — One spacing scale for the song's controls, a four-bar count-in, and a slider in the page's colours
+
+**Decision.** Amends ADR-094 and ADR-114.
+
+- **One spacing scale for the song screen.** 4px inside a field (label to control). 8px inside a
+  section (heading to row, row to row). 12px between the controls' parts: the toggle row, each
+  setup section with a rule midway, and the strip. 16px between the screen's areas: the nav row,
+  the title and the controls. So the title sits midway between the other two.
+- **A count-in can be four bars.** The choices are now 1, 2 and 4. A stored count reads as the
+  longest choice that is not longer than it.
+- **The volume slider is drawn here.** The track is the ink up to the thumb and `--border`, the
+  page's rule colour, after it, from a `--fill` the input sets. The thumb is white and round.
+
+**Why.** Anton, on the iOS 27 simulator:
+
+- The song title should sit in the middle between the app's nav and the controls.
+- The control sections should be a bit closer, with spacing unified inside a group and a subgroup
+  but distinct between sections.
+- Add a four-bar count-in.
+- The slider's grey part should be the base colour.
+
+Before this, the spacing ran 12, 24 and 8 around the title, about 6px from a heading to its row,
+12px between rows, and about 22px between sections. Nothing followed a scale. The grey is the
+platform's own unfilled-track colour, which no CSS setting reaches, so the slider has to draw its
+own track.
+
+**Why four, not three.** Counts run in powers of two in the music people count in: one, two, four
+bars. Three was never offered, and an old stored 3 reads as 2.
+
+**Cost.**
+
+- **A hand-drawn slider.** It needs its own thumb rules for WebKit and Firefox, and its fill is
+  only as current as the value the input passes on.
+- **A longer run-up.** At a slow tempo, four bars is a long wait before the first line. That is
+  the point, but it is the user's choice to make.

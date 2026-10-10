@@ -15,7 +15,8 @@
     "native:android": "npm run native:sync && cap open android",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:rules": "npx --yes tsx scripts/check-rules.mts"
   },
   "dependencies": {
     "@capacitor-firebase/authentication": "^8.5.2",

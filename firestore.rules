@@ -13,7 +13,43 @@ service cloud.firestore {
 
     match /users/{userId}/songs/{songId} {
       // Signed in, and only ever your own subtree.
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      // A write must be a song, of a song's size (ADR-108). Ownership alone let a token holder
+      // fill the database with documents of any shape, up to 1 MiB each, at the project's cost —
+      // and a document that is not a song silently disappears on every other device.
+      //
+      // The field list is songToDoc's (src/lib/songDoc.ts), plus the two that versions still
+      // cached on people's phones may write until they update: countInBars and beatsPerLine. A
+      // new Song field has to be added here in the same change, or every save from the release
+      // that adds it is refused.
+      function isSong(d) {
+        return d.keys().hasOnly([
+            'id', 'title', 'originalKey', 'currentKey', 'tempo', 'tempoUnit', 'barsPerLine',
+            'meter', 'displayMode', 'openedAt', 'learningPlaythrough', 'rows',
+            'countInBars', 'beatsPerLine'
+          ])
+          && d.keys().hasAll(['id', 'title', 'originalKey', 'currentKey', 'tempo', 'rows'])
+          && d.id == songId
+          && d.title is string && d.title.size() <= 200
+          && d.originalKey is string && d.originalKey.size() <= 8
+          && d.currentKey is string && d.currentKey.size() <= 8
+          && d.tempo is number && d.tempo >= 20 && d.tempo <= 300
+          && (!('tempoUnit' in d) || (d.tempoUnit is string && d.tempoUnit.size() <= 16))
+          && (!('barsPerLine' in d) || (d.barsPerLine is number && d.barsPerLine >= 1 && d.barsPerLine <= 64))
+          && (!('meter' in d) || (d.meter is string && d.meter.size() <= 8))
+          && (!('displayMode' in d) || (d.displayMode is string && d.displayMode.size() <= 16))
+          && (!('openedAt' in d) || d.openedAt == null || d.openedAt is number)
+          && (!('learningPlaythrough' in d) || d.learningPlaythrough is number)
+          // Rows themselves cannot be checked one by one in rules; the count, with the 1 MiB
+          // document limit, bounds the worst case.
+          && d.rows is list && d.rows.size() <= 1000;
+      }
+
+      allow read, delete: if isOwner();
+      allow create, update: if isOwner() && isSong(request.resource.data);
     }
 
     // Anything not matched above is denied, including the user document itself. Nothing in this

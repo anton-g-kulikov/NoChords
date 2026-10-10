@@ -1663,7 +1663,9 @@ kbd {
   justify-content: space-between;
   gap: 16px;
   padding: 16px 18px;
-  margin-bottom: 20px;
+  /* The notice slot sits outside the library's gutters, so the card brings its own, as the
+     choice cards beside it do. */
+  margin: 0 20px 20px;
   border: 1px solid var(--border-strong);
   border-left: 2px solid var(--accent);
   border-radius: var(--radius);

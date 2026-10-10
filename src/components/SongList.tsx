@@ -8,7 +8,7 @@ import { tempoUnitSymbol } from '../lib/tempo';
 import { withSigns } from '../lib/chordType';
 import type { ThemePreference } from '../lib/theme';
 import { ThemeSwitch } from './ThemeSwitch';
-import { Mark } from './Mark';
+import { Bracket } from './Mark';
 import {
   LANGUAGE_FILTERS,
   effectiveLanguageFilter,
@@ -81,24 +81,25 @@ export function SongList({
        * below rather than competing for room in this row.
        */}
       <div className="screen__head library__head">
-        <span className="library__brand">
-          {/* The app's own mark, in this page's colours rather than the home screen's; the same
-              drawing as the installed icons, held to it by a test (ADR-064, ADR-070). */}
-          {/* An easter egg (ADR-072): tapping the mark steps the second ink through seven. Keyed on
-              the ink, so the note is struck afresh — and animates — on every change. */}
-          <button
-            type="button"
-            className="library__mark"
-            aria-label={`Ink: ${accentLabel}. Tap for the next one.`}
-            onClick={() => {
-              setStruck(true);
-              onNextAccent();
-            }}
-          >
-            <Mark key={accentLabel} className={struck ? 'library__note--struck' : undefined} />
-          </button>
-          <Wordmark />
-        </span>
+        {/*
+         * The name in its brackets (ADR-100), and an easter egg (ADR-072): tapping it steps the
+         * second ink through seven. Keyed on the ink, so the brackets are struck afresh — and
+         * animate — on every change.
+         */}
+        <button
+          type="button"
+          className="library__brand"
+          aria-label={`NoChords. Ink: ${accentLabel}. Tap for the next one.`}
+          onClick={() => {
+            setStruck(true);
+            onNextAccent();
+          }}
+        >
+          <Wordmark
+            bracketKey={accentLabel}
+            bracketClassName={struck ? 'wordmark__bracket--struck' : undefined}
+          />
+        </button>
         {authAction &&
           (authAction.kind === 'sign-out' ? (
             <button
@@ -260,13 +261,24 @@ export function SongList({
 }
 
 /**
- * The name as type rather than as an image (ADR-068): "No" in the second ink, "Chords" in ink, both
- * upright — the mark beside it carries the logo's one slant (ADR-074).
+ * The logo: the name in its brackets, `[ NoChords ]` (ADR-100). `[Am]` is how a chord is written in
+ * the app, so the name sits where a chord would go. The brackets carry the second ink and the logo's
+ * one slant; the name is set upright, in ink, as one word (ADR-068, ADR-074).
  */
-export function Wordmark() {
+export function Wordmark({
+  bracketKey,
+  bracketClassName,
+}: {
+  /** Changing it remounts the brackets, which replays their animation. */
+  bracketKey?: string;
+  bracketClassName?: string;
+}) {
+  const bracket = ['wordmark__bracket', bracketClassName].filter(Boolean).join(' ');
   return (
     <span className="wordmark">
-      <span className="wordmark__no">No</span>Chords
+      <Bracket key={`open-${bracketKey}`} side="open" className={bracket} />
+      <span className="wordmark__name">NoChords</span>
+      <Bracket key={`close-${bracketKey}`} side="close" className={bracket} />
     </span>
   );
 }

@@ -269,7 +269,9 @@ button {
 
 .screen__head {
   flex: none;
-  padding: 24px 20px 0;
+  /* 24px in a browser; under a phone's status bar, whose inset already clears the top, only 8px
+     more (ADR-114). */
+  padding: max(8px, calc(24px - env(safe-area-inset-top, 0px))) 20px 0;
 }
 
 /* Titles belong to the song, so they are set in the song's face. */
@@ -877,8 +879,10 @@ kbd {
 .song-view__head {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+  /* The app's row above, the song below: the title sits nearer the controls that act on it than
+     the navigation that leaves it (ADR-114). */
+  gap: 20px;
+  margin-bottom: 4px;
 }
 
 /* Back, name, edit: the controls at the edges, the name in the middle. */
@@ -2158,11 +2162,20 @@ kbd {
 .stepper__button {
   min-width: 2.2rem;
   border: 0;
-  background: var(--surface-raised);
+  /* Built like a segmented control (ADR-114): one fill, and ink rules between the parts. */
+  background: var(--surface);
   color: var(--text);
   font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
+}
+
+.stepper__button:first-child {
+  border-right: 1px solid var(--control-line);
+}
+
+.stepper__button:last-child {
+  border-left: 1px solid var(--control-line);
 }
 
 .stepper__button:hover {

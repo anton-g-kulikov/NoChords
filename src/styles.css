@@ -1587,15 +1587,18 @@ kbd {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
-  padding: 6px 6px 6px 12px;
+  /* Two pixels more at the foot: the marker's room, so nothing shifts when it arrives. */
+  padding: 6px 6px 8px 12px;
+  /* Open at the foot: it sits on the header's rule like a tab, its sides running right down to it
+     (ADR-113). The marker the playing line carries is drawn inside, not as a border, so the sides
+     are not cut short by an empty one. */
   border: 1px solid var(--border);
-  /* The same marker the playing line carries, in its slot from the start so nothing shifts. */
-  border-bottom: 2px solid transparent;
-  border-radius: var(--radius) var(--radius) 2px 2px;
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
   background: var(--surface);
   color: var(--muted);
   transition:
-    border-color 150ms ease,
+    box-shadow 150ms ease,
     background-color 150ms ease;
 }
 
@@ -1604,7 +1607,7 @@ kbd {
  * it in — so it wears the marker and hands it over on the downbeat.
  */
 .beat-strip--marked {
-  border-bottom-color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
   background: var(--accent-wash);
 }
 
@@ -1996,14 +1999,18 @@ kbd {
   gap: 0.75rem;
 }
 
-/* The buttons stay put; the strip pins directly beneath them (ADR-059). */
+/*
+ * The buttons stay put; the strip pins directly beneath them (ADR-059). The header's rule runs to
+ * the screen's edges, as the transport's does at the bottom, and the strip sits right on it like a
+ * tab, with no gap between (ADR-113). The side margins move inside, so the contents keep the page's.
+ */
 .player__header {
   position: sticky;
   top: 0;
   z-index: 2;
   background: var(--bg);
-  padding-bottom: 8px;
-  margin-bottom: 8px;
+  margin: 0 -20px 8px;
+  padding: 0 20px;
   border-bottom: 1px solid var(--border);
 }
 

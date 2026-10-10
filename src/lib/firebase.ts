@@ -8,6 +8,7 @@
  * These values are public by design. A web config identifies the project and grants nothing on its
  * own; what protects a user's songs is `firestore.rules`, enforced server-side against their uid.
  */
+import type { SignInProvider } from './account';
 import type { SongStore } from './storage';
 
 const config = {
@@ -53,10 +54,10 @@ export async function watchAuth(
   return client ? client.watchAuth(onUser) : null;
 }
 
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWith(provider: SignInProvider): Promise<void> {
   const client = await loadClient();
   if (!client) throw new Error('offline');
-  await client.signInWithGoogle();
+  await (provider === 'apple' ? client.signInWithApple() : client.signInWithGoogle());
 }
 
 export async function signOutNow(): Promise<void> {

@@ -7,6 +7,7 @@
 import { initializeApp, getApps, type FirebaseApp, type FirebaseOptions } from 'firebase/app';
 import {
   GoogleAuthProvider,
+  OAuthProvider,
   getAuth,
   indexedDBLocalPersistence,
   initializeAuth,
@@ -107,18 +108,43 @@ export async function signInWithGoogle(): Promise<void> {
   }
 
   const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
-  let idToken: string | undefined;
+  const { idToken } = await nativeCredential(() => FirebaseAuthentication.signInWithGoogle());
+  await signInWithCredential(appAuth, GoogleAuthProvider.credential(idToken));
+}
+
+/**
+ * Signs in with Apple, in the iOS app only (ADR-103).
+ *
+ * The same hand-over as Google's: the plugin gets Apple's ID token, and the JS SDK signs in with
+ * it. Apple's token is bound to a nonce the plugin made, so the raw nonce has to come across too, or
+ * Firebase rejects the token as replayed.
+ */
+export async function signInWithApple(): Promise<void> {
+  if (!app) throw new Error('not initialised');
+  const appAuth = getAppAuth(app);
+  const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+  const { idToken, nonce } = await nativeCredential(() => FirebaseAuthentication.signInWithApple());
+  if (!nonce) throw new Error('Apple returned no nonce');
+  const credential = new OAuthProvider('apple.com').credential({ idToken, rawNonce: nonce });
+  await signInWithCredential(appAuth, credential);
+}
+
+/** Runs a native sign-in and returns its credential, with a cancel spoken in the web's terms. */
+async function nativeCredential(
+  signIn: () => Promise<{ credential: { idToken?: string; nonce?: string } | null }>
+): Promise<{ idToken: string; nonce?: string }> {
+  let credential: { idToken?: string; nonce?: string } | null;
   try {
-    idToken = (await FirebaseAuthentication.signInWithGoogle()).credential?.idToken;
+    credential = (await signIn()).credential;
   } catch (cause) {
-    // Spoken in the web's terms, so `useAuth` treats it as the closed popup it is.
+    // As a closed popup, so `useAuth` stays as quiet about it as it does on the web.
     if (isCancelledSignIn(cause)) {
       throw Object.assign(new Error('cancelled'), { code: 'auth/popup-closed-by-user' });
     }
     throw cause;
   }
-  if (!idToken) throw new Error('Google returned no ID token');
-  await signInWithCredential(appAuth, GoogleAuthProvider.credential(idToken));
+  if (!credential?.idToken) throw new Error('The sign-in returned no ID token');
+  return { idToken: credential.idToken, nonce: credential.nonce };
 }
 
 export async function signOutNow(): Promise<void> {

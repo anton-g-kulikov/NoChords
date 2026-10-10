@@ -4,8 +4,10 @@ import { SongEditor } from './components/SongEditor';
 import { ArrowLeft, Check, Pencil } from 'lucide-react';
 import { NotationGuide } from './components/NotationGuide';
 import { SongList, Wordmark } from './components/SongList';
-import { accountAction, accountState } from './lib/account';
+import { accountAction, accountState, signInProviders } from './lib/account';
+import { nativePlatform } from './lib/native';
 import { ImportPrompt } from './components/ImportPrompt';
+import { SignInChoice } from './components/SignInChoice';
 import { useSongLibrary } from './hooks/useSongLibrary';
 import { useSettings } from './hooks/useSettings';
 import { useAuth } from './hooks/useAuth';
@@ -39,6 +41,9 @@ export function App() {
   /* One reading of the account, shared by the header's button and the footer's line (ADR-064). */
   const account = accountState(auth.available, auth.loading, auth.user !== null);
   const action = accountAction(account);
+  /* With one way to sign in, Sign in takes it; with more, it asks which first (ADR-103). */
+  const providers = signInProviders(nativePlatform());
+  const [choosingSignIn, setChoosingSignIn] = useState(false);
 
   if (showGuide) return <NotationGuide onClose={() => setShowGuide(false)} />;
 
@@ -55,6 +60,16 @@ export function App() {
                 error={importError}
                 onAccept={() => void acceptImport()}
                 onDismiss={dismissImport}
+              />
+            )}
+            {choosingSignIn && account === 'signed-out' && (
+              <SignInChoice
+                providers={providers}
+                onChoose={(provider) => {
+                  setChoosingSignIn(false);
+                  void auth.signIn(provider);
+                }}
+                onDismiss={() => setChoosingSignIn(false)}
               />
             )}
             {auth.error && <p className="library__error">{auth.error}</p>}
@@ -74,8 +89,11 @@ export function App() {
             ? null
             : {
                 ...action,
-                run: () =>
-                  void (action.kind === 'sign-out' ? auth.signOutNow() : auth.signIn()),
+                run: () => {
+                  if (action.kind === 'sign-out') void auth.signOutNow();
+                  else if (providers.length === 1) void auth.signIn(providers[0]);
+                  else setChoosingSignIn((open) => !open);
+                },
               }
         }
         onOpenGuide={() => setShowGuide(true)}

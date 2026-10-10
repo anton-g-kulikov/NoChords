@@ -1655,6 +1655,75 @@ kbd {
   flex-wrap: wrap;
 }
 
+/*
+ * Which account to sign in with (ADR-103). The import offer's card, with the choices stacked at one
+ * width so neither reads as the lesser one.
+ */
+.signin-choice {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  /* The notice slot sits outside the library's gutters, so the card brings its own. */
+  margin: 0 20px 20px;
+  border: 1px solid var(--border-strong);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.signin-choice p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.signin-choice__actions {
+  display: grid;
+  gap: 10px;
+}
+
+.signin-choice__button {
+  gap: 8px;
+}
+
+/* Apple's own button: black on a light page, white on a dark one, in Apple's typeface. */
+.signin-choice__button--apple {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, system-ui, sans-serif;
+}
+
+.signin-choice__button--apple:hover {
+  background: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .signin-choice__button--apple {
+    border-color: #fff;
+    background: #fff;
+    color: #000;
+  }
+}
+
+:root[data-theme='dark'] .signin-choice__button--apple {
+  border-color: #fff;
+  background: #fff;
+  color: #000;
+}
+
+.signin-choice__apple-logo {
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+.signin-choice__dismiss {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+
 /* Last and smallest: looked up, not read (ADR-071). */
 .library__version {
   margin: 0;

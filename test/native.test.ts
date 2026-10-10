@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { isCancelledSignIn, isNative } from '../src/lib/native';
+import { isCancelledSignIn, isNative, nativePlatform } from '../src/lib/native';
 
 type WithBridge = { Capacitor?: unknown };
 
@@ -31,6 +31,10 @@ describe('isCancelledSignIn', () => {
     expect(isCancelledSignIn(new Error('The user canceled the sign-in flow.'))).toBe(true);
     expect(isCancelledSignIn(new Error('Authorization canceled.'))).toBe(true);
     expect(isCancelledSignIn({ message: 'activity is cancelled by the user.' })).toBe(true);
+    // Apple names no cancel, only its number.
+    const apple =
+      'The operation couldn’t be completed. (com.apple.AuthenticationServices.AuthorizationError error 1001.)';
+    expect(isCancelledSignIn(new Error(apple))).toBe(true);
   });
 
   it('NA-05 leaves real failures as failures', () => {
@@ -38,5 +42,33 @@ describe('isCancelledSignIn', () => {
     expect(isCancelledSignIn(new Error('No credentials available'))).toBe(false);
     expect(isCancelledSignIn(null)).toBe(false);
     expect(isCancelledSignIn('cancel')).toBe(false);
+    // Apple's other failures carry other numbers.
+    const failed = '(com.apple.AuthenticationServices.AuthorizationError error 1000.)';
+    expect(isCancelledSignIn(new Error(failed))).toBe(false);
+    expect(isCancelledSignIn(new Error('AuthorizationError error 10010'))).toBe(false);
+  });
+});
+
+describe('nativePlatform', () => {
+  afterEach(() => {
+    delete (globalThis as WithBridge).Capacitor;
+  });
+
+  it('NA-06 names the shell it is running in', () => {
+    (globalThis as WithBridge).Capacitor = { isNativePlatform: () => true, getPlatform: () => 'ios' };
+    expect(nativePlatform()).toBe('ios');
+    (globalThis as WithBridge).Capacitor = {
+      isNativePlatform: () => true,
+      getPlatform: () => 'android',
+    };
+    expect(nativePlatform()).toBe('android');
+  });
+
+  it('NA-07 is web in a browser, and for anything it does not recognise', () => {
+    expect(nativePlatform()).toBe('web');
+    (globalThis as WithBridge).Capacitor = { isNativePlatform: () => false, getPlatform: () => 'ios' };
+    expect(nativePlatform()).toBe('web');
+    (globalThis as WithBridge).Capacitor = { isNativePlatform: () => true, getPlatform: () => 'tv' };
+    expect(nativePlatform()).toBe('web');
   });
 });

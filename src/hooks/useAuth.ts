@@ -6,9 +6,10 @@
  * (ADR-023), so a signed-out visitor never downloads it.
  */
 import { useCallback, useEffect, useState } from 'react';
+import { signInErrorMessage, type SignInProvider } from '../lib/account';
 import {
   isFirebaseConfigured,
-  signInWithGoogle,
+  signInWith,
   signOutNow as signOutRemote,
   watchAuth,
   type AuthUser,
@@ -20,7 +21,7 @@ export interface AuthController {
   /** True until the first sign-in state is known, so the UI does not flash "signed out". */
   loading: boolean;
   error: string | null;
-  signIn(): Promise<void>;
+  signIn(provider: SignInProvider): Promise<void>;
   signOutNow(): Promise<void>;
 }
 
@@ -57,19 +58,12 @@ export function useAuth(): AuthController {
     };
   }, [available]);
 
-  const signIn = useCallback(async () => {
+  const signIn = useCallback(async (provider: SignInProvider) => {
     setError(null);
     try {
-      await signInWithGoogle();
+      await signInWith(provider);
     } catch (cause) {
-      const code = (cause as { code?: string })?.code ?? '';
-      // Closing the popup is a choice, not a failure worth reporting.
-      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
-      setError(
-        code === 'auth/popup-blocked'
-          ? 'The sign-in window was blocked. Allow pop-ups for this site and try again.'
-          : 'Sign-in failed. Check your connection and try again.'
-      );
+      setError(signInErrorMessage((cause as { code?: string })?.code ?? '', provider));
     }
   }, []);
 

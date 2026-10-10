@@ -9,18 +9,29 @@
  * answer for them is always no (ADR-023).
  */
 export function isNative(): boolean {
-  const bridge = (globalThis as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
-  return bridge?.isNativePlatform?.() === true;
+  return bridge()?.isNativePlatform?.() === true;
+}
+
+/** Which shell this is, or `web` in a browser. Read from the same bridge, for the same reason. */
+export function nativePlatform(): 'ios' | 'android' | 'web' {
+  if (!isNative()) return 'web';
+  const platform = bridge()?.getPlatform?.();
+  return platform === 'ios' || platform === 'android' ? platform : 'web';
+}
+
+function bridge(): { isNativePlatform?: () => boolean; getPlatform?: () => string } | undefined {
+  return (globalThis as { Capacitor?: ReturnType<typeof bridge> }).Capacitor;
 }
 
 /**
  * Whether a native sign-in failed because the person backed out of it.
  *
  * The plugin reports a cancel as a failure, with only the platform's own words to tell them apart:
- * "The user canceled the sign-in flow." on iOS, "Authorization canceled." or "activity is
- * cancelled by the user." on Android. Backing out is a choice, not something to apologise for.
+ * "The user canceled the sign-in flow." from Google on iOS, "Authorization canceled." or "activity
+ * is cancelled by the user." on Android, and from Apple only its error number, `AuthorizationError
+ * error 1001`. Backing out is a choice, not something to apologise for.
  */
 export function isCancelledSignIn(cause: unknown): boolean {
   const message = (cause as { message?: unknown } | null)?.message;
-  return typeof message === 'string' && /cancel/i.test(message);
+  return typeof message === 'string' && /cancel|AuthorizationError error 1001\b/i.test(message);
 }

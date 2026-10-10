@@ -449,6 +449,12 @@ disagree about it (ADR-064).
 | AC-03 | **The header offers the way out as well as the way in** | ✅ |
 | AC-04 | Nothing is offered while there is nothing to offer | ✅ |
 | AC-05 | **Signing in is worded; signing out is an icon** | ✅ |
+| AC-06 | **The iOS app offers Apple first, then Google** | ✅ |
+| AC-07 | The web and Android offer only Google | ✅ |
+| AC-08 | Backing out of a sign-in says nothing | ✅ |
+| AC-09 | An email with an account through the other provider is pointed at it | ✅ |
+| AC-10 | Popup advice stays, and anything else is a plain failure | ✅ |
+| AC-11 | A failed Apple sign-in points at the Apple Account in Settings | ✅ |
 
 ### Library readiness — `library.test.ts`
 
@@ -484,6 +490,8 @@ install itself and does not register a service worker (ADR-099).
 | NA-03 | False for a bridge that reports the web platform, or is not a bridge | ✅ |
 | NA-04 | **Each platform backing out of Google sign-in is recognised as a cancel** | ✅ |
 | NA-05 | Real sign-in failures stay failures | ✅ |
+| NA-06 | **Names the shell it is running in** | ✅ |
+| NA-07 | Web in a browser, and for any platform it does not recognise | ✅ |
 
 ### Metronome voices — `metronome-voice.test.ts`
 

@@ -40,3 +40,46 @@ export function accountAction(state: AccountState): AccountAction | null {
   if (state === 'signed-out') return { label: 'Sign in', kind: 'sign-in' };
   return null;
 }
+
+/** The accounts someone can sign in with. */
+export type SignInProvider = 'apple' | 'google';
+
+/**
+ * Which sign-ins to offer on this platform, in the order to offer them (ADR-103).
+ *
+ * The iOS app offers Apple first: App Review requires it beside Google (guideline 4.8), and Apple's
+ * guidelines ask for it to be no less prominent. Elsewhere Apple's sign-in needs a Services ID that
+ * is not set up yet, so Google is the only one. With one choice, Sign in goes straight to it.
+ */
+export function signInProviders(platform: 'ios' | 'android' | 'web'): SignInProvider[] {
+  return platform === 'ios' ? ['apple', 'google'] : ['google'];
+}
+
+/**
+ * What to say when signing in failed, or `null` when there is nothing to say.
+ *
+ * Backing out is a choice, not a failure worth reporting. On the web that is a closed popup; in the
+ * apps the native cancel arrives dressed as one (`firebaseClient.ts`).
+ */
+export function signInErrorMessage(code: string, provider: SignInProvider): string | null {
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return null;
+  if (code === 'auth/popup-blocked') {
+    return 'The sign-in window was blocked. Allow pop-ups for this site and try again.';
+  }
+  if (code === 'auth/account-exists-with-different-credential') {
+    // One account per email address: an Apple sign-in whose email already belongs to a Google
+    // account cannot open it, and the other way round (ADR-103).
+    const other = provider === 'apple' ? 'Google' : 'Apple';
+    return `That email already has an account through ${other}. Sign in with ${other} instead.`;
+  }
+  if (provider === 'apple') {
+    // Apple gives one error, 1000, for most of what can go wrong, and the usual cause is a phone
+    // with no Apple Account signed in: closing iOS's own "sign in to your Apple Account" prompt
+    // ends here too.
+    return (
+      'Sign in with Apple did not finish. Check that this iPhone is signed in to an Apple Account ' +
+      'and online, then try again.'
+    );
+  }
+  return 'Sign-in failed. Check your connection and try again.';
+}

@@ -14,12 +14,12 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     /**
-     * Native Google sign-in (ADR-101). The plugin only fetches Google's credential; the Firebase JS
-     * SDK signs in with it, so the session lives where Firestore already looks for it.
+     * Native Google and Apple sign-in (ADR-101, ADR-103). The plugin only fetches the credential;
+     * the Firebase JS SDK signs in with it, so the session lives where Firestore already looks.
      */
     FirebaseAuthentication: {
       skipNativeAuth: true,
-      providers: ['google.com'],
+      providers: ['google.com', 'apple.com'],
     },
   },
   experimental: {

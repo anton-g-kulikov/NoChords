@@ -11,6 +11,7 @@ import {
   indexedDBLocalPersistence,
   initializeAuth,
   onAuthStateChanged,
+  signInWithCredential,
   signInWithPopup,
   signOut,
   type Auth,
@@ -22,7 +23,7 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 import { createCloudSongStore } from './cloudStore';
-import { isNative } from './native';
+import { isCancelledSignIn, isNative } from './native';
 import type { AuthUser } from './firebase';
 import type { SongStore } from './storage';
 
@@ -88,13 +89,46 @@ export function watchAuth(onUser: (user: AuthUser | null) => void): () => void {
   );
 }
 
+/**
+ * Signs in with Google: a popup on the web, the platform's own Google sign-in in the shells
+ * (ADR-101).
+ *
+ * In a shell the plugin only fetches Google's ID token (`skipNativeAuth`, in
+ * `capacitor.config.ts`), and the JS SDK signs in with it. That keeps the session where Firestore
+ * and `watchAuth` already look, so nothing downstream knows which way someone signed in. The
+ * plugin is imported only here, so the website never fetches it.
+ */
 export async function signInWithGoogle(): Promise<void> {
   if (!app) throw new Error('not initialised');
-  await signInWithPopup(getAppAuth(app), new GoogleAuthProvider());
+  const appAuth = getAppAuth(app);
+  if (!isNative()) {
+    await signInWithPopup(appAuth, new GoogleAuthProvider());
+    return;
+  }
+
+  const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+  let idToken: string | undefined;
+  try {
+    idToken = (await FirebaseAuthentication.signInWithGoogle()).credential?.idToken;
+  } catch (cause) {
+    // Spoken in the web's terms, so `useAuth` treats it as the closed popup it is.
+    if (isCancelledSignIn(cause)) {
+      throw Object.assign(new Error('cancelled'), { code: 'auth/popup-closed-by-user' });
+    }
+    throw cause;
+  }
+  if (!idToken) throw new Error('Google returned no ID token');
+  await signInWithCredential(appAuth, GoogleAuthProvider.credential(idToken));
 }
 
 export async function signOutNow(): Promise<void> {
   if (!app) return;
+  if (isNative()) {
+    // Google's own session too, or the next sign-in skips the account chooser and silently
+    // picks whoever signed in last.
+    const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+    await FirebaseAuthentication.signOut().catch(() => {});
+  }
   await signOut(getAppAuth(app));
 }
 

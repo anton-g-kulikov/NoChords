@@ -482,6 +482,8 @@ install itself and does not register a service worker (ADR-099).
 | NA-01 | **True inside a shell that says it is native** | ✅ |
 | NA-02 | False in a browser, where there is no bridge | ✅ |
 | NA-03 | False for a bridge that reports the web platform, or is not a bridge | ✅ |
+| NA-04 | **Each platform backing out of Google sign-in is recognised as a cancel** | ✅ |
+| NA-05 | Real sign-in failures stay failures | ✅ |
 
 ### Metronome voices — `metronome-voice.test.ts`
 

@@ -36,6 +36,12 @@ export interface SongLibrary {
   importOffer: { localCount: number } | null;
   /** Set when an import did not carry everything up, naming how much is still behind (ADR-031). */
   importError: { missingCount: number } | null;
+  /**
+   * The last song the store refused to save, until it saves (ADR-108). A refusal is not a lost
+   * connection — Firestore holds those writes and sends them later — but a song the database will
+   * not take: past a rule's bound, or over its size limit.
+   */
+  saveError: { songId: string; title: string } | null;
   addSong(): Song;
   updateSong(song: Song): void;
   deleteSong(songId: string): void;
@@ -169,13 +175,18 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
     });
   }, [store]);
 
+  const [saveError, setSaveError] = useState<{ songId: string; title: string } | null>(null);
+
   const flush = useCallback(() => {
     const pending = [...pendingWrites.current.values()];
     pendingWrites.current.clear();
     for (const song of pending) {
-      void storeRef.current.saveSong(song).catch(() => {
-        // A failed write leaves the song in memory; Firestore's cache retries when it can.
-      });
+      // Said, not swallowed (ADR-108): a refused write left the song only in memory, to vanish at
+      // the next reload with nothing to say why. An offline write does not land here at all.
+      void storeRef.current.saveSong(song).then(
+        () => setSaveError((current) => (current?.songId === song.id ? null : current)),
+        () => setSaveError({ songId: song.id, title: song.title || UNTITLED_SONG })
+      );
     }
   }, []);
 
@@ -271,6 +282,7 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
     loading,
     importOffer,
     importError,
+    saveError,
     addSong,
     updateSong,
     deleteSong,

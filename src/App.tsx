@@ -25,6 +25,7 @@ export function App() {
     loading,
     importOffer,
     importError,
+    saveError,
     addSong,
     updateSong,
     deleteSong,
@@ -95,6 +96,7 @@ export function App() {
             )}
             {auth.error && <p className="library__error">{auth.error}</p>}
             {auth.notice && <p className="library__notice">{auth.notice}</p>}
+            {saveError && <SaveError title={saveError.title} />}
           </>
         }
         loading={loading}
@@ -190,6 +192,9 @@ export function App() {
         )}
       </header>
 
+      {/* Where the song is being worked on, as well as in the library (ADR-108). */}
+      {saveError?.songId === song.id && <SaveError title={saveError.title} />}
+
       {pane === 'edit' ? (
         <div className="screen__scroll">
           <SongEditor
@@ -215,3 +220,18 @@ export function App() {
     </div>
   );
 }
+
+/**
+ * A song the account would not take (ADR-108). Signed in, songs live in the account, so what was
+ * not saved there is only in memory and goes at the next reload — which is what this says, and what
+ * to do about it.
+ */
+function SaveError({ title }: { title: string }) {
+  return (
+    <p className="library__error" role="alert">
+      Changes to “{title}” could not be saved to your account, so they will be lost when the app
+      reloads. Shorten the song, or copy its text somewhere safe first.
+    </p>
+  );
+}
+

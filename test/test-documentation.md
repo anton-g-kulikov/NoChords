@@ -344,6 +344,7 @@ lossless for good data and must refuse bad data rather than letting it into the 
 | SD-11 | A song's count-in is no longer written, and one an older version wrote is read past | ✅ |
 | SD-12 | The chord display is written, and a document without one opens on names | ✅ |
 | SD-13 | When a song was last opened is written, as `null` when never, and a document without it reads as never | ✅ |
+| SD-14 | **The densest song the editor allows stays under Firestore's 1 MiB document limit** | ✅ |
 
 ### Sign-in import decision — `cloud-import.test.ts`
 

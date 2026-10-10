@@ -3272,7 +3272,7 @@ screens, so a choice never moves between them.
 that ran the audit:
 
 1. **Bounds** (`src/lib/bounds.ts`). At most 32 beats in a bar, 64 bars in a line, 1000 lines in a
-   song, 200,000 characters of song text and 200 characters of title; tempo within 20..300. The
+   song, 100,000 characters of song text and 200 characters of title; tempo within 20..300. The
    line parser ignores a `|n|` past 64 and keeps a `{n/d}` only if it can be played; `parseMeter`
    refuses a bar of more than 32 beats; the storage validator, which local and synced songs both
    pass through, rounds and clamps rather than rejecting, so an out-of-range song still loads. The
@@ -3302,10 +3302,15 @@ hundred million dots. Nothing rendered HTML from that input, and nothing does no
 escaping was the only layer; the headers are the second. And the database trusted any document from
 a signed-in token, so a token could fill it, at the project's cost.
 
-**Whatever the database refuses, the app refuses first.** A refused save is swallowed and the song
-lives only in memory until reload, the same silent loss as an id Firestore will not store. So every
-bound in `firestore.rules` is enforced by the app before it writes: lines, title, keys, tempo, line
-length. A new `Song` field has to be added to `isSong` in the same change, or every save from the
+**Whatever the database refuses, the app refuses first.** A refused save used to be swallowed, and
+the song lived only in memory until reload, the same silent loss as an id Firestore will not store.
+So every bound in `firestore.rules` is enforced by the app before it writes: lines, title, keys,
+tempo, line length. Song text is capped at 100,000 characters rather than 200,000 because a chord
+costs about 25 bytes stored, and at 200,000, chord-dense text passed Firestore's 1 MiB (SD-14
+measures the worst case). And should a write still be refused — by a limit added later, or one
+missed — the library now keeps the refusal and says so, in the library and on the song's screen:
+the changes could not be saved to the account and will be lost on reload. An offline write is not a
+refusal; Firestore holds it and sends it later. A new `Song` field has to be added to `isSong` in the same change, or every save from the
 release that adds it is refused. `npm run test:rules` checks the rules against the emulator with
 documents built by `songToDoc`.
 

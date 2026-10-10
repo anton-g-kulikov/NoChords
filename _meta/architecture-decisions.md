@@ -3122,3 +3122,27 @@ Apple sign-in has completed yet.
 - **Account deletion will need more with Apple.** Apple requires an app to revoke the person's
   Apple tokens when it deletes their account (5.1.1(v)). That needs Apple's key set up in Firebase,
   the same key the web flow needs.
+
+---
+
+## ADR-104 — Store and native icons are built from the mark, by a script
+
+**Decision.** `assets/build.sh` renders every icon the native apps and the stores need from the
+mark's two bracket paths: the square icon, Android's adaptive foreground and background, Android 13's
+monochrome icon, iOS 18's dark and tinted icons, light and dark splash screens, and the two
+store-listing icons in `store/`. The files follow `@capacitor/assets`' naming, so one command places
+them into the Xcode and Android projects; `assets/README.md` lists what goes where by hand.
+
+**Why a script.** The stores each impose a rule the web icons do not meet. App Store Connect rejects
+an icon with an alpha channel, even a fully opaque one; Android launchers cut the adaptive icon to
+any shape inside a 66-unit safe circle of a 108-unit canvas; Play applies its own corner mask. A
+script makes each of those a line that can be read and re-run, instead of an export someone has to
+remember, and the drawing stays the heavy cut that MK-01 holds every icon to.
+
+**Proportions.** On the square icon the brackets take 52% of the tile's width, as on the web icon.
+On Android's foreground they are scaled so their corners sit 250px from the centre of a 1024 canvas
+whose safe circle has a 313px radius, which comes out at the same visual share once a launcher
+crops to the 72-unit window.
+
+**Not here yet.** Google Play's 1024×500 feature graphic, and wiring the files into the native
+projects, which belong to the native-apps work.

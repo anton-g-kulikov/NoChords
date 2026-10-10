@@ -334,6 +334,23 @@ Without the plist, Google sign-in in the iOS app never answers. An Android build
 key needs that key's SHA-1 added to the Android app in Firebase, or Google sign-in fails there.
 Icons and splash screens come from `assets/` (ADR-104).
 
+A Play release is an app bundle signed with the upload key (ADR-119). Create
+`android/keystore.properties` pointing at the key, which lives outside the checkout:
+
+```properties
+storeFile=/absolute/path/to/nochords-upload.jks
+storePassword=…
+keyAlias=upload
+keyPassword=…
+```
+
+```bash
+npm run native:sync && (cd android && ./gradlew bundleRelease)
+```
+
+The bundle is `android/app/build/outputs/bundle/release/app-release.aab`. Without the properties
+file it builds unsigned, and Play refuses it.
+
 ## Deploying
 
 The app is a static bundle, hosted on Firebase Hosting. **Pushing to `main` is what deploys** —

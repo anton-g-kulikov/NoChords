@@ -3637,3 +3637,25 @@ mid-chart in view.
   one frame.
 - **The browser test pane lies.** A hidden page draws no frames, so ResizeObserver never fires
   there. That is why the first measurement does not wait for it.
+
+---
+
+## ADR-119 — Android release builds are signed with an upload key kept out of the repository
+
+**Decision.** `android/app/build.gradle` signs the release build with the Play upload key when
+`android/keystore.properties` exists, and leaves it unsigned when it does not. That file names the
+key file and holds its passwords. It is gitignored, and so is every `*.jks` and `*.keystore` under
+`android/`. The key itself lives outside the checkout. Google Play holds the key that signs what
+users install (Play App Signing), so the upload key only proves an upload came from us.
+
+**Why.** The repository is public, so neither the key nor its passwords can be committed. A missing
+file has to leave the build working, since a fresh checkout or another session has no key.
+
+**Cost.**
+
+- **Two more SHA-1s for Firebase.** Builds from Play are signed with Play's key, not ours. Google
+  sign-in only works for a signature whose SHA-1 is on the Android app in Firebase, so the upload
+  key's and the Play app-signing key's SHA-1 both go there, and `google-services.json` is fetched
+  again.
+- **A lost upload key means waiting.** Play can reset it, but only on request, and that takes a
+  few days.

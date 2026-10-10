@@ -194,6 +194,12 @@ describe('createSongStore', () => {
     expect(slow.tempo).toBe(20);
   });
 
+  it('ST-17 cuts a stored title to 200 characters rather than losing the song (ADR-108)', async () => {
+    const stored = JSON.stringify([{ ...sample, title: 'x'.repeat(5000) }]);
+    const [loaded] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(loaded.title).toHaveLength(200);
+  });
+
   it('ST-14 keeps when a song was last opened, and reads an older song as never opened (ADR-106)', async () => {
     const { openedAt: _dropped, ...withoutOpened } = sample;
     const stored = JSON.stringify([

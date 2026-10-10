@@ -8,7 +8,7 @@
  * Stored data is untrusted input — another tab, an older app version, or a user with devtools can
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
-import { MAX_BARS_PER_LINE, boundedBars } from './bounds';
+import { MAX_BARS_PER_LINE, MAX_TITLE_LENGTH, boundedBars } from './bounds';
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
 import { MAX_TEMPO, MIN_TEMPO, fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
 import type { ChordAnchor, DisplayMode, Song, SongRow } from '../types/song';
@@ -182,7 +182,8 @@ export function sanitizeSong(value: unknown): Song | null {
 
   return {
     id,
-    title,
+    // Cut, not refused: a long title is still the song's (ADR-108).
+    title: title.slice(0, MAX_TITLE_LENGTH),
     originalKey,
     currentKey,
     // Within the tempo field's own range: a stored 1e12 is a song a few nanoseconds long (ADR-108).

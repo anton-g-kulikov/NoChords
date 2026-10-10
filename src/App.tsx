@@ -10,6 +10,7 @@ import { ImportPrompt } from './components/ImportPrompt';
 import { SignInChoice } from './components/SignInChoice';
 import { AccountCard } from './components/AccountCard';
 import { useSongLibrary } from './hooks/useSongLibrary';
+import { MAX_TITLE_LENGTH } from './lib/bounds';
 import { useSettings } from './hooks/useSettings';
 import { useAuth } from './hooks/useAuth';
 import { useTheme } from './hooks/useTheme';
@@ -180,6 +181,7 @@ export function App() {
             className="song-view__title song-view__title--input"
             value={song.title}
             placeholder="Untitled song"
+            maxLength={MAX_TITLE_LENGTH}
             aria-label="Song title"
             onChange={(event) => updateSong({ ...song, title: event.target.value })}
           />

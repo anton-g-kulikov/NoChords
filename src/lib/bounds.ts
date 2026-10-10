@@ -14,6 +14,9 @@ export const MAX_BEATS_PER_BAR = 32;
 /** Bars in one line, for a line's own `|n|` and for a song's default — the editor's own maximum. */
 export const MAX_BARS_PER_LINE = 64;
 
+/** Characters in a song's title: a long title, not a pasted page — the same cap the database keeps. */
+export const MAX_TITLE_LENGTH = 200;
+
 /** A line length that is a whole number of bars within range, or `null` for "use the default". */
 export function boundedBars(value: number): number | null {
   return Number.isInteger(value) && value >= 1 && value <= MAX_BARS_PER_LINE ? value : null;

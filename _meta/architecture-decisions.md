@@ -2890,3 +2890,28 @@ same link landed on a different line on different screens. Two lines, each one k
 app itself, how to read it and install it; then what lies beyond it, more songs and support — break
 the same everywhere, and keep the support link together with the archive it sits beside.
 
+
+---
+
+## ADR-100 — The logo is the name in its brackets
+
+**Decision.** Amends ADR-070 and ADR-074. In the app's header, on the song screen's running head and
+on the landing page, the logo is `[ NoChords ]`: the mark's two leaning brackets, in the second
+ink, with the name between them, upright and in ink as one word. The washed tile that held the
+brackets beside the name is gone, and the "No" is no longer coloured. The home-screen icon and the
+favicon are unchanged — the same brackets on a solid tile, with no room for the name.
+
+**Why.** `[Am]` is how a chord is written in this app, so a name in brackets is a name in the chord's
+place: the logo says "no chord here" without needing the tile to sit beside it. It also makes the
+icon and the lockup one mark at two sizes — the brackets alone on a home screen, the brackets with
+the name in them everywhere there is room. Of six variations drawn, the brackets carry the colour
+and the name stays in ink, so the logo has one colour and one slant and the name reads as a word.
+
+**Details.** Each bracket is its own small SVG, cut from the same two paths as the icon (MK-01 still
+holds every copy to them), sized a touch taller than the capitals as a bracket is in type. On the
+song screen the brackets take the running head's grey, since the second ink belongs to the song
+there. In the library the whole lockup is the easter egg's button (ADR-072): tapping it steps the
+ink, and both brackets are struck on each change; its label names the app before the ink.
+
+**Cost.** The header lost its only square target; the button is now the logo's own shape, which is
+a little wider and less obviously tappable — acceptable for an easter egg.

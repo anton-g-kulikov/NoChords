@@ -1,20 +1,22 @@
-import { MARK_PATHS } from '../lib/mark';
+import { MARK_CLOSE, MARK_OPEN } from '../lib/mark';
+
+/** Each bracket's own box on the icon's 512 grid, with a hair of room for the lean. */
+const VIEW_BOX = { open: '104 116 152 280', close: '256 116 152 280' } as const;
 
 /**
- * The empty brackets on a tile, in the scheme's own colours (ADR-070, ADR-074): the tile washed in
- * the second ink like a button that is on, the brackets in that ink. The installed icon keeps its
- * solid tile, because a home screen is not this page.
+ * One of the mark's two brackets, on its own (ADR-100). The lockup sets the name between them —
+ * `[ NoChords ]` — so the mark and the name are one thing, and the home-screen icon is the same two
+ * brackets with the name taken out. Same drawing as the installed icons, held to it by MK-01.
  */
-export function Mark({ className }: { className?: string }) {
+export function Bracket({ side, className }: { side: 'open' | 'close'; className?: string }) {
   return (
-    // Cropped closer than the icon's 512 grid: a home screen wants margin round the mark, but in a
-    // 38px tile beside the name it read small and light. Same drawing, nearer view.
-    <svg className={className} viewBox="64 64 384 384" aria-hidden="true" focusable="false">
-      <g fill="currentColor">
-        {MARK_PATHS.map((d) => (
-          <path key={d} d={d} />
-        ))}
-      </g>
+    <svg
+      className={className}
+      viewBox={VIEW_BOX[side]}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path fill="currentColor" d={side === 'open' ? MARK_OPEN : MARK_CLOSE} />
     </svg>
   );
 }

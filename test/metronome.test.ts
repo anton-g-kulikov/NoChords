@@ -136,7 +136,7 @@ describe('countInProgress', () => {
 });
 
 describe('countInRemainingAt', () => {
-  it('MT-23 **counts nothing in the silent second, then n down to one** (ADR-097)', () => {
+  it('MT-28 **counts nothing in the silent second, then n down to one** (ADR-097)', () => {
     // A bar of four at 500ms a beat: the count runs from -2000ms; the clock starts at -3000ms.
     expect(countInRemainingAt(-3000, 2000, 500)).toBe(0);
     expect(countInRemainingAt(-2001, 2000, 500)).toBe(0);
@@ -164,6 +164,16 @@ describe('countInDurationMs', () => {
 });
 
 describe('beatsInWindow', () => {
+  it('MT-27 **costs what the window holds, not what the row holds** (ADR-108)', () => {
+    // A row of four billion beats at ♩ = 120: the old loop walked all of them on every 25 ms tick.
+    const huge = buildSchedule([{ ...row('a'), bars: 1_000_000_000 }], 120, 1, '4/4', 'quarter');
+    const started = performance.now();
+    const found = beatsInWindow(huge, 500, 1_000_000, 1_001_600).map((beat) => beat.index);
+    // Generous, so a busy machine cannot fail it: walking the row took about fifteen seconds.
+    expect(performance.now() - started).toBeLessThan(200);
+    expect(found).toEqual([2000, 2001, 2002, 2003]);
+  });
+
   it('MT-05 returns the beats falling in the window', () => {
     expect(indices(inFour, 500, 0, 1600)).toEqual([0, 1, 2, 3]);
     expect(indices(inFour, 500, 500, 1500)).toEqual([1, 2]);
@@ -188,7 +198,7 @@ describe('beatsInWindow', () => {
     expect(seen).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
   });
 
-  it('MT-22 **plays nothing before the count-in\'s first beat, so the second before it is silent** (ADR-097)', () => {
+  it('MT-29 **plays nothing before the count-in\'s first beat, so the second before it is silent** (ADR-097)', () => {
     // A one-bar count of four, with the clock started a silent second earlier: scanning from
     // -3000ms finds only the four count beats, never a fifth or sixth in the silence.
     const fourBeats = beatsInWindow(inFour, 500, -3000, 0, 4).map((beat) => beat.index);

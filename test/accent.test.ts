@@ -78,7 +78,12 @@ describe('accent', () => {
     }
   });
 
-  it('AC-05 the pre-paint script leaves the default off the page, as the hook does', () => {
-    expect(read('index.html')).toContain(`settings.accent !== '${DEFAULT_ACCENT}'`);
+  it('AC-05 the pre-paint script puts only the app\'s own inks on the page, never the default (ADR-108)', () => {
+    // The script runs before the app and reads storage directly, so it carries its own copy of the
+    // list. It has to be the app's list exactly, less the default, which is the page with no
+    // attribute at all.
+    const listed = /var accents = \[([^\]]*)\]/.exec(read('index.html'))?.[1] ?? '';
+    const names = [...listed.matchAll(/'([a-z]+)'/g)].map((match) => match[1]);
+    expect(names).toEqual(ACCENT_NAMES.filter((name) => name !== DEFAULT_ACCENT));
   });
 });

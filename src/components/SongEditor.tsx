@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { MAX_BARS_PER_LINE, MAX_ROWS, MAX_SONG_TEXT } from '../lib/bounds';
 import { KeySelect } from './KeySelect';
 import { COMMON_METERS } from '../lib/meter';
 import { MAX_TEMPO, MIN_TEMPO } from '../lib/playback';
@@ -74,6 +75,9 @@ export function SongEditor({ song, onChange, onOpenGuide, onDelete }: SongEditor
   };
 
   const transposed = song.currentKey !== song.originalKey;
+  // Lines past what a song may hold are not saved (ADR-108), so the editor says so rather than
+  // letting them vanish at the next reload.
+  const tooManyLines = text.split('\n').length > MAX_ROWS;
 
   // The legend teaches by example, so its examples have to be this song's: a hint that says
   // "two bars of 4/4" to someone writing in 6/8 teaches the wrong thing twice over.
@@ -127,8 +131,13 @@ export function SongEditor({ song, onChange, onOpenGuide, onDelete }: SongEditor
           label="Bars per line"
           value={song.barsPerLine}
           min={1}
-          max={64}
-          onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
+          max={MAX_BARS_PER_LINE}
+          step={1}
+          // Whole bars only: "2.5" is never committed, as a stored one is read back rounded
+          // (ADR-108); the field shows the last whole number again when it loses focus.
+          onCommit={(barsPerLine) => {
+            if (Number.isInteger(barsPerLine)) onChange({ ...song, barsPerLine });
+          }}
         />
 
       </div>
@@ -165,11 +174,19 @@ export function SongEditor({ song, onChange, onOpenGuide, onDelete }: SongEditor
           value={text}
           spellCheck={false}
           rows={8}
+          maxLength={MAX_SONG_TEXT}
           aria-label="Song text"
           placeholder={placeholder}
           onChange={(event) => handleText(event.target.value)}
         />
       </label>
+
+      {tooManyLines && (
+        <p className="editor__note" role="status">
+          A song holds up to {MAX_ROWS.toLocaleString('en')} lines. The lines after that are not
+          saved.
+        </p>
+      )}
 
       {/* Last, and past the song itself: the one action here that cannot be undone (ADR-063). */}
       <div className="editor__danger">

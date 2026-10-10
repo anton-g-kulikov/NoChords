@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { STORAGE_KEY, createSongStore, type StorageLike } from '../src/lib/storage';
+import { STORAGE_KEY, createSongStore, storableSongId, type StorageLike } from '../src/lib/storage';
 import { createSong } from '../src/lib/songs';
 import type { Song } from '../src/types/song';
 
@@ -167,6 +167,74 @@ describe('createSongStore', () => {
     ]);
     const loaded = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
     expect(loaded.map((song) => song.displayMode)).toEqual(['nashville', 'learning', 'full', 'full']);
+  });
+
+  it('ST-15 **keeps stored line lengths within what the editor allows** (ADR-108)', async () => {
+    const row = (id: string, bars: unknown) => ({ id, lyrics: 'la', chords: [], bars, meter: null });
+    const stored = JSON.stringify([
+      { ...sample, barsPerLine: 1e308, rows: [row('a', 1e9), row('b', 64), row('c', -3)] },
+      { ...sample, id: 'song-2', barsPerLine: -3 },
+      { ...sample, id: 'song-3', barsPerLine: 2.6 },
+    ]);
+    const [huge, negative, fraction] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    // Out of range is not corruption: the song loads, at lengths the editor could have set.
+    expect(huge.barsPerLine).toBe(64);
+    expect(huge.rows.map((r) => r.bars)).toEqual([null, 64, null]);
+    expect(negative.barsPerLine).toBe(1);
+    expect(fraction.barsPerLine).toBe(3);
+  });
+
+  it('ST-16 keeps a stored tempo within the tempo field\'s range (ADR-108)', async () => {
+    const stored = JSON.stringify([
+      { ...sample, tempo: 1e12 },
+      { ...sample, id: 'song-2', tempo: 1 },
+    ]);
+    const [fast, slow] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(fast.tempo).toBe(300);
+    expect(slow.tempo).toBe(20);
+  });
+
+  it('ST-17 cuts a stored title to 200 characters rather than losing the song (ADR-108)', async () => {
+    const stored = JSON.stringify([{ ...sample, title: 'x'.repeat(5000) }]);
+    const [loaded] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(loaded.title).toHaveLength(200);
+  });
+
+  it('ST-18 **repairs a song id Firestore would refuse, the same way every time** (ADR-108)', async () => {
+    const stored = JSON.stringify([
+      { ...sample, id: 'a/b' },
+      { ...sample, id: '__reserved__' },
+      { ...sample, id: 'a-b' },
+    ]);
+    const loaded = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    const ids = loaded.map((song) => song.id);
+    for (const id of ids) {
+      expect(id).toMatch(/^[A-Za-z0-9_-]{1,128}$/);
+      expect(id).not.toMatch(/^__.*__$/);
+    }
+    // The app's own ids are untouched; a repaired one is stable, and never collides with a real one.
+    expect(ids[2]).toBe('a-b');
+    expect(ids[0]).not.toBe('a-b');
+    expect(storableSongId('a/b')).toBe(ids[0]);
+    expect(storableSongId(sample.id)).toBe(sample.id);
+  });
+
+  it('ST-19 **keeps a stored song within what the database accepts** (ADR-108)', async () => {
+    const many = Array.from({ length: 1200 }, (_, n) => ({ id: `r${n}`, lyrics: 'la', chords: [], bars: null, meter: null }));
+    const stored = JSON.stringify([
+      { ...sample, rows: many },
+      { ...sample, id: 'song-2', originalKey: 'H#major', currentKey: 'nonsense' },
+      { ...sample, id: 'song-3', currentKey: 'nonsense' },
+      { ...sample, id: 'song-4', title: '😀'.repeat(250) },
+    ]);
+    const [long, badKeys, badCurrent, emoji] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(long.rows).toHaveLength(1000);
+    expect([badKeys.originalKey, badKeys.currentKey]).toEqual(['C', 'C']);
+    // An unreadable display key falls back to the song's own key.
+    expect(badCurrent.currentKey).toBe(sample.originalKey);
+    // Cut by characters: two hundred whole emoji, none split in half.
+    expect(Array.from(emoji.title)).toHaveLength(200);
+    expect(emoji.title).toBe('😀'.repeat(200));
   });
 
   it('ST-14 keeps when a song was last opened, and reads an older song as never opened (ADR-106)', async () => {

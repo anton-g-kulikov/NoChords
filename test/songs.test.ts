@@ -229,4 +229,11 @@ describe('setCurrentKey', () => {
     expect(transposed.originalKey).toBe('C');
     expect(transposed.rows[0].chords).toEqual(song.rows[0].chords);
   });
+
+  it('SG-20 **keeps no more lines than a song may hold, typed or pasted** (ADR-108)', () => {
+    const text = Array.from({ length: 1500 }, (_, n) => `line ${n}`).join('\n');
+    expect(textToRows(text)).toHaveLength(1000);
+    expect(rowsFromPastedText(text)).toHaveLength(1000);
+    expect(textToRows(text)[999].lyrics).toBe('line 999');
+  });
 });

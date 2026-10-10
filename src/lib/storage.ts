@@ -8,8 +8,11 @@
  * Stored data is untrusted input — another tab, an older app version, or a user with devtools can
  * all put nonsense in it — so everything read back is validated before it reaches the app.
  */
+import { MAX_BARS_PER_LINE, MAX_ROWS, MAX_TITLE_LENGTH, boundedBars } from './bounds';
+import { parseKey } from './chords';
+import { DEFAULT_KEY } from './songs';
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
-import { fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
+import { MAX_TEMPO, MIN_TEMPO, fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
 import type { ChordAnchor, DisplayMode, Song, SongRow } from '../types/song';
 
 export const STORAGE_KEY = 'nochords.songs.v1';
@@ -36,6 +39,31 @@ export interface SongStore {
   subscribe?(onChange: (songs: Song[]) => void): () => void;
 }
 
+/** A key as written, if the app can read it; otherwise `null`. */
+const readableKey = (key: string): string | null => (parseKey(key) ? key : null);
+
+/** What a song id may be: what the app makes, and what Firestore accepts as a document name. */
+const SONG_ID = /^[A-Za-z0-9_-]{1,128}$/;
+
+/**
+ * A song id Firestore can store, the same one every time for the same input (ADR-108).
+ *
+ * Firestore refuses an id with a `/` in it, or shaped `__like this__`, so a song carrying one never
+ * uploads and the offer to copy it up comes back on every load. The app's own ids always pass; one
+ * that does not came from an edited store, and is repaired rather than dropped, keeping a hash of
+ * the original so two different ids cannot repair to the same one.
+ */
+export function storableSongId(id: string): string {
+  if (SONG_ID.test(id) && !/^__.*__$/.test(id)) return id;
+  let hash = 0x811c9dc5;
+  for (const char of id) {
+    hash ^= char.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 0x01000193);
+  }
+  const cleaned = id.replace(/[^A-Za-z0-9_-]/g, '-').replace(/^_+|_+$/g, '').slice(0, 100);
+  return `song-${cleaned}${cleaned ? '-' : ''}${(hash >>> 0).toString(36)}`;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -55,7 +83,9 @@ function sanitizeChord(value: unknown): ChordAnchor | null {
 function sanitizeOptionalCount(value: unknown): number | null | undefined {
   if (value === null || value === undefined) return null;
   if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
-  return value;
+  // A number out of range is not corruption to lose the song over: the line falls back to the
+  // song's default length, as `|0|` does when typed (ADR-108).
+  return boundedBars(value);
 }
 
 /** The meter a row's own tag names, for reading a legacy beat count against. */
@@ -72,7 +102,7 @@ function meterFor(value: Record<string, unknown>): string {
  */
 function legacyBars(beats: unknown, meter: string): number | null {
   if (typeof beats !== 'number' || !Number.isFinite(beats) || beats <= 0) return null;
-  return Math.max(1, Math.round(beats / beatsPerBarOf(meter)));
+  return boundedBars(Math.max(1, Math.round(beats / beatsPerBarOf(meter))));
 }
 
 function sanitizeRow(value: unknown): SongRow | null {
@@ -139,13 +169,16 @@ export function sanitizeSong(value: unknown): Song | null {
   // Line length moved from beats to bars (ADR-032). A song written in beats is converted by the
   // bar length of its own meter, so it keeps the length it had rather than the number it had.
   const songMeter = typeof meter === 'string' && parseMeter(meter) ? meter : DEFAULT_METER;
-  const bars =
+  const rawBars =
     typeof barsPerLine === 'number' && Number.isFinite(barsPerLine)
       ? barsPerLine
       : typeof beatsPerLine === 'number' && Number.isFinite(beatsPerLine)
-        ? Math.max(1, Math.round(beatsPerLine / beatsPerBarOf(songMeter)))
+        ? beatsPerLine / beatsPerBarOf(songMeter)
         : null;
-  if (bars === null) return null;
+  if (rawBars === null) return null;
+  // Kept to a whole number of bars the editor could have set: a stored `1e308` would otherwise
+  // reach the schedule as an infinite song (ADR-108).
+  const bars = Math.min(Math.max(Math.round(rawBars), 1), MAX_BARS_PER_LINE);
 
   /*
    * A song written before tempo units existed carries a bare number, and that number meant beats
@@ -175,11 +208,16 @@ export function sanitizeSong(value: unknown): Song | null {
   }
 
   return {
-    id,
-    title,
-    originalKey,
-    currentKey,
-    tempo: timing.tempo,
+    id: storableSongId(id),
+    // Cut, not refused: a long title is still the song's (ADR-108). By characters, not code
+    // units, so an emoji or an accent at the cut is never split in half.
+    title: Array.from(title).slice(0, MAX_TITLE_LENGTH).join(''),
+    // A key the app can read, as the database requires: an unreadable one falls back rather than
+    // making every save of the song refused (ADR-108).
+    originalKey: readableKey(originalKey) ?? DEFAULT_KEY,
+    currentKey: readableKey(currentKey) ?? readableKey(originalKey) ?? DEFAULT_KEY,
+    // Within the tempo field's own range: a stored 1e12 is a song a few nanoseconds long (ADR-108).
+    tempo: Math.min(Math.max(timing.tempo, MIN_TEMPO), MAX_TEMPO),
     tempoUnit: timing.tempoUnit,
     barsPerLine: bars,
     // Songs written before meters existed are in four: that is what they were played as.
@@ -191,7 +229,8 @@ export function sanitizeSong(value: unknown): Song | null {
     // Songs saved before the library could sort by it have never been opened, as far as it knows.
     openedAt: typeof openedAt === 'number' && Number.isFinite(openedAt) ? openedAt : null,
     learningPlaythrough,
-    rows: sanitizedRows,
+    // No more lines than a song may hold, as the database requires (ADR-108).
+    rows: sanitizedRows.slice(0, MAX_ROWS),
   };
 }
 

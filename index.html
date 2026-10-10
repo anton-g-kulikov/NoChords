@@ -21,8 +21,10 @@
       try {
         var settings = JSON.parse(localStorage.getItem('nochords.settings.v1') || '{}');
         var theme = settings.theme;
-        // The second ink too (ADR-072); the stylesheet ignores a name it has no colours for.
-        if (typeof settings.accent === 'string' && settings.accent !== 'vermilion') {
+        // The second ink too (ADR-072), only from the app's own list, as the app itself reads it
+        // (ADR-108). The default, vermilion, is the page with no attribute at all.
+        var accents = ['ochre', 'moss', 'teal', 'indigo', 'plum', 'rose'];
+        if (accents.indexOf(settings.accent) !== -1) {
           document.documentElement.dataset.accent = settings.accent;
         }
         if (theme === 'light' || theme === 'dark') {

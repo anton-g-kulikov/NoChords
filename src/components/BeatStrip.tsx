@@ -1,4 +1,5 @@
 import { Volume, VolumeX } from 'lucide-react';
+import { MAX_BEATS_PER_BAR } from '../lib/bounds';
 import { countInProgress } from '../lib/metronome';
 import type { BarPulse } from '../lib/metronome';
 
@@ -48,7 +49,11 @@ export function BeatStrip({
   onSoundChange,
 }: BeatStripProps) {
   const count = countInProgress(countInBars, beatsPerBar, countInRemaining);
-  const showing = counting ? beatsPerBar : (pulse?.beatsPerBar ?? beatsPerBar);
+  // Capped as a last line of defence: one dot per beat, and never more than a bar may hold (ADR-108).
+  const showing = Math.min(
+    counting ? beatsPerBar : (pulse?.beatsPerBar ?? beatsPerBar),
+    MAX_BEATS_PER_BAR
+  );
   const sounded = counting ? count.inBar : (pulse?.inBar ?? 0);
 
   return (

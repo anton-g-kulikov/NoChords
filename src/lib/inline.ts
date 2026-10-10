@@ -8,6 +8,8 @@
  * A slash chord keeps its slash inside its brackets, so nothing collides.
  */
 import type { ChordAnchor } from '../types/song';
+import { boundedBars } from './bounds';
+import { parseMeter } from './meter';
 
 export interface InlineRow {
   lyrics: string;
@@ -36,13 +38,17 @@ export function parseInlineRow(text: string): InlineRow {
   // Take the tags out first so they cannot disturb the chord offsets.
   const withoutTags = text
     .replace(METER_TAG, (_match, top: string, bottom: string) => {
-      meter = `${Number(top)}/${Number(bottom)}`;
+      // Only a signature the app can play is kept on the row, and an unreadable one is ignored
+      // rather than undoing a readable one before it; the tag itself is markup either way (ADR-108).
+      const written = `${Number(top)}/${Number(bottom)}`;
+      if (parseMeter(written)) meter = written;
       return '';
     })
     .replace(BARS_TAG, (_match, value: string) => {
-      const parsed = Number(value);
-      // A later tag on the same line wins; zero or nonsense falls back to the song default.
-      if (Number.isFinite(parsed) && parsed > 0) bars = parsed;
+      // A later tag on the same line wins; zero, or more bars than a line may hold, falls back to
+      // the song default (ADR-108).
+      const parsed = boundedBars(Number(value));
+      if (parsed !== null) bars = parsed;
       return '';
     });
 

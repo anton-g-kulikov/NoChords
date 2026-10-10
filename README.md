@@ -34,6 +34,7 @@ npm run dev      # http://localhost:5173
 | `npm version patch\|minor` | Bump the release, which names the offline cache |
 | `npm run deploy` | Build and deploy to Firebase Hosting |
 | `npm run deploy:rules` | Deploy the Firestore security rules |
+| `npm run test:rules` | Check the security rules against the Firestore emulator (start it first: `npx firebase-tools emulators:start --only firestore --project demo-nochords`) |
 
 A new library starts with two public-domain songs already in it, House of the Rising Sun and Постой,
 паровоз, so there is something to play with on the first run (ADR-024, ADR-076, ADR-080, ADR-089).

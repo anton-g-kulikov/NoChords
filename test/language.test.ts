@@ -88,4 +88,25 @@ describe('song language (ADR-081)', () => {
     ]);
     expect(offersLanguageChoice(seeded)).toBe(true);
   });
+
+  it('LG-08 reads each song once, and an edited song afresh (ADR-108)', () => {
+    // Counted, not timed: how often the song's lyrics are actually read.
+    let reads = 0;
+    const counted = new Proxy(song('Чёрный ворон', 'Чёрный ворон, что ты вьёшься'), {
+      get(target, key, receiver) {
+        if (key === 'rows') reads += 1;
+        return Reflect.get(target, key, receiver);
+      },
+    });
+    const library = [counted, RISING_SUN];
+    for (let pass = 0; pass < 3; pass += 1) {
+      offersLanguageChoice(library);
+      filterByLanguage(library, effectiveLanguageFilter('ru', library));
+    }
+    expect(reads).toBe(1);
+    // A song is replaced, not changed, when edited, so the new object is read on its own.
+    const edited = { ...VORON, title: 'Raven', rows: [{ ...VORON.rows[0], lyrics: 'There is a house in New Orleans they call' }] };
+    expect(songLanguage(VORON)).toBe('ru');
+    expect(songLanguage(edited)).toBe('en');
+  });
 });

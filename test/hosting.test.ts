@@ -13,7 +13,8 @@ interface HeaderRule {
 const hosting = JSON.parse(read('firebase.json')).hosting as { headers: HeaderRule[] };
 const everyPage = hosting.headers.find((rule) => rule.source === '**');
 const header = (key: string) => everyPage?.headers.find((entry) => entry.key === key)?.value ?? '';
-const policy = header('Content-Security-Policy-Report-Only');
+// Report-only for now; enforcing is the same policy under the other key (ADR-108).
+const policy = header('Content-Security-Policy') || header('Content-Security-Policy-Report-Only');
 const directive = (name: string) =>
   policy
     .split(';')
@@ -46,6 +47,15 @@ describe('hosting headers (ADR-108)', () => {
     expect(directive('object-src')).toBe("object-src 'none'");
     expect(directive('base-uri')).toBe("base-uri 'self'");
     expect(directive('form-action')).toBe("form-action 'self'");
+  });
+
+  it('HS-05 keeps styles to the app\'s own stylesheet, and leaves the screen wake lock allowed', () => {
+    // The built page has no inline styles, and React's style props go through the CSSOM, which a
+    // policy does not block.
+    expect(directive('style-src')).toBe("style-src 'self'");
+    // The chart keeps the screen awake while a song plays (ADR-035): a tidy-up that denied
+    // screen-wake-lock here would quietly bring back the screen dimming mid-song.
+    expect(header('Permissions-Policy')).not.toContain('screen-wake-lock');
   });
 
   it('HS-04 the cache rules that keep a deploy live are unchanged (ADR-056)', () => {

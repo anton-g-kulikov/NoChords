@@ -18,7 +18,7 @@
         "headers": [
           {
             "key": "Content-Security-Policy-Report-Only",
-            "value": "default-src 'self'; script-src 'self' 'sha256-pTDPSIeLvEvdT1kDixXeG4fyODVu11A9Z2gImDZLc9A=' https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.googleapis.com; frame-src https://nochords-18219.firebaseapp.com https://apis.google.com; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+            "value": "default-src 'self'; script-src 'self' 'sha256-pTDPSIeLvEvdT1kDixXeG4fyODVu11A9Z2gImDZLc9A=' https://apis.google.com; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.googleapis.com; frame-src https://nochords-18219.firebaseapp.com https://apis.google.com; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
           },
           {
             "key": "X-Content-Type-Options",

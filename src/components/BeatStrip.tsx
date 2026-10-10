@@ -1,5 +1,5 @@
-import { MAX_BEATS_PER_BAR } from '../lib/bounds';
 import { Volume, VolumeX } from 'lucide-react';
+import { MAX_BEATS_PER_BAR } from '../lib/bounds';
 import { countInProgress } from '../lib/metronome';
 import type { BarPulse } from '../lib/metronome';
 

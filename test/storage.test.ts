@@ -184,6 +184,16 @@ describe('createSongStore', () => {
     expect(fraction.barsPerLine).toBe(3);
   });
 
+  it('ST-16 keeps a stored tempo within the tempo field\'s range (ADR-108)', async () => {
+    const stored = JSON.stringify([
+      { ...sample, tempo: 1e12 },
+      { ...sample, id: 'song-2', tempo: 1 },
+    ]);
+    const [fast, slow] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(fast.tempo).toBe(300);
+    expect(slow.tempo).toBe(20);
+  });
+
   it('ST-14 keeps when a song was last opened, and reads an older song as never opened (ADR-106)', async () => {
     const { openedAt: _dropped, ...withoutOpened } = sample;
     const stored = JSON.stringify([

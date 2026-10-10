@@ -194,8 +194,10 @@ describe('bar and meter tags', () => {
     expect(parseInlineRow('[C]la|64|').bars).toBe(64);
     expect(parseInlineRow('[C]la|65|').bars).toBeNull();
     expect(parseInlineRow('[C]la|999999999|').bars).toBeNull();
-    // An unreadable signature is dropped too, as any signature that is not one.
+    // An unreadable signature is dropped too, as any signature that is not one — without undoing
+    // a readable one before it on the same line.
     expect(parseInlineRow('{99999999/4}[C]la').meter).toBeNull();
+    expect(parseInlineRow('{3/4}{999/4}[C]la').meter).toBe('3/4');
   });
 });
 

@@ -9,8 +9,9 @@
  * song's tempo counts those units, so nothing about existing timing changes.
  */
 
-/** What a song is in when it does not say. Four beats to the bar, accent on the first. */
 import { MAX_BEATS_PER_BAR } from './bounds';
+
+/** What a song is in when it does not say. Four beats to the bar, accent on the first. */
 
 export const DEFAULT_METER = '4/4';
 

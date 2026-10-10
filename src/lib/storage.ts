@@ -10,7 +10,7 @@
  */
 import { MAX_BARS_PER_LINE, boundedBars } from './bounds';
 import { DEFAULT_METER, beatsPerBarOf, parseMeter } from './meter';
-import { fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
+import { MAX_TEMPO, MIN_TEMPO, fromDottedQuarter, isTempoUnit, unitFromMeterDenominator } from './tempo';
 import type { ChordAnchor, DisplayMode, Song, SongRow } from '../types/song';
 
 export const STORAGE_KEY = 'nochords.songs.v1';
@@ -185,7 +185,8 @@ export function sanitizeSong(value: unknown): Song | null {
     title,
     originalKey,
     currentKey,
-    tempo: timing.tempo,
+    // Within the tempo field's own range: a stored 1e12 is a song a few nanoseconds long (ADR-108).
+    tempo: Math.min(Math.max(timing.tempo, MIN_TEMPO), MAX_TEMPO),
     tempoUnit: timing.tempoUnit,
     barsPerLine: bars,
     // Songs written before meters existed are in four: that is what they were played as.

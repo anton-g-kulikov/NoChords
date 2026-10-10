@@ -1,5 +1,5 @@
-import { MAX_BARS_PER_LINE } from '../lib/bounds';
 import { useEffect, useRef, useState } from 'react';
+import { MAX_BARS_PER_LINE } from '../lib/bounds';
 import { KeySelect } from './KeySelect';
 import { COMMON_METERS } from '../lib/meter';
 import { MAX_TEMPO, MIN_TEMPO } from '../lib/playback';
@@ -129,7 +129,12 @@ export function SongEditor({ song, onChange, onOpenGuide, onDelete }: SongEditor
           value={song.barsPerLine}
           min={1}
           max={MAX_BARS_PER_LINE}
-          onCommit={(barsPerLine) => onChange({ ...song, barsPerLine })}
+          step={1}
+          // Whole bars only: "2.5" is never committed, as a stored one is read back rounded
+          // (ADR-108); the field shows the last whole number again when it loses focus.
+          onCommit={(barsPerLine) => {
+            if (Number.isInteger(barsPerLine)) onChange({ ...song, barsPerLine });
+          }}
         />
 
       </div>

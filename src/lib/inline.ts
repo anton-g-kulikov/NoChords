@@ -38,10 +38,10 @@ export function parseInlineRow(text: string): InlineRow {
   // Take the tags out first so they cannot disturb the chord offsets.
   const withoutTags = text
     .replace(METER_TAG, (_match, top: string, bottom: string) => {
-      // Only a signature the app can play is kept on the row; the tag itself is markup either way
-      // (ADR-108).
+      // Only a signature the app can play is kept on the row, and an unreadable one is ignored
+      // rather than undoing a readable one before it; the tag itself is markup either way (ADR-108).
       const written = `${Number(top)}/${Number(bottom)}`;
-      meter = parseMeter(written) ? written : null;
+      if (parseMeter(written)) meter = written;
       return '';
     })
     .replace(BARS_TAG, (_match, value: string) => {

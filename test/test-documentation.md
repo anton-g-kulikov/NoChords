@@ -472,6 +472,17 @@ not silence it (ADR-066).
 | AS-02 | Nothing is said where there is nothing to say it to | ✅ |
 | AS-03 | A browser that exposes the property and refuses the value is survived | ✅ |
 
+### Native shell — `native.test.ts`
+
+Intent: know when the build is running inside the iOS or Android app, so it stops offering to
+install itself and does not register a service worker (ADR-099).
+
+| # | Case | Status |
+|---|------|--------|
+| NA-01 | **True inside a shell that says it is native** | ✅ |
+| NA-02 | False in a browser, where there is no bridge | ✅ |
+| NA-03 | False for a bridge that reports the web platform, or is not a bridge | ✅ |
+
 ### Metronome voices — `metronome-voice.test.ts`
 
 Intent: the sounds the beat can make, as a table that can be read and checked without a sound card

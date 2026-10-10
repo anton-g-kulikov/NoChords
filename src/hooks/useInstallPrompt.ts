@@ -6,6 +6,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { installAffordance, isIos, type InstallAffordance } from '../lib/install';
+import { isNative } from '../lib/native';
 
 /** The event Chrome fires. Not in lib.dom, since it is not a standard. */
 interface BeforeInstallPromptEvent extends Event {
@@ -16,6 +17,8 @@ interface BeforeInstallPromptEvent extends Event {
 /** Whether the page is running as an installed app rather than in a browser tab. */
 function standaloneNow(): boolean {
   if (typeof window === 'undefined') return false;
+  // The store app is installed by definition, and its web view matches neither test below.
+  if (isNative()) return true;
   const iosStandalone = (window.navigator as { standalone?: boolean }).standalone === true;
   return iosStandalone || window.matchMedia?.('(display-mode: standalone)').matches === true;
 }

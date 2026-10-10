@@ -221,9 +221,13 @@ button {
  * `svh` is the height with the toolbar showing — the smallest it gets — so the bottom row is always
  * on screen. The cost is a strip of unused space when the toolbar hides. In the installed app all
  * three units are equal and this costs nothing.
+ *
+ * The top inset is zero in a browser, whose own bar sits there. In the iOS and Android apps the
+ * page runs up under the status bar, and this is what keeps the header out from under the clock.
  */
 #root {
   height: 100svh;
+  padding-top: env(safe-area-inset-top, 0px);
   display: flex;
   flex-direction: column;
   overflow: hidden;

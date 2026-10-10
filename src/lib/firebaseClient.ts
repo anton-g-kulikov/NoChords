@@ -8,9 +8,12 @@ import { initializeApp, getApps, type FirebaseApp, type FirebaseOptions } from '
 import {
   GoogleAuthProvider,
   getAuth,
+  indexedDBLocalPersistence,
+  initializeAuth,
   onAuthStateChanged,
   signInWithPopup,
   signOut,
+  type Auth,
 } from 'firebase/auth';
 import {
   initializeFirestore,
@@ -19,11 +22,13 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 import { createCloudSongStore } from './cloudStore';
+import { isNative } from './native';
 import type { AuthUser } from './firebase';
 import type { SongStore } from './storage';
 
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
+let auth: Auth | null = null;
 
 /** Starts the SDK. Returns false if it cannot start, so callers fall back to local storage. */
 export function init(config: FirebaseOptions): boolean {
@@ -55,10 +60,26 @@ function getDb(): Firestore | null {
   return db;
 }
 
+/**
+ * Auth, started the way the platform can finish.
+ *
+ * `getAuth` also loads Google's sign-in iframe from the auth domain, and in the iOS shell — whose
+ * page is `capacitor://localhost` — that never completes, so the first auth state never arrives
+ * and the library waits on it forever. The shells start auth without it. Popup sign-in cannot work
+ * there anyway: Google refuses OAuth inside an embedded web view.
+ */
+function getAppAuth(firebaseApp: FirebaseApp): Auth {
+  if (auth) return auth;
+  auth = isNative()
+    ? initializeAuth(firebaseApp, { persistence: indexedDBLocalPersistence })
+    : getAuth(firebaseApp);
+  return auth;
+}
+
 export function watchAuth(onUser: (user: AuthUser | null) => void): () => void {
   if (!app) return () => {};
   return onAuthStateChanged(
-    getAuth(app),
+    getAppAuth(app),
     (user) =>
       onUser(
         user ? { uid: user.uid, displayName: user.displayName, email: user.email } : null
@@ -69,12 +90,12 @@ export function watchAuth(onUser: (user: AuthUser | null) => void): () => void {
 
 export async function signInWithGoogle(): Promise<void> {
   if (!app) throw new Error('not initialised');
-  await signInWithPopup(getAuth(app), new GoogleAuthProvider());
+  await signInWithPopup(getAppAuth(app), new GoogleAuthProvider());
 }
 
 export async function signOutNow(): Promise<void> {
   if (!app) return;
-  await signOut(getAuth(app));
+  await signOut(getAppAuth(app));
 }
 
 export function createStore(uid: string): SongStore | null {

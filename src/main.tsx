@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { isNative } from './lib/native';
 /* Bundled, not fetched from a font service: the app has to look like itself offline (ADR-068).
    Each file is split by script and fetched only when a page uses it, so Cyrillic lyrics cost
    nothing to someone singing in English. */
@@ -24,8 +25,11 @@ createRoot(container).render(
  *
  * Registration is deliberately unawaited and failure-tolerant. Offline support is a bonus on top
  * of an app that already works from local storage; nothing here should be able to stop it loading.
+ *
+ * The native shells skip it: their files are already on the device, and a worker there would only
+ * be a second cache able to serve the previous release after a store update.
  */
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+if (import.meta.env.PROD && 'serviceWorker' in navigator && !isNative()) {
   window.addEventListener('load', () => {
     void navigator.serviceWorker.register('/sw.js').catch(() => {});
   });

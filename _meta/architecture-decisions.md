@@ -3103,7 +3103,10 @@ and Android would only offer a button that fails.
   Account" prompt, which is the usual cause on a phone with no Apple Account. So a failed Apple
   sign-in now points at the Apple Account in Settings, not at the connection.
 - **One account per email.** An Apple sign-in whose email already belongs to a Google account, or
-  the other way round, is told which provider to use.
+  the other way round, is told which provider to use. That was the expectation, and it was wrong.
+  On 2026-10-10 an Apple Account sharing its email with an existing Google account signed in, and
+  Firebase linked Apple onto that account: same uid, same songs. Google then still opened it. The
+  message stays for any case where Firebase does refuse.
 
 The wording now lives in `signInErrorMessage`, so it can be tested.
 

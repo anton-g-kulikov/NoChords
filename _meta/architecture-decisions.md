@@ -3601,3 +3601,39 @@ A link to a tip page is that kind of link.
 
 **Cost.** The apps have no way to support the project from inside them. The URL is still in the
 shared bundle, because the website needs it; the apps just never render it.
+
+---
+
+## ADR-118 — The chart's run-out is half of what is visible, not 60% of the screen
+
+**Decision.** The space below a song's last line is
+`calc((100cqh - var(--player-header)) / 2)`. That is half the chart's own height, less the pinned
+header over it.
+
+- **The chart measures itself.** `.player__chart` is a size container, and `Player` passes the
+  pinned header's height as `--player-header`. It measures once on mount, then follows a
+  ResizeObserver, because the header grows and shrinks as the panels open and close.
+- **Centring uses the visible part.** The same variable is the chart's `scroll-padding-top`, so a
+  playing line scrolled into the middle lands in the middle of the part below the header, not of
+  the part behind it.
+
+**Why.** Anton, on TestFlight, reported a chart that kept scrolling into blank paper. The run-out
+was `60vh`, a share of the whole screen, while the chart only gets the screen below the song's
+title, and the pinned header covers its top. Scrolled to the end, the last line rose behind the
+pinned header. Measured at 375×812 with the panels open, the last row was at 189–232px under a
+header ending at 332px, so the screen showed only paper. It looked like the song ran out into
+nothing.
+
+**Seen.** In a 375×812 browser with the panels open, the last line's bottom now lands at the
+middle of the visible part. On the iOS 27 simulator, scrolled to the end, the closing lines sit
+mid-chart in view.
+
+**Cost.**
+
+- **More moving parts.** It relies on container query units and a measured custom property, where
+  a single number used to do.
+- **A frame at the old run-out.** Until the observer reports, the run-out uses a header of 0, so a
+  little more room than needed. The first measurement is taken directly on mount to keep that to
+  one frame.
+- **The browser test pane lies.** A hidden page draws no frames, so ResizeObserver never fires
+  there. That is why the first measurement does not wait for it.

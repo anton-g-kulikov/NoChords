@@ -3146,3 +3146,66 @@ crops to the 72-unit window.
 
 **Not here yet.** Google Play's 1024×500 feature graphic, and wiring the files into the native
 projects, which belong to the native-apps work.
+
+---
+
+## ADR-105 — An account can be deleted from inside the app
+
+**Decision.** Amends ADR-064. Signed in, the header's button is no longer Sign out. It is an
+account icon that opens `AccountCard` under the header. The card says how and as whom you are
+signed in, and offers **Sign out**, **Delete account** and **Close**.
+
+Delete account first asks in the card, naming how many songs go. Then `deleteAccount` works in this
+order:
+
+1. **Sign in again, with the same account.** On the web that is a popup; in the apps it is the
+   platform's own sign-in.
+2. **Delete every song** under `users/{uid}/songs`, in batches of 500.
+3. **For an Apple account, revoke Apple's sign-in** with the authorization code that the fresh
+   Apple sign-in carries.
+4. **Delete the Firebase user**, and in the apps, Google's session with it.
+
+The library then falls back to the songs kept on the device, as it does on signing out. The privacy
+page now points at the button, keeping help@ for anyone who cannot reach the app.
+
+**Why.** App Review guideline 5.1.1(v): an app that lets people create an account must let them
+delete it from inside the app. Emailing help@ does not count. It applies to the website just as
+much, so all three platforms get the same button.
+
+**Why sign in again.** Firebase deletes only a user who signed in recently. Asking every time,
+instead of only when Firebase refuses, also makes it the owner who confirms. A phone left unlocked
+on a music stand should not be able to lose someone's account in two taps.
+
+**Why this order.** The rules let a user touch only their own songs while they are signed in, so
+the songs have to go before the user does. Every step can fail on its own, and each failure leaves
+something that trying again finishes. The worst case is an account with fewer songs, never songs
+with no account to delete them through.
+
+**Why the Apple revocation is allowed to fail.** Revoking needs Apple's key in Firebase: the
+"OAuth code flow configuration" section of the Apple provider, with a Team ID, a Key ID and a
+private key. That is not set up yet. Until it is, revocation fails quietly and the account is
+deleted anyway, because keeping data someone asked to delete is the worse failure. With the key in
+place, it works with no code change.
+
+**Why the account moved into a card.** One button signing out was a single tap with nothing
+next to it. Deleting needed somewhere to live that is easy to find, and the card answers "whose
+account is this?" too. Signing out is now two taps. That is the cost.
+
+**Seen, and not yet seen.** On the web, the card was rendered in place with a stand-in delete:
+
+- It has the three actions.
+- A long Apple relay address wraps inside it.
+- The confirmation names the count.
+- While deleting, both buttons are disabled.
+- A failure returns to the confirmation.
+
+No real account has been deleted on any platform yet. That needs a throwaway Google or Apple
+account, signed in and then deleted.
+
+**Cost.**
+
+- **Signing out takes two taps** where it took one.
+- **Apple revocation waits on the key.** The Apple account's sign-in is not revoked until Apple's
+  key is in Firebase, and App Review expects it to be.
+- **Deleting needs a connection.** Firestore's offline queue would hold a delete until the phone
+  is back online, and the confirming sign-in needs the network anyway.

@@ -899,9 +899,11 @@ kbd {
   font-size: 1.05rem;
 }
 
-/* Small and quiet here: a running head, not the name on the cover. */
+/* Small here: a running head, not the name on the cover. Smaller and lighter, but the name keeps
+   its ink, the same colour on every screen (ADR-115). */
 .song-view__app .wordmark {
   font-weight: 500;
+  color: var(--text);
 }
 
 .song-view__title {

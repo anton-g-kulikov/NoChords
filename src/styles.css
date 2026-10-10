@@ -728,6 +728,39 @@ kbd {
   margin-right: -8px;
 }
 
+/* A language's short form, shown only where the head is narrow (ADR-107). */
+.library__language-short {
+  display: none;
+}
+
+/*
+ * On a phone the head is the list's controls and nothing else (ADR-107): the order at the left, the
+ * languages at the right in their short forms, on one line. "Songs" and its count are left to screen
+ * readers — on a phone the list itself shows how many there are.
+ */
+@media (max-width: 430px) {
+  .library__heading-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .library__sorts {
+    margin-left: -8px;
+  }
+
+  .library__language-long {
+    display: none;
+  }
+
+  .library__language-short {
+    display: inline;
+  }
+}
+
 /* In the second ink, like every other thing that is on (ADR-069). */
 .library__language--active {
   color: var(--accent);

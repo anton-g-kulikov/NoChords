@@ -196,9 +196,12 @@ export function SongList({
                       : 'library__language'
                   }
                   aria-pressed={option.value === shownLanguage}
+                  aria-label={option.label}
                   onClick={() => onLanguageChange(option.value)}
                 >
-                  {option.label}
+                  {/* The whole name where there is room, its short form on a phone (ADR-107). */}
+                  <span className="library__language-long">{option.label}</span>
+                  <span className="library__language-short">{option.short}</span>
                 </button>
               ))}
             </div>

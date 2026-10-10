@@ -17,10 +17,10 @@ export type SongLanguage = 'en' | 'ru';
 export type LanguageFilter = 'all' | SongLanguage;
 
 /** In the order the switcher offers them. Named in English, as the rest of the UI is. */
-export const LANGUAGE_FILTERS: ReadonlyArray<{ value: LanguageFilter; label: string }> = [
-  { value: 'all', label: 'All' },
-  { value: 'en', label: 'English' },
-  { value: 'ru', label: 'Russian' },
+export const LANGUAGE_FILTERS: ReadonlyArray<{ value: LanguageFilter; label: string; short: string }> = [
+  { value: 'all', label: 'All', short: 'All' },
+  { value: 'en', label: 'English', short: 'Eng' },
+  { value: 'ru', label: 'Russian', short: 'Ru' },
 ];
 
 export const DEFAULT_LANGUAGE_FILTER: LanguageFilter = 'all';

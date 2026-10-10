@@ -200,8 +200,9 @@ The app follows the device's light or dark setting. To fix one regardless, use t
 the foot of the library — match the device, light, or dark. The choice is per device, like the
 metronome's volume.
 
-The accent colour has seven settings, one for each mode from Ionian to Locrian. There is no menu for
-them: tap the mark beside the app's name.
+The accent colour has eight settings: seven colours, one for each mode from Ionian to Locrian, and
+then monochrome — the octave — which sets the music in the page's own ink. There is no menu for
+them: tap the logo.
 
 ## Installing it
 

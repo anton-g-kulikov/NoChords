@@ -144,6 +144,13 @@
   --ink-dark: 239, 147, 174;
 }
 
+/* Monochrome (ADR-110): the second ink is the first one, so the music is set apart by its face and
+   weight alone, as in a songbook printed in one colour. */
+:root[data-accent='mono'] {
+  --ink-light: 29, 26, 22;
+  --ink-dark: 236, 229, 216;
+}
+
 * {
   box-sizing: border-box;
 }

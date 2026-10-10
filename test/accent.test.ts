@@ -30,15 +30,17 @@ function contrast(a: readonly number[], b: readonly number[]): number {
 const hex = (value: string) => [1, 3, 5].map((i) => Number.parseInt(value.slice(i, i + 2), 16));
 
 describe('accent', () => {
-  it('AC-01 seven inks, and tapping steps through every one and back to the first', () => {
-    expect(ACCENT_NAMES).toHaveLength(7);
+  it('AC-01 eight inks, and tapping steps through every one and back to the first', () => {
+    // Seven modes, then monochrome as the octave (ADR-110).
+    expect(ACCENT_NAMES).toHaveLength(8);
+    expect(ACCENT_NAMES[ACCENT_NAMES.length - 1]).toBe('mono');
     const seen = [DEFAULT_ACCENT];
     let current = DEFAULT_ACCENT;
-    for (let step = 0; step < 6; step += 1) {
+    for (let step = 0; step < 7; step += 1) {
       current = nextAccent(current);
       seen.push(current);
     }
-    expect(new Set(seen).size).toBe(7);
+    expect(new Set(seen).size).toBe(8);
     expect(nextAccent(current)).toBe(DEFAULT_ACCENT);
   });
 

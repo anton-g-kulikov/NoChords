@@ -566,7 +566,7 @@ stylesheet — so the two must agree.
 
 | # | Case | Status |
 |---|------|--------|
-| AC-01 | Seven inks; tapping visits every one and comes back to the first | ✅ |
+| AC-01 | Eight inks — seven modes, then monochrome; tapping visits every one and comes back to the first | ✅ |
 | AC-02 | The default puts no attribute on the page; any other ink names itself | ✅ |
 | AC-03 | Every ink reaches 4.5:1 as chord text on paper and on the night background | ✅ |
 | AC-04 | The stylesheet carries exactly the table's colours, the default as its fallback | ✅ |

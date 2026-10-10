@@ -3389,3 +3389,24 @@ reaches Anton's phone. Android builds but has not been run.
   `PageChromePlugin.java`.
 - **Two copies of the colours.** The native default repeats `THEME_COLOR`, so changing the paper or
   night colour means changing it in `AppViewController` too.
+
+---
+
+## ADR-110 — Monochrome is the eighth ink
+
+**Decision.** Amends ADR-072. The inks that tapping the logo steps through gain an eighth after the
+seven modes: monochrome, in which the second ink is the page's own — near-black on paper, paper on
+the night. Chords, the key, the logo's brackets, the current line's wash and the beat dot all take
+it. It is stored as `mono` and listed in the pre-paint script's allowed names (ADR-108); since that
+script is allowed by its hash in the hosting's content policy, the hash in `firebase.json` changed
+with it (HS-02 fails if the two drift).
+
+**Why.** Some players want the chart to look like a songbook printed in one colour, and some
+screens and eyes read colour poorly. The design already sets chords apart from words by face and
+weight — narrow bold sans over a serif — so with colour removed the chart stays legible: the colour
+was a second signal, never the only one. In the joke the inks carry, the seven are the modes of the
+scale; the eighth step is the first note again, an octave up, in the plain ink.
+
+**Cost.** Without a second ink, the current line, buttons that are on and the chords no longer stand
+apart from the text by colour, only by wash, weight and face. That is the point of the setting, and
+it is one tap away from the colours.

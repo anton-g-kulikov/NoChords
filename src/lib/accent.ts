@@ -2,7 +2,8 @@
  * The second ink, and the six others it can be swapped for (ADR-072).
  *
  * Tapping the mark in the library header steps to the next one: an easter egg, kept per device like
- * the theme. Seven, one for each note of the scale, in the order of the modes — Ionian first.
+ * the theme. Seven, one for each note of the scale, in the order of the modes — Ionian first — and
+ * then monochrome, the octave, before it comes round again (ADR-110).
  *
  * Every light ink has to read as chord text on paper (at least 4.5:1 on `--bg`), and every dark one
  * on the night background; a test holds each to that (AC-03). Colours are RGB triplets so the
@@ -16,7 +17,8 @@ export type AccentName =
   | 'teal'
   | 'indigo'
   | 'plum'
-  | 'rose';
+  | 'rose'
+  | 'mono';
 
 export interface Accent {
   label: string;
@@ -36,6 +38,11 @@ export const ACCENTS: Record<AccentName, Accent> = {
   indigo: { label: 'Indigo', mode: 'Mixolydian', light: [52, 80, 154], dark: [157, 179, 240] },
   plum: { label: 'Plum', mode: 'Aeolian', light: [122, 61, 138], dark: [201, 160, 220] },
   rose: { label: 'Rose', mode: 'Locrian', light: [168, 50, 90], dark: [239, 147, 174] },
+  /**
+   * No second ink at all: the music in the page's own ink, near-black on paper and paper on the
+   * night. After the seven modes, the eighth step is the first note again — the octave (ADR-110).
+   */
+  mono: { label: 'Monochrome', mode: 'Octave', light: [29, 26, 22], dark: [236, 229, 216] },
 };
 
 export const ACCENT_NAMES = Object.keys(ACCENTS) as AccentName[];

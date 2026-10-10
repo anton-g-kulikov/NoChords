@@ -176,16 +176,31 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
   }, [store]);
 
   const [saveError, setSaveError] = useState<{ songId: string; title: string } | null>(null);
+  /** The latest save sent for each song, so a slow answer to an older one cannot speak for it. */
+  const latestSave = useRef(new Map<string, number>());
+
+  // A different store, as on signing out, cannot have refused anything yet: the local one never
+  // refuses, and an account just opened has not been written to (ADR-108).
+  useEffect(() => {
+    setSaveError(null);
+  }, [store]);
 
   const flush = useCallback(() => {
     const pending = [...pendingWrites.current.values()];
     pendingWrites.current.clear();
     for (const song of pending) {
+      const save = (latestSave.current.get(song.id) ?? 0) + 1;
+      latestSave.current.set(song.id, save);
+      const isLatest = () => latestSave.current.get(song.id) === save;
       // Said, not swallowed (ADR-108): a refused write left the song only in memory, to vanish at
       // the next reload with nothing to say why. An offline write does not land here at all.
       void storeRef.current.saveSong(song).then(
-        () => setSaveError((current) => (current?.songId === song.id ? null : current)),
-        () => setSaveError({ songId: song.id, title: song.title || UNTITLED_SONG })
+        () => {
+          if (isLatest()) setSaveError((current) => (current?.songId === song.id ? null : current));
+        },
+        () => {
+          if (isLatest()) setSaveError({ songId: song.id, title: song.title || UNTITLED_SONG });
+        }
       );
     }
   }, []);
@@ -231,6 +246,9 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
   const deleteSong = useCallback((songId: string) => {
     setSongs((current) => current.filter((item) => item.id !== songId));
     pendingWrites.current.delete(songId);
+    // A deleted song has nothing left to save, so no refusal of it is worth saying.
+    latestSave.current.delete(songId);
+    setSaveError((current) => (current?.songId === songId ? null : current));
     void storeRef.current.deleteSong(songId).catch(() => {});
   }, []);
 

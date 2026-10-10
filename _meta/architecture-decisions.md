@@ -2890,3 +2890,52 @@ same link landed on a different line on different screens. Two lines, each one k
 app itself, how to read it and install it; then what lies beyond it, more songs and support — break
 the same everywhere, and keep the support link together with the archive it sits beside.
 
+---
+
+## ADR-099 — The iOS and Android apps are the web build in a Capacitor shell
+
+**Decision.** Amends ADR-037. The store apps are Capacitor 8 shells (`ios/`, `android/`,
+`capacitor.config.ts`, app id `app.nochords`) around the same `dist` the website serves.
+`npm run native:sync` builds the site and copies it in, and `native:ios` / `native:android` open the
+projects. One question, `isNative()` in `native.ts`, tells the build where it is running, and four
+things change inside a shell:
+
+- No service worker. The files are already on the device.
+- No install offer. The app counts as installed.
+- Auth starts with `initializeAuth` and IndexedDB persistence instead of `getAuth`.
+- The shell's top is padded by `env(safe-area-inset-top)`, so the header clears the status bar.
+
+**Why not Expo.** ADR-037 called the fixed shell "what an Expo shell would be built from". Expo is
+React Native, which renders no HTML. Every screen, every rule in `styles.css` and the Web Audio
+metronome would have to be written a second time, then kept in step with the first for good. Only
+`src/lib` would carry over. A Capacitor shell runs the app as it is, so the layout ADR-037 describes
+needs no translating at all.
+
+**Why `isNative()` reads the bridge.** The shell injects `window.Capacitor` before the page runs.
+Importing `@capacitor/core` to ask the same question added 8kB (3kB gzipped) to the main bundle of
+every web visitor, for whom the answer is always no (ADR-023). Reading the global costs 138 bytes.
+
+**Why no service worker in the shell.** It would be a second cache over files that are already
+local. After a store update it could serve the previous release, which is the failure ADR-028
+exists to prevent.
+
+**Why `initializeAuth` there.** `getAuth` also loads Google's sign-in iframe from the auth domain.
+In the iOS shell, whose page is `capacitor://localhost`, that load never completes, so the first
+auth state never arrives. The library sat on "Loading your songs…" indefinitely. This was seen in
+the simulator, and this change fixed it.
+
+**Why the top inset, and why on every screen.** In a browser the inset is zero, because the
+browser's own bar sits there. In the shells the page runs up under the status bar, and the clock was
+drawn over the wordmark. One rule on `#root` covers every screen.
+
+**Cost, and what is not done yet.**
+
+- **Sign-in does not work in the shells.** Google refuses OAuth in an embedded web view, so
+  `signInWithPopup` fails. It needs native Google sign-in
+  (`@capacitor-firebase/authentication`), and on Android the signing key's SHA-1 has to be
+  registered in Firebase.
+- **The Android back button closes the app** from any screen, because nothing here uses history.
+- **The icons and splash screens are Capacitor's placeholders.**
+- **Android has been built but not run.** There is no emulator on this machine yet.
+- **The audio session is still the web one.** ADR-066's silent-switch behaviour is still untested
+  on an iPhone. Setting the session category natively would settle it.

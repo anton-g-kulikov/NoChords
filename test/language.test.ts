@@ -88,4 +88,23 @@ describe('song language (ADR-081)', () => {
     ]);
     expect(offersLanguageChoice(seeded)).toBe(true);
   });
+
+  it('LG-08 reads each song once, and an edited song afresh (ADR-108)', () => {
+    const library = Array.from({ length: 200 }, (_, n) =>
+      song(`Song ${n}`, ...Array.from({ length: 50 }, () => 'Чёрный ворон, что ты вьёшься над моею головой'))
+    );
+    library.push(RISING_SUN);
+    songLanguage(library[0]);
+    const started = performance.now();
+    for (let pass = 0; pass < 3; pass += 1) {
+      offersLanguageChoice(library);
+      filterByLanguage(library, effectiveLanguageFilter('ru', library));
+    }
+    // 200 songs of 50 lines, asked about nine times over: read once, the rest is lookups.
+    expect(performance.now() - started).toBeLessThan(50);
+    // A song is replaced, not changed, when edited, so the new object is read on its own.
+    const edited = { ...VORON, rows: [{ ...VORON.rows[0], lyrics: 'There is a house in New Orleans they call' }], title: 'Raven' };
+    expect(songLanguage(VORON)).toBe('ru');
+    expect(songLanguage(edited)).toBe('en');
+  });
 });

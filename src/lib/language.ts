@@ -43,6 +43,22 @@ const count = (text: string, letters: RegExp): number => text.match(letters)?.le
  * English, not the writer's.
  */
 export function songLanguage(song: Pick<Song, 'title' | 'rows'>): SongLanguage | null {
+  const known = readLanguages.get(song);
+  if (known !== undefined) return known;
+  const language = readLanguage(song);
+  readLanguages.set(song, language);
+  return language;
+}
+
+/**
+ * Each song's language, read once (ADR-108). The library asks three times a render — is there a
+ * choice, which one holds, which songs pass — and each used to rescan every lyric. A song is never
+ * changed in place, only replaced, so the object itself is the key, and an edited song is read
+ * afresh.
+ */
+const readLanguages = new WeakMap<object, SongLanguage | null>();
+
+function readLanguage(song: Pick<Song, 'title' | 'rows'>): SongLanguage | null {
   const title = song.title === UNTITLED_SONG ? '' : song.title;
   const text = [title, ...song.rows.map((row) => row.lyrics)].join('\n');
   const cyrillic = count(text, CYRILLIC);

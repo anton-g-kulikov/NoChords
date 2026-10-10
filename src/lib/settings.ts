@@ -18,14 +18,15 @@ export const SETTINGS_KEY = 'nochords.settings.v1';
 const LEGACY_BEATS_PER_BAR = 4;
 
 /**
- * A count-in is one bar or two, counted in the song's opening meter (ADR-094).
+ * A count-in is one bar, two or four, counted in the song's opening meter (ADR-094, ADR-116). Four
+ * is for a slow song, or a player who wants a longer run-up to the first chord.
  *
  * It only counts: "1 2 3 4", then the first line. Bars to be played before the singing starts are
  * an intro, and an intro is written into the song as a line of chords.
  */
-export type CountInBars = 1 | 2;
+export type CountInBars = 1 | 2 | 4;
 
-export const COUNT_IN_OPTIONS: readonly CountInBars[] = [1, 2];
+export const COUNT_IN_OPTIONS: readonly CountInBars[] = [1, 2, 4];
 
 export const DEFAULT_COUNT_IN_BARS: CountInBars = 1;
 
@@ -90,8 +91,10 @@ function sanitize(value: unknown): Settings {
       : typeof record.countInBeats === 'number' && Number.isFinite(record.countInBeats)
         ? Math.round(record.countInBeats / LEGACY_BEATS_PER_BAR)
         : null;
+  // The longest choice that is not longer than what was stored: three bars, which was never a
+  // choice, reads as two.
   const countInBars: CountInBars =
-    storedBars !== null && storedBars >= 2 ? 2 : DEFAULT_COUNT_IN_BARS;
+    storedBars === null || storedBars < 2 ? DEFAULT_COUNT_IN_BARS : storedBars >= 4 ? 4 : 2;
 
   return {
     theme: isThemePreference(record.theme) ? record.theme : DEFAULT_THEME,

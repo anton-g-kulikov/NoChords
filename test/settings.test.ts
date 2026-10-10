@@ -76,16 +76,17 @@ describe('device preferences', () => {
     expect(load({ librarySort: 'random' })).toBe('opened');
   });
 
-  it('SET-10 counts every song in by one bar, or two if chosen (ADR-094)', () => {
+  it('SET-10 counts every song in by one bar, or two or four if chosen (ADR-094, ADR-116)', () => {
     const load = (stored: object) =>
       createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
         .countInBars;
 
-    expect(COUNT_IN_OPTIONS).toEqual([1, 2]);
+    expect(COUNT_IN_OPTIONS).toEqual([1, 2, 4]);
     expect(DEFAULT_SETTINGS.countInBars).toBe(1);
     expect(load({})).toBe(1);
     expect(load({ countInBars: 1 })).toBe(1);
     expect(load({ countInBars: 2 })).toBe(2);
+    expect(load({ countInBars: 4 })).toBe(4);
   });
 
   it('SET-11 **reads a count-in from before it was one bar or two as the nearer of the two**', () => {
@@ -96,9 +97,9 @@ describe('device preferences', () => {
     // Auto, none, and one bar all become the one-bar count every song now starts with.
     expect(load({ countInBars: null })).toBe(1);
     expect(load({ countInBars: 0 })).toBe(1);
-    // A long count asked for a long count, and keeps the longer of the two.
+    // A long count asked for a long count, and keeps the longest choice that is not longer.
     expect(load({ countInBars: 3 })).toBe(2);
-    expect(load({ countInBars: 24 })).toBe(2);
+    expect(load({ countInBars: 24 })).toBe(4);
     // Nonsense is the default.
     expect(load({ countInBars: -4 })).toBe(1);
     expect(load({ countInBars: 'lots' })).toBe(1);
@@ -176,13 +177,13 @@ describe('createSettingsStore', () => {
     expect(store.load().metronomeVolume).toBe(0);
   });
 
-  it('SET-06 never stores a count-in other than one bar or two', () => {
+  it('SET-06 never stores a count-in other than one bar, two or four', () => {
     const backend = memoryStorage();
     const store = createSettingsStore(backend);
     store.save({ ...DEFAULT_SETTINGS, countInBars: -4 as CountInBars });
     expect(store.load().countInBars).toBe(1);
     store.save({ ...DEFAULT_SETTINGS, countInBars: 999 as CountInBars });
-    expect(store.load().countInBars).toBe(2);
+    expect(store.load().countInBars).toBe(4);
   });
 
   it('SET-08 converts a count-in written in beats, four to the bar (ADR-027)', () => {

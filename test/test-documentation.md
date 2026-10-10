@@ -532,13 +532,13 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-03 | Corrupt or non-object JSON falls back to the defaults | ✅ |
 | SET-04 | A partly broken record keeps its valid fields | ✅ |
 | SET-05 | Volume is clamped into 0..1 | ✅ |
-| SET-06 | A count-in other than one bar or two is never stored | ✅ |
+| SET-06 | A count-in other than one bar, two or four is never stored | ✅ |
 | SET-07 | A throwing backend, or none at all, degrades to the defaults | ✅ |
 | SET-08 | **A count-in stored in beats converts four to the bar, then to one bar or two** | ✅ |
 | SET-09 | **A count-in never becomes none at all** | ✅ |
 | SET-13 | The chosen sound is kept; one the app cannot make is refused | ✅ |
-| SET-10 | **Every song is counted in by one bar, or two if chosen** | ✅ |
-| SET-11 | **A count-in from before it was one bar or two becomes the nearer of the two** | ✅ |
+| SET-10 | **Every song is counted in by one bar, or two or four if chosen** | ✅ |
+| SET-11 | **An older count-in becomes the longest choice that is not longer** | ✅ |
 | SET-14 | The chosen scheme is kept; anything else, or nothing, follows the device | ✅ |
 | SET-15 | The chosen ink is kept; anything else, or nothing, is vermilion | ✅ |
 | SET-16 | The chosen song language is kept; anything else, or nothing, shows every song | ✅ |

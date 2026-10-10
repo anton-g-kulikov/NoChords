@@ -24,10 +24,12 @@ export const MAX_TITLE_LENGTH = 200;
 export const MAX_ROWS = 1000;
 
 /**
- * Characters in a song's text. Firestore refuses a document over 1 MiB; 200,000 characters stays
- * well under it even in Cyrillic, two bytes a letter, with every row's own fields on top.
+ * Characters in a song's text. Firestore refuses a document over 1 MiB, and a chord costs far more
+ * stored than typed — about 25 bytes for its fields — so chord-dense text is the worst case: at
+ * 200,000 characters, "[C]" over and over came to 1.5 MiB. At 100,000 it stays under the limit,
+ * and plain Cyrillic lyrics, two bytes a letter, sit far below it (ADR-108).
  */
-export const MAX_SONG_TEXT = 200_000;
+export const MAX_SONG_TEXT = 100_000;
 
 /** A line length that is a whole number of bars within range, or `null` for "use the default". */
 export function boundedBars(value: number): number | null {

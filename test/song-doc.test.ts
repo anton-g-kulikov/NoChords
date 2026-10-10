@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { songFromDoc, songToDoc } from '../src/lib/songDoc';
-import { createSong } from '../src/lib/songs';
+import { createSong, rowsFromPastedText } from '../src/lib/songs';
+import { MAX_SONG_TEXT } from '../src/lib/bounds';
 import type { Song } from '../src/types/song';
 
 const sample: Song = {
@@ -127,6 +128,26 @@ describe('songToDoc / songFromDoc', () => {
     expect(songToDoc({ ...sample, openedAt: null }).openedAt).toBeNull();
     const { openedAt: _dropped, ...older } = songToDoc(sample);
     expect(songFromDoc(older)?.openedAt).toBeNull();
+  });
+
+  it('SD-14 **keeps the densest song the editor allows under Firestore\'s 1 MiB** (ADR-108)', () => {
+    // Firestore's document size: each string is its UTF-8 bytes plus one, each field name likewise,
+    // each number 8 bytes, null 1, plus 32 bytes for the document. A chord is the expensive part.
+    const size = (value: unknown): number => {
+      if (value === null) return 1;
+      if (typeof value === 'string') return Buffer.byteLength(value, 'utf8') + 1;
+      if (typeof value === 'number' || typeof value === 'boolean') return 8;
+      if (Array.isArray(value)) return value.reduce((sum: number, item) => sum + size(item), 0);
+      return Object.entries(value as object).reduce(
+        (sum, [key, item]) => sum + Buffer.byteLength(key, 'utf8') + 1 + size(item),
+        0
+      );
+    };
+    const docBytes = (text: string) => 32 + size(songToDoc({ ...sample, rows: rowsFromPastedText(text) }));
+    const fill = (unit: string) => unit.repeat(Math.floor(MAX_SONG_TEXT / unit.length));
+    for (const unit of ['[C]', '[Am]', '[Am]la la la ', 'Чёрный ворон, что ты вьёшься\n']) {
+      expect(docBytes(fill(unit)), unit).toBeLessThan(1024 * 1024);
+    }
   });
 
   it('round-trips a song the app itself just made', () => {

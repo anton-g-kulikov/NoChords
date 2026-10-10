@@ -3495,3 +3495,36 @@ ink it chooses made it read as part of the theme, not as the control over it.
 **Cost.** The header's −20px margin assumes `.screen__scroll`'s 20px gutter, so a change to one
 needs the other. On a wide screen the rule runs to the chart column's edges rather than the
 screen's, which is that column's edge.
+
+---
+
+## ADR-114 — Less space under the status bar, the title with its song, and a stepper like the rest
+
+**Decision.**
+
+- **Header top padding.** `.screen__head` pads its top by `max(8px, 24px − safe-area-inset-top)`.
+  That is 24px in a browser, where the inset is zero, and only 8px under a phone's status bar.
+- **Song screen spacing.** The nav row and the title are now 20px apart, and the title sits 12px
+  above the controls: 4px of the head's own margin plus the controls row's 8px of padding. Before,
+  the gaps were 12px and 24px.
+- **The key stepper is built like a segmented control.** All three parts take the surface fill,
+  with `--control-line` rules between them, like count-in. It used to have darker
+  `--surface-raised` buttons and no dividers.
+
+**Why.** Anton, on the iOS 27 simulator:
+
+- There was too much space under the status bar. The safe-area padding already clears it, and the
+  header added its own 24px on top.
+- The app's title row, the song's title and the controls with the metronome were grouped strangely.
+  The title sat nearer the navigation, which belongs to the app, than the controls, which belong to
+  the song.
+- The stepper's background looked strange next to the other controls, and count-in is the example to
+  follow.
+
+**Cost.**
+
+- The top padding depends on `env(safe-area-inset-top)`, so a browser with an inset, such as an
+  installed web app under a translucent status bar, gets the phone's spacing too. That is the
+  right outcome.
+- The stepper's buttons lose the darker fill that set them apart from its value. The rules between
+  the parts now do that.

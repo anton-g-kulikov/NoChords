@@ -10,6 +10,7 @@ import { DEFAULT_VOICE, isVoiceName, type VoiceName } from './metronomeVoice';
 import { DEFAULT_THEME, isThemePreference, type ThemePreference } from './theme';
 import { DEFAULT_ACCENT, isAccentName, type AccentName } from './accent';
 import { DEFAULT_LANGUAGE_FILTER, isLanguageFilter, type LanguageFilter } from './language';
+import { DEFAULT_LIBRARY_SORT, isLibrarySort, type LibrarySort } from './librarySort';
 
 export const SETTINGS_KEY = 'nochords.settings.v1';
 
@@ -47,6 +48,8 @@ export interface Settings {
   accent: AccentName;
   /** Which songs the library lists, by the language they are written in (ADR-081). */
   libraryLanguage: LanguageFilter;
+  /** The order the library lists songs in: last opened first, or by title (ADR-106). */
+  librarySort: LibrarySort;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -58,6 +61,7 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: DEFAULT_THEME,
   accent: DEFAULT_ACCENT,
   libraryLanguage: DEFAULT_LANGUAGE_FILTER,
+  librarySort: DEFAULT_LIBRARY_SORT,
 };
 
 export interface SettingsStore {
@@ -92,6 +96,7 @@ function sanitize(value: unknown): Settings {
   return {
     theme: isThemePreference(record.theme) ? record.theme : DEFAULT_THEME,
     accent: isAccentName(record.accent) ? record.accent : DEFAULT_ACCENT,
+    librarySort: isLibrarySort(record.librarySort) ? record.librarySort : DEFAULT_LIBRARY_SORT,
     libraryLanguage: isLanguageFilter(record.libraryLanguage)
       ? record.libraryLanguage
       : DEFAULT_LANGUAGE_FILTER,

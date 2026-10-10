@@ -30,6 +30,7 @@ export function songToDoc(song: Song): SongDoc {
     // would lose a whole song rather than one value.
     meter: song.meter ?? DEFAULT_METER,
     displayMode: song.displayMode ?? 'full',
+    openedAt: song.openedAt ?? null,
     learningPlaythrough: song.learningPlaythrough,
     rows: song.rows.map((row) => ({
       id: row.id,

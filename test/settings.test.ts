@@ -65,6 +65,17 @@ describe('device preferences', () => {
     expect(load({ libraryLanguage: 'de' })).toBe('all');
   });
 
+  it('SET-18 keeps the chosen library order; anything else, or nothing, is last opened first (ADR-106)', () => {
+    const load = (stored: object) =>
+      createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
+        .librarySort;
+
+    expect(DEFAULT_SETTINGS.librarySort).toBe('opened');
+    expect(load({ librarySort: 'title' })).toBe('title');
+    expect(load({})).toBe('opened');
+    expect(load({ librarySort: 'random' })).toBe('opened');
+  });
+
   it('SET-10 counts every song in by one bar, or two if chosen (ADR-094)', () => {
     const load = (stored: object) =>
       createSettingsStore(memoryStorage({ [SETTINGS_KEY]: JSON.stringify(stored) })).load()
@@ -122,6 +133,7 @@ describe('createSettingsStore', () => {
       theme: 'dark',
       accent: 'teal',
       libraryLanguage: 'ru',
+      librarySort: 'title',
     });
     expect(createSettingsStore(backend).load()).toEqual({
       metronomeEnabled: true,
@@ -131,6 +143,7 @@ describe('createSettingsStore', () => {
       theme: 'dark',
       accent: 'teal',
       libraryLanguage: 'ru',
+      librarySort: 'title',
     });
   });
 

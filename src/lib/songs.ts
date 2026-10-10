@@ -61,6 +61,7 @@ export function createSong(overrides: Partial<Song> = {}): Song {
     barsPerLine: DEFAULT_BARS_PER_LINE,
     meter: DEFAULT_METER,
     displayMode: 'full',
+    openedAt: null,
     learningPlaythrough: 0,
     rows: [createRow()],
     ...overrides,

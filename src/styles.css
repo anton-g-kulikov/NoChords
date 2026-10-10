@@ -673,10 +673,32 @@ kbd {
 }
 
 /* With the languages on the right, the count stays beside the word it counts. */
-.library__heading--languages .library__heading-text {
+.library__heading--controls .library__heading-text {
   flex: 0 1 auto;
   justify-content: flex-start;
   gap: 0.6em;
+}
+
+/*
+ * The head holds the count, the order beside it, and the languages at the far end (ADR-106). When a
+ * narrow screen cannot fit all three it wraps, the languages going to a line of their own, rather
+ * than squeezing any of them.
+ */
+.library__heading--controls {
+  flex-wrap: wrap;
+  /* Far enough apart that two rows of 45px tap targets do not overlap. */
+  row-gap: 28px;
+}
+
+/* Wrapped or not, the languages keep to the far end of the head. */
+.library__heading--controls .library__languages {
+  margin-left: auto;
+}
+
+.library__sorts {
+  display: flex;
+  gap: 2px;
+  margin: 0 auto 0 1em;
 }
 
 .library__languages {
@@ -702,7 +724,7 @@ kbd {
   color: var(--text);
 }
 
-.library__language:last-child {
+.library__languages .library__language:last-child {
   margin-right: -8px;
 }
 

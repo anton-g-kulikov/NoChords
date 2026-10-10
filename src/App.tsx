@@ -98,6 +98,9 @@ export function App() {
         }
         loading={loading}
         onOpen={(songId) => {
+          // Stamped as it opens, so the library's "Recent" order puts it first (ADR-106).
+          const opened = songs.find((candidate) => candidate.id === songId);
+          if (opened) updateSong({ ...opened, openedAt: Date.now() });
           setOpenSongId(songId);
           setPane('play');
         }}
@@ -124,6 +127,8 @@ export function App() {
         accentLabel={ACCENTS[settings.accent].label}
         language={settings.libraryLanguage}
         onLanguageChange={(libraryLanguage) => updateSettings({ libraryLanguage })}
+        sort={settings.librarySort}
+        onSortChange={(librarySort) => updateSettings({ librarySort })}
         />
       </>
     );

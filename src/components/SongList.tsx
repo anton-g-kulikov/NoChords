@@ -16,6 +16,7 @@ import {
   offersLanguageChoice,
   type LanguageFilter,
 } from '../lib/language';
+import { LIBRARY_SORTS, sortSongs, type LibrarySort } from '../lib/librarySort';
 
 /** Where "Buy me a [song] book" goes (ADR-079). */
 const SUPPORT_URL = 'https://buymeacoffee.com/antonkulikov';
@@ -50,6 +51,9 @@ interface SongListProps {
   /** Which songs to list, by language; remembered on this device (ADR-081). */
   language: LanguageFilter;
   onLanguageChange: (language: LanguageFilter) => void;
+  /** The order the list is in: last opened first, or by title; remembered on this device (ADR-106). */
+  sort: LibrarySort;
+  onSortChange: (sort: LibrarySort) => void;
 }
 
 export function SongList({
@@ -66,6 +70,8 @@ export function SongList({
   accentLabel,
   language,
   onLanguageChange,
+  sort,
+  onSortChange,
 }: SongListProps) {
   const install = useInstallPrompt();
   /* Only a tap strikes the note: arriving at the library is not a change of ink. */
@@ -73,7 +79,7 @@ export function SongList({
   // Only a library with songs in two languages has anything to choose between (ADR-081).
   const languageChoice = offersLanguageChoice(songs);
   const shownLanguage = effectiveLanguageFilter(language, songs);
-  const shown = filterByLanguage(songs, shownLanguage);
+  const shown = sortSongs(filterByLanguage(songs, shownLanguage), sort);
 
   return (
     <div className="screen library">
@@ -152,13 +158,30 @@ export function SongList({
       ) : (
         <>
         <div
-          className={
-            languageChoice ? 'library__heading library__heading--languages' : 'library__heading'
-          }
+          className="library__heading library__heading--controls"
         >
           <h2 className="library__heading-text">
             Songs <span className="library__count">{shown.length}</span>
           </h2>
+          {/* Beside the count it orders, in the head's own type like the languages (ADR-106). */}
+          <div className="library__sorts" role="group" aria-label="Order">
+            {LIBRARY_SORTS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                title={option.hint}
+                className={
+                  option.value === sort
+                    ? 'library__language library__language--active'
+                    : 'library__language'
+                }
+                aria-pressed={option.value === sort}
+                onClick={() => onSortChange(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
           {/* In the running head, as the head's own type: a contents page that can be read in
               either language, not a control panel over it (ADR-081). */}
           {languageChoice && (

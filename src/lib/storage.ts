@@ -126,6 +126,7 @@ export function sanitizeSong(value: unknown): Song | null {
     barsPerLine,
     meter,
     displayMode,
+    openedAt,
     learningPlaythrough,
     rows,
   } = value;
@@ -187,6 +188,8 @@ export function sanitizeSong(value: unknown): Song | null {
     // an intro is now written into the song as a line of chords (ADR-094).
     // Songs saved before they remembered it open on chord names, as every song used to.
     displayMode: isDisplayMode(displayMode) ? displayMode : 'full',
+    // Songs saved before the library could sort by it have never been opened, as far as it knows.
+    openedAt: typeof openedAt === 'number' && Number.isFinite(openedAt) ? openedAt : null,
     learningPlaythrough,
     rows: sanitizedRows,
   };

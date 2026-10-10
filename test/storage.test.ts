@@ -27,6 +27,7 @@ const sample: Song = {
   barsPerLine: 6,
   meter: '3/4',
   displayMode: 'nashville',
+  openedAt: 1760000000000,
   learningPlaythrough: 3,
   rows: [
     {
@@ -166,6 +167,17 @@ describe('createSongStore', () => {
     ]);
     const loaded = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
     expect(loaded.map((song) => song.displayMode)).toEqual(['nashville', 'learning', 'full', 'full']);
+  });
+
+  it('ST-14 keeps when a song was last opened, and reads an older song as never opened (ADR-106)', async () => {
+    const { openedAt: _dropped, ...withoutOpened } = sample;
+    const stored = JSON.stringify([
+      sample,
+      { ...withoutOpened, id: 'song-2' },
+      { ...sample, id: 'song-3', openedAt: 'yesterday' },
+    ]);
+    const loaded = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    expect(loaded.map((song) => song.openedAt)).toEqual([1760000000000, null, null]);
   });
 
   it('ST-11 loads a song saved with its own count-in, and leaves the count-in behind (ADR-094)', async () => {

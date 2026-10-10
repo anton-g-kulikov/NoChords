@@ -13,6 +13,7 @@ const sample: Song = {
   barsPerLine: 6,
   meter: '3/4',
   displayMode: 'nashville',
+  openedAt: 1760000000000,
   learningPlaythrough: 3,
   rows: [
     {
@@ -119,6 +120,13 @@ describe('songToDoc / songFromDoc', () => {
     expect(songFromDoc(songToDoc(sample))?.displayMode).toBe('nashville');
     const { displayMode: _dropped, ...stored } = songToDoc(sample);
     expect(songFromDoc(stored)?.displayMode).toBe('full');
+  });
+
+  it('SD-13 writes when a song was last opened, as null when never, and reads a missing one as never (ADR-106)', () => {
+    expect(songFromDoc(songToDoc(sample))?.openedAt).toBe(1760000000000);
+    expect(songToDoc({ ...sample, openedAt: null }).openedAt).toBeNull();
+    const { openedAt: _dropped, ...older } = songToDoc(sample);
+    expect(songFromDoc(older)?.openedAt).toBeNull();
   });
 
   it('round-trips a song the app itself just made', () => {

@@ -202,7 +202,8 @@ export function useSongLibrary(uid: string | null, authPending = false): SongLib
   }, [flush]);
 
   const addSong = useCallback((): Song => {
-    const song = createSong({ title: UNTITLED_SONG });
+    // Made and opened in one go, so it is the most recently opened song (ADR-106).
+    const song = createSong({ title: UNTITLED_SONG, openedAt: Date.now() });
     setSongs((current) => [...current, song]);
     queueWrite(song);
     return song;

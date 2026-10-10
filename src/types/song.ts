@@ -57,6 +57,8 @@ export interface Song {
   meter: string;
   /** How the chart reads: the chord display the song was last left in, so it opens that way (ADR-095). */
   displayMode: DisplayMode;
+  /** When the song was last opened, in milliseconds since 1970; `null` if never (ADR-106). */
+  openedAt: number | null;
   /** Completed learning playthroughs, saturating at `CONCEALMENT_STAGES.length - 1`. */
   learningPlaythrough: number;
   rows: SongRow[];

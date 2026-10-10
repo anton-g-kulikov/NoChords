@@ -1,7 +1,7 @@
 import UIKit
 import Capacitor
 
-/// The bridge view controller, with the page's colour behind the web view (ADR-108).
+/// The bridge view controller, with the page's colour behind the web view (ADR-109).
 ///
 /// Capacitor paints the web view's own background `systemBackground` — white in light mode, black in
 /// dark — and wherever iOS insets the page, under the status bar on iOS 27, that is what shows. Here

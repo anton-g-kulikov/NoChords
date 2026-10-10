@@ -11,7 +11,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 /**
- * Lets the page set the colour behind it and the system bars' icons to match its theme (ADR-108).
+ * Lets the page set the colour behind it and the system bars' icons to match its theme (ADR-109).
  *
  * The window and the web view otherwise keep the platform's own background, which shows wherever
  * the page does not reach: behind the status bar and the navigation bar.

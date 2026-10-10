@@ -23,7 +23,7 @@ export function nativePlatform(): 'ios' | 'android' | 'web' {
 
 /**
  * Tells the shell which theme the page is in, so the colour behind the web view and the system
- * bars' text match it (ADR-108). Native-only: on the web the `theme-color` tags do this job.
+ * bars' text match it (ADR-109). Native-only: on the web the `theme-color` tags do this job.
  *
  * Without it the shell shows its own background wherever the page does not reach. On iOS 27 that
  * is a white strip under the status bar, in either theme.

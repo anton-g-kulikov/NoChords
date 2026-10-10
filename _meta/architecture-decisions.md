@@ -3265,7 +3265,7 @@ screens, so a choice never moves between them.
 
 ---
 
-## ADR-108 — The phone apps paint the page colour behind the page
+## ADR-109 — The phone apps paint the page colour behind the page
 
 **Decision.** Amends ADR-099. The iOS and Android shells each carry a small plugin of their own,
 `PageChrome`, with one method, `setTheme({ color, dark })`:

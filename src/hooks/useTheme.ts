@@ -42,7 +42,7 @@ export function useTheme(preference: ThemePreference, accent: AccentName): void 
   }, [preference]);
 
   // The phone apps' shell has no `theme-color` to read, so it is told the resolved theme, and for
-  // "system" told again whenever the device switches (ADR-108).
+  // "system" told again whenever the device switches (ADR-109).
   useEffect(() => {
     if (!isNative()) return undefined;
     const query = window.matchMedia?.('(prefers-color-scheme: dark)');

@@ -16,9 +16,9 @@ interface SignInChoiceProps {
  */
 export function SignInChoice({ providers, onChoose, onDismiss }: SignInChoiceProps) {
   return (
-    <div className="signin-choice" role="dialog" aria-label="Sign in">
+    <div className="choice-card" role="dialog" aria-label="Sign in">
       <p>Signing in is optional. It keeps your songs in step across your devices.</p>
-      <div className="signin-choice__actions">
+      <div className="choice-card__actions">
         {providers.map((provider) =>
           provider === 'apple' ? (
             <button
@@ -45,7 +45,7 @@ export function SignInChoice({ providers, onChoose, onDismiss }: SignInChoicePro
             </button>
           )
         )}
-        <button type="button" className="button signin-choice__dismiss" onClick={onDismiss}>
+        <button type="button" className="button choice-card__dismiss" onClick={onDismiss}>
           Not now
         </button>
       </div>

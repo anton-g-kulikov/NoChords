@@ -30,6 +30,8 @@ export interface AuthUser {
   uid: string;
   displayName: string | null;
   email: string | null;
+  /** How they signed in, or null for a sign-in this app does not offer. */
+  provider: SignInProvider | null;
 }
 
 type FirebaseModule = typeof import('./firebaseClient');
@@ -58,6 +60,13 @@ export async function signInWith(provider: SignInProvider): Promise<void> {
   const client = await loadClient();
   if (!client) throw new Error('offline');
   await (provider === 'apple' ? client.signInWithApple() : client.signInWithGoogle());
+}
+
+/** Deletes the account and its songs (ADR-105). Rejects with Firebase's code when it cannot. */
+export async function deleteAccount(): Promise<void> {
+  const client = await loadClient();
+  if (!client) throw new Error('offline');
+  await client.deleteAccount();
 }
 
 export async function signOutNow(): Promise<void> {

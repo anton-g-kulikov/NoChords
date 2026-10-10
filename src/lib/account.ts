@@ -31,12 +31,13 @@ export interface AccountAction {
    * Signing in is an invitation and needs its words; signing out is a utility you already know the
    * shape of, and a word for it would weigh as much as the app's own name beside it (ADR-064).
    */
-  kind: 'sign-in' | 'sign-out';
+  kind: 'sign-in' | 'account';
 }
 
 /** The action the header offers, or `null` when there is none to offer. */
 export function accountAction(state: AccountState): AccountAction | null {
-  if (state === 'signed-in') return { label: 'Sign out', kind: 'sign-out' };
+  // Signed in, the button opens the account card: signing out, and deleting the account (ADR-105).
+  if (state === 'signed-in') return { label: 'Account', kind: 'account' };
   if (state === 'signed-out') return { label: 'Sign in', kind: 'sign-in' };
   return null;
 }
@@ -82,4 +83,27 @@ export function signInErrorMessage(code: string, provider: SignInProvider): stri
     );
   }
   return 'Sign-in failed. Check your connection and try again.';
+}
+
+/**
+ * What to say when deleting the account did not happen, or `null` when there is nothing to say
+ * (ADR-105).
+ *
+ * Every failure leaves the account in place, and the messages say what is true of it. Songs go
+ * before the account does, so a failure in the last step can leave an account with fewer songs;
+ * trying again finishes it.
+ */
+export function deleteAccountErrorMessage(code: string): string | null {
+  // Backing out of the confirming sign-in is changing your mind.
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return null;
+  if (code === 'auth/user-mismatch') {
+    return (
+      'That was a different account. To delete this one, confirm with the account you are ' +
+      'signed in with.'
+    );
+  }
+  if (code === 'auth/popup-blocked') {
+    return 'The sign-in window was blocked. Allow pop-ups for this site, then try deleting again.';
+  }
+  return 'Your account was not deleted. Check your connection and try again.';
 }

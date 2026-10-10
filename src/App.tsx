@@ -8,6 +8,7 @@ import { accountAction, accountState, signInProviders } from './lib/account';
 import { nativePlatform } from './lib/native';
 import { ImportPrompt } from './components/ImportPrompt';
 import { SignInChoice } from './components/SignInChoice';
+import { AccountCard } from './components/AccountCard';
 import { useSongLibrary } from './hooks/useSongLibrary';
 import { useSettings } from './hooks/useSettings';
 import { useAuth } from './hooks/useAuth';
@@ -44,6 +45,8 @@ export function App() {
   /* With one way to sign in, Sign in takes it; with more, it asks which first (ADR-103). */
   const providers = signInProviders(nativePlatform());
   const [choosingSignIn, setChoosingSignIn] = useState(false);
+  /* Signed in, the header's button opens the account card instead (ADR-105). */
+  const [accountOpen, setAccountOpen] = useState(false);
 
   if (showGuide) return <NotationGuide onClose={() => setShowGuide(false)} />;
 
@@ -72,7 +75,25 @@ export function App() {
                 onDismiss={() => setChoosingSignIn(false)}
               />
             )}
+            {accountOpen && account === 'signed-in' && (
+              <AccountCard
+                email={auth.user?.email ?? null}
+                provider={auth.user?.provider ?? null}
+                songCount={songs.length}
+                onSignOut={() => {
+                  setAccountOpen(false);
+                  void auth.signOutNow();
+                }}
+                onDelete={async () => {
+                  const gone = await auth.deleteAccount();
+                  if (gone) setAccountOpen(false);
+                  return gone;
+                }}
+                onClose={() => setAccountOpen(false)}
+              />
+            )}
             {auth.error && <p className="library__error">{auth.error}</p>}
+            {auth.notice && <p className="library__notice">{auth.notice}</p>}
           </>
         }
         loading={loading}
@@ -90,7 +111,7 @@ export function App() {
             : {
                 ...action,
                 run: () => {
-                  if (action.kind === 'sign-out') void auth.signOutNow();
+                  if (action.kind === 'account') setAccountOpen((open) => !open);
                   else if (providers.length === 1) void auth.signIn(providers[0]);
                   else setChoosingSignIn((open) => !open);
                 },

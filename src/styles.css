@@ -622,6 +622,13 @@ kbd {
   font-size: 0.9rem;
 }
 
+/* Something that went right and is worth saying, such as an account deleted (ADR-105). */
+.library__notice {
+  margin: 0 20px 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .library__actions {
   display: flex;
   gap: 10px;
@@ -1656,10 +1663,11 @@ kbd {
 }
 
 /*
- * Which account to sign in with (ADR-103). The import offer's card, with the choices stacked at one
- * width so neither reads as the lesser one.
+ * A question about the account, under the header: which one to sign in with (ADR-103), and what to
+ * do with the one you are in (ADR-105). The import offer's card, with the choices stacked at one
+ * width so none reads as the lesser one.
  */
-.signin-choice {
+.choice-card {
   display: grid;
   gap: 14px;
   padding: 16px 18px;
@@ -1672,13 +1680,24 @@ kbd {
   box-shadow: var(--shadow);
 }
 
-.signin-choice p {
+.choice-card p {
   margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
 }
 
-.signin-choice__actions {
+.choice-card strong + p {
+  margin-top: 4px;
+}
+
+/* An address is one long word: it may break anywhere rather than push the card wider. */
+.choice-card__who {
+  color: var(--text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.choice-card__actions {
   display: grid;
   gap: 10px;
 }
@@ -1718,7 +1737,7 @@ kbd {
   line-height: 1;
 }
 
-.signin-choice__dismiss {
+.choice-card__dismiss {
   border-color: transparent;
   background: transparent;
   color: var(--muted);

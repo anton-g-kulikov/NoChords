@@ -6,8 +6,13 @@
  * (ADR-023), so a signed-out visitor never downloads it.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { signInErrorMessage, type SignInProvider } from '../lib/account';
 import {
+  deleteAccountErrorMessage,
+  signInErrorMessage,
+  type SignInProvider,
+} from '../lib/account';
+import {
+  deleteAccount as deleteRemoteAccount,
   isFirebaseConfigured,
   signInWith,
   signOutNow as signOutRemote,
@@ -21,8 +26,12 @@ export interface AuthController {
   /** True until the first sign-in state is known, so the UI does not flash "signed out". */
   loading: boolean;
   error: string | null;
+  /** Something that went right and is worth saying, such as an account deleted. */
+  notice: string | null;
   signIn(provider: SignInProvider): Promise<void>;
   signOutNow(): Promise<void>;
+  /** Deletes the account and its songs (ADR-105). Resolves true when it is gone. */
+  deleteAccount(): Promise<boolean>;
 }
 
 export function useAuth(): AuthController {
@@ -30,6 +39,7 @@ export function useAuth(): AuthController {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(available);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!available) return undefined;
@@ -60,6 +70,7 @@ export function useAuth(): AuthController {
 
   const signIn = useCallback(async (provider: SignInProvider) => {
     setError(null);
+    setNotice(null);
     try {
       await signInWith(provider);
     } catch (cause) {
@@ -75,5 +86,18 @@ export function useAuth(): AuthController {
     }
   }, []);
 
-  return { available, user, loading, error, signIn, signOutNow };
+  const deleteAccount = useCallback(async () => {
+    setError(null);
+    setNotice(null);
+    try {
+      await deleteRemoteAccount();
+      setNotice('Your account and its songs are deleted.');
+      return true;
+    } catch (cause) {
+      setError(deleteAccountErrorMessage((cause as { code?: string })?.code ?? ''));
+      return false;
+    }
+  }, []);
+
+  return { available, user, loading, error, notice, signIn, signOutNow, deleteAccount };
 }

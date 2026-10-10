@@ -446,15 +446,18 @@ disagree about it (ADR-064).
 |---|------|--------|
 | AC-01 | The controller reads as one of four states | ✅ |
 | AC-02 | "Unavailable" answers before anything else | ✅ |
-| AC-03 | **The header offers the way out as well as the way in** | ✅ |
+| AC-03 | **The header offers the account as well as the way in** | ✅ |
 | AC-04 | Nothing is offered while there is nothing to offer | ✅ |
-| AC-05 | **Signing in is worded; signing out is an icon** | ✅ |
+| AC-05 | **Signing in is worded; the account is an icon** | ✅ |
 | AC-06 | **The iOS app offers Apple first, then Google** | ✅ |
 | AC-07 | The web and Android offer only Google | ✅ |
 | AC-08 | Backing out of a sign-in says nothing | ✅ |
 | AC-09 | An email with an account through the other provider is pointed at it | ✅ |
 | AC-10 | Popup advice stays, and anything else is a plain failure | ✅ |
 | AC-11 | A failed Apple sign-in points at the Apple Account in Settings | ✅ |
+| AC-12 | Backing out of the confirming sign-in deletes nothing and says nothing | ✅ |
+| AC-13 | **A different account confirming is told to use the signed-in one** | ✅ |
+| AC-14 | Any other failure says the account was not deleted | ✅ |
 
 ### Library readiness — `library.test.ts`
 

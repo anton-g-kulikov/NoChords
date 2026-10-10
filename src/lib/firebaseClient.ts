@@ -8,23 +8,33 @@ import { initializeApp, getApps, type FirebaseApp, type FirebaseOptions } from '
 import {
   GoogleAuthProvider,
   OAuthProvider,
+  deleteUser,
   getAuth,
   indexedDBLocalPersistence,
   initializeAuth,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup,
+  revokeAccessToken,
   signInWithCredential,
   signInWithPopup,
   signOut,
   type Auth,
+  type AuthCredential,
+  type User,
 } from 'firebase/auth';
 import {
+  collection,
+  getDocs,
   initializeFirestore,
+  writeBatch,
   persistentLocalCache,
   persistentMultipleTabManager,
   type Firestore,
 } from 'firebase/firestore';
 import { createCloudSongStore } from './cloudStore';
 import { isCancelledSignIn, isNative } from './native';
+import type { SignInProvider } from './account';
 import type { AuthUser } from './firebase';
 import type { SongStore } from './storage';
 
@@ -84,7 +94,14 @@ export function watchAuth(onUser: (user: AuthUser | null) => void): () => void {
     getAppAuth(app),
     (user) =>
       onUser(
-        user ? { uid: user.uid, displayName: user.displayName, email: user.email } : null
+        user
+          ? {
+              uid: user.uid,
+              displayName: user.displayName,
+              email: user.email,
+              provider: providerOf(user),
+            }
+          : null
       ),
     () => onUser(null)
   );
@@ -107,9 +124,7 @@ export async function signInWithGoogle(): Promise<void> {
     return;
   }
 
-  const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
-  const { idToken } = await nativeCredential(() => FirebaseAuthentication.signInWithGoogle());
-  await signInWithCredential(appAuth, GoogleAuthProvider.credential(idToken));
+  await signInWithCredential(appAuth, (await nativeCredential('google')).credential);
 }
 
 /**
@@ -121,21 +136,27 @@ export async function signInWithGoogle(): Promise<void> {
  */
 export async function signInWithApple(): Promise<void> {
   if (!app) throw new Error('not initialised');
-  const appAuth = getAppAuth(app);
-  const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
-  const { idToken, nonce } = await nativeCredential(() => FirebaseAuthentication.signInWithApple());
-  if (!nonce) throw new Error('Apple returned no nonce');
-  const credential = new OAuthProvider('apple.com').credential({ idToken, rawNonce: nonce });
-  await signInWithCredential(appAuth, credential);
+  await signInWithCredential(getAppAuth(app), (await nativeCredential('apple')).credential);
 }
 
-/** Runs a native sign-in and returns its credential, with a cancel spoken in the web's terms. */
+/**
+ * A fresh credential from the platform's own sign-in, for the JS SDK to sign in or reauthenticate
+ * with, and a cancel spoken in the web's terms.
+ *
+ * Apple also hands over an authorization code, the one thing that can revoke its sign-in, which
+ * deleting an account has to do (ADR-105).
+ */
 async function nativeCredential(
-  signIn: () => Promise<{ credential: { idToken?: string; nonce?: string } | null }>
-): Promise<{ idToken: string; nonce?: string }> {
-  let credential: { idToken?: string; nonce?: string } | null;
+  provider: SignInProvider
+): Promise<{ credential: AuthCredential; authorizationCode?: string }> {
+  const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+  let result: { idToken?: string; nonce?: string; authorizationCode?: string } | null;
   try {
-    credential = (await signIn()).credential;
+    result = (
+      await (provider === 'apple'
+        ? FirebaseAuthentication.signInWithApple()
+        : FirebaseAuthentication.signInWithGoogle())
+    ).credential;
   } catch (cause) {
     // As a closed popup, so `useAuth` stays as quiet about it as it does on the web.
     if (isCancelledSignIn(cause)) {
@@ -143,8 +164,25 @@ async function nativeCredential(
     }
     throw cause;
   }
-  if (!credential?.idToken) throw new Error('The sign-in returned no ID token');
-  return { idToken: credential.idToken, nonce: credential.nonce };
+  if (!result?.idToken) throw new Error('The sign-in returned no ID token');
+  if (provider === 'google') return { credential: GoogleAuthProvider.credential(result.idToken) };
+  // Apple's token is bound to the nonce the plugin made; without the raw one Firebase refuses it.
+  if (!result.nonce) throw new Error('Apple returned no nonce');
+  return {
+    credential: new OAuthProvider('apple.com').credential({
+      idToken: result.idToken,
+      rawNonce: result.nonce,
+    }),
+    authorizationCode: result.authorizationCode,
+  };
+}
+
+/** Which of the offered sign-ins this account uses, or null for anything else. */
+function providerOf(user: User): SignInProvider | null {
+  const ids = user.providerData.map((info) => info.providerId);
+  if (ids.includes('apple.com')) return 'apple';
+  if (ids.includes('google.com')) return 'google';
+  return null;
 }
 
 export async function signOutNow(): Promise<void> {
@@ -156,6 +194,60 @@ export async function signOutNow(): Promise<void> {
     await FirebaseAuthentication.signOut().catch(() => {});
   }
   await signOut(getAppAuth(app));
+}
+
+/**
+ * Deletes the signed-in account and every song in it, for good (ADR-105).
+ *
+ * In this order, so a failure part-way leaves something that can simply be tried again:
+ *
+ * 1. Sign in once more, with the same account. Firebase deletes only a recently signed-in user,
+ *    and asking again is also the proof that it is the owner deleting it, not whoever has the phone.
+ * 2. Delete the songs, while the rules still let this user touch them.
+ * 3. For Apple, revoke the sign-in, as Apple requires of an app that deletes an account. It needs
+ *    Apple's key in Firebase; without it this fails, and the account is deleted regardless, because
+ *    keeping data someone asked to delete is the worse failure.
+ * 4. Delete the user, and on a phone, Google's session with it.
+ */
+export async function deleteAccount(): Promise<void> {
+  if (!app) throw new Error('not initialised');
+  const appAuth = getAppAuth(app);
+  const user = appAuth.currentUser;
+  if (!user) throw new Error('not signed in');
+  const provider = providerOf(user);
+  if (!provider) throw new Error('unsupported sign-in');
+
+  let authorizationCode: string | undefined;
+  if (isNative()) {
+    const fresh = await nativeCredential(provider);
+    await reauthenticateWithCredential(user, fresh.credential);
+    authorizationCode = fresh.authorizationCode;
+  } else {
+    await reauthenticateWithPopup(
+      user,
+      provider === 'apple' ? new OAuthProvider('apple.com') : new GoogleAuthProvider()
+    );
+  }
+
+  const database = getDb();
+  if (!database) throw new Error('no database');
+  const songs = await getDocs(collection(database, 'users', user.uid, 'songs'));
+  // A batch holds at most 500 writes.
+  for (let start = 0; start < songs.docs.length; start += 500) {
+    const batch = writeBatch(database);
+    for (const song of songs.docs.slice(start, start + 500)) batch.delete(song.ref);
+    await batch.commit();
+  }
+
+  if (provider === 'apple' && authorizationCode) {
+    await revokeAccessToken(appAuth, authorizationCode).catch(() => {});
+  }
+
+  await deleteUser(user);
+  if (isNative()) {
+    const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+    await FirebaseAuthentication.signOut().catch(() => {});
+  }
 }
 
 export function createStore(uid: string): SongStore | null {

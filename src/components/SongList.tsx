@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { LogOut } from 'lucide-react';
+import { CircleUserRound } from 'lucide-react';
 import type { AccountAction } from '../lib/account';
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { MAX_LEVEL, levelFor } from '../lib/learning';
@@ -108,7 +108,7 @@ export function SongList({
           />
         </button>
         {authAction &&
-          (authAction.kind === 'sign-out' ? (
+          (authAction.kind === 'account' ? (
             <button
               type="button"
               className="button button--icon library__signin"
@@ -116,7 +116,7 @@ export function SongList({
               title={authAction.label}
               onClick={authAction.run}
             >
-              <LogOut size={20} aria-hidden />
+              <CircleUserRound size={20} aria-hidden />
             </button>
           ) : (
             <button type="button" className="button library__signin" onClick={authAction.run}>

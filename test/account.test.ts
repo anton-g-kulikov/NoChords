@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   accountAction,
   accountState,
+  deleteAccountErrorMessage,
   signInErrorMessage,
   signInProviders,
 } from '../src/lib/account';
@@ -23,7 +24,8 @@ describe('accountState', () => {
 describe('accountAction', () => {
   it('AC-03 offers the way out as well as the way in', () => {
     // The header carries the action in both directions; the footer only ever states a fact.
-    expect(accountAction('signed-in')?.label).toBe('Sign out');
+    // Signed in, the way out is in the account card, beside deleting the account (ADR-105).
+    expect(accountAction('signed-in')?.label).toBe('Account');
     expect(accountAction('signed-out')?.label).toBe('Sign in');
   });
 
@@ -32,11 +34,11 @@ describe('accountAction', () => {
     expect(accountAction('unavailable')).toBeNull();
   });
 
-  it('AC-05 signing in is worded, signing out is an icon', () => {
+  it('AC-05 signing in is worded, the account is an icon', () => {
     // An invitation needs its words; a utility you already know the shape of does not, and a word
     // for it would weigh as much as the app's own name beside it.
     expect(accountAction('signed-out')?.kind).toBe('sign-in');
-    expect(accountAction('signed-in')?.kind).toBe('sign-out');
+    expect(accountAction('signed-in')?.kind).toBe('account');
   });
 });
 
@@ -73,5 +75,21 @@ describe('signInErrorMessage', () => {
   it('AC-11 sends a failed Apple sign-in to the Apple Account in Settings', () => {
     // Apple's error 1000, what closing iOS's "sign in to your Apple Account" prompt returns.
     expect(signInErrorMessage('', 'apple')).toMatch(/signed in to an Apple Account/);
+  });
+});
+
+describe('deleteAccountErrorMessage', () => {
+  it('AC-12 says nothing when someone backs out of the confirming sign-in', () => {
+    expect(deleteAccountErrorMessage('auth/popup-closed-by-user')).toBeNull();
+    expect(deleteAccountErrorMessage('auth/cancelled-popup-request')).toBeNull();
+  });
+
+  it('AC-13 asks for the same account when a different one confirmed', () => {
+    expect(deleteAccountErrorMessage('auth/user-mismatch')).toMatch(/different account/);
+  });
+
+  it('AC-14 says the account is still there when anything else fails', () => {
+    expect(deleteAccountErrorMessage('auth/network-request-failed')).toMatch(/was not deleted/);
+    expect(deleteAccountErrorMessage('')).toMatch(/was not deleted/);
   });
 });

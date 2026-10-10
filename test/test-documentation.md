@@ -208,7 +208,7 @@ described at the end of this document.
 | SG-10 | **`resetLearningProgress` returns the counter to 0** | ✅ |
 | SG-14 | A level can be set outright, and one that does not exist is refused | ✅ |
 | SG-11 | Changing the current key leaves `originalKey` and stored chords untouched | ✅ |
-| SG-12 | **Typed or pasted, a song keeps no more than 1000 lines** | ✅ |
+| SG-20 | **Typed or pasted, a song keeps no more than 1000 lines** | ✅ |
 | SG-12 | Pasted lines are parsed for inline chord markup | ✅ |
 | SG-13 | A line length written as `/n/` is read from pasted text | ✅ |
 | SG-15 | **Song text round-trips through rows unchanged** | ✅ |
@@ -270,9 +270,9 @@ described at the end of this document.
 | MT-19 | **One count-in beat has sounded on the first click, all of them on the last** | ✅ |
 | MT-20 | Nothing is lit when nothing is counting, and never a beat that is not there | ✅ |
 | MT-21 | **The count cycles one bar of dots and counts the bars down beside it** | ✅ |
-| MT-22 | **No beat earlier than the count-in's first is played, so the second before it is silent** | ✅ |
-| MT-25 | **Nothing is counted in the silent second; then the count runs n down to one** | ✅ |
-| MT-24 | **Finding the beats in a window costs what the window holds, not the row: a 4-billion-beat row in under 200 ms** | ✅ |
+| MT-29 | **No beat earlier than the count-in's first is played, so the second before it is silent** | ✅ |
+| MT-28 | **Nothing is counted in the silent second; then the count runs n down to one** | ✅ |
+| MT-27 | **Finding the beats in a window costs what the window holds, not the row: a 4-billion-beat row in under 200 ms** | ✅ |
 | MT-22 | Not counting reads as a full count with nothing sounded; a zero-length bar cannot divide by zero | ✅ |
 | MT-18 | **A click fires early by the output latency, so it is heard on the beat** | ✅ |
 | MT-19 | With no reported latency the timing is unchanged | ✅ |

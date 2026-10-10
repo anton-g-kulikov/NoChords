@@ -3343,5 +3343,5 @@ document shapes.
 
 **Cost.** A song longer than 1000 lines, a title past 200 characters or a bar of more than 32 beats
 can no longer be written; the editor says so for lines. Two timing-free tests replaced timing ones
-(LG-08 counts reads; MT-24 allows 200 ms against the old fifteen seconds).
+(LG-08 counts reads; MT-27 allows 200 ms against the old fifteen seconds).
 

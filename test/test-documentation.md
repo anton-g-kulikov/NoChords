@@ -568,8 +568,9 @@ copy of the icon's geometry. The two must never drift apart.
 
 | # | Case | Status |
 |---|------|--------|
-| MK-01 | The header's mark is the exact drawing in every icon SVG and on the landing page | ✅ |
+| MK-01 | Every icon SVG, and the landing page's favicon, is the exact drawing of the mark | ✅ |
 | MK-02 | Every icon reference — page, manifest, precache — asks for the same `?v=` version | ✅ |
+| MK-03 | The bracketed-name lockup draws the lighter cut, and the landing page carries exactly that cut | ✅ |
 
 ### Service worker decisions — `pwa.test.ts`
 

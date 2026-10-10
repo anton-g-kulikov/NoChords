@@ -514,7 +514,7 @@ kbd {
 .wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 0.2em;
+  gap: 0.16em;
   font-family: var(--font-text);
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -522,10 +522,14 @@ kbd {
   white-space: nowrap;
 }
 
-/* A touch taller than the capitals, as a bracket is in type, and in the second ink. */
+/* About the height of the capitals, so the brackets frame the name rather than tower over it. */
 .wordmark__bracket {
   display: block;
-  height: 1.18em;
+  /* Down to the capitals' middle: line-height 1 centres the em box, and in Literata the caps sit
+     0.068em below its centre. Offset, not transformed, so the struck animation stays free. */
+  position: relative;
+  top: 0.07em;
+  height: 1em;
   width: auto;
   flex: none;
   color: var(--accent);

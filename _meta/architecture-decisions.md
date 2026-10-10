@@ -2907,8 +2907,13 @@ icon and the lockup one mark at two sizes — the brackets alone on a home scree
 the name in them everywhere there is room. Of six variations drawn, the brackets carry the colour
 and the name stays in ink, so the logo has one colour and one slant and the name reads as a word.
 
-**Details.** Each bracket is its own small SVG, cut from the same two paths as the icon (MK-01 still
-holds every copy to them), sized a touch taller than the capitals as a bracket is in type. On the
+**Details.** Each bracket is its own small SVG, sized to the capitals' height. It is drawn in a
+lighter cut of the icon's brackets — same lean and proportions, strokes thinned to the stems of a
+semibold serif — because at first the icon's own heavy cut was used, and beside the type it read a
+size too large and a weight too bold. The icon keeps the heavy cut it needs at 16px; MK-01 holds
+every icon to one cut and MK-03 every lockup to the other. The brackets are set 0.07em lower than
+the line box's centre: measured in Literata, that is where the capitals' middle sits, and the name
+reads as centred between them only there. On the
 song screen the brackets take the running head's grey, since the second ink belongs to the song
 there. In the library the whole lockup is the easter egg's button (ADR-072): tapping it steps the
 ink, and both brackets are struck on each change; its label names the app before the ink.

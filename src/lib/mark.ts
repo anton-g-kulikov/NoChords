@@ -19,3 +19,15 @@ export const MARK_OPEN = 'M162.4 120H250.4L244.2 152H196.2L155.8 360H203.8L197.6
 export const MARK_CLOSE = 'M402.4 120H314.4L308.2 152H356.2L315.8 360H267.8L261.6 392H349.6Z';
 
 export const MARK_PATHS = [MARK_OPEN, MARK_CLOSE] as const;
+
+/**
+ * The same brackets cut lighter, for the lockup that sets the name between them (ADR-100). At the
+ * capitals' height beside a semibold serif, the icon's strokes read a weight darker than the type;
+ * these match the letters' stems instead. Same lean, same proportions — only the strokes are thinner.
+ * The icon keeps the heavier cut, which it needs to hold at 16px.
+ */
+export const LOCKUP_OPEN = 'M162.4 120H242.4L238.2 142H184.2L139.8 370H193.8L189.6 392H109.6Z';
+
+export const LOCKUP_CLOSE = 'M402.4 120H322.4L318.2 142H372.2L327.8 370H273.8L269.6 392H349.6Z';
+
+export const LOCKUP_PATHS = [LOCKUP_OPEN, LOCKUP_CLOSE] as const;

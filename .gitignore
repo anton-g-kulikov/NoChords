@@ -29,3 +29,6 @@ firebase-debug.*.log
 # The native apps' Firebase configs, from `firebase apps:sdkconfig` (ADR-101).
 ios/App/App/GoogleService-Info.plist
 android/app/google-services.json
+
+# Marketing drafts: store screenshots and the like, kept out of the repository.
+_meta/marketing/

@@ -3463,3 +3463,35 @@ not give other buttons.
 **Cost.** Outlines at 45% of the second ink are a touch louder than the neutral ones. On a screen
 full of controls, such as the song setup, more of the page now carries the ink, and "on" now
 differs from "off" only by fill and text colour.
+
+---
+
+## ADR-113 — The beat strip sits on a full-width rule, and the theme switch stays neutral
+
+**Decision.** Amends ADR-059 and ADR-112.
+
+- **The header's rule runs edge to edge.** The pinned header's rule now runs to the screen's edges,
+  as the transport's does at the bottom. The header takes negative side margins and puts the page's
+  20px back as padding, so its contents keep their place.
+- **The strip sits on the rule.** It has no bottom padding under it, so the beat strip sits directly
+  on the rule, like a tab.
+- **The marker is drawn inside.** The strip's "current line" marker is now an inset shadow, not a
+  bottom border. The strip has no bottom border, its lower corners are square, and two more pixels
+  of padding keep its height the same.
+- **The theme switch keeps a neutral outline,** an exception to ADR-112.
+
+**Why.** Anton, looking at the iOS app, asked three things:
+
+- Why was there a gap between the metronome strip and the rule under it?
+- Could the rule run to the edges, as the bottom bar's does, with the strip on it?
+- Why did the strip's sides stop short of the rule?
+
+The answers: the gap was the header's 8px of bottom padding. The sides stopped short because the
+idle marker was a transparent 2px border, and a side border ends where a bottom border begins.
+
+**Why the theme switch is neutral.** It chooses how the whole app looks, ink included. Wearing the
+ink it chooses made it read as part of the theme, not as the control over it.
+
+**Cost.** The header's −20px margin assumes `.screen__scroll`'s 20px gutter, so a change to one
+needs the other. On a wide screen the rule runs to the chart column's edges rather than the
+screen's, which is that column's edge.

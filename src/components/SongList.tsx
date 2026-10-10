@@ -23,6 +23,13 @@ const SUPPORT_URL = 'https://buymeacoffee.com/antonkulikov';
 /** The public song archive: songs to copy into a library, and where to share one (ADR-090). */
 const SONGS_URL = 'https://github.com/anton-g-kulikov/nochords-songs';
 
+/** Where to write for help, forwarded to the maker (ADR-102). */
+const HELP_EMAIL = 'help@nochords.app';
+
+/** The site's own pages, so they have one public address the stores can point at too (ADR-102). */
+const LICENCE_URL = 'https://nochords.app/licence/';
+const PRIVACY_URL = 'https://nochords.app/privacy/';
+
 interface SongListProps {
   songs: Song[];
   /** Signing in or out, and the run for it. Null when there is no account to act on. */
@@ -219,8 +226,9 @@ export function SongList({
          * how the app looks on this device, and which build it is. The account line that used to
          * lead it repeated the header's button in words, and is gone.
          */}
-        {/* Two lines, each one kind of link: the app itself — how to read it, how to install it —
-            then what lies beyond it, more songs and support (ADR-098). */}
+        {/* Lines, each one kind of link: the app itself — how to read it, how to install it — then
+            what lies beyond it, more songs and support; then help and the small print (ADR-098,
+            ADR-102). */}
         <p className="library__links">
           <button type="button" className="library__install" onClick={onOpenGuide}>
             Bars, beats and meter
@@ -246,6 +254,19 @@ export function SongList({
           <a className="library__install" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
             Buy me a <span className="library__bracket">[</span>song
             <span className="library__bracket">]</span> book
+          </a>
+        </p>
+        <p className="library__links">
+          <a className="library__install" href={`mailto:${HELP_EMAIL}`}>
+            {HELP_EMAIL}
+          </a>
+          {' · '}
+          <a className="library__install" href={LICENCE_URL} target="_blank" rel="noopener noreferrer">
+            Licence
+          </a>
+          {' · '}
+          <a className="library__install" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+            Privacy
           </a>
         </p>
 

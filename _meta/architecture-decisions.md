@@ -3528,3 +3528,17 @@ screen's, which is that column's edge.
   right outcome.
 - The stepper's buttons lose the darker fill that set them apart from its value. The rules between
   the parts now do that.
+
+---
+
+## ADR-115 — The wordmark's name is the same colour on every screen
+
+**Decision.** The song screen's running head keeps its grey for anything else it holds, but its
+wordmark's name is set in `--text`, the ink it has in the library. It stays smaller and lighter
+(500). The brackets go on following the second ink (ADR-112).
+
+**Why.** Anton: the wordmark should not change colour. The name was dark in the library and grey at
+the top of a song, so the same mark looked like two marks.
+
+**Cost.** The running head is a little louder than before. Its size and weight still keep it below
+the song's title.

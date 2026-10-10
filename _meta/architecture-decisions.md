@@ -3580,3 +3580,22 @@ bars. Three was never offered, and an old stored 3 reads as 2.
   only as current as the value the input passes on.
 - **A longer run-up.** At a slow tempo, four bars is a long wait before the first line. That is
   the point, but it is the user's choice to make.
+
+---
+
+## ADR-117 — The store apps carry no donation link
+
+**Decision.** Amends ADR-079. In the iOS and Android apps, the library footer's "Buy me a [song]
+book" link is not rendered. That footer line holds only "More songs" there. The website keeps the
+link. So do the landing, Licence and Privacy pages, which are the website and open in the browser.
+
+**Why.** Anton asked for it. It is also what both stores require:
+
+- App Review guideline 3.1.1 lets an app ask for donations, or link out to take them, only if it is
+  an approved nonprofit.
+- Google Play's payments policy draws the same line.
+
+A link to a tip page is that kind of link.
+
+**Cost.** The apps have no way to support the project from inside them. The URL is still in the
+shared bundle, because the website needs it; the apps just never render it.

@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { CircleUserRound } from 'lucide-react';
 import type { AccountAction } from '../lib/account';
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
+import { isNative } from '../lib/native';
 import { MAX_LEVEL, levelFor } from '../lib/learning';
 import type { Song } from '../types/song';
 import { tempoUnitSymbol } from '../lib/tempo';
@@ -275,12 +276,23 @@ export function SongList({
           <a className="library__install" href={SONGS_URL} target="_blank" rel="noopener noreferrer">
             More songs
           </a>
-          {' · '}
-          {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. */}
-          <a className="library__install" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
-            Buy me a <span className="library__bracket">[</span>song
-            <span className="library__bracket">]</span> book
-          </a>
+          {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. Not
+              in the store apps (ADR-117): Apple and Google allow a link out to donate only from
+              approved nonprofits, so there it is the website's alone. */}
+          {!isNative() && (
+            <>
+              {' · '}
+              <a
+                className="library__install"
+                href={SUPPORT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Buy me a <span className="library__bracket">[</span>song
+                <span className="library__bracket">]</span> book
+              </a>
+            </>
+          )}
         </p>
         <p className="library__links">
           <a className="library__install" href={`mailto:${HELP_EMAIL}`}>

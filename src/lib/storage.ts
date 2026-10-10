@@ -37,6 +37,28 @@ export interface SongStore {
   subscribe?(onChange: (songs: Song[]) => void): () => void;
 }
 
+/** What a song id may be: what the app makes, and what Firestore accepts as a document name. */
+const SONG_ID = /^[A-Za-z0-9_-]{1,128}$/;
+
+/**
+ * A song id Firestore can store, the same one every time for the same input (ADR-108).
+ *
+ * Firestore refuses an id with a `/` in it, or shaped `__like this__`, so a song carrying one never
+ * uploads and the offer to copy it up comes back on every load. The app's own ids always pass; one
+ * that does not came from an edited store, and is repaired rather than dropped, keeping a hash of
+ * the original so two different ids cannot repair to the same one.
+ */
+export function storableSongId(id: string): string {
+  if (SONG_ID.test(id) && !/^__.*__$/.test(id)) return id;
+  let hash = 0x811c9dc5;
+  for (const char of id) {
+    hash ^= char.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 0x01000193);
+  }
+  const cleaned = id.replace(/[^A-Za-z0-9_-]/g, '-').replace(/^_+|_+$/g, '').slice(0, 100);
+  return `song-${cleaned}${cleaned ? '-' : ''}${(hash >>> 0).toString(36)}`;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -181,7 +203,7 @@ export function sanitizeSong(value: unknown): Song | null {
   }
 
   return {
-    id,
+    id: storableSongId(id),
     // Cut, not refused: a long title is still the song's (ADR-108).
     title: title.slice(0, MAX_TITLE_LENGTH),
     originalKey,

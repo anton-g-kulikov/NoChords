@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { STORAGE_KEY, createSongStore, type StorageLike } from '../src/lib/storage';
+import { STORAGE_KEY, createSongStore, storableSongId, type StorageLike } from '../src/lib/storage';
 import { createSong } from '../src/lib/songs';
 import type { Song } from '../src/types/song';
 
@@ -198,6 +198,25 @@ describe('createSongStore', () => {
     const stored = JSON.stringify([{ ...sample, title: 'x'.repeat(5000) }]);
     const [loaded] = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
     expect(loaded.title).toHaveLength(200);
+  });
+
+  it('ST-18 **repairs a song id Firestore would refuse, the same way every time** (ADR-108)', async () => {
+    const stored = JSON.stringify([
+      { ...sample, id: 'a/b' },
+      { ...sample, id: '__reserved__' },
+      { ...sample, id: 'a-b' },
+    ]);
+    const loaded = await createSongStore(memoryStorage({ [STORAGE_KEY]: stored })).load();
+    const ids = loaded.map((song) => song.id);
+    for (const id of ids) {
+      expect(id).toMatch(/^[A-Za-z0-9_-]{1,128}$/);
+      expect(id).not.toMatch(/^__.*__$/);
+    }
+    // The app's own ids are untouched; a repaired one is stable, and never collides with a real one.
+    expect(ids[2]).toBe('a-b');
+    expect(ids[0]).not.toBe('a-b');
+    expect(storableSongId('a/b')).toBe(ids[0]);
+    expect(storableSongId(sample.id)).toBe(sample.id);
   });
 
   it('ST-14 keeps when a song was last opened, and reads an older song as never opened (ADR-106)', async () => {

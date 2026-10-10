@@ -75,6 +75,13 @@ export function SongList({
   onSortChange,
 }: SongListProps) {
   const install = useInstallPrompt();
+  const native = isNative();
+  /* Named for what you go for — songs to play — rather than for where they are kept. */
+  const moreSongs = (
+    <a className="library__install" href={SONGS_URL} target="_blank" rel="noopener noreferrer">
+      More songs
+    </a>
+  );
   /* Only a tap strikes the note: arriving at the library is not a change of ink. */
   const [struck, setStruck] = useState(false);
   // Only a library with songs in two languages has anything to choose between (ADR-081).
@@ -270,30 +277,27 @@ export function SongList({
           )}
           {/* iOS offers no way to ask, so the app can only say where the button is (ADR-029). */}
           {install.affordance === 'ios-share' && <> · Share → Add to Home Screen to install</>}
-        </p>
-        <p className="library__links">
-          {/* Named for what you go for — songs to play — rather than for where they are kept. */}
-          <a className="library__install" href={SONGS_URL} target="_blank" rel="noopener noreferrer">
-            More songs
-          </a>
-          {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. Not
-              in the store apps (ADR-117): Apple and Google allow a link out to donate only from
-              approved nonprofits, so there it is the website's alone. */}
-          {!isNative() && (
+          {native && (
             <>
               {' · '}
-              <a
-                className="library__install"
-                href={SUPPORT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Buy me a <span className="library__bracket">[</span>song
-                <span className="library__bracket">]</span> book
-              </a>
+              {moreSongs}
             </>
           )}
         </p>
+        {/* The links beyond the app: more songs, and support. Not in the store apps, where there is no
+            support link (ADR-117) and "More songs" joins the first line instead, so the footer is
+            two lines there rather than a line holding one link. */}
+        {!native && (
+          <p className="library__links">
+            {moreSongs}
+            {' · '}
+            {/* Support, in the app's own notation (ADR-079): the brackets are where a chord goes. */}
+            <a className="library__install" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
+              Buy me a <span className="library__bracket">[</span>song
+              <span className="library__bracket">]</span> book
+            </a>
+          </p>
+        )}
         <p className="library__links">
           <a className="library__install" href={`mailto:${HELP_EMAIL}`}>
             {HELP_EMAIL}

@@ -2939,9 +2939,10 @@ theirs, and the app claims nothing in it. The song archive stays CC BY 4.0 (ADR-
 (OFL 1.1) and libraries keep their own licences, named on the page.
 
 **The privacy page says only what the code does.** No ads, analytics or tracking; songs in the
-browser's storage without an account; with one, Google sign-in through Firebase Authentication (name,
-email, photo link, an ID) and songs in Firestore that the security rules let only their owner read or
-write; hosting logs at Firebase Hosting and GitHub Pages; mail forwarded by Cloudflare. Each claim was
+browser's storage without an account; with one, sign-in through Firebase Authentication — Google
+(name, email, photo link, an ID) or, in the iOS app, Apple (the email Apple gives, which may be a Hide
+My Email relay address, and an ID; Apple's offer of a name is not kept) — and songs in Firestore that
+the security rules let only their owner read or write; hosting logs at Firebase Hosting and GitHub Pages; mail forwarded by Cloudflare. Each claim was
 checked against the code and `firestore.rules` when written, and has to be re-checked whenever any of
 them changes.
 

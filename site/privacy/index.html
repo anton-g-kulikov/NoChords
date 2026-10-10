@@ -52,9 +52,19 @@
         <p>Signing in is optional, and only there so your songs can follow you between devices.</p>
         <ul>
           <li>
-            <strong>Signing in</strong> uses your Google account through Firebase Authentication, a
-            Google service. It receives your Google account's name, email address and profile photo
-            link, and gives your account an ID.
+            <strong>Signing in</strong> goes through Firebase Authentication, a Google service, with the
+            account you choose, and gives your NoChords account an ID:
+            <ul>
+              <li>
+                <strong>Google</strong>, on the web, on Android and on iOS. Firebase receives your Google
+                account's name, email address and profile photo link.
+              </li>
+              <li>
+                <strong>Apple</strong>, in the iOS app. Firebase receives the email address Apple gives
+                it: your own, or — if you choose Hide My Email — a private address that Apple forwards to
+                you. Apple may offer the app your name as well; NoChords does not pass it on or keep it.
+              </li>
+            </ul>
           </li>
           <li>
             <strong>Your songs</strong> are stored in Cloud Firestore, also Google's, under that ID.

@@ -54,6 +54,10 @@ language is read from its letters rather than stored, so songs written before th
 already in an account, sort themselves; a song with no words yet shows under every choice. The
 choice is remembered per device (ADR-081).
 
+The list is in the order you last opened your songs, most recent first, or **A–Z** by title — the
+choice sits beside the count and is remembered per device. A song records when it was last opened,
+so a signed-in library keeps its order across devices; songs never opened follow the rest (ADR-106).
+
 ## Writing a song
 
 The whole song lives in one text area, one line per lyric line. Chords go inline, in brackets,

@@ -3210,3 +3210,34 @@ account, signed in and then deleted.
   key is in Firebase, and App Review expects it to be.
 - **Deleting needs a connection.** Firestore's offline queue would hold a delete until the phone
   is back online, and the confirming sign-in needs the network anyway.
+
+---
+
+## ADR-106 — The library can be sorted by last opened or by title
+
+**Decision.** The library lists songs **last opened first** by default, or **A–Z**. A song gains
+`openedAt` — milliseconds since 1970, or `null` if never — stamped when it is opened from the list
+and when it is created, since a new song opens at once. It is stored and synced like any other field;
+songs saved before it existed read as never opened. The choice is a device setting, `librarySort`
+(`'opened' | 'title'`). `sortSongs` in `src/lib/librarySort.ts` does the ordering, after the language
+filter (ADR-081).
+
+**Why last opened, by default.** The song someone comes back for is nearly always the one they played
+last, and a library of a dozen songs is recognised, not looked up. A–Z is for when it has grown past
+that.
+
+**How it orders.** Most recent first; songs never opened — the seeded ones, until touched — after,
+in the library's own order. A–Z uses `Intl.Collator` with base sensitivity and numeric collation:
+case and accents set aside, "Song 2" before "Song 10", Latin and Cyrillic each in its own alphabet's
+order. An untitled song sorts by the name the list shows for it. Both orders are stable.
+
+**Why on the song, not per device.** A signed-in library is one library on every device, and the
+song played last on the phone should lead on the laptop too. The cost is a write each time a song is
+opened — one small field, through the same save every other change takes.
+
+**Where it sits.** In the running head, beside the count it orders, as `Recent · A–Z` in the head's
+small capitals — the same text tabs as the languages (ADR-081), with the same 44px targets. "Recent"
+rather than "Last opened" for room; the button's title says "Last opened first". On a phone the head
+cannot hold the count, the order and three languages on one line, so it wraps: the languages take a
+line of their own at the right, 28px below, so the two rows' tap targets never overlap.
+

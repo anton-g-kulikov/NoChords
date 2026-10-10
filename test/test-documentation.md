@@ -232,6 +232,7 @@ described at the end of this document.
 | ST-12 | **A song saved in the dotted quarter loads at the same speed in eighths or quarters** | ✅ |
 | ST-11 | A song saved with its own count-in still loads, and the count-in is left behind | ✅ |
 | ST-13 | A song keeps the chord display it was left in; one saved before, or with an unknown mode, opens on names | ✅ |
+| ST-14 | When a song was last opened is kept; one saved before, or with nonsense, reads as never opened | ✅ |
 
 ### Metronome timing — `metronome.test.ts`
 
@@ -334,6 +335,7 @@ lossless for good data and must refuse bad data rather than letting it into the 
 | SD-10 | The tempo unit is written, and supplied for a document stored without one | ✅ |
 | SD-11 | A song's count-in is no longer written, and one an older version wrote is read past | ✅ |
 | SD-12 | The chord display is written, and a document without one opens on names | ✅ |
+| SD-13 | When a song was last opened is written, as `null` when never, and a document without it reads as never | ✅ |
 
 ### Sign-in import decision — `cloud-import.test.ts`
 
@@ -528,6 +530,7 @@ Intent: the sounds the beat can make, as a table that can be read and checked wi
 | SET-14 | The chosen scheme is kept; anything else, or nothing, follows the device | ✅ |
 | SET-15 | The chosen ink is kept; anything else, or nothing, is vermilion | ✅ |
 | SET-16 | The chosen song language is kept; anything else, or nothing, shows every song | ✅ |
+| SET-18 | The chosen library order is kept; anything else, or nothing, is last opened first | ✅ |
 | SET-18 | The beat is heard by default, as a shaker; a device that turned it off keeps it off | ✅ |
 
 ### Light and dark — `theme.test.ts`
@@ -629,6 +632,19 @@ rule is separated from it and the hook holds no judgement of its own.
 | WL-03 | **The screen is held awake while a song plays** | ✅ |
 | WL-04 | Nothing playing lets the screen sleep | ✅ |
 | WL-05 | Nothing is requested while the page is hidden | ✅ |
+
+### Library order — `library-sort.test.ts`
+
+Intent: the song you came back for is at the top, and a long library can be looked up by title in
+either alphabet (ADR-106).
+
+| # | Case | Status |
+|---|------|--------|
+| SO-01 | Two orders are offered, last opened by default, and A–Z | ✅ |
+| SO-02 | **The last opened song comes first; songs never opened follow, in library order** | ✅ |
+| SO-03 | Titles sort as a reader expects: case, accents and numbers by value | ✅ |
+| SO-04 | Latin and Cyrillic each sort in their own alphabet; an untitled song sorts by its shown name | ✅ |
+| SO-05 | Sorting is stable and leaves the library itself unchanged | ✅ |
 
 ### Song language — `language.test.ts`
 

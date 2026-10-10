@@ -241,6 +241,26 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
   }, [reveals]);
 
   const rowRefs = useRef<Array<HTMLLIElement | null>>([]);
+
+  /*
+   * The pinned header's height, for the chart's run-out and for centring (ADR-118). It changes as
+   * panels open and close, so it is measured, not assumed: the chart's room below the last line is
+   * half of what the header leaves visible, and a playing line is centred in that same part.
+   */
+  const chartRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const chart = chartRef.current;
+    const header = headerRef.current;
+    if (!chart || !header) return undefined;
+    const measure = () => chart.style.setProperty('--player-header', `${header.offsetHeight}px`);
+    // Once now, not only from the observer: its first report waits for a frame to be drawn.
+    measure();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     if (activeIndex < 0) return;
     rowRefs.current[activeIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -503,13 +523,13 @@ export function Player({ song, onChange, settings, onSettingsChange }: PlayerPro
 
   return (
     <div className={sideColumn ? 'player player--side' : 'player'}>
-      <div className="screen__scroll player__chart">
+      <div className="screen__scroll player__chart" ref={chartRef}>
       {/*
        * Settings live at the top and the transport at the bottom (ADR-036): two different jobs,
        * and on a phone only one of them belongs under a thumb. The strip is pinned so the panel
        * can be opened from anywhere in a long song, not only from the top of it.
        */}
-      <div className="player__header">
+      <div className="player__header" ref={headerRef}>
       {!sideColumn && (
       <div className="settings-bar">
         {/* In the strip rather than the panel (ADR-040): it is the one control reached for

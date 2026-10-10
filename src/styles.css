@@ -1062,6 +1062,16 @@ kbd {
   flex-direction: column;
 }
 
+/*
+ * The chart measures itself, so the sheet's run-out can be a share of its height rather than the
+ * screen's (ADR-118), and a line scrolled into the middle is the middle of the part below the
+ * pinned header, not of the part behind it.
+ */
+.player__chart {
+  container-type: size;
+  scroll-padding-top: var(--player-header, 0px);
+}
+
 /* The settings panel hangs off the pinned strip, so the strip is its containing block. */
 .settings-bar {
   position: sticky;
@@ -1336,7 +1346,12 @@ kbd {
   font-optical-sizing: none;
   list-style: none;
   margin: 0 -8px;
-  padding: 0 0 60vh;
+  /*
+   * Room below the last line, so it can come to the middle of what is visible (ADR-118): half the
+   * chart's height less the pinned header over it. It was 60vh, a share of the whole screen, which
+   * on a phone carried the last line up behind the pinned header and left a page of blank paper.
+   */
+  padding: 0 0 calc((100cqh - var(--player-header, 0px)) / 2);
   display: flex;
   flex-direction: column;
   gap: 4px;

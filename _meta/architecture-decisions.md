@@ -3434,3 +3434,32 @@ another app. Outlined rather than washed, it stays a step quieter than New song.
 **Cost.** A song that uses several blank lines in a row for a long pause now shows a small gap
 rather than a big one. Text that needs that much air can still use a chord-only line or a section
 label.
+
+---
+
+## ADR-112 — Every control is outlined in the second ink
+
+**Decision.** Amends ADR-069 and ADR-111. Every outlined control now takes the second ink for its
+outline, through one token, `--control-line` (`var(--accent-line)`). That covers buttons and icon
+buttons, segmented controls, fields and selects (`.field__input`), the editor's inputs and text
+area, the key stepper, the beat strip's sound button and the theme switch. What is inside a control
+stays in ink: values, labels and icons. A control that is on still wears the wash and the
+full-strength ink (ADR-069), so on and off are still told apart by fill and text, not by outline.
+The song screen's running head drops its grey override, so its brackets take the ink like the
+library's.
+
+**Why.** Anton, looking at the iOS app in two inks: too many elements still did not follow the
+ink. With a second ink chosen, the neutral outlines read as a different, unthemed set of controls
+beside the inked ones. ADR-111 had already moved Sign in to an inked outline; this extends it to
+everything outlined.
+
+**Why one token.** It is one decision, and it should be reversible in one line. Pointing
+`--control-line` back at `--border-strong` restores ADR-069's neutral outlines everywhere.
+
+**Overlap.** `.library__signin` (ADR-111) still sets the same border colour itself, which is now
+redundant but harmless. It is kept for its transparent fill and inked text, which this decision does
+not give other buttons.
+
+**Cost.** Outlines at 45% of the second ink are a touch louder than the neutral ones. On a screen
+full of controls, such as the song setup, more of the page now carries the ink, and "on" now
+differs from "off" only by fill and text colour.

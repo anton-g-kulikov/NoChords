@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { isCancelledSignIn, isNative, nativePlatform } from '../src/lib/native';
+import { isCancelledSignIn, isNative, nativePlatform, setPageChrome } from '../src/lib/native';
 
 type WithBridge = { Capacitor?: unknown };
 
@@ -70,5 +70,45 @@ describe('nativePlatform', () => {
     expect(nativePlatform()).toBe('web');
     (globalThis as WithBridge).Capacitor = { isNativePlatform: () => true, getPlatform: () => 'tv' };
     expect(nativePlatform()).toBe('web');
+  });
+});
+
+describe('setPageChrome', () => {
+  afterEach(() => {
+    delete (globalThis as WithBridge).Capacitor;
+  });
+
+  function shell() {
+    const calls: unknown[][] = [];
+    (globalThis as WithBridge).Capacitor = {
+      isNativePlatform: () => true,
+      getPlatform: () => 'ios',
+      nativePromise: (...args: unknown[]) => {
+        calls.push(args);
+        return Promise.resolve();
+      },
+    };
+    return calls;
+  }
+
+  it('NA-08 tells the shell the page colour and whether it is dark', () => {
+    const calls = shell();
+    setPageChrome('dark');
+    setPageChrome('light');
+    expect(calls).toEqual([
+      ['PageChrome', 'setTheme', { color: '#15120e', dark: true }],
+      ['PageChrome', 'setTheme', { color: '#f4efe6', dark: false }],
+    ]);
+  });
+
+  it('NA-09 does nothing in a browser, and survives a shell without the plugin', async () => {
+    expect(() => setPageChrome('dark')).not.toThrow();
+    (globalThis as WithBridge).Capacitor = {
+      isNativePlatform: () => true,
+      nativePromise: () => Promise.reject(new Error('"PageChrome" plugin is not implemented')),
+    };
+    expect(() => setPageChrome('light')).not.toThrow();
+    // Let the rejection settle: an unhandled one would fail the run.
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 });

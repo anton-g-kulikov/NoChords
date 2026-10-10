@@ -7,7 +7,14 @@
  * `index.html`, so this never has to correct a flash — only follow a change.
  */
 import { useEffect } from 'react';
-import { THEME_COLOR, themeAttribute, type Theme, type ThemePreference } from '../lib/theme';
+import {
+  THEME_COLOR,
+  resolveTheme,
+  themeAttribute,
+  type Theme,
+  type ThemePreference,
+} from '../lib/theme';
+import { isNative, setPageChrome } from '../lib/native';
 import { accentAttribute, type AccentName } from '../lib/accent';
 
 export function useTheme(preference: ThemePreference, accent: AccentName): void {
@@ -32,5 +39,17 @@ export function useTheme(preference: ThemePreference, accent: AccentName): void 
       if (!scheme) continue;
       meta.content = THEME_COLOR[attribute ?? scheme];
     }
+  }, [preference]);
+
+  // The phone apps' shell has no `theme-color` to read, so it is told the resolved theme, and for
+  // "system" told again whenever the device switches (ADR-108).
+  useEffect(() => {
+    if (!isNative()) return undefined;
+    const query = window.matchMedia?.('(prefers-color-scheme: dark)');
+    const apply = () => setPageChrome(resolveTheme(preference, query?.matches === true));
+    apply();
+    if (preference !== 'system' || !query) return undefined;
+    query.addEventListener('change', apply);
+    return () => query.removeEventListener('change', apply);
   }, [preference]);
 }

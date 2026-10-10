@@ -497,6 +497,8 @@ install itself and does not register a service worker (ADR-099).
 | NA-05 | Real sign-in failures stay failures | ✅ |
 | NA-06 | **Names the shell it is running in** | ✅ |
 | NA-07 | Web in a browser, and for any platform it does not recognise | ✅ |
+| NA-08 | **Tells the shell the page colour and whether it is dark** | ✅ |
+| NA-09 | Does nothing in a browser, and survives a shell without the plugin | ✅ |
 
 ### Metronome voices — `metronome-voice.test.ts`
 

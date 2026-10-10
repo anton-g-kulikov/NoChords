@@ -1,3 +1,5 @@
+import { THEME_COLOR, type Theme } from './theme';
+
 /**
  * Whether the app is running inside its iOS or Android shell rather than in a browser.
  *
@@ -19,8 +21,34 @@ export function nativePlatform(): 'ios' | 'android' | 'web' {
   return platform === 'ios' || platform === 'android' ? platform : 'web';
 }
 
-function bridge(): { isNativePlatform?: () => boolean; getPlatform?: () => string } | undefined {
-  return (globalThis as { Capacitor?: ReturnType<typeof bridge> }).Capacitor;
+/**
+ * Tells the shell which theme the page is in, so the colour behind the web view and the system
+ * bars' text match it (ADR-108). Native-only: on the web the `theme-color` tags do this job.
+ *
+ * Without it the shell shows its own background wherever the page does not reach. On iOS 27 that
+ * is a white strip under the status bar, in either theme.
+ */
+export function setPageChrome(theme: Theme): void {
+  if (!isNative()) return;
+  // Straight through the bridge: `Capacitor.Plugins` is only filled in by `@capacitor/core`'s
+  // `registerPlugin`, which the web build deliberately does not load (ADR-099).
+  void bridge()
+    ?.nativePromise?.('PageChrome', 'setTheme', {
+      color: THEME_COLOR[theme],
+      dark: theme === 'dark',
+    })
+    // An older shell without the plugin keeps its own background; nothing worse than before.
+    ?.catch(() => {});
+}
+
+interface Bridge {
+  isNativePlatform?: () => boolean;
+  getPlatform?: () => string;
+  nativePromise?: (plugin: string, method: string, options: object) => Promise<unknown>;
+}
+
+function bridge(): Bridge | undefined {
+  return (globalThis as { Capacitor?: Bridge }).Capacitor;
 }
 
 /**

@@ -44,7 +44,8 @@ one is remembered, and it does not come back. To change what everyone's first ru
 already have.
 
 **Sign in**, at the top of the library, signs in with Google and moves the library to Firestore so
-it syncs across devices.
+it syncs across devices. In the iOS app it asks first: **Sign in with Apple** or **Sign in with
+Google**. Signed in, the same place holds an account button, for signing out or deleting the account.
 Opening a song from the library lands on **Play**; a newly created one opens in **Edit**.
 
 Once the library holds songs in both English and Russian, its heading offers **All · English ·
@@ -283,6 +284,11 @@ uploading silently is wrong on a borrowed phone and ignoring silently looks like
 Editing does not write on every keystroke — writes settle for 800ms first, and flush when the page
 is hidden.
 
+**Deleting the account.** The account button's **Delete account** asks once, naming how many songs
+go. You then sign in once more with the same account, and the songs and the account are deleted
+for good (ADR-105). Songs kept only on the device stay. For an Apple account, Apple's sign-in is
+revoked as well, once Apple's key is set up in the Firebase Apple provider.
+
 **Security.** Songs are stored at `users/{uid}/songs/{songId}`, and
 [`firestore.rules`](firestore.rules) allows read and write only where the signed-in uid matches the
 path. Firestore is reached straight from the browser, so the client is not a trust boundary: those
@@ -296,6 +302,31 @@ stays local.
 
 **Bundle cost.** The SDK is fetched only if someone signs in. The app chunk is 55.8kB gzip; the
 Firebase chunk is 183.6kB and is never requested by a signed-out visitor.
+
+## Phone apps
+
+The iOS and Android apps are this same build in a [Capacitor](https://capacitorjs.com) shell
+(ADR-099), app id `app.nochords`. Inside them the app skips the service worker and the install
+offer, and signs in with the platform's own Google sign-in, and in the iOS app with Apple's
+(ADR-101, ADR-103).
+
+```bash
+npm run native:sync      # build the site and copy it into ios/ and android/
+npm run native:ios       # sync, then open Xcode
+npm run native:android   # sync, then open Android Studio
+```
+
+The Firebase config for each app is not committed (the repository is public). Fetch both once per
+checkout before building:
+
+```bash
+npx firebase-tools apps:sdkconfig IOS 1:399674392616:ios:b6ac76a462b1aded05351d -o ios/App/App/GoogleService-Info.plist
+npx firebase-tools apps:sdkconfig ANDROID 1:399674392616:android:506eb5b789fddd9905351d -o android/app/google-services.json
+```
+
+Without the plist, Google sign-in in the iOS app never answers. An Android build signed with a new
+key needs that key's SHA-1 added to the Android app in Firebase, or Google sign-in fails there.
+Icons and splash screens come from `assets/` (ADR-104).
 
 ## Deploying
 

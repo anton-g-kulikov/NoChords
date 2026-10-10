@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { chordParts } from '../lib/chordType';
 import { chordSymbolFor, rowSegments } from '../lib/display';
 import { parseMeter } from '../lib/meter';
@@ -22,7 +23,19 @@ interface SongRowViewProps {
  * only blurred — nothing is removed or substituted — so neither its own lyric nor any later chord
  * or lyric moves when concealment changes (ADR-007).
  */
-export function SongRowView({ row, song, mode, concealed, revealed = false }: SongRowViewProps) {
+/*
+ * Memoised (ADR-108): the playing chart re-renders every animation frame as the clock moves, and
+ * each line's props — the row, the song, the mode, the concealed set and a plain `revealed` flag —
+ * stay the same between frames, so React skips the lines rather than re-parsing and re-transposing
+ * every chord of the song sixty times a second.
+ */
+export const SongRowView = memo(function SongRowView({
+  row,
+  song,
+  mode,
+  concealed,
+  revealed = false,
+}: SongRowViewProps) {
   // An intro or a turnaround: chords and no words. It is drawn as its chord row alone, with no
   // empty lyric row under it, and its length mark sits beside the chords (ADR-096).
   const chordsOnly = row.chords.length > 0 && row.lyrics.trim() === '';
@@ -79,7 +92,7 @@ export function SongRowView({ row, song, mode, concealed, revealed = false }: So
       )}
     </div>
   );
-}
+});
 
 /**
  * A chord as a chart prints it: the root at full size, the quality and the bass smaller beside it

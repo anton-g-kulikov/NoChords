@@ -5,7 +5,11 @@ Learn songs by progressively hiding chord cues while playing through lyrics at a
 **App:** [songs.nochords.app](https://songs.nochords.app) ·
 **About:** [nochords.app](https://nochords.app) ·
 **Songs:** [nochords-songs](https://github.com/anton-g-kulikov/nochords-songs) ·
-**Support:** [buy me a \[song\] book](https://buymeacoffee.com/antonkulikov)
+**Support:** [buy me a \[song\] book](https://buymeacoffee.com/antonkulikov) ·
+**Help:** [help@nochords.app](mailto:help@nochords.app)
+
+© 2026 Anton Kulikov. All rights reserved — the source is published to be read, not reused; see
+[Licence](https://nochords.app/licence/) and [Privacy](https://nochords.app/privacy/).
 
 Type a song in once, play it back with the chart scrolling itself, and let the chords fade out over
 repeated playthroughs — the first level keeps the verse and chorus whole and thins their repeats,

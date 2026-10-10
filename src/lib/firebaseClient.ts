@@ -240,7 +240,10 @@ export async function deleteAccount(): Promise<void> {
   }
 
   if (provider === 'apple' && authorizationCode) {
-    await revokeAccessToken(appAuth, authorizationCode).catch(() => {});
+    await revokeAccessToken(appAuth, authorizationCode).catch((cause: unknown) => {
+      // Said, not thrown: deletion goes ahead, but a revocation that fails should leave a trace.
+      console.warn('[NoChords] Apple sign-in was not revoked', cause);
+    });
   }
 
   await deleteUser(user);

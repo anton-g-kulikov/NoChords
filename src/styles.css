@@ -609,7 +609,9 @@ kbd {
   flex: none;
   display: inline-flex;
   padding: 2px;
-  border: 1px solid var(--control-line);
+  /* Neutral, not the ink (ADR-113): it sets how the whole app looks, ink included, so it stands
+     outside the colour it chooses. */
+  border: 1px solid var(--border);
   border-radius: 999px;
 }
 

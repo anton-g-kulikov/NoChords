@@ -136,7 +136,7 @@ describe('countInProgress', () => {
 });
 
 describe('countInRemainingAt', () => {
-  it('MT-23 **counts nothing in the silent second, then n down to one** (ADR-097)', () => {
+  it('MT-25 **counts nothing in the silent second, then n down to one** (ADR-097)', () => {
     // A bar of four at 500ms a beat: the count runs from -2000ms; the clock starts at -3000ms.
     expect(countInRemainingAt(-3000, 2000, 500)).toBe(0);
     expect(countInRemainingAt(-2001, 2000, 500)).toBe(0);

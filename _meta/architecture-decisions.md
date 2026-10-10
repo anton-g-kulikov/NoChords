@@ -3263,3 +3263,80 @@ is useful. On a phone the list is short enough to count by eye, so the count is 
 and the language names are the part to shorten. The order of the languages is the same as on wider
 screens, so a choice never moves between them.
 
+---
+
+## ADR-108 — Song input is bounded everywhere it enters, and hosting and the database defend themselves
+
+**Decision.** The fixes for the 2026-10-10 audit of user input
+(`_meta/audit-user-input-2026-10-10.md`), one commit each, reviewed commit by commit by the session
+that ran the audit:
+
+1. **Bounds** (`src/lib/bounds.ts`). At most 32 beats in a bar, 64 bars in a line, 1000 lines in a
+   song, 200,000 characters of song text and 200 characters of title; tempo within 20..300. The
+   line parser ignores a `|n|` past 64 and keeps a `{n/d}` only if it can be played; `parseMeter`
+   refuses a bar of more than 32 beats; the storage validator, which local and synced songs both
+   pass through, rounds and clamps rather than rejecting, so an out-of-range song still loads. The
+   editor caps the text box and says when text runs past 1000 lines.
+2. **The metronome's beat search is arithmetic.** It finds the beats inside its 25 ms window
+   directly instead of walking every beat of the row, so its cost is the window's, not the row's.
+   The beat strip never draws more than 32 dots.
+3. **Hosting headers** (`firebase.json`, a `**` rule): `Content-Security-Policy-Report-Only`,
+   `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy:
+   strict-origin-when-cross-origin`, and a `Permissions-Policy` turning off camera, microphone and
+   location. The policy allows scripts from the app, the inline theme script by its hash, and
+   `https://apis.google.com`; connections to `*.googleapis.com`; frames from the auth domain and
+   `apis.google.com`; styles only from the app's stylesheet.
+4. **Firestore rules validate the song** (`isSong`): only songToDoc's fields, plus `countInBars`
+   and `beatsPerLine` from versions still cached on phones; the id matching the document; the
+   bounds above; at most 1000 rows. Reading and deleting your own songs is unchanged.
+5. **Song ids** Firestore would refuse are repaired on load, the same way every time.
+6. **The pre-paint theme script** accepts only the app's own inks.
+7. **The playing chart** memoises each line, so the per-frame clock no longer re-renders the song:
+   in five seconds of playback, 22,040 line renders became none.
+8. **Each song's language** is read once per song object, not three times a render.
+
+**Why.** Song text is shared by pasting — from the public archive (ADR-090) or anyone's chart — so
+whatever a song says is input from strangers. One line of `|999999999|` made the metronome walk four
+billion beats every 25 ms and froze the tab on Play; `{99999999/4}` asked the beat strip for a
+hundred million dots. Nothing rendered HTML from that input, and nothing does now, but React's
+escaping was the only layer; the headers are the second. And the database trusted any document from
+a signed-in token, so a token could fill it, at the project's cost.
+
+**Whatever the database refuses, the app refuses first.** A refused save is swallowed and the song
+lives only in memory until reload, the same silent loss as an id Firestore will not store. So every
+bound in `firestore.rules` is enforced by the app before it writes: lines, title, keys, tempo, line
+length. A new `Song` field has to be added to `isSong` in the same change, or every save from the
+release that adds it is refused. `npm run test:rules` checks the rules against the emulator with
+documents built by `songToDoc`.
+
+**The content policy stays report-only until a manual pass.** There is no report collector, so the
+report-only period shows violations only in a browser's console. Before switching
+`Content-Security-Policy-Report-Only` to `Content-Security-Policy`, on songs.nochords.app with the
+console open, in Chrome and in Safari:
+
+- sign in with Google (the popup),
+- save a song and see it arrive on a second device,
+- delete an account, which signs in again by popup to confirm,
+- reload offline, through the service worker.
+
+Expected in that pass: `https://apis.google.com/js/api.js`, the auth helper frame on
+`nochords-18219.firebaseapp.com`, and `identitytoolkit`, `securetoken`, `firestore` and
+`firebaseinstallations` under `*.googleapis.com` — all listed. Firebase's popup helper may insert its
+frame with a `style` attribute, reported as `style-src-attr`; if it is, the answer is
+`style-src-attr 'unsafe-inline'`, not putting `'unsafe-inline'` back on `style-src`. Keep
+`X-Frame-Options` after enforcing, beside `frame-ancestors`. The tests read either header key, so
+the switch is one line.
+
+**What the headers do not cover.** The iOS and Android apps load `index.html` from their own
+bundle, not from Hosting, so none of these headers reach them. Giving them a policy means a `<meta
+http-equiv="Content-Security-Policy">` in `index.html`, which would apply on the web too and must
+agree with the header.
+
+**Deploying.** Hosting headers ship with the next release. The rules go live separately, with `npm
+run deploy:rules`; order does not matter, since the rule accepts both the current and the older
+document shapes.
+
+**Cost.** A song longer than 1000 lines, a title past 200 characters or a bar of more than 32 beats
+can no longer be written; the editor says so for lines. Two timing-free tests replaced timing ones
+(LG-08 counts reads; MT-24 allows 200 ms against the old fifteen seconds).
+

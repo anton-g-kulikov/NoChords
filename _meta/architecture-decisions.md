@@ -3200,8 +3200,11 @@ account is this?" too. Signing out is now two taps. That is the cost.
 - While deleting, both buttons are disabled.
 - A failure returns to the confirmation.
 
-No real account has been deleted on any platform yet. That needs a throwaway Google or Apple
-account, signed in and then deleted.
+Then, on 2026-10-10, a throwaway Google account was signed in from the iOS simulator and deleted
+there. The app said "Your account and its songs are deleted", and Firestore confirmed it: the
+account's entry under `users` was gone. Apple is not yet verified. Sign in with Apple does not
+complete in the simulator, where it fails with error 1000, so an Apple deletion and its revocation
+need a real iPhone.
 
 **Cost.**
 

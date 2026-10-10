@@ -3061,3 +3061,64 @@ app alike.
 `help@`. Apple requires apps that create accounts to offer deletion inside the app (guideline
 5.1.1(v)), so the iOS app will need it before review.
 
+---
+
+## ADR-103 — The iOS app offers Sign in with Apple, first
+
+**Decision.** Amends ADR-064 and ADR-101. In the iOS app, Sign in no longer goes straight to
+Google. It opens a card under the header, `SignInChoice`, with three buttons:
+
+- **Sign in with Apple**, first.
+- **Sign in with Google.**
+- **Not now.**
+
+Apple's sign-in works the way Google's does in ADR-101. The plugin gets Apple's ID token and the
+raw nonce, and the JS SDK signs in with an `OAuthProvider('apple.com')` credential.
+`signInProviders` decides what each platform offers: the iOS app offers Apple then Google, and the
+web and Android offer only Google. With one choice, Sign in still takes it at once.
+
+The iOS app carries the Sign in with Apple entitlement (`App.entitlements`), and the plugin loads
+`apple.com` beside `google.com`.
+
+**Why.** App Review guideline 4.8: an app that offers Google sign-in has to offer one that lets
+people hide their email, and Sign in with Apple is that one. Apple's own guidelines ask for its
+button to be no less prominent than the others, so it is first and drawn as Apple draws it: black
+on a light page, white on a dark one, with the logo and "Sign in with Apple". Google's button
+carries Google's "G" for the same reason.
+
+**Why a card and not a dialog.** The app has no overlays, and the import offer already asks its
+question in the same place. The card brings its own side margins, because the notice slot sits
+outside the library's gutters.
+
+**Why only on iOS.** Apple's sign-in elsewhere goes through a web flow. That flow needs a Services
+ID, a key and a registered return URL at Apple, and none of them exist yet. Until they do, the web
+and Android would only offer a button that fails.
+
+**The failures Apple has.**
+
+- **A cancel is error 1001.** Apple's cancel has no words, only that number, and
+  `isCancelledSignIn` now knows it.
+- **Everything else is mostly error 1000.** That includes closing iOS's own "sign in to your Apple
+  Account" prompt, which is the usual cause on a phone with no Apple Account. So a failed Apple
+  sign-in now points at the Apple Account in Settings, not at the connection.
+- **One account per email.** An Apple sign-in whose email already belongs to a Google account, or
+  the other way round, is told which provider to use.
+
+The wording now lives in `signInErrorMessage`, so it can be tested.
+
+**Seen, and not yet seen.** In the simulator, Sign in opens the card. Sign in with Apple reaches
+iOS's Apple sign-in, which is how we know the entitlement is in place, but the simulator has no
+Apple Account, so it stopped at the Settings prompt. Closing that prompt shows the Apple message. No
+Apple sign-in has completed yet.
+
+**Cost.**
+
+- **Firebase has to have its Apple provider turned on.** Until it is, an Apple token is refused.
+- **An Apple account is the iOS app's alone, for now.** Someone who signs in with Apple on an
+  iPhone cannot reach those songs on the web or Android until Apple's web flow is set up there.
+- **Apple gives a name only once.** Its first sign-in is the only one that carries the person's
+  name, and this hand-over does not keep it, so an Apple account has no display name. Nothing in
+  the app shows one yet.
+- **Account deletion will need more with Apple.** Apple requires an app to revoke the person's
+  Apple tokens when it deletes their account (5.1.1(v)). That needs Apple's key set up in Firebase,
+  the same key the web flow needs.

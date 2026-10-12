@@ -3671,7 +3671,9 @@ the step signs the bundle with the upload key (ADR-119) and uploads it to Play's
 testing** track. Promoting a build to closed testing or production stays a click in Play Console.
 
 - **Who uploads.** A service account, `play-publisher@nochords-18219.iam.gserviceaccount.com`,
-  invited in Play Console with permission to release to testing tracks only. Its JSON key lives
+  invited in Play Console with permission to release to testing tracks only, plus *View app
+  information (read-only)*. Without that one every API call was refused with 403, even though
+  the release permissions were granted. Its JSON key lives
   outside the checkout. `playServiceAccount` in the gitignored `android/keystore.properties` names
   it.
 - **Version codes are written by hand.** Each upload needs a higher `versionCode` than any Play
@@ -3688,5 +3690,8 @@ because releases need Anton's say-so and the keys stay on his machine.
 
 - **A second credential.** The service-account key can upload builds to testing tracks if it
   leaks. It cannot touch production, and revoking it in Google Cloud ends that.
+- **`bootstrapListing` empties `src/main/play`.** It is the only call that reads from Play
+  without uploading, and it deletes the committed release notes before downloading. Restore them
+  with `git checkout -- android/app/src/main/play` after using it.
 - **A plugin to keep in step with the Android Gradle plugin.** A Capacitor upgrade that moves
   AGP may need a newer Gradle Play Publisher.

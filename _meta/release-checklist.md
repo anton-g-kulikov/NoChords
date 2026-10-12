@@ -136,3 +136,33 @@ The general shape, worth remembering beyond this project: a stack of graceful de
 indistinguishable from success. Anywhere the code is written to carry on when something is absent,
 something absent will eventually go unnoticed for a long time.
 
+
+## 8. Store apps: Android to Google Play
+
+A release goes to Play from the command line (ADR-119, ADR-120):
+
+1. **Raise `versionCode`** in `android/app/build.gradle`, and `versionName` if the web version moved.
+   Play refuses a version code it has already seen, so each upload needs a new one. It moves
+   together with the iOS build number (`CURRENT_PROJECT_VERSION` in the Xcode project), in one
+   `chore: native build X.Y.Z (N)` commit, so build *N* is the same app in both stores.
+2. **Write the release notes** in `android/app/src/main/play/release-notes/en-GB/default.txt`. At
+   most 500 characters; testers see them in the Play Store.
+3. **Upload:**
+
+   ```bash
+   npm run release:android
+   ```
+
+   This builds the site, syncs it into `android/`, signs the bundle with the upload key and uploads
+   it to the **internal testing** track.
+4. **Promote it** in Play Console: Test and release → the track → Promote release. Closed
+   testing and production are a click there, not a command.
+
+It needs `android/keystore.properties`, which is gitignored and exists only on the release Mac.
+It names the upload key and its passwords, and `playServiceAccount`, the JSON key of
+`play-publisher@nochords-18219.iam.gserviceaccount.com`. Both keys live in `~/Keys`, outside the
+checkout. Without the file the build still works, but it is unsigned and cannot be uploaded.
+
+If the upload fails with **403**, the service account has lost a permission in Play Console
+(Users and permissions). It needs *Release apps to testing tracks*, *Manage testing tracks* and
+*View app information*. Without the last one, every call is refused.

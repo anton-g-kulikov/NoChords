@@ -13,6 +13,7 @@
     "native:sync": "npm run build && cap sync",
     "native:ios": "npm run native:sync && cap open ios",
     "native:android": "npm run native:sync && cap open android",
+    "release:android": "npm run build && cap sync android && cd android && ./gradlew publishBundle",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -342,14 +342,23 @@ storeFile=/absolute/path/to/nochords-upload.jks
 storePassword=…
 keyAlias=upload
 keyPassword=…
+playServiceAccount=/absolute/path/to/nochords-play-publisher.json
 ```
 
 ```bash
-npm run native:sync && (cd android && ./gradlew bundleRelease)
+npm run release:android
 ```
 
-The bundle is `android/app/build/outputs/bundle/release/app-release.aab`. Without the properties
-file it builds unsigned, and Play refuses it.
+That builds the site, signs the bundle and uploads it to Play's internal testing track (ADR-120);
+promote it to closed testing or production in Play Console. The service account
+`play-publisher@nochords-18219.iam.gserviceaccount.com` does the upload, with its key named in
+`playServiceAccount`. Before each upload, raise `versionCode` in `android/app/build.gradle`
+(Play refuses one it has seen) and write the release notes in
+`android/app/src/main/play/release-notes/en-GB/default.txt`.
+
+To build without uploading, run `(cd android && ./gradlew bundleRelease)` after
+`npm run native:sync`. The bundle is `android/app/build/outputs/bundle/release/app-release.aab`.
+Without the properties file it builds unsigned, and Play refuses it.
 
 ## Deploying
 

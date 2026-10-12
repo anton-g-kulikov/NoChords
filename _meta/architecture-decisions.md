@@ -3659,3 +3659,34 @@ file has to leave the build working, since a fresh checkout or another session h
   again.
 - **A lost upload key means waiting.** Play can reset it, but only on request, and that takes a
   few days.
+
+---
+
+## ADR-120 — Android releases upload from the Mac with Gradle Play Publisher
+
+**Decision.** `npm run release:android` builds the site, syncs it into `android/`, and runs
+`./gradlew publishBundle`. That is the
+[Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher) plugin (3.12.1), and
+the step signs the bundle with the upload key (ADR-119) and uploads it to Play's **internal
+testing** track. Promoting a build to closed testing or production stays a click in Play Console.
+
+- **Who uploads.** A service account, `play-publisher@nochords-18219.iam.gserviceaccount.com`,
+  invited in Play Console with permission to release to testing tracks only. Its JSON key lives
+  outside the checkout. `playServiceAccount` in the gitignored `android/keystore.properties` names
+  it.
+- **Version codes are written by hand.** Each upload needs a higher `versionCode` than any Play
+  has seen. It moves with the iOS build number (`CURRENT_PROJECT_VERSION`) in the native build
+  commit, so build *n* is the same app in both stores. The plugin could raise it on its own, but
+  then the two would drift and the number in the source would not be the one in the store.
+- **Release notes** are `android/app/src/main/play/release-notes/en-GB/default.txt`, committed.
+
+**Why.** Dragging a bundle into Play Console each time was the one manual step left between a
+commit and testers; TestFlight already uploads from the command line. It runs locally, not in CI,
+because releases need Anton's say-so and the keys stay on his machine.
+
+**Cost.**
+
+- **A second credential.** The service-account key can upload builds to testing tracks if it
+  leaks. It cannot touch production, and revoking it in Google Cloud ends that.
+- **A plugin to keep in step with the Android Gradle plugin.** A Capacitor upgrade that moves
+  AGP may need a newer Gradle Play Publisher.

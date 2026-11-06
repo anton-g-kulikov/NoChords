@@ -3729,3 +3729,23 @@ under Trademarks on the Licence page.
 
 **Cost.** The two hero buttons no longer match. A Google Play badge, when there is one, goes after
 Apple's, since Apple asks for its badge to come first.
+
+## ADR-123 — The landing page links Google Play's internal test
+
+**Decision.** The hero gains Google's **Get it on Google Play** badge, after Apple's. It links to the
+internal testing opt-in, `https://play.google.com/apps/internaltest/4700287132043179462`, because
+NoChords has no public listing on Play yet. `site/google-play-badge.png` is Google's file, unaltered.
+
+**The link works only for testers.** Anyone not on the track's tester list gets a Play error page,
+not an install. So the (i) panel's Android step stays as it is: the web app is still the route that
+works for everyone on Android. At launch the badge's link becomes the store listing,
+`https://play.google.com/store/apps/details?id=app.nochords`, and the panel can follow ADR-122's
+iPhone step.
+
+**Size.** Google asks for its badge to be at least as large as any other store's beside it. Its file
+has a clear margin built in, 41px of 250 on each edge, so the image is 78px tall and pulled back by
+13px on every side. That leaves the badge itself 52px tall, as tall as Apple's, and keeps the hero's
+16px gap, above the quarter of the badge's height that both stores ask for.
+
+**Cost.** The badge is a raster, because Google's public download is a PNG. Its vector files sit
+behind a partner application.

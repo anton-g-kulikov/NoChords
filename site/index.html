@@ -142,6 +142,8 @@
     /* Apple's artwork, unaltered, as tall as the button beside it (ADR-122). */
     .store-badge { display: block; }
     .store-badge img { display: block; height: 52px; width: auto; }
+    /* Google's file has a clear margin built in; pulled back, the badge itself is as tall as Apple's. */
+    .store-badge--play img { height: 78px; margin: -13px; }
     .cta small { color: var(--muted); font-size: 0.85rem; }
 
     /* The install note and its (i): the panel hangs from the note, so the note is its anchor. */
@@ -406,6 +408,10 @@
         <!-- Without a country, so Apple sends each visitor to their own storefront (ADR-121). -->
         <a class="store-badge" href="https://apps.apple.com/app/id6821279225">
           <img src="/app-store-badge.svg" alt="Download on the App Store" width="156" height="52" />
+        </a>
+        <!-- Internal testing: this opens only for testers on the list. Swap in the store listing at launch (ADR-123). -->
+        <a class="store-badge store-badge--play" href="https://play.google.com/apps/internaltest/4700287132043179462">
+          <img src="/google-play-badge.png" alt="Get it on Google Play" width="202" height="78" />
         </a>
         <div class="cta__note">
           <small>Free · works offline · installs on Android and iOS</small>

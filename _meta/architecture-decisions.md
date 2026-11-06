@@ -3695,3 +3695,20 @@ because releases need Anton's say-so and the keys stay on his machine.
   with `git checkout -- android/app/src/main/play` after using it.
 - **A plugin to keep in step with the Android Gradle plugin.** A Capacitor upgrade that moves
   AGP may need a newer Gradle Play Publisher.
+
+---
+
+## ADR-121 — The landing page links the App Store
+
+**Decision.** The landing page's hero has a second button beside "Open the app": **Download on the App
+Store**, linking to `https://apps.apple.com/app/id6821279225`. The link names no country, so Apple
+sends each visitor to their own storefront. It is the page's own `.button`, in text, with no Apple
+logo.
+
+**Why not Apple's badge.** Apple's marketing rules do not allow its logo on a button of our own, so
+it is either the plain text used here or Apple's badge artwork, unaltered. Text keeps the hero's two
+buttons a pair; the badge remains an option if the page is ever to look like a store listing.
+
+**Cost.** The install note under the buttons still explains adding the web app to the Home Screen,
+which stays true beside the App Store route.
+

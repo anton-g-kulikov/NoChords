@@ -3712,3 +3712,20 @@ buttons a pair; the badge remains an option if the page is ever to look like a s
 **Cost.** The install note under the buttons still explains adding the web app to the Home Screen,
 which stays true beside the App Store route.
 
+
+## ADR-122 — The landing page uses Apple's App Store badge
+
+**Decision.** The text button from ADR-121 gives way to Apple's own **Download on the App Store**
+badge, the black one, unaltered, in `site/app-store-badge.svg`. It keeps ADR-121's link, which names
+no country. It stands 52px tall, the height of "Open the app" beside it.
+
+**Why.** Visitors know the badge on sight, and it is the only way to show Apple's logo.
+
+**Apple's rules, which the page now has to keep.** The artwork is not to be altered, recoloured or
+animated. It is at least 40px tall on screen, with clear space of a quarter of its height: the hero's
+16px gap covers the 13px needed. Black is Apple's preferred badge, so dark mode keeps it too, with
+the grey border that is part of the artwork. The credit line for Apple and the App Store appears once,
+under Trademarks on the Licence page.
+
+**Cost.** The two hero buttons no longer match. A Google Play badge, when there is one, goes after
+Apple's, since Apple asks for its badge to come first.

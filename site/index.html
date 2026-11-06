@@ -139,6 +139,9 @@
       transition: background-color 120ms ease;
     }
     .button:hover { background: var(--accent-wash-strong); }
+    /* Apple's artwork, unaltered, as tall as the button beside it (ADR-122). */
+    .store-badge { display: block; }
+    .store-badge img { display: block; height: 52px; width: auto; }
     .cta small { color: var(--muted); font-size: 0.85rem; }
 
     /* The install note and its (i): the panel hangs from the note, so the note is its anchor. */
@@ -401,7 +404,9 @@
       <div class="cta">
         <a class="button" href="https://songs.nochords.app">Open the app</a>
         <!-- Without a country, so Apple sends each visitor to their own storefront (ADR-121). -->
-        <a class="button" href="https://apps.apple.com/app/id6821279225">Download on the App Store</a>
+        <a class="store-badge" href="https://apps.apple.com/app/id6821279225">
+          <img src="/app-store-badge.svg" alt="Download on the App Store" width="156" height="52" />
+        </a>
         <div class="cta__note">
           <small>Free · works offline · installs on Android and iOS</small>
           <!-- Opened by a tap, not a hover: a phone has no hover, and it is phone readers this is for. -->

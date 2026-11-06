@@ -3737,10 +3737,10 @@ internal testing opt-in, `https://play.google.com/apps/internaltest/470028713204
 NoChords has no public listing on Play yet. `site/google-play-badge.png` is Google's file, unaltered.
 
 **The link works only for testers.** Anyone not on the track's tester list gets a Play error page,
-not an install. So the (i) panel's Android step stays as it is: the web app is still the route that
-works for everyone on Android. At launch the badge's link becomes the store listing,
-`https://play.google.com/store/apps/details?id=app.nochords`, and the panel can follow ADR-122's
-iPhone step.
+not an install. The web app is still the route that works for everyone on Android, and the note
+under the badges offers it: "Or install as a PWA", with the steps for iPhone and Android in its (i)
+panel. At launch the badge's link becomes the store listing,
+`https://play.google.com/store/apps/details?id=app.nochords`.
 
 **Size.** Google asks for its badge to be at least as large as any other store's beside it. Its file
 has a clear margin built in, 41px of 250 on each edge, so the image is 78px tall and pulled back by

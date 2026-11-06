@@ -409,8 +409,10 @@ One-time setup — create a deploy service account and give it to GitHub as a se
 
 1. In the [Google Cloud console](https://console.cloud.google.com/iam-admin/serviceaccounts?project=nochords-18219)
    for `nochords-18219`, create a service account (e.g. `github-deploy`).
-2. Grant it **Firebase Hosting Admin** (`roles/firebasehosting.admin`) and **Cloud Run Viewer**
-   (`roles/run.viewer`, which the CLI expects when resolving hosting config). Nothing broader.
+2. Grant it **Firebase Hosting Admin** (`roles/firebasehosting.admin`), **Cloud Run Viewer**
+   (`roles/run.viewer`, which the CLI expects when resolving hosting config) and **Service Usage
+   Viewer** (`roles/serviceusage.serviceUsageViewer`: since 15.34.1 the CLI checks that the Hosting
+   API is enabled, and answers 403 without it). Nothing broader.
 3. Create a JSON key for it and download the file.
 4. In the repository, go to **Settings → Secrets and variables → Actions → New repository secret**,
    name it `FIREBASE_SERVICE_ACCOUNT`, and paste the entire contents of that JSON file.

@@ -3749,3 +3749,17 @@ has a clear margin built in, 41px of 250 on each edge, so the image is 78px tall
 
 **Cost.** The badge is a raster, because Google's public download is a PNG. Its vector files sit
 behind a partner application.
+
+## ADR-124 — The landing page's footer links YourFlashCards
+
+**Decision.** The landing page's footer gains one link, after "Buy me a [song] book": **Same idea for
+vocabulary: YourFlashCards**, to `https://yourflashcards.app/`. YourFlashCards is another app by the
+same author, for learning words with spaced repetition. The link is plain, opens in the same tab like
+the rest of the footer, and carries no tracking parameters.
+
+**Why there, and only there.** It is about the author's other work, not about playing a song, so it
+sits with the support link and the source rather than in the hero or the app. The app itself does not
+link it: nothing in the library or the player should lead away from the music.
+
+**Cost.** One more footer item. Footer links never break inside (ADR-079), so the wording is kept
+short enough to fit a 320px-wide phone on one line.

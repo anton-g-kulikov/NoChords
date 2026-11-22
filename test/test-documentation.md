@@ -211,6 +211,7 @@ described at the end of this document.
 | SG-14 | A level can be set outright, and one that does not exist is refused | ✅ |
 | SG-11 | Changing the current key leaves `originalKey` and stored chords untouched | ✅ |
 | SG-20 | **Typed or pasted, a song keeps no more than 1000 lines** | ✅ |
+| SG-21 | A new song has no title, and an old one still titled "Untitled song" shows an empty title field | ✅ |
 | SG-12 | Pasted lines are parsed for inline chord markup | ✅ |
 | SG-13 | A line length written as `/n/` is read from pasted text | ✅ |
 | SG-15 | **Song text round-trips through rows unchanged** | ✅ |

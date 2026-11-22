@@ -3778,3 +3778,17 @@ nothing.
 
 **Cost.** A transposed chord is spelled in ASCII internally (`D7#9`), which the chart prints as
 `D7♯9` anyway. Double sharps and flats (𝄪, 𝄫) and the natural sign are still not read.
+
+## ADR-126 — A new song starts without a title
+
+**Decision.** A new song's title is empty, not "Untitled song". The title field shows "Untitled
+song" as its placeholder, and the chart, the library and messages show it in place of an empty
+title, as they already did. A song made before this change that is still titled "Untitled song" shows
+an empty field when edited.
+
+**Why.** The default title was stored as the field's value, so typing a name added to it: "Untitled
+songSharp test". Clearing it first was a step nobody expects.
+
+**Cost.** Songs that already carry the old default keep it in storage until they are renamed. The
+language filter (ADR-081) and the title sort already treat it as no title, so nothing reads it as a
+name.

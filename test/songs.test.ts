@@ -6,6 +6,8 @@ import {
   createRow,
   createSong,
   deleteRow,
+  editableTitle,
+  UNTITLED_SONG,
   resetLearningProgress,
   rowsFromPastedText,
   setCurrentKey,
@@ -16,6 +18,14 @@ import {
 } from '../src/lib/songs';
 
 describe('createSong', () => {
+  it('SG-21 starts a song without a title, and shows an old default title as an empty field', () => {
+    // The field's placeholder says "Untitled song"; as its value, typing would add to it (ADR-126).
+    expect(createSong().title).toBe('');
+    expect(editableTitle(UNTITLED_SONG)).toBe('');
+    expect(editableTitle('')).toBe('');
+    expect(editableTitle('Untitled song 2')).toBe('Untitled song 2');
+  });
+
   it('SG-01 seeds a song with one empty row and sane defaults', () => {
     const song = createSong();
     expect(song.id).toBeTruthy();

@@ -43,8 +43,19 @@ export function createRow(overrides: Partial<SongRow> = {}): SongRow {
   };
 }
 
-/** What a new song is called until it is given a name. Stored, not just displayed. */
+/**
+ * What a song is called until it is given a name. Shown, not stored: a new song's title is empty
+ * (ADR-126). Songs made before then carry it as their title, so it still counts as no title.
+ */
 export const UNTITLED_SONG = 'Untitled song';
+
+/**
+ * The title as its field shows it. An older song still named "Untitled song" shows an empty field,
+ * so typing a name replaces the placeholder rather than adding to it (ADR-126).
+ */
+export function editableTitle(title: string): string {
+  return title === UNTITLED_SONG ? '' : title;
+}
 
 /** A new song with one empty row, ready to type into. */
 export function createSong(overrides: Partial<Song> = {}): Song {

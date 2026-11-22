@@ -73,6 +73,7 @@ described at the end of this document.
 | CH-15 | Round trip C→G→C restores the original spelling | ✅ |
 | CH-16 | Transposes between minor keys (`Am`→`Bm`) | ✅ |
 | CH-17 | Spells minor keys with flats where convention expects them (`Dm`, `Gm`) | ✅ |
+| CH-18 | Reads ♯ and ♭ as `#` and `b` in the root, the quality and the bass (`C7♯9`, `F♯m7♭5/E♭`), and transposes them | ✅ |
 | KY-01 | **A key steps by semitone and keeps its mode: Am goes to Bbm, never to A** | ✅ |
 | KY-02 | Stepping wraps around the octave | ✅ |
 | KY-03 | The result is spelled the way the offered key lists spell it | ✅ |
@@ -91,6 +92,7 @@ described at the end of this document.
 | NV-06 | Slash chords render both, the bass staying uppercase (`Dm/A` in C → `ii/VI`) | ✅ |
 | NV-14 | Diminished and half-diminished are marked (`Bdim` in C → `vii°`) | ✅ |
 | NV-15 | `maj` is not mistaken for minor (`Cmaj`→`Imaj`, `Cm`→`i`) | ✅ |
+| NV-16 | Reads a chord typed with ♯ and ♭ (`C7♯9`→`I7#9`, `B♭` in F→`IV`) | ✅ |
 | NV-07 | Unparseable text passes through unchanged | ✅ |
 | NV-08 | **Degrees are unchanged after transposition** (PRD invariant) | ✅ |
 | NV-10 | Minor keys read against the natural minor scale (`C` in Dm → `VII`) | ✅ |
@@ -586,6 +588,7 @@ must come through whole.
 | CT-04 | Numerals split the same way, prefix included, and are marked as numerals | ✅ |
 | CT-05 | Anything unrecognised comes back whole | ✅ |
 | CT-06 | A key written as one string gets its signs | ✅ |
+| CT-07 | A chord typed with ♯ and ♭ splits as one typed with `#` and `b` | ✅ |
 
 ### The app's mark — `mark.test.ts`
 

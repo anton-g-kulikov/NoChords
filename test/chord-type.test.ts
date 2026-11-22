@@ -47,4 +47,11 @@ describe('chordParts', () => {
     expect(withSigns('F#')).toBe('F♯');
     expect(withSigns('C')).toBe('C');
   });
+
+  it('CT-07 splits a chord typed with ♯ and ♭ as it does one typed with # and b', () => {
+    expect(chordParts('C7♯9')).toEqual(letter('C', '7♯9'));
+    expect(chordParts('B♭m7')).toEqual(letter('B♭', 'm7'));
+    expect(chordParts('D/F♯')).toEqual(letter('D', '', '/F♯'));
+    expect(chordParts('♭VII')).toEqual(numeral('♭VII'));
+  });
 });

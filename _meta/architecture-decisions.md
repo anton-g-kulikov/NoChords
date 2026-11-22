@@ -3763,3 +3763,18 @@ link it: nothing in the library or the player should lead away from the music.
 
 **Cost.** One more footer item. Footer links never break inside (ADR-079), so the wording is kept
 short enough to fit a 320px-wide phone on one line.
+
+## ADR-125 — Chords may be typed with ♯ and ♭
+
+**Decision.** `[C7♯9]` is the same chord as `[C7#9]`, and `[B♭m]` the same as `[Bbm]`. Every
+parser reads through `plainSigns` in `src/lib/chords.ts`, which turns ♯ into `#` and ♭ into `b`:
+the chord parser, the key and note parsers behind it, and the chart's typesetting
+(`chordParts`). The song text keeps whatever was typed.
+
+**Why.** The chart prints real signs (ADR-068), so people copy them back into songs, and phone
+keyboards offer them. Before this, a chord written that way was shown but not read: it did not
+transpose, did not become a degree, and was set as plain text. ADR-006 kept it intact; it just did
+nothing.
+
+**Cost.** A transposed chord is spelled in ASCII internally (`D7#9`), which the chart prints as
+`D7♯9` anyway. Double sharps and flats (𝄪, 𝄫) and the natural sign are still not read.

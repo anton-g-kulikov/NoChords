@@ -26,6 +26,11 @@ describe('toNashville (roman numerals, ADR-012)', () => {
     expect(toNashville('C°', 'C')).toBe('i°');
   });
 
+  it('NV-16 reads a chord typed with ♯ and ♭', () => {
+    expect(toNashville('C7♯9', 'C')).toBe('I7#9');
+    expect(toNashville('B♭', 'F')).toBe('IV');
+  });
+
   it('NV-15 keeps maj distinct from minor', () => {
     expect(toNashville('Cmaj', 'C')).toBe('Imaj');
     expect(toNashville('Cm', 'C')).toBe('i');

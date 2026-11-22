@@ -49,6 +49,16 @@ const CHORD_RE = /^([A-G])([#b]?)(.*)$/;
  */
 const SUFFIX_RE = /^(?:maj|min|dim|aug|sus|add|alt|dom|M|m|°|ø|Δ|\+|-|\d|#|b|\(|\))*$/;
 
+/**
+ * The ASCII spelling of a chord's signs: `C7♯9` reads as `C7#9`, `B♭` as `Bb`.
+ *
+ * The chart prints ♯ and ♭ (ADR-068), so people copy them back into songs, and phones offer them on
+ * the keyboard. Every parser reads through this, so a song can mix both spellings (ADR-125).
+ */
+export function plainSigns(text: string): string {
+  return text.replace(/♯/g, '#').replace(/♭/g, 'b');
+}
+
 /** Semitone offset of a note above C, or `null` if the note is not recognised. */
 function pitchOf(root: string, accidental: string): number | null {
   const base = NOTE_PITCH[root];
@@ -59,7 +69,7 @@ function pitchOf(root: string, accidental: string): number | null {
 
 /** Parses a bare note such as `F#`. Used for slash-chord basses and key names. */
 function parseNote(text: string): ChordBass | null {
-  const match = NOTE_RE.exec(text.trim());
+  const match = NOTE_RE.exec(plainSigns(text.trim()));
   if (!match) return null;
   return { root: match[1], accidental: match[2] };
 }
@@ -73,7 +83,7 @@ export interface ParsedKey {
 
 /** Parses a key name such as `C`, `Bb`, `F#m`, or `A minor`. */
 export function parseKey(key: string): ParsedKey | null {
-  const trimmed = key.trim();
+  const trimmed = plainSigns(key.trim());
   const minor = /m(in(or)?)?$/i.test(trimmed);
   const note = parseNote(minor ? trimmed.replace(/\s*m(in(or)?)?$/i, '') : trimmed);
   if (!note) return null;
@@ -116,7 +126,7 @@ function spell(pitch: number, useFlats: boolean): string {
 
 /** Parses a chord symbol, or returns `null` if it is not one. */
 export function parseChord(symbol: string): ParsedChord | null {
-  const trimmed = symbol.trim();
+  const trimmed = plainSigns(symbol.trim());
   if (trimmed === '') return null;
 
   const slashParts = trimmed.split('/');

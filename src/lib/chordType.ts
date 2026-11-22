@@ -8,6 +8,7 @@
  * Pure text in, text out: it only decides where the cuts go and swaps `#`/`b` for the real signs.
  * Anything it does not recognise comes back whole, as a head with nothing after it.
  */
+import { plainSigns } from './chords';
 
 export interface ChordParts {
   /**
@@ -33,7 +34,9 @@ const signsIn = (quality: string): string =>
   quality.replace(/([#b])(?=\d)/g, (accidental: string) => sign(accidental));
 
 export function chordParts(symbol: string): ChordParts {
-  const letter = LETTER.exec(symbol);
+  // A chord typed with the signs themselves reads as one typed with `#` and `b` (ADR-125).
+  const plain = plainSigns(symbol);
+  const letter = LETTER.exec(plain);
   if (letter) {
     const [, root, accidental, quality, bassRoot, bassAccidental] = letter;
     return {
@@ -44,7 +47,7 @@ export function chordParts(symbol: string): ChordParts {
     };
   }
 
-  const numeral = NUMERAL.exec(symbol);
+  const numeral = NUMERAL.exec(plain);
   if (numeral) {
     const [, accidental, degree, quality, bassAccidental, bassDegree] = numeral;
     return {

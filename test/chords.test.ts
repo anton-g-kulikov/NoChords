@@ -152,6 +152,20 @@ describe('transposing a whole progression', () => {
     expect(transposeChord('F', 'Am', 'Dm')).toBe('Bb');
     expect(transposeChord('G', 'Am', 'Gm')).toBe('F');
   });
+
+  it('CH-18 reads ♯ and ♭ as # and b, in the root, the quality and the bass', () => {
+    expect(parseChord('C7♯9')).toEqual({ root: 'C', accidental: '', suffix: '7#9', bass: null });
+    expect(parseChord('B♭m')).toEqual({ root: 'B', accidental: 'b', suffix: 'm', bass: null });
+    expect(parseChord('F♯m7♭5/E♭')).toEqual({
+      root: 'F',
+      accidental: '#',
+      suffix: 'm7b5',
+      bass: { root: 'E', accidental: 'b' },
+    });
+    expect(transposeChord('C7♯9', 'C', 'D')).toBe('D7#9');
+    expect(transposeChord('B♭', 'F', 'G')).toBe('C');
+    expect(transposeChord('C', 'B♭', 'C')).toBe('D');
+  });
 });
 
 describe('transposeKey', () => {
